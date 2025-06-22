@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Hóa đơn bán hàng</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+
+    .invoice-box {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      border: 1px solid #eee;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+      font-size: 14px;
+      line-height: 24px;
+    }
+
+    .invoice-box table {
+      width: 100%;
+      line-height: inherit;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    .invoice-box table td {
+      padding: 5px;
+      vertical-align: top;
+    }
+
+    .invoice-box table tr.heading td {
+      background: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+
+    .invoice-box table tr.item td {
+      border-bottom: 1px solid #eee;
+    }
+
+    .invoice-box table tr.total td:last-child {
+      font-weight: bold;
+    }
+
+    .center {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .signature {
+      margin-top: 40px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .signature div {
+      width: 45%;
+      text-align: center;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
+
+    .amount-in-words {
+      margin-top: 10px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-box">
+    <div class="center">HÓA ĐƠN BÁN HÀNG</div>
+
+    <table>
+      <tr>
+        <td>
+          <strong>Cửa hàng:</strong> Gia Dụng Nhà Bom<br>
+          <strong>Địa chỉ:</strong> 234 Phố Xốm, Hà Đông, Hà Nội<br>
+          <strong>SĐT:</strong> 0354 132 132
+        </td>
+        <td class="right">
+          <strong>Ngày:</strong> <span id="ngay"></span><br>
+          <strong>Số HĐ:</strong> HD<span id="sohd"></span>
+        </td>
+      </tr>
+    </table>
+
+    <br>
+
+    <table>
+      <tr>
+        <td id="khachhang"><strong>Khách hàng:</strong> </td>
+        <td class="right" id="sodienthoai"><strong>SĐT:</strong> </td>
+      </tr>
+      <tr>
+        <td colspan="2" id="diachi"><strong>Địa chỉ giao hàng:</strong> </td>
+      </tr>
+    </table>
+
+    <br>
+
+    <table id="bangsanpham">
+      <tr class="heading">
+        <td>STT</td>
+        <td>Sản phẩm</td>
+        <td>Đơn giá</td>
+        <td>Số lượng</td>
+        <td>Thành tiền</td>
+      </tr>
+    </table>
+
+    <div class="amount-in-words" id="bangchu">
+      <strong>Bằng chữ:</strong> 
+    </div>
+
+    <div class="signature">
+      <div>
+        <strong>Người mua hàng</strong><br><br><br>
+        Ký và ghi rõ họ tên
+      </div>
+      <div>
+        <strong>Người bán hàng</strong><br><br><br>
+        Ký và ghi rõ họ tên
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Cảm ơn quý khách đã mua hàng! Hóa đơn chỉ có giá trị đối chiếu, không thay cho hóa đơn VAT.
+    </div>
+  </div>
+
+  <script>
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return decodeURIComponent(url.searchParams.get(name) || '').replace(/\+/g, ' ');
+    }
+
+    const khachHang = getQueryParam('kh');
+    const sdt = getQueryParam('sdt');
+    const diaChi = getQueryParam('dc');
+    const bang = getQueryParam('bang');
+
+    document.getElementById('khachhang').innerHTML = `<strong>Khách hàng:</strong> ${khachHang}`;
+    document.getElementById('sodienthoai').innerHTML = `<strong>SĐT:</strong> ${sdt}`;
+    document.getElementById('diachi').innerHTML = `<strong>Địa chỉ giao hàng:</strong> ${diaChi}`;
+
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('vi-VN');
+    const invoiceNumber = today.toISOString().slice(0,10).replace(/-/g, '') + '-' + Math.floor(Math.random()*900+100);
+    document.getElementById('ngay').innerText = dateStr;
+    document.getElementById('sohd').innerText = invoiceNumber;
+
+    if (bang) {
+      const rows = bang.split('_b_');
+      let tong = 0;
+      const table = document.getElementById('bangsanpham');
+
+      rows.forEach((row, i) => {
+        const cols = row.split('_a_');
+        const stt = i + 1;
+        const ten = cols[1];
+        const gia = parseInt(cols[2]) || 0;
+        const slg = parseInt(cols[3]) || 0;
+        const tien = gia * slg;
+        tong += tien;
+
+        const tr = document.createElement('tr');
+        tr.className = 'item';
+        tr.innerHTML = `
+          <td>${stt}</td>
+          <td>${ten}</td>
+          <td>${gia.toLocaleString()}₫</td>
+          <td>${slg}</td>
+          <td>${tien.toLocaleString()}₫</td>
+        `;
+        table.appendChild(tr);
+      });
+
+      const trTong = document.createElement('tr');
+      trTong.className = 'total';
+      trTong.innerHTML = `<td colspan="4" class="right">Tổng cộng:</td><td>${tong.toLocaleString()}₫</td>`;
+      table.appendChild(trTong);
+
+      document.getElementById('bangchu').innerHTML = `<strong>Bằng chữ:</strong> ${tong.toLocaleString('vi-VN')} đồng.`;
+    }
+  </script>
+</body>
+</html>
