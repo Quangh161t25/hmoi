@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Hiển thị dữ liệu từ Google Apps Script</title>
+  <style>
+    :root {
+      --primary-color: #d9534f;
+      --secondary-color: #5bc0de;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --success-color: #5cb85c;
+      --border-color: #dee2e6;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--primary-color);
+    }
+    
+    h2 {
+      margin-top: 30px;
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      padding-left: 10px;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .filter {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px var(--shadow-color);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .filter label {
+      font-weight: 600;
+      color: var(--dark-color);
+      min-width: 80px;
+    }
+    
+    .filter input, .filter select {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    .filter input:focus, .filter select:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 2px rgba(91, 192, 222, 0.2);
+    }
+    
+    .filter button {
+      padding: 8px 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      margin-left: auto;
+    }
+    
+    .filter button:hover {
+      background-color: #c9302c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 1px 3px var(--shadow-color);
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 12px 15px;
+      text-align: left;
+    }
+    
+    th {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    
+    /* Căn lề phải cho các cột số */
+    td.numeric {
+      text-align: right;
+      font-family: 'Courier New', monospace;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    tr:hover {
+      background-color: #e9ecef;
+    }
+    
+    #summary-table {
+      margin-top: 30px;
+      border: 1px solid var(--border-color);
+      border-collapse: collapse;
+      width: 100%;
+      box-shadow: 0 1px 3px var(--shadow-color);
+    }
+    
+    #summary-table th {
+      background-color: var(--secondary-color);
+    }
+    
+    #summary-table tr:hover {
+      background-color: #e2f3fa;
+    }
+    
+    /* Căn lề phải cho các ô trong bảng tổng hợp */
+    #summary-table td {
+      text-align: right;
+      font-family: 'Courier New', monospace;
+    }
+    
+    #container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px var(--shadow-color);
+      margin-top: 20px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .loading {
+      font-size: 1.2rem;
+      color: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .loading::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--secondary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .filter {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .filter button {
+        margin-left: 0;
+        width: 100%;
+      }
+      
+      table, #summary-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Dữ liệu từ Google Apps Script</h1>
+
+  <div class="filter">
+    <label for="fromDate">Từ ngày:</label>
+    <input type="date" id="fromDate">
+
+    <label for="toDate">Đến ngày:</label>
+    <input type="date" id="toDate">
+
+    <label for="nvvh">Nhân viên:</label>
+    <select id="nvvh">
+      <option value="">Tất cả</option>
+    </select>
+
+    <label for="shop">Shop:</label>
+    <select id="shop">
+      <option value="">Tất cả</option>
+    </select>
+
+    <button onclick="renderTable()">Lọc dữ liệu</button>
+  </div>
+
+  <div id="summary"></div>
+  <div id="container">
+    <div class="loading">Đang tải dữ liệu...</div>
+  </div>
+
+  <script>
+    const url = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLg6HTTH1v30u7ZNFYltaOJC7IW3SFnuHUOX4gj3YMP9YBJCFlh6UDyWDHcw9bf_swHAItPPMSjMLxY9l8-Q3bXEG8R9xJ2uolxlozBwdO5cEr2jseU0Ps-YwFJoMiRSrkLoFrDx5I0F-zTScSCS2Trylcu_PqSVP_9Qyu1qBWRnM2oi-HHZIH8JQkxCY5mGTfGyfr6_9gGFz4nUauUjpkgscf-gVtkKzMb3lGWBlVMlFONJvoeA7SSHgvUc43ruhRpohz5TG54LQ1vB8tvA5393PzyoNg&lib=MySaj6nzN1-NHQ7iuA962nOGBBJSCRRoM";
+
+    let allRows = [];
+
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+
+    function populateOptions(rows, key, selectId) {
+      const select = document.getElementById(selectId);
+      const uniqueValues = [...new Set(rows.map(row => row[key]).filter(Boolean))];
+      uniqueValues.sort();
+      uniqueValues.forEach(val => {
+        const option = document.createElement("option");
+        option.value = val;
+        option.textContent = val;
+        select.appendChild(option);
+      });
+    }
+
+    function renderSummary(rows) {
+      let doanhThu = 0, soDon = 0, quangCao = 0, luotXem = 0, luotTruyCap = 0, tongTyLe = 0, demTyLe = 0;
+
+      rows.forEach(row => {
+        doanhThu += Number(row["Doanh thu (VNĐ)"] || 0);
+        soDon += Number(row["Số đơn hàng"] || 0);
+        quangCao += Number(row["Chi phí quảng cáo"] || 0);
+        luotXem += Number(row["Lượt xem"] || 0);
+        luotTruyCap += Number(row["Lượt truy cập"] || 0);
+
+        const tyLe = parseFloat((row["Tỷ lệ chuyển đổi (%)"] || '').toString().replace('%',''));
+        if (!isNaN(tyLe)) {
+          tongTyLe += tyLe;
+          demTyLe++;
+        }
+      });
+
+      const avgTyLe = demTyLe ? (tongTyLe / demTyLe).toFixed(2) + '%' : '0%';
+
+      document.getElementById("summary").innerHTML = `
+        <h2>Tổng hợp</h2>
+        <table id="summary-table">
+          <tr>
+            <th>Doanh thu</th>
+            <th>Số đơn hàng</th>
+            <th>Chi phí quảng cáo</th>
+            <th>Lượt xem</th>
+            <th>Lượt truy cập</th>
+            <th>Trung bình tỷ lệ chuyển đổi</th>
+          </tr>
+          <tr>
+            <td>${formatCurrency(doanhThu)}</td>
+            <td>${soDon.toLocaleString()}</td>
+            <td>${formatCurrency(quangCao)}</td>
+            <td>${luotXem.toLocaleString()}</td>
+            <td>${luotTruyCap.toLocaleString()}</td>
+            <td>${avgTyLe}</td>
+          </tr>
+        </table>
+      `;
+    }
+
+    function renderTable() {
+      const fromDate = document.getElementById("fromDate").value;
+      const toDate = document.getElementById("toDate").value;
+      const selectedNVVH = document.getElementById("nvvh").value;
+      const selectedShop = document.getElementById("shop").value;
+
+      let filteredRows = [...allRows]; // Tạo bản sao để không ảnh hưởng đến mảng gốc
+
+      // Sắp xếp theo ngày giảm dần (mới nhất lên đầu)
+      filteredRows.sort((a, b) => {
+        const dateA = a["NGÀY"] ? new Date(a["NGÀY"]) : 0;
+        const dateB = b["NGÀY"] ? new Date(b["NGÀY"]) : 0;
+        return dateB - dateA;
+      });
+
+      if (fromDate || toDate) {
+        filteredRows = filteredRows.filter(row => {
+          if (!row["NGÀY"]) return false;
+          const rowDate = new Date(row["NGÀY"]);
+          const from = fromDate ? new Date(fromDate) : null;
+          const to = toDate ? new Date(toDate) : null;
+          return (!from || rowDate >= from) && (!to || rowDate <= to);
+        });
+      }
+
+      if (selectedNVVH) {
+        filteredRows = filteredRows.filter(row => row["NVVH"] === selectedNVVH);
+      }
+
+      if (selectedShop) {
+        filteredRows = filteredRows.filter(row => row["Shop"] === selectedShop);
+      }
+
+      renderSummary(filteredRows);
+
+      const container = document.getElementById("container");
+      container.innerHTML = "";
+
+      if (filteredRows.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6c757d;">Không tìm thấy dữ liệu phù hợp với tiêu chí lọc</div>';
+        return;
+      }
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+
+      Object.keys(filteredRows[0]).forEach(key => {
+        const th = document.createElement("th");
+        th.textContent = key;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      filteredRows.forEach(row => {
+        const tr = document.createElement("tr");
+        for (let key in row) {
+          const td = document.createElement("td");
+          
+          // Thêm class 'numeric' cho các trường số
+          if (["Doanh thu (VNĐ)", "Số đơn hàng", "Chi phí quảng cáo", "Lượt xem", "Lượt truy cập", "Tỷ lệ chuyển đổi (%)"].includes(key)) {
+            td.classList.add("numeric");
+          }
+          
+          if (key.toUpperCase() === "NGÀY" && row[key]) {
+            td.textContent = formatDate(row[key]);
+          } else if (key.includes("Doanh thu") || key.includes("Chi phí")) {
+            td.textContent = formatCurrency(Number(row[key]) || 0);
+          } else if (key === "Tỷ lệ chuyển đổi (%)" && row[key]) {
+            td.textContent = parseFloat(row[key]).toFixed(2) + '%';
+          } else {
+            td.textContent = row[key] || '';
+          }
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        for (let sheetName in data) {
+          const rows = data[sheetName].map(row => {
+            return {
+              ...row,
+              "Doanh thu": Number(row["Doanh thu (VNĐ)"]) || 0,
+              "Số đơn hàng": Number(row["Số đơn hàng"]) || 0,
+              "Chi phí quảng cáo": Number(row["Chi phí quảng cáo"]) || 0,
+              "Lượt xem": Number(row["Lượt xem"]) || 0,
+              "Lượt truy cập": Number(row["Lượt truy cập"]) || 0,
+              "Tỷ lệ chuyển đổi (%)": typeof row["Tỷ lệ chuyển đổi (%)"] === 'string' ? 
+                parseFloat(row["Tỷ lệ chuyển đổi (%)"].replace('%','')) : 
+                (row["Tỷ lệ chuyển đổi (%)"] || 0)
+            };
+          });
+          allRows = allRows.concat(rows);
+        }
+        
+        // Sắp xếp toàn bộ dữ liệu theo ngày giảm dần ngay khi tải
+        allRows.sort((a, b) => {
+          const dateA = a["NGÀY"] ? new Date(a["NGÀY"]) : 0;
+          const dateB = b["NGÀY"] ? new Date(b["NGÀY"]) : 0;
+          return dateB - dateA;
+        });
+        
+        populateOptions(allRows, "NVVH", "nvvh");
+        populateOptions(allRows, "Shop", "shop");
+        renderTable();
+      })
+      .catch(error => {
+        document.getElementById("container").innerHTML = `
+          <div style="color: #dc3545; text-align: center; padding: 40px;">
+            <h3>Lỗi khi tải dữ liệu</h3>
+            <p>${error.message}</p>
+            <button onclick="window.location.reload()" style="margin-top: 20px; padding: 8px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Thử lại</button>
+          </div>
+        `;
+      });
+  </script>
+
+</body>
+</html>
