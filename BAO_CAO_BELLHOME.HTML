@@ -314,16 +314,20 @@
         const dateB = b["NGÀY"] ? new Date(b["NGÀY"]) : 0;
         return dateB - dateA;
       });
-
-      if (fromDate || toDate) {
+     if (fromDate || toDate) {
         filteredRows = filteredRows.filter(row => {
           if (!row["NGÀY"]) return false;
           const rowDate = new Date(row["NGÀY"]);
+          rowDate.setHours(0, 0, 0, 0);
           const from = fromDate ? new Date(fromDate) : null;
           const to = toDate ? new Date(toDate) : null;
-          return (!from || rowDate.getTime() >= from.getTime()) && (!to || rowDate.getTime() <= to.getTime());
+          if (from) from.setHours(0, 0, 0, 0);
+          if (to) to.setHours(0, 0, 0, 0);
+          return (!from || rowDate >= from) && (!to || rowDate <= to);
         });
       }
+
+      
 
       if (selectedNVVH) {
         filteredRows = filteredRows.filter(row => row["NVVH"] === selectedNVVH);
