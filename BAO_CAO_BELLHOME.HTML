@@ -321,7 +321,7 @@
           const rowDate = new Date(row["NGÀY"]);
           const from = fromDate ? new Date(fromDate) : null;
           const to = toDate ? new Date(toDate) : null;
-          return (!from || rowDate >= from) && (!to || rowDate <= to);
+          return (!from || rowDate.getTime() >= from.getTime()) && (!to || rowDate.getTime() <= to.getTime());
         });
       }
 
