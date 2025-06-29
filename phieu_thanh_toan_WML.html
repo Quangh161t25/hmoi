@@ -248,32 +248,34 @@
       rows.forEach((row, index) => {
         const cells = row.split("_a_");
         if (cells.length >= 3) {
-          const tr = document.createElement("tr");
+  const tr = document.createElement("tr");
 
-          const td0 = document.createElement("td");
-          td0.textContent = index + 1;
-          tr.appendChild(td0);
+  const td0 = document.createElement("td");
+  td0.textContent = index + 1;
+  tr.appendChild(td0);
 
-          const td1 = document.createElement("td");
-          td1.textContent = cells[0];
-          tr.appendChild(td1);
+  const td1 = document.createElement("td");
+  td1.textContent = cells[0];
+  tr.appendChild(td1);
 
-          const td2 = document.createElement("td");
-          td2.textContent = cells[1];
-          tr.appendChild(td2);
+  const td2 = document.createElement("td");
+  td2.textContent = cells[1];
+  tr.appendChild(td2);
 
-          const td3 = document.createElement("td");
-          td3.className = "right";
-          td3.textContent = formatCurrency(cells[2]);
-          tr.appendChild(td3);
+  const td3 = document.createElement("td");
+  td3.className = "right";
+  td3.textContent = formatCurrency(cells[2]);
+  tr.appendChild(td3);
 
-          const td4 = document.createElement("td");
-          tr.appendChild(td4);
+  const td4 = document.createElement("td");
+  td4.textContent = cells[3] || "";
+  tr.appendChild(td4);
 
-          table.insertBefore(tr, document.getElementById("total-row"));
+  table.insertBefore(tr, document.getElementById("total-row"));
 
-          total += Number(cells[2].replace(/\./g, ""));
-        }
+  total += Number(cells[2].replace(/\./g, ""));
+}
+
       });
 
       document.getElementById("total-amount").textContent = formatCurrency(total);
