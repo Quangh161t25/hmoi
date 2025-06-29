@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Giấy Đề Nghị Thanh Toán</title>
+  <style>
+    @media print {
+      html, body {
+        width: 210mm;
+        height: 148mm;
+        margin: 10mm;
+        padding: 0;
+        overflow: hidden;
+        font-size: 12px;
+      }
+      .print-buttons {
+        display: none;
+      }
+      table, td, th {
+        font-size: 12px;
+      }
+    }
+
+    body {
+      font-family: 'Times New Roman', serif;
+      font-size: 14px;
+      line-height: 1.1;
+      margin: 20px;
+    }
+    h2 {
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin: 4px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    td, th {
+      border: 1px solid #000;
+      padding: 4px;
+      text-align: left;
+    }
+    .no-border, .no-border td, .no-border th {
+      border: none;
+    }
+    .center {
+      text-align: center;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .underline {
+      text-decoration: underline;
+    }
+    .right {
+      text-align: right;
+    }
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .left-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .left-text {
+      flex: 1;
+    }
+    .right-text {
+      flex-shrink: 0;
+      margin-left: 30px;
+      white-space: normal;
+      text-align: right;
+      max-width: 280px;
+      word-break: break-word;
+      line-height: 1.2;
+    }
+    .header-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .header-group .left-text {
+      flex: 1;
+    }
+    .header-group .right-date {
+      flex-shrink: 0;
+      margin-left: 20px;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .signature-table {
+      margin-top: 8px;
+      width: 100%;
+    }
+    .signature-table td {
+      text-align: center;
+      vertical-align: top;
+      padding-top: 16px;
+    }
+    .signature-name {
+      font-weight: bold;
+      line-height: 1.2;
+    }
+    .print-buttons {
+      margin-bottom: 20px;
+    }
+    .info-section p {
+      margin: 2px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-buttons">
+    <button onclick="printA5()">In A5 ngang</button>
+    <button onclick="printA4()">In A4 ngang</button>
+  </div>
+
+  <div class="left-info">
+    <div class="left-text">
+      <div class="bold">Đơn vị: CÔNG TY CP LIÊN DOANH XNK QUỐC TẾ</div>
+      <div>Địa chỉ: LK90 KĐV Trại Tràng Cây – Huyện Kỳ - Phú Lãm - Hà Đông - HN</div>
+    </div>
+    <div class="right-text"><i>Mẫu số 05 - TT<br>(Ban hành theo Thông tư số 200/2014/TT-BTC ngày 24/12/2014 của Bộ Tài chính)</i></div>
+  </div>
+
+  <h2>GIẤY ĐỀ NGHỊ THANH TOÁN</h2>
+
+  <div class="header-group">
+    <div class="left-text bold">Kính gửi: BAN LÃNH ĐẠO CÔNG TY CP LIÊN DOANH XNK QUỐC TẾ</div>
+    <div class="right-date">Ngày 28 Tháng 06 Năm 2025</div>
+  </div>
+
+  <div class="info-section">
+    <p><strong>Họ và tên người đề nghị thanh toán:</strong> Lâm Quang Hà</p>
+    <p><strong>Bộ phận (Hoặc địa chỉ):</strong> kho miền nam</p>
+    <p><strong>Nội dung thanh toán:</strong> Thanh toán các chi phí</p>
+    <p><strong>Thông tin thanh toán:</strong> 04217092001 - Lâm Quang Hà - TPBank</p>
+  </div>
+
+  <h3 class="center">BẢNG KÊ THANH TOÁN</h3>
+  <table id="payment-table">
+    <thead>
+      <tr>
+        <th>TT</th>
+        <th>Ngày, tháng</th>
+        <th>Nội dung thanh toán</th>
+        <th>Số tiền</th>
+        <th>Ghi chú</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="total-row">
+        <td colspan="3" class="right bold">Tổng cộng</td>
+        <td class="right bold" id="total-amount">0</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Bằng chữ:</strong> <span id="text-amount">...</span></p>
+
+  <table class="no-border signature-table">
+    <tr>
+      <td>
+        <strong>Người đề nghị thanh toán</strong><br><br>
+        <div class="signature-name">HÀ<br>LÂM QUANG HÀ</div>
+      </td>
+      <td><strong>Trưởng bộ phận</strong></td>
+      <td><strong>Kế toán</strong></td>
+      <td><strong>Người duyệt</strong></td>
+    </tr>
+    <tr>
+      <td></td><td></td><td></td><td></td>
+    </tr>
+  </table>
+
+  <script>
+    function formatCurrency(number) {
+      return Number(number).toLocaleString('vi-VN');
+    }
+
+    function numberToVietnameseWords(number) {
+      const ChuSo = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+      const Tien = ["", " nghìn", " triệu", " tỷ", " nghìn tỷ", " triệu tỷ"];
+
+      function DocSo3ChuSo(baso) {
+        let tram = Math.floor(baso / 100);
+        let chuc = Math.floor((baso % 100) / 10);
+        let donvi = baso % 10;
+        let KetQua = "";
+
+        if (tram !== 0) {
+          KetQua += ChuSo[tram] + " trăm";
+          if ((chuc === 0) && (donvi !== 0)) KetQua += " linh";
+        }
+        if ((chuc !== 0) && (chuc !== 1)) {
+          KetQua += " " + ChuSo[chuc] + " mươi";
+          if (donvi === 1) KetQua += " mốt";
+          else if (donvi === 5) KetQua += " lăm";
+          else if (donvi !== 0) KetQua += " " + ChuSo[donvi];
+        } else if (chuc === 1) {
+          KetQua += " mười";
+          if (donvi === 1) KetQua += " một";
+          else if (donvi === 5) KetQua += " lăm";
+          else if (donvi !== 0) KetQua += " " + ChuSo[donvi];
+        } else if ((chuc === 0) && (donvi !== 0)) {
+          KetQua += " " + ChuSo[donvi];
+        }
+        return KetQua;
+      }
+
+      if (number === 0) return "Không đồng./.";
+
+      let i = 0;
+      let so = number;
+      let KetQua = "";
+      while (so > 0) {
+        let sodu = so % 1000;
+        if (sodu !== 0) {
+          let tien = Tien[i];
+          let doc = DocSo3ChuSo(sodu);
+          KetQua = doc + tien + (KetQua ? " " + KetQua : "");
+        }
+        so = Math.floor(so / 1000);
+        i++;
+      }
+
+      KetQua = KetQua.charAt(0).toUpperCase() + KetQua.slice(1);
+      return KetQua + " đồng./.";
+    }
+
+    function readDataFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const rawData = params.get("data");
+      if (!rawData) return;
+
+      const rows = rawData.split("_b_");
+      const table = document.getElementById("payment-table").getElementsByTagName("tbody")[0];
+      let total = 0;
+
+      rows.forEach((row, index) => {
+        const cells = row.split("_a_");
+        if (cells.length >= 3) {
+          const tr = document.createElement("tr");
+
+          const td0 = document.createElement("td");
+          td0.textContent = index + 1;
+          tr.appendChild(td0);
+
+          const td1 = document.createElement("td");
+          td1.textContent = cells[0];
+          tr.appendChild(td1);
+
+          const td2 = document.createElement("td");
+          td2.textContent = cells[1];
+          tr.appendChild(td2);
+
+          const td3 = document.createElement("td");
+          td3.className = "right";
+          td3.textContent = formatCurrency(cells[2]);
+          tr.appendChild(td3);
+
+          const td4 = document.createElement("td");
+          tr.appendChild(td4);
+
+          table.insertBefore(tr, document.getElementById("total-row"));
+
+          total += Number(cells[2].replace(/\./g, ""));
+        }
+      });
+
+      document.getElementById("total-amount").textContent = formatCurrency(total);
+      document.getElementById("text-amount").textContent = numberToVietnameseWords(total);
+    }
+
+    function printA5() {
+      const style = document.createElement('style');
+      style.innerHTML = `@page { size: A5 landscape; margin: 10mm; }`;
+      document.head.appendChild(style);
+      window.print();
+      document.head.removeChild(style);
+    }
+
+    function printA4() {
+      const style = document.createElement('style');
+      style.innerHTML = `@page { size: A4 landscape; margin: 15mm; }`;
+      document.head.appendChild(style);
+      window.print();
+      document.head.removeChild(style);
+    }
+
+    window.onload = readDataFromURL;
+  </script>
+</body>
+</html>
