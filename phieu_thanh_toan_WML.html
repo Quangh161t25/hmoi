@@ -133,7 +133,8 @@
 
   <div class="header-group">
     <div class="left-text bold">Kính gửi: BAN LÃNH ĐẠO CÔNG TY CP LIÊN DOANH XNK QUỐC TẾ</div>
-    <div class="right-date">Ngày 28 Tháng 06 Năm 2025</div>
+    <div class="right-date" id="current-date"></div>
+
   </div>
 
   <div class="info-section">
@@ -296,6 +297,19 @@
     }
 
     window.onload = readDataFromURL;
+function getTodayVietnameseFormat() {
+  const today = new Date();
+  const ngay = today.getDate().toString().padStart(2, '0');
+  const thang = (today.getMonth() + 1).toString().padStart(2, '0');
+  const nam = today.getFullYear();
+  return `Ngày ${ngay} Tháng ${thang} Năm ${nam}`;
+}
+
+window.onload = () => {
+  readDataFromURL();
+  document.getElementById("current-date").textContent = getTodayVietnameseFormat();
+};
+
   </script>
 </body>
 </html>
