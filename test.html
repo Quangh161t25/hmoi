@@ -13,7 +13,7 @@
       body {
         margin: 0;
       }
-      #printButton, #generateButton, #copyQRButton, #inputData, #qrTextDisplay {
+      #printButton, #generateButton, #copyQRButton, #inputData, #qrTextDisplay, #datePickerLabel, #datePicker {
         display: none;
       }
     }
@@ -102,10 +102,24 @@
       white-space: pre-wrap;
       overflow-y: auto;
     }
+    #datePickerLabel {
+      margin: 10px 0 0 10px;
+      font-size: 14px;
+      display: inline-block;
+    }
+    #datePicker {
+      margin: 10px 0 0 10px;
+      font-size: 14px;
+      padding: 6px;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
 
+<label for="datePicker" id="datePickerLabel">Chọn ngày:</label>
+<input type="date" id="datePicker">
+<br>
 <textarea id="inputData" rows="6" placeholder="Nhập từng dòng: SKU|Tên|Số lượng|Kho
 Ví dụ:
 N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
@@ -119,11 +133,18 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
 <script>
   let currentQRData = [];
 
-  function getExcelDateNumber() {
-    const today = new Date();
-    const localMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  function getExcelDateNumber(selectedDateStr) {
+    // selectedDateStr is "YYYY-MM-DD"
+    let dateObj;
+    if (selectedDateStr) {
+      const [year, month, day] = selectedDateStr.split('-').map(Number);
+      dateObj = new Date(year, month - 1, day);
+    } else {
+      const today = new Date();
+      dateObj = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }
     const excelEpoch = new Date(1899, 11, 30);
-    const diffTime = localMidnight - excelEpoch;
+    const diffTime = dateObj - excelEpoch;
     const msPerDay = 24 * 60 * 60 * 1000;
     return Math.round(diffTime / msPerDay);
   }
@@ -142,7 +163,8 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
     const input = document.getElementById("inputData").value.trim();
     const lines = input.split("\n");
     const data = [];
-    const excelDate = getExcelDateNumber();
+    const selectedDateStr = document.getElementById("datePicker").value;
+    const excelDate = getExcelDateNumber(selectedDateStr);
     document.getElementById("labelContainer").innerHTML = "";
     currentQRData = [];
 
