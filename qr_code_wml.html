@@ -5,18 +5,51 @@
   <title>QR Code Labels – Textarea + Bảng + Gửi Google Sheet</title>
   <!-- Primary CDN (synchronous). We'll also have a JS fallback loader just in case this fails. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root { --gap: 5mm; }
+    :root {
+      --gap: 5mm;
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --secondary-color: #4b5563;
+      --border-color: #e5e7eb;
+      --bg-color: #f9fafb;
+      --text-color: #111827;
+      --success-color: #10b981;
+      --error-color: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+    }
 
     @page { size: A5 portrait; margin: 5mm; }
     @media print {
       body { margin: 0; }
       #controls, #modeSwitcher, #qrTextDisplay, #datePickerLabel, #datePicker, #runTestsBtn, #testOutput, #sendToSheetBtn { display: none !important; }
     }
-    body { font-family: Arial, sans-serif; }
+    
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      line-height: 1.5;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      padding: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
     .hidden { display: none !important; }
-    .stack { display: grid; gap: 8px; }
-    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .stack { display: grid; gap: 12px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .card {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
 
     .grid {
       display: grid;
@@ -26,98 +59,353 @@
       padding: var(--gap);
       justify-items: start;
     }
+    
     .label {
       width: 100%;
-      border: 1px solid #000;
-      padding: 5px;
+      border: 1px solid var(--border-color);
+      padding: 8px;
       box-sizing: border-box;
-      display: flex; flex-direction: column; gap: 3px; align-items: flex-start; justify-content: flex-start;
+      display: flex; 
+      flex-direction: column; 
+      gap: 4px; 
+      align-items: flex-start; 
+      justify-content: flex-start;
       page-break-inside: avoid;
+      border-radius: var(--radius-sm);
+      background: white;
     }
-    .qrcode { width: 60px; height: 60px; }
-    .sku { font-weight: bold; font-size: 12.5px; text-align: left; }
-    .serial-block { display: flex; flex-direction: column; justify-content: center; font-size: 16px; font-weight: bold; line-height: 1.4; text-align: right; }
-    .serial-number { margin-bottom: 2px; }
-    .date { text-align: right; }
-    .warehouse { text-align: right; font-size: 14px; margin-top: 2px; }
-    .qr-row { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; width: 100%; }
-    .desc { font-size: 10.5px; text-align: left; }
+    
+    .qrcode { 
+      width: 60px; 
+      height: 60px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+    
+    .sku { 
+      font-weight: 600; 
+      font-size: 12.5px; 
+      text-align: left;
+      color: var(--text-color);
+    }
+    
+    .serial-block { 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      font-size: 16px; 
+      font-weight: 600; 
+      line-height: 1.4; 
+      text-align: right; 
+    }
+    
+    .serial-number { 
+      margin-bottom: 2px;
+      color: var(--primary-color);
+    }
+    
+    .date { 
+      text-align: right;
+      color: var(--secondary-color);
+      font-size: 14px;
+    }
+    
+    .warehouse { 
+      text-align: right; 
+      font-size: 14px; 
+      margin-top: 2px;
+      color: var(--secondary-color);
+    }
+    
+    .qr-row { 
+      display: flex; 
+      flex-direction: row; 
+      align-items: flex-start; 
+      justify-content: space-between; 
+      width: 100%; 
+    }
+    
+    .desc { 
+      font-size: 10.5px; 
+      text-align: left;
+      color: var(--secondary-color);
+    }
 
     /* Controls */
-    #controls button { margin: 6px 4px; padding: 8px 14px; font-size: 14px; cursor: pointer; }
-    #qrTextDisplay { width: 100%; margin: 6px 0 0 0; font-size: 13px; padding: 8px; border: 1px solid #ccc; height: 150px; white-space: pre-wrap; overflow-y: auto; }
+    button {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    button:hover {
+      transform: translateY(-1px);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+      background-color: white;
+      color: var(--secondary-color);
+      border: 1px solid var(--border-color);
+    }
+    
+    .btn-secondary:hover {
+      background-color: var(--bg-color);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .btn-danger {
+      background-color: var(--error-color);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+    
+    .btn-success {
+      background-color: var(--success-color);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background-color: #0d9488;
+    }
+
+    /* Inputs */
+    textarea, input {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    input[type="date"] {
+      height: 36px;
+    }
+    
+    input[type="radio"] {
+      margin-right: 6px;
+    }
 
     /* Table input */
-    table#inputTable { border-collapse: collapse; width: 100%; margin: 8px 0; }
-    table#inputTable th, table#inputTable td { border: 1px solid #ccc; padding: 6px; }
-    table#inputTable input { width: 100%; box-sizing: border-box; padding: 6px; }
-    .table-actions { display: flex; gap: 6px; }
+    table#inputTable { 
+      border-collapse: collapse; 
+      width: 100%; 
+      margin: 8px 0;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    
+    table#inputTable th, table#inputTable td { 
+      border: 1px solid var(--border-color); 
+      padding: 8px 10px; 
+      text-align: left;
+    }
+    
+    table#inputTable th {
+      background-color: var(--bg-color);
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    table#inputTable input { 
+      width: 100%; 
+      box-sizing: border-box; 
+      padding: 6px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+    
+    .table-actions { 
+      display: flex; 
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
     /* Mode switcher */
-    #modeSwitcher { margin: 6px 0; }
-    #modeSwitcher label { margin-right: 14px; }
+    #modeSwitcher { 
+      margin: 8px 0;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    #modeSwitcher label { 
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
 
     /* Test output */
-    #testOutput { border: 1px dashed #bbb; padding: 8px; font-size: 12px; white-space: pre-wrap; max-height: 180px; overflow: auto; }
+    #testOutput { 
+      border: 1px dashed var(--border-color); 
+      padding: 12px; 
+      font-size: 13px; 
+      white-space: pre-wrap; 
+      max-height: 180px; 
+      overflow: auto;
+      border-radius: var(--radius-sm);
+      background-color: white;
+    }
+    
+    #qrTextDisplay {
+      width: 100%;
+      margin: 8px 0 0 0;
+      font-size: 13px;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      min-height: 120px;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      border-radius: var(--radius-sm);
+      background-color: white;
+      font-family: 'Courier New', monospace;
+    }
 
-    .hint { font-size: 12px; color: #666; }
+    .hint { 
+      font-size: 13px; 
+      color: var(--secondary-color);
+      margin-top: -8px;
+    }
+    
+    .section-title {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+    
+    .status-message {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      margin: 8px 0;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .status-success {
+      background-color: #ecfdf5;
+      color: var(--success-color);
+      border: 1px solid #a7f3d0;
+      display: block;
+    }
+    
+    .status-error {
+      background-color: #fef2f2;
+      color: var(--error-color);
+      border: 1px solid #fecaca;
+      display: block;
+    }
+    
+    .icon {
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
-
-  <div class="stack" id="controls">
+  <h1 style="margin-bottom: 24px;">Tạo nhãn QR Code</h1>
+  
+  <div class="card stack" id="controls">
     <!-- Mode Switcher -->
     <div id="modeSwitcher" class="row">
-      <strong>Chế độ nhập:</strong>
+      <strong class="section-title">Chế độ nhập:</strong>
       <label><input type="radio" name="mode" value="textarea" checked /> Textarea</label>
       <label><input type="radio" name="mode" value="table" /> Bảng</label>
     </div>
 
     <!-- Textarea mode -->
     <div id="textareaMode" class="stack">
-      <textarea id="inputData" rows="6" placeholder="Nhập từng dòng: SKU|Tên|Số lượng|Kho
+      <label for="inputData" class="section-title">Nhập dữ liệu</label>
+      <textarea id="inputData" rows="6" placeholder="Nhập từng dòng theo định dạng: SKU|Tên sản phẩm|Số lượng|Kho (tuỳ chọn)
+      
 Ví dụ:
-N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
-      <div class="hint">Mẹo: Có thể dùng nút “📥 Dán từ textarea” ở chế độ Bảng để chuyển dữ liệu sang dạng bảng.</div>
+N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH
+ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
+      <div class="hint">Mẹo: Có thể dùng nút "Dán từ textarea" ở chế độ Bảng để chuyển dữ liệu sang dạng bảng.</div>
     </div>
 
     <!-- Table mode -->
     <div id="tableMode" class="stack hidden">
+      <label class="section-title">Nhập dữ liệu dạng bảng</label>
       <div class="table-actions">
-        <button type="button" id="addRowBtn">➕ Thêm dòng</button>
-        <button type="button" id="clearTableBtn">🧹 Xóa hết</button>
-        <button type="button" id="pasteFromTextareaBtn">📥 Dán từ textarea</button>
+        <button type="button" id="addRowBtn" class="btn-secondary">➕ Thêm dòng</button>
+        <button type="button" id="clearTableBtn" class="btn-secondary">🧹 Xóa hết</button>
+        <button type="button" id="pasteFromTextareaBtn" class="btn-secondary">📥 Dán từ textarea</button>
       </div>
       <table id="inputTable">
         <thead>
           <tr>
             <th style="width: 22%">SKU</th>
             <th>Tên sản phẩm</th>
-            <th style="width: 10%">Số lượng</th>
-            <th style="width: 10%">Kho</th>
-            <th style="width: 6%">Xóa</th>
+            <th style="width: 12%">Số lượng</th>
+            <th style="width: 12%">Kho</th>
+            <th style="width: 6%"></th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
 
-    <!-- Actions row -->
+    <!-- Date row -->
     <div class="row">
-      <button id="generateButton" type="button">📦 Tạo mã QR</button>
-      <button id="printButton" type="button">🖨️ In A5 dọc</button>
-      <button id="copyQRButton" type="button">📋 Copy toàn bộ mã QR</button>
-      <button id="runTestsBtn" type="button" title="Chạy kiểm thử nội bộ">🧪 Chạy test</button>
-      <button id="sendToSheetBtn" type="button" title="Gửi dữ liệu sang Google Sheet">📤 Gửi Google Sheet</button>
-    </div>
-
-    <!-- Date row moved below action buttons -->
-    <div class="row">
-      <label for="datePicker" id="datePickerLabel">Chọn ngày:</label>
+      <label for="datePicker" id="datePickerLabel" style="font-weight: 500;">Ngày trên nhãn:</label>
       <input type="date" id="datePicker" />
     </div>
 
+    <!-- Actions row -->
+    <div class="row" style="margin-top: 12px;">
+      <button id="generateButton" type="button" class="btn-primary">📦 Tạo mã QR</button>
+      <button id="printButton" type="button" class="btn-secondary">🖨️ In A5 dọc</button>
+      <button id="copyQRButton" type="button" class="btn-secondary">📋 Copy mã QR</button>
+      <button id="sendToSheetBtn" type="button" class="btn-success" title="Gửi dữ liệu sang Google Sheet">📤 Gửi Google Sheet</button>
+      <button id="runTestsBtn" type="button" class="btn-secondary" title="Chạy kiểm thử nội bộ">🧪 Chạy test</button>
+    </div>
+
+    <!-- Status messages -->
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- QR Text Display -->
+    <label class="section-title">Danh sách mã QR</label>
     <pre id="qrTextDisplay" placeholder="Danh sách mã QR sẽ hiển thị ở đây..."></pre>
+    
+    <!-- Test Output -->
     <pre id="testOutput" class="hidden"></pre>
   </div>
 
@@ -207,11 +495,11 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
       const tbody = document.querySelector('#inputTable tbody');
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><input type="text" value="${values.sku || ''}" /></td>
-        <td><input type="text" value="${values.name || ''}" /></td>
-        <td><input type="text" value="${values.qty || ''}" /></td>
-        <td><input type="text" value="${values.wh || ''}" /></td>
-        <td style="text-align:center"><button type="button" class="delRow">✖</button></td>
+        <td><input type="text" value="${values.sku || ''}" placeholder="VD: N009-SI-00*1" /></td>
+        <td><input type="text" value="${values.name || ''}" placeholder="VD: Vung 22 chảo" /></td>
+        <td><input type="text" value="${values.qty || ''}" placeholder="VD: 3 hoặc 1-5" /></td>
+        <td><input type="text" value="${values.wh || ''}" placeholder="VD: HH" /></td>
+        <td style="text-align:center"><button type="button" class="delRow btn-secondary" style="padding: 4px 8px;">✖</button></td>
       `;
       tbody.appendChild(tr);
     }
@@ -231,6 +519,7 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
         const [sku = '', name = '', qty = '', wh = ''] = parts;
         addRow({ sku, name, qty, wh });
       }
+      showStatus('Đã nhập dữ liệu từ textarea vào bảng', 'success');
     }
 
     function collectDataFromTextarea(excelDate, out) {
@@ -280,6 +569,12 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
     function renderLabels(data) {
       const container = document.getElementById('labelContainer');
       container.innerHTML = '';
+      
+      if (data.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--secondary-color);">Chưa có dữ liệu nhãn. Vui lòng nhập thông tin và bấm "Tạo mã QR"</p>';
+        return;
+      }
+      
       data.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'label';
@@ -335,10 +630,20 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
       });
     }
 
+    function showStatus(message, type = 'success') {
+      const el = document.getElementById('statusMessage');
+      el.textContent = message;
+      el.className = `status-message status-${type}`;
+      setTimeout(() => {
+        el.className = 'status-message';
+      }, 5000);
+    }
+
     async function generateLabels() {
       const libOk = await ensureQRCodeLib();
       if (!libOk) {
-        alert('Không thể tải thư viện tạo QR. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
+        showStatus('Không thể tải thư viện tạo QR. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.', 'error');
+        return;
       }
 
       const selectedDateStr = document.getElementById('datePicker').value;
@@ -350,6 +655,11 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
         collectDataFromTextarea(excelDate, data);
       } else {
         collectDataFromTable(excelDate, data);
+      }
+
+      if (data.length === 0) {
+        showStatus('Không có dữ liệu hợp lệ để tạo nhãn. Vui lòng kiểm tra lại thông tin nhập.', 'error');
+        return;
       }
 
       // cập nhật cache để gửi Google Sheet
@@ -364,33 +674,44 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
 
       document.getElementById('qrTextDisplay').textContent = currentQRData.join('\n');
       renderLabels(data);
+      showStatus(`Đã tạo ${data.length} nhãn QR thành công!`, 'success');
     }
 
     async function sendToGoogleSheet() {
       if (!WEBAPP_URL || WEBAPP_URL.includes('YOUR_DEPLOYMENT_ID')) {
-        alert('Vui lòng cấu hình WEBAPP_URL với URL Web App của Google Apps Script.');
+        showStatus('Vui lòng cấu hình WEBAPP_URL với URL Web App của Google Apps Script.', 'error');
         return;
       }
       if (!Array.isArray(dataCacheForExport) || dataCacheForExport.length === 0) {
-        alert('Vui lòng tạo QR trước khi gửi Google Sheet.');
+        showStatus('Vui lòng tạo QR trước khi gửi Google Sheet.', 'error');
         return;
       }
 
       try {
+        const btn = document.getElementById('sendToSheetBtn');
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Đang gửi...';
+        
         const res = await fetch(WEBAPP_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dataCacheForExport)
         });
+        
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const json = await res.json().catch(() => ({ status: 'ok' }));
+        
         if (json.status === 'ok') {
-          alert('Đã gửi dữ liệu vào Google Sheet thành công!');
+          showStatus(`Đã gửi ${dataCacheForExport.length} bản ghi vào Google Sheet thành công!`, 'success');
         } else {
-          alert('Phản hồi không như kỳ vọng: ' + JSON.stringify(json));
+          showStatus('Phản hồi không như kỳ vọng: ' + JSON.stringify(json), 'error');
         }
       } catch (err) {
-        alert('Lỗi khi gửi dữ liệu: ' + err.message + '\n• Kiểm tra quyền truy cập của Web App (Anyone/Anyone with link)\n• Kiểm tra Triggers/Deploy đúng phiên bản');
+        showStatus('Lỗi khi gửi dữ liệu: ' + err.message + '\n• Kiểm tra quyền truy cập của Web App\n• Kiểm tra Triggers/Deploy đúng phiên bản', 'error');
+      } finally {
+        const btn = document.getElementById('sendToSheetBtn');
+        btn.disabled = false;
+        btn.innerHTML = '📤 Gửi Google Sheet';
       }
     }
 
@@ -420,17 +741,23 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
       const box = document.getElementById('testOutput');
       box.classList.remove('hidden');
       box.textContent = out.join('\n');
+      showStatus('Đã chạy kiểm thử, xem kết quả bên dưới', 'success');
     }
 
     // --- Event wiring ---
     document.getElementById('generateButton').addEventListener('click', () => { void generateLabels(); });
     document.getElementById('printButton').addEventListener('click', () => window.print());
     document.getElementById('copyQRButton').addEventListener('click', () => {
-      if (currentQRData.length === 0) { alert('Vui lòng tạo mã QR trước đã!'); return; }
+      if (currentQRData.length === 0) { 
+        showStatus('Vui lòng tạo mã QR trước đã!', 'error'); 
+        return; 
+      }
       const text = currentQRData.join('\n');
       navigator.clipboard.writeText(text).then(() => {
-        alert('Đã copy toàn bộ mã QR vào clipboard!');
-      }, () => { alert('Không thể copy vào clipboard. Hãy thử lại.'); });
+        showStatus(`Đã copy ${currentQRData.length} mã QR vào clipboard!`, 'success');
+      }, () => { 
+        showStatus('Không thể copy vào clipboard. Hãy thử lại.', 'error');
+      });
     });
     document.getElementById('runTestsBtn').addEventListener('click', runSelfTests);
     document.getElementById('sendToSheetBtn').addEventListener('click', () => { void sendToGoogleSheet(); });
@@ -453,9 +780,13 @@ N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
     document.querySelector('#inputTable tbody').addEventListener('click', (e) => {
       if (e.target.classList.contains('delRow')) {
         e.target.closest('tr').remove();
+        showStatus('Đã xóa dòng khỏi bảng', 'success');
       }
     });
 
+    // Set today's date as default
+    document.getElementById('datePicker').valueAsDate = new Date();
+    
     // Seed: một dòng mẫu khi mở bảng lần đầu
     addRow({ sku: 'N009-SI-00*1', name: 'Vung 22 chảo sâu lòng Engler - màu bạc', qty: '3', wh: 'HH' });
   </script>
