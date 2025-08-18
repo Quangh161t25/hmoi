@@ -1,31 +1,29 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>QR Code Labels</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>QR Code Labels – Textarea + Bảng + Gửi Google Sheet</title>
+  <!-- Primary CDN (synchronous). We'll also have a JS fallback loader just in case this fails. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
   <style>
-    @page {
-      size: A5 portrait;
-      margin: 5mm;
-    }
+    :root { --gap: 5mm; }
+
+    @page { size: A5 portrait; margin: 5mm; }
     @media print {
-      body {
-        margin: 0;
-      }
-      #printButton, #generateButton, #copyQRButton, #inputData, #qrTextDisplay {
-        display: none;
-      }
+      body { margin: 0; }
+      #controls, #modeSwitcher, #qrTextDisplay, #datePickerLabel, #datePicker, #runTestsBtn, #testOutput, #sendToSheetBtn { display: none !important; }
     }
-    body {
-      font-family: Arial, sans-serif;
-    }
+    body { font-family: Arial, sans-serif; }
+    .hidden { display: none !important; }
+    .stack { display: grid; gap: 8px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(5, auto);
-      gap: 5mm;
-      padding: 5mm;
+      gap: var(--gap);
+      padding: var(--gap);
       justify-items: start;
     }
     .label {
@@ -33,214 +31,433 @@
       border: 1px solid #000;
       padding: 5px;
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 3px;
-      justify-content: flex-start;
+      display: flex; flex-direction: column; gap: 3px; align-items: flex-start; justify-content: flex-start;
       page-break-inside: avoid;
     }
-    .qrcode {
-      width: 60px;
-      height: 60px;
-    }
-    .sku {
-      font-weight: bold;
-      font-size: 12.5px;
-      text-align: left;
-    }
-    .serial-block {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: bold;
-      line-height: 1.4;
-      text-align: right;
-    }
-    .serial-number {
-      margin-bottom: 2px;
-    }
-    .date {
-      text-align: right;
-    }
-    .warehouse {
-      text-align: right;
-      font-size: 14px;
-      margin-top: 2px;
-    }
-    .qr-row {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: space-between;
-      width: 100%;
-    }
-    .desc {
-      font-size: 10.5px;
-      text-align: left;
-    }
-    #printButton, #generateButton, #copyQRButton {
-      margin: 10px;
-      padding: 8px 16px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    #inputData {
-      width: calc(100% - 20px);
-      margin: 10px;
-      font-size: 14px;
-      padding: 8px;
-    }
-    #qrTextDisplay {
-      width: calc(100% - 20px);
-      margin: 10px;
-      font-size: 13px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      height: 150px;
-      white-space: pre-wrap;
-      overflow-y: auto;
-    }
+    .qrcode { width: 60px; height: 60px; }
+    .sku { font-weight: bold; font-size: 12.5px; text-align: left; }
+    .serial-block { display: flex; flex-direction: column; justify-content: center; font-size: 16px; font-weight: bold; line-height: 1.4; text-align: right; }
+    .serial-number { margin-bottom: 2px; }
+    .date { text-align: right; }
+    .warehouse { text-align: right; font-size: 14px; margin-top: 2px; }
+    .qr-row { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; width: 100%; }
+    .desc { font-size: 10.5px; text-align: left; }
+
+    /* Controls */
+    #controls button { margin: 6px 4px; padding: 8px 14px; font-size: 14px; cursor: pointer; }
+    #qrTextDisplay { width: 100%; margin: 6px 0 0 0; font-size: 13px; padding: 8px; border: 1px solid #ccc; height: 150px; white-space: pre-wrap; overflow-y: auto; }
+
+    /* Table input */
+    table#inputTable { border-collapse: collapse; width: 100%; margin: 8px 0; }
+    table#inputTable th, table#inputTable td { border: 1px solid #ccc; padding: 6px; }
+    table#inputTable input { width: 100%; box-sizing: border-box; padding: 6px; }
+    .table-actions { display: flex; gap: 6px; }
+
+    /* Mode switcher */
+    #modeSwitcher { margin: 6px 0; }
+    #modeSwitcher label { margin-right: 14px; }
+
+    /* Test output */
+    #testOutput { border: 1px dashed #bbb; padding: 8px; font-size: 12px; white-space: pre-wrap; max-height: 180px; overflow: auto; }
+
+    .hint { font-size: 12px; color: #666; }
   </style>
 </head>
 <body>
 
-<textarea id="inputData" rows="6" placeholder="Nhập từng dòng: SKU|Tên|Số lượng|Kho
+  <div class="stack" id="controls">
+    <!-- Mode Switcher -->
+    <div id="modeSwitcher" class="row">
+      <strong>Chế độ nhập:</strong>
+      <label><input type="radio" name="mode" value="textarea" checked /> Textarea</label>
+      <label><input type="radio" name="mode" value="table" /> Bảng</label>
+    </div>
+
+    <!-- Textarea mode -->
+    <div id="textareaMode" class="stack">
+      <textarea id="inputData" rows="6" placeholder="Nhập từng dòng: SKU|Tên|Số lượng|Kho
 Ví dụ:
 N009-SI-00*1|Vung 22 chảo sâu lòng Engler - màu bạc|3|HH"></textarea>
-<br>
-<button id="generateButton" onclick="generateLabels()">📦 Tạo mã QR</button>
-<button id="printButton" onclick="window.print()">🖨️ In A5 dọc</button>
-<button id="copyQRButton" onclick="copyAllQRText()">📋 Copy toàn bộ mã QR</button>
-<div class="grid" id="labelContainer"></div>
-<pre id="qrTextDisplay" placeholder="Danh sách mã QR sẽ hiển thị ở đây..."></pre>
+      <div class="hint">Mẹo: Có thể dùng nút “📥 Dán từ textarea” ở chế độ Bảng để chuyển dữ liệu sang dạng bảng.</div>
+    </div>
 
-<script>
-  let currentQRData = [];
+    <!-- Table mode -->
+    <div id="tableMode" class="stack hidden">
+      <div class="table-actions">
+        <button type="button" id="addRowBtn">➕ Thêm dòng</button>
+        <button type="button" id="clearTableBtn">🧹 Xóa hết</button>
+        <button type="button" id="pasteFromTextareaBtn">📥 Dán từ textarea</button>
+      </div>
+      <table id="inputTable">
+        <thead>
+          <tr>
+            <th style="width: 22%">SKU</th>
+            <th>Tên sản phẩm</th>
+            <th style="width: 10%">Số lượng</th>
+            <th style="width: 10%">Kho</th>
+            <th style="width: 6%">Xóa</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-  function getExcelDateNumber() {
-    const today = new Date();
-    const localMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const excelEpoch = new Date(1899, 11, 30);
-    const diffTime = localMidnight - excelEpoch;
-    const msPerDay = 24 * 60 * 60 * 1000;
-    return Math.round(diffTime / msPerDay);
-  }
+    <!-- Actions row -->
+    <div class="row">
+      <button id="generateButton" type="button">📦 Tạo mã QR</button>
+      <button id="printButton" type="button">🖨️ In A5 dọc</button>
+      <button id="copyQRButton" type="button">📋 Copy toàn bộ mã QR</button>
+      <button id="runTestsBtn" type="button" title="Chạy kiểm thử nội bộ">🧪 Chạy test</button>
+      <button id="sendToSheetBtn" type="button" title="Gửi dữ liệu sang Google Sheet">📤 Gửi Google Sheet</button>
+    </div>
 
-  function parseQty(qtyStr) {
-    if (qtyStr.includes("-")) {
-      const [start, end] = qtyStr.split("-").map(Number);
-      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-    } else {
-      const count = parseInt(qtyStr);
-      return Array.from({ length: count }, (_, i) => i + 1);
+    <!-- Date row moved below action buttons -->
+    <div class="row">
+      <label for="datePicker" id="datePickerLabel">Chọn ngày:</label>
+      <input type="date" id="datePicker" />
+    </div>
+
+    <pre id="qrTextDisplay" placeholder="Danh sách mã QR sẽ hiển thị ở đây..."></pre>
+    <pre id="testOutput" class="hidden"></pre>
+  </div>
+
+  <div class="grid" id="labelContainer"></div>
+
+  <script>
+    // ====== CẤU HÌNH (thay giá trị bên dưới) ======
+    // Dán URL Web App bạn vừa deploy tại Apps Script vào đây
+    const WEBAPP_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhsc6_p65kdQxJDoxaW5SMmUTDBrLy0fkftMHiAgDlAaz1t_9WNg3pEjGNqeJQYJe8dxKWXppKmTi40AdqmphDUqKTH-KFP_DG6AOfeZ-eg5SPxdMA-BBSDPHfTYVmIyBhCxfQiP7WSwpNQmWsrrpA5njSpbZoY6nLWKAbzCTZtRO9XvRMNVS7jhxw7km75FzMwExv9eMnQyETjI0Cb80KRJTIDeEscClqGBxLybeP3hptBm8WFXkTOCZSKr5DQTJcByQ-N1hTINctFYfvWbvHSzmDJ7Co0JNOK63m8&lib=MaMZdCsnl_NQ26YddpdBAcY1n0BzfRUfT';
+    // ==============================================
+
+    let currentQRData = [];
+    let dataCacheForExport = []; // giữ payload mới nhất để gửi lên Google Sheet
+
+    // --- QRCode loader with fallback ---
+    const QR_LIB_URLS = [
+      // Primary (already included in <head> as well)
+      'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+      // Fallback from GitHub via jsDelivr
+      'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js'
+    ];
+
+    function loadScript(url, timeoutMs = 10000) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        let done = false;
+        const timer = setTimeout(() => {
+          if (!done) {
+            done = true; reject(new Error('timeout')); s.remove();
+          }
+        }, timeoutMs);
+        s.src = url;
+        s.async = false; // maintain order if needed
+        s.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
+        s.onerror = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error('load error')); } };
+        document.head.appendChild(s);
+      });
     }
-  }
 
-  function generateLabels() {
-    const input = document.getElementById("inputData").value.trim();
-    const lines = input.split("\n");
-    const data = [];
-    const excelDate = getExcelDateNumber();
-    document.getElementById("labelContainer").innerHTML = "";
-    currentQRData = [];
+    async function ensureQRCodeLib() {
+      if (window.QRCode) return true;
+      for (const url of QR_LIB_URLS) {
+        try {
+          await loadScript(url, 8000);
+          if (window.QRCode) return true;
+        } catch (e) {
+          console.warn('Không thể tải QRCode lib từ', url, e);
+        }
+      }
+      return !!window.QRCode;
+    }
 
-    lines.forEach(line => {
-      const parts = line.split("|");
-      if (parts.length < 3) return;
+    // --- Utilities ---
+    function getExcelDateNumber(selectedDateStr) {
+      let dateObj;
+      if (selectedDateStr) {
+        const [year, month, day] = selectedDateStr.split('-').map(Number);
+        dateObj = new Date(year, month - 1, day);
+      } else {
+        const today = new Date();
+        dateObj = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      }
+      const excelEpoch = new Date(1899, 11, 30);
+      const diffTime = dateObj - excelEpoch;
+      const msPerDay = 24 * 60 * 60 * 1000;
+      return Math.round(diffTime / msPerDay);
+    }
 
-      const [sku, name, qtyStr, warehouse = ""] = parts;
-      const numbers = parseQty(qtyStr);
+    function parseQty(qtyStr) {
+      if (!qtyStr) return [];
+      if (qtyStr.includes('-')) {
+        const [start, end] = qtyStr.split('-').map(Number);
+        if (isNaN(start) || isNaN(end) || end < start || start <= 0) return [];
+        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+      } else {
+        const count = parseInt(qtyStr);
+        if (isNaN(count) || count <= 0) return [];
+        return Array.from({ length: count }, (_, i) => i + 1);
+      }
+    }
 
-      numbers.forEach((num) => {
-        const serialDate = `${excelDate}`;
-        const serialNum = `${num}`;
-        const serialFull = warehouse ? `${serialDate}*${serialNum}*${warehouse}` : `${serialDate}*${serialNum}`;
-        const qrText = `${sku}_${serialFull}`;
+    function currentMode() {
+      return document.querySelector('input[name="mode"]:checked').value; // 'textarea' | 'table'
+    }
 
-        currentQRData.push(qrText);
+    function addRow(values = { sku: '', name: '', qty: '', wh: '' }) {
+      const tbody = document.querySelector('#inputTable tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" value="${values.sku || ''}" /></td>
+        <td><input type="text" value="${values.name || ''}" /></td>
+        <td><input type="text" value="${values.qty || ''}" /></td>
+        <td><input type="text" value="${values.wh || ''}" /></td>
+        <td style="text-align:center"><button type="button" class="delRow">✖</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
 
-        data.push({
-          qrText: qrText,
-          skuText: sku,
-          serialDate: serialDate,
-          serialNum: serialNum,
-          descText: name,
-          warehouseText: warehouse
+    function clearTable() {
+      const tbody = document.querySelector('#inputTable tbody');
+      tbody.innerHTML = '';
+    }
+
+    function importFromTextareaToTable() {
+      const raw = document.getElementById('inputData').value.trim();
+      if (!raw) return;
+      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+      clearTable();
+      for (const line of lines) {
+        const parts = line.split('|');
+        const [sku = '', name = '', qty = '', wh = ''] = parts;
+        addRow({ sku, name, qty, wh });
+      }
+    }
+
+    function collectDataFromTextarea(excelDate, out) {
+      const input = document.getElementById('inputData').value.trim();
+      if (!input) return;
+      const lines = input.split('\n');
+      lines.forEach(line => {
+        const parts = line.split('|');
+        if (parts.length < 3) return;
+        const [sku, name, qtyStr, warehouse = ''] = parts.map(s => s.trim());
+        const numbers = parseQty(qtyStr);
+        numbers.forEach(num => pushOne(out, { excelDate, sku, name, warehouse, num }));
+      });
+    }
+
+    function collectDataFromTable(excelDate, out) {
+      const rows = document.querySelectorAll('#inputTable tbody tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('input');
+        if (cells.length < 4) return;
+        const sku = cells[0].value.trim();
+        const name = cells[1].value.trim();
+        const qtyStr = cells[2].value.trim();
+        const warehouse = cells[3].value.trim();
+        if (!sku || !name || !qtyStr) return;
+        const numbers = parseQty(qtyStr);
+        numbers.forEach(num => pushOne(out, { excelDate, sku, name, warehouse, num }));
+      });
+    }
+
+    function pushOne(out, { excelDate, sku, name, warehouse, num }) {
+      const serialDate = `${excelDate}`;
+      const serialNum = `${num}`;
+      const serialFull = warehouse ? `${serialDate}*${serialNum}*${warehouse}` : `${serialDate}*${serialNum}`;
+      const qrText = `${sku}_${serialFull}`;
+      currentQRData.push(qrText);
+      out.push({
+        qrText,
+        skuText: sku,
+        serialDate,
+        serialNum,
+        descText: name,
+        warehouseText: warehouse
+      });
+    }
+
+    function renderLabels(data) {
+      const container = document.getElementById('labelContainer');
+      container.innerHTML = '';
+      data.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'label';
+
+        const serialBlock = document.createElement('div');
+        serialBlock.className = 'serial-block';
+
+        const serialNumDiv = document.createElement('div');
+        serialNumDiv.className = 'serial-number';
+        serialNumDiv.innerText = item.serialNum;
+
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'date';
+        dateDiv.innerText = item.serialDate;
+
+        const warehouseDiv = document.createElement('div');
+        warehouseDiv.className = 'warehouse';
+        warehouseDiv.innerText = item.warehouseText;
+
+        serialBlock.appendChild(serialNumDiv);
+        serialBlock.appendChild(dateDiv);
+        serialBlock.appendChild(warehouseDiv);
+
+        const qrDiv = document.createElement('div');
+        qrDiv.className = 'qrcode';
+        qrDiv.id = 'qrcode-' + index;
+
+        const qrRow = document.createElement('div');
+        qrRow.className = 'qr-row';
+        qrRow.appendChild(qrDiv);
+        qrRow.appendChild(serialBlock);
+
+        const skuDiv = document.createElement('div');
+        skuDiv.className = 'sku';
+        skuDiv.innerText = item.skuText;
+
+        const descDiv = document.createElement('div');
+        descDiv.className = 'desc';
+        descDiv.innerText = item.descText;
+
+        div.appendChild(qrRow);
+        div.appendChild(skuDiv);
+        div.appendChild(descDiv);
+        container.appendChild(div);
+
+        // Guard: nếu thiếu thư viện, tránh throw
+        if (window.QRCode) {
+          new QRCode(qrDiv, { text: item.qrText, width: 60, height: 60 });
+        } else {
+          qrDiv.textContent = '(QR không khả dụng)';
+          qrDiv.title = item.qrText;
+        }
+      });
+    }
+
+    async function generateLabels() {
+      const libOk = await ensureQRCodeLib();
+      if (!libOk) {
+        alert('Không thể tải thư viện tạo QR. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.');
+      }
+
+      const selectedDateStr = document.getElementById('datePicker').value;
+      const excelDate = getExcelDateNumber(selectedDateStr);
+      currentQRData = [];
+      const data = [];
+
+      if (currentMode() === 'textarea') {
+        collectDataFromTextarea(excelDate, data);
+      } else {
+        collectDataFromTable(excelDate, data);
+      }
+
+      // cập nhật cache để gửi Google Sheet
+      dataCacheForExport = data.map(d => ({
+        skuText: d.skuText,
+        descText: d.descText,
+        serialDate: d.serialDate,
+        serialNum: d.serialNum,
+        warehouseText: d.warehouseText,
+        qrText: d.qrText
+      }));
+
+      document.getElementById('qrTextDisplay').textContent = currentQRData.join('\n');
+      renderLabels(data);
+    }
+
+    async function sendToGoogleSheet() {
+      if (!WEBAPP_URL || WEBAPP_URL.includes('YOUR_DEPLOYMENT_ID')) {
+        alert('Vui lòng cấu hình WEBAPP_URL với URL Web App của Google Apps Script.');
+        return;
+      }
+      if (!Array.isArray(dataCacheForExport) || dataCacheForExport.length === 0) {
+        alert('Vui lòng tạo QR trước khi gửi Google Sheet.');
+        return;
+      }
+
+      try {
+        const res = await fetch(WEBAPP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataCacheForExport)
         });
-      });
-    });
-
-    document.getElementById("qrTextDisplay").textContent = currentQRData.join("\n");
-
-    const container = document.getElementById("labelContainer");
-    data.forEach((item, index) => {
-      const div = document.createElement("div");
-      div.className = "label";
-
-      const serialBlock = document.createElement("div");
-      serialBlock.className = "serial-block";
-      
-      const serialNumDiv = document.createElement("div");
-      serialNumDiv.className = "serial-number";
-      serialNumDiv.innerText = item.serialNum;
-      
-      const dateDiv = document.createElement("div");
-      dateDiv.className = "date";
-      dateDiv.innerText = item.serialDate;
-      
-      const warehouseDiv = document.createElement("div");
-      warehouseDiv.className = "warehouse";
-      warehouseDiv.innerText = item.warehouseText;
-
-      serialBlock.appendChild(serialNumDiv);
-      serialBlock.appendChild(dateDiv);
-      serialBlock.appendChild(warehouseDiv);
-
-      const qrDiv = document.createElement("div");
-      qrDiv.className = "qrcode";
-      qrDiv.id = "qrcode-" + index;
-
-      const qrRow = document.createElement("div");
-      qrRow.className = "qr-row";
-      qrRow.appendChild(qrDiv);
-      qrRow.appendChild(serialBlock);
-
-      const skuDiv = document.createElement("div");
-      skuDiv.className = "sku";
-      skuDiv.innerText = item.skuText;
-
-      const descDiv = document.createElement("div");
-      descDiv.className = "desc";
-      descDiv.innerText = item.descText;
-
-      div.appendChild(qrRow);
-      div.appendChild(skuDiv);
-      div.appendChild(descDiv);
-      container.appendChild(div);
-
-      new QRCode(qrDiv, {
-        text: item.qrText,
-        width: 60,
-        height: 60
-      });
-    });
-  }
-
-  function copyAllQRText() {
-    if (currentQRData.length === 0) {
-      alert("Vui lòng tạo mã QR trước đã!");
-      return;
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json().catch(() => ({ status: 'ok' }));
+        if (json.status === 'ok') {
+          alert('Đã gửi dữ liệu vào Google Sheet thành công!');
+        } else {
+          alert('Phản hồi không như kỳ vọng: ' + JSON.stringify(json));
+        }
+      } catch (err) {
+        alert('Lỗi khi gửi dữ liệu: ' + err.message + '\n• Kiểm tra quyền truy cập của Web App (Anyone/Anyone with link)\n• Kiểm tra Triggers/Deploy đúng phiên bản');
+      }
     }
-    const text = currentQRData.join("\n");
-    navigator.clipboard.writeText(text).then(() => {
-      alert("Đã copy toàn bộ mã QR vào clipboard!");
-    }, () => {
-      alert("Không thể copy vào clipboard. Hãy thử lại.");
-    });
-  }
-</script>
 
+    // --- Self tests ---
+    function arraysEqual(a, b) {
+      return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
+    }
+    function test(title, ok, details = '') {
+      const line = `${ok ? '✅' : '❌'} ${title}${details ? ' — ' + details : ''}`;
+      console[ok ? 'log' : 'error'](line);
+      return line;
+    }
+    function runSelfTests() {
+      const out = [];
+      out.push(test('parseQty("3") => [1,2,3]', arraysEqual(parseQty('3'), [1,2,3])));
+      out.push(test('parseQty("1-5") => [1..5]', arraysEqual(parseQty('1-5'), [1,2,3,4,5])));
+      out.push(test('parseQty("5-1") => [] (range ngược)', arraysEqual(parseQty('5-1'), [])));
+      out.push(test('parseQty("0") => []', arraysEqual(parseQty('0'), [])));
+      out.push(test('parseQty("-2") => []', arraysEqual(parseQty('-2'), [])));
+
+      out.push(test('Excel serial 1899-12-30 => 0', getExcelDateNumber('1899-12-30') === 0));
+      out.push(test('Excel serial 1899-12-31 => 1', getExcelDateNumber('1899-12-31') === 1));
+      out.push(test('Excel serial 1900-01-01 => 2', getExcelDateNumber('1900-01-01') === 2));
+
+      out.push(test('QRCode lib available (may be false if offline)', !!window.QRCode));
+
+      const box = document.getElementById('testOutput');
+      box.classList.remove('hidden');
+      box.textContent = out.join('\n');
+    }
+
+    // --- Event wiring ---
+    document.getElementById('generateButton').addEventListener('click', () => { void generateLabels(); });
+    document.getElementById('printButton').addEventListener('click', () => window.print());
+    document.getElementById('copyQRButton').addEventListener('click', () => {
+      if (currentQRData.length === 0) { alert('Vui lòng tạo mã QR trước đã!'); return; }
+      const text = currentQRData.join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Đã copy toàn bộ mã QR vào clipboard!');
+      }, () => { alert('Không thể copy vào clipboard. Hãy thử lại.'); });
+    });
+    document.getElementById('runTestsBtn').addEventListener('click', runSelfTests);
+    document.getElementById('sendToSheetBtn').addEventListener('click', () => { void sendToGoogleSheet(); });
+
+    // Switch modes
+    document.querySelectorAll('input[name="mode"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const isTextarea = currentMode() === 'textarea';
+        document.getElementById('textareaMode').classList.toggle('hidden', !isTextarea);
+        document.getElementById('tableMode').classList.toggle('hidden', isTextarea);
+      });
+    });
+
+    // Table buttons
+    document.getElementById('addRowBtn').addEventListener('click', () => addRow());
+    document.getElementById('clearTableBtn').addEventListener('click', clearTable);
+    document.getElementById('pasteFromTextareaBtn').addEventListener('click', importFromTextareaToTable);
+
+    // Row delete via event delegation
+    document.querySelector('#inputTable tbody').addEventListener('click', (e) => {
+      if (e.target.classList.contains('delRow')) {
+        e.target.closest('tr').remove();
+      }
+    });
+
+    // Seed: một dòng mẫu khi mở bảng lần đầu
+    addRow({ sku: 'N009-SI-00*1', name: 'Vung 22 chảo sâu lòng Engler - màu bạc', qty: '3', wh: 'HH' });
+  </script>
 </body>
 </html>
