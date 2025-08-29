@@ -1,467 +1,199 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>QR Code Labels – Textarea + Bảng + Gửi Google Sheet</title>
-  <!-- Primary CDN (synchronous). We'll also have a JS fallback loader just in case this fails. -->
+  <title>QR Code Labels – Giải thích chi tiết</title>
+  <!-- Thư viện QRCode từ CDN để tạo mã QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+  <!-- Font Google Fonts để giao diện đẹp hơn -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* ===== PHẦN CSS VARIABLES - Định nghĩa màu sắc và kích thước cơ bản ===== */
     :root {
-      --gap: 5mm;
-      --primary-color: #2563eb;
-      --primary-hover: #1d4ed8;
-      --secondary-color: #4b5563;
-      --border-color: #e5e7eb;
-      --bg-color: #f9fafb;
-      --text-color: #111827;
-      --success-color: #10b981;
-      --error-color: #ef4444;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --radius-sm: 4px;
-      --radius-md: 6px;
-      --radius-lg: 8px;
+      --gap: 2mm;                 /* Khoảng cách giữa các nhãn khi in */
+      --primary-color: #2563eb;   /* Màu chính (xanh dương) */
+      --primary-hover: #1d4ed8;   /* Màu khi hover button */
+      --secondary-color: #4b5563; /* Màu phụ (xám đậm) */
+      --border-color: #e5e7eb;    /* Màu viền */
+      --bg-color: #f9fafb;        /* Màu nền */
+      --text-color: #111827;      /* Màu chữ chính */
+      --success-color: #10b981;   /* Màu thành công (xanh lá) */
+      --error-color: #ef4444;     /* Màu lỗi (đỏ) */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);        /* Đổ bóng nhẹ */
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Đổ bóng vừa */
+      --radius-sm: 4px;  /* Bo góc nhỏ */
+      --radius-md: 6px;  /* Bo góc vừa */
+      --radius-lg: 8px;  /* Bo góc lớn */
     }
 
+    /* ===== PHẦN CSS CHO IN ẤN ===== */
     @page { 
-      size: A5 portrait; 
-      margin: 3mm; /* Giảm lề để tối ưu không gian */
+      size: A5 portrait;  /* Khổ giấy A5 dọc */
+      margin: 3mm;        /* Lề trang khi in */
     }
     @media print {
+      /* Khi in, ẩn các element không cần thiết */
       body { margin: 0; padding: 0; }
       h1 { display: none !important; }
       #controls, #modeSwitcher, #qrTextDisplay, #datePickerLabel, #datePicker, #runTestsBtn, #testOutput, #sendToSheetBtn { display: none !important; }
+      
+      /* Layout lưới 3x5 cho 15 nhãn trên 1 trang A5 */
       .grid {
-        grid-template-columns: repeat(3, 46mm); /* Tăng kích thước cột để vừa A5 */
-        grid-template-rows: repeat(5, 38mm); /* Tăng kích thước hàng */
-        gap: 1.5mm; /* Giảm khoảng cách để vừa 15 nhãn */
-        padding: 1.5mm;
-        page-break-after: always;
-        justify-content: center;
+        grid-template-columns: repeat(3, 46mm); /* 3 cột, mỗi cột 46mm */
+        grid-template-rows: repeat(5, 38mm);    /* 5 hàng, mỗi hàng 38mm */
+        gap: 1.5mm;                             /* Khoảng cách giữa các nhãn */
+        padding: 1.5mm;                         /* Padding xung quanh lưới */
+        page-break-after: always;               /* Xuống trang mới sau mỗi lưới */
+        justify-content: center;                /* Căn giữa lưới */
       }
+      
+      /* Kích thước và style của từng nhãn khi in */
       .label {
-        width: 46mm;
-        height: 38mm;
-        padding: 3mm;
-        border: 1px solid #d1d5db;
-        border-radius: var(--radius-sm);
-        box-shadow: var(--shadow-sm);
-        background: white;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        font-size: 10px;
+        width: 46mm; height: 38mm;              /* Kích thước nhãn */
+        padding: 3mm;                           /* Padding trong nhãn */
+        border: 1px solid #d1d5db;              /* Viền nhãn */
+        border-radius: var(--radius-sm);        /* Bo góc */
+        box-shadow: var(--shadow-sm);           /* Đổ bóng */
+        background: white;                      /* Nền trắng */
+        display: flex; flex-direction: column;  /* Flexbox dọc */
+        justify-content: space-between;         /* Phân bố đều các element */
+        font-size: 10px;                       /* Cỡ chữ khi in */
       }
+      
+      /* QR code khi in */
       .qrcode {
-        width: 22mm;
-        height: 22mm;
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-sm);
-        margin-bottom: 2mm;
+        width: 22mm; height: 22mm;              /* Kích thước QR code */
+        border: 1px solid var(--border-color);  /* Viền QR */
+        border-radius: var(--radius-sm);        /* Bo góc QR */
+        margin-bottom: 2mm;                     /* Khoảng cách dưới QR */
       }
-      .sku {
-        font-weight: 600;
-        font-size: 11px;
-        text-align: left;
-        color: var(--text-color);
-        margin-bottom: 1mm;
-      }
-      .desc {
-        font-size: 9px;
-        text-align: left;
-        color: var(--secondary-color);
-        margin-bottom: 1mm;
-        line-height: 1.2;
-      }
-      .serial-block {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        font-size: 11px;
-        font-weight: 600;
-        text-align: right;
-        line-height: 1.3;
-      }
-      .serial-number {
-        margin-bottom: 1mm;
-        color: var(--primary-color);
-      }
-      .date, .warehouse {
-        font-size: 9px;
-        text-align: right;
-        color: var(--secondary-color);
-      }
-      .qr-row {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        margin-bottom: 2mm;
-      }
+      
+      /* Các class CSS khác cho các phần tử trong nhãn khi in */
+      .sku { font-weight: 600; font-size: 11px; text-align: left; color: var(--text-color); margin-bottom: 1mm; }
+      .desc { font-size: 9px; text-align: left; color: var(--secondary-color); margin-bottom: 1mm; line-height: 1.2; }
+      .serial-block { display: flex; flex-direction: column; justify-content: flex-end; font-size: 11px; font-weight: 600; text-align: right; line-height: 1.3; }
+      .serial-number { margin-bottom: 1mm; color: var(--primary-color); }
+      .date, .warehouse { font-size: 9px; text-align: right; color: var(--secondary-color); }
+      .qr-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 2mm; }
     }
     
+    /* ===== PHẦN CSS CHO GIAO DIỆN WEB ===== */
     body {
-      font-family: 'Inter', Arial, sans-serif;
-      line-height: 1.5;
-      color: var(--text-color);
-      background-color: var(--bg-color);
-      padding: 16px;
-      max-width: 1200px;
-      margin: 0 auto;
+      font-family: 'Inter', Arial, sans-serif; /* Font chữ */
+      line-height: 1.5;                        /* Độ cao dòng */
+      color: var(--text-color);                /* Màu chữ */
+      background-color: var(--bg-color);       /* Màu nền */
+      padding: 16px;                           /* Padding body */
+      max-width: 1200px;                       /* Giới hạn độ rộng */
+      margin: 0 auto;                          /* Căn giữa */
     }
     
-    .hidden { display: none !important; }
-    .stack { display: grid; gap: 12px; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .card {
-      background: white;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      padding: 16px;
-      border: 1px solid var(--border-color);
-    }
+    /* Các utility classes */
+    .hidden { display: none !important; }                    /* Ẩn element */
+    .stack { display: grid; gap: 12px; }                    /* Layout dọc với gap */
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; } /* Layout ngang */
+    .card { background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: 16px; border: 1px solid var(--border-color); } /* Card component */
 
+    /* Layout lưới cho preview nhãn trên web */
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(5, auto);
-      gap: var(--gap);
-      padding: var(--gap);
-      justify-items: start;
+      grid-template-columns: repeat(3, 1fr);   /* 3 cột bằng nhau */
+      grid-template-rows: repeat(5, auto);     /* 5 hàng tự động */
+      gap: var(--gap);                         /* Khoảng cách */
+      padding: var(--gap);                     /* Padding */
+      justify-items: start;                    /* Căn trái */
     }
     
+    /* Style nhãn trên web (khác với khi in) */
     .label {
-      width: 100%;
-      border: 1px solid var(--border-color);
-      padding: 8px;
-      box-sizing: border-box;
-      display: flex; 
-      flex-direction: column; 
-      gap: 4px; 
-      align-items: flex-start; 
-      justify-content: flex-start;
-      page-break-inside: avoid;
-      border-radius: var(--radius-sm);
-      background: white;
+      width: 100%; border: 1px solid var(--border-color); padding: 8px; box-sizing: border-box;
+      display: flex; flex-direction: column; gap: 4px; align-items: flex-start; justify-content: flex-start;
+      page-break-inside: avoid; border-radius: var(--radius-sm); background: white;
     }
     
-    .qrcode { 
-      width: 60px; 
-      height: 60px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-    }
+    /* QR code trên web */
+    .qrcode { width: 60px; height: 60px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
     
-    .sku { 
-      font-weight: 600; 
-      font-size: 12.5px; 
-      text-align: left;
-      color: var(--text-color);
-    }
-    
-    .serial-block { 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: center; 
-      font-size: 16px; 
-      font-weight: 600; 
-      line-height: 1.4; 
-      text-align: right; 
-    }
-    
-    .serial-number { 
-      margin-bottom: 2px;
-      color: var(--primary-color);
-    }
-    
-    .date { 
-      text-align: right;
-      color: var(--secondary-color);
-      font-size: 14px;
-    }
-    
-    .warehouse { 
-      text-align: right; 
-      font-size: 14px; 
-      margin-top: 2px;
-      color: var(--secondary-color);
-    }
-    
-    .qr-row { 
-      display: flex; 
-      flex-direction: row; 
-      align-items: flex-start; 
-      justify-content: space-between; 
-      width: 100%; 
-    }
-    
-    .desc { 
-      font-size: 10.5px; 
-      text-align: left;
-      color: var(--secondary-color);
-    }
+    /* Các class cho nội dung nhãn trên web */
+    .sku { font-weight: 600; font-size: 12.5px; text-align: left; color: var(--text-color); }
+    .serial-block { display: flex; flex-direction: column; justify-content: center; font-size: 16px; font-weight: 600; line-height: 1.4; text-align: right; }
+    .serial-number { margin-bottom: 2px; color: var(--primary-color); }
+    .date { text-align: right; color: var(--secondary-color); font-size: 14px; }
+    .warehouse { text-align: right; font-size: 14px; margin-top: 2px; color: var(--secondary-color); }
+    .qr-row { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; width: 100%; }
+    .desc { font-size: 10.5px; text-align: left; color: var(--secondary-color); }
 
-    /* Controls */
+    /* ===== STYLE CHO CÁC CONTROL ELEMENTS ===== */
+    /* Button styling */
     button {
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      border: none;
-      font-weight: 500;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius-sm); border: none; font-weight: 500; font-size: 14px;
+      cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px;
     }
+    button:hover { transform: translateY(-1px); }   /* Hiệu ứng nâng lên khi hover */
+    button:active { transform: translateY(0); }     /* Hiệu ứng nhấn xuống */
     
-    button:hover {
-      transform: translateY(-1px);
-    }
-    
-    button:active {
-      transform: translateY(0);
-    }
-    
-    .btn-primary {
-      background-color: var(--primary-color);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-      box-shadow: var(--shadow-md);
-    }
-    
-    .btn-secondary {
-      background-color: white;
-      color: var(--secondary-color);
-      border: 1px solid var(--border-color);
-    }
-    
-    .btn-secondary:hover {
-      background-color: var(--bg-color);
-      box-shadow: var(--shadow-sm);
-    }
-    
-    .btn-danger {
-      background-color: var(--error-color);
-      color: white;
-    }
-    
-    .btn-danger:hover {
-      background-color: #dc2626;
-    }
-    
-    .btn-success {
-      background-color: var(--success-color);
-      color: white;
-    }
-    
-    .btn-success:hover {
-      background-color: #0d9488;
-    }
+    /* Các loại button khác nhau */
+    .btn-primary { background-color: var(--primary-color); color: white; }
+    .btn-primary:hover { background-color: var(--primary-hover); box-shadow: var(--shadow-md); }
+    .btn-secondary { background-color: white; color: var(--secondary-color); border: 1px solid var(--border-color); }
+    .btn-secondary:hover { background-color: var(--bg-color); box-shadow: var(--shadow-sm); }
+    .btn-danger { background-color: var(--error-color); color: white; }
+    .btn-danger:hover { background-color: #dc2626; }
+    .btn-success { background-color: var(--success-color); color: white; }
+    .btn-success:hover { background-color: #0d9488; }
 
-    /* Inputs */
+    /* Input styling */
     textarea, input {
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 8px 12px;
-      font-family: inherit;
-      font-size: 14px;
-      transition: border-color 0.2s;
+      border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px 12px;
+      font-family: inherit; font-size: 14px; transition: border-color 0.2s;
     }
-    
     textarea:focus, input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
     }
-    
-    textarea {
-      width: 100%;
-      min-height: 120px;
-      resize: vertical;
-    }
-    
-    input[type="date"] {
-      height: 36px;
-    }
-    
-    input[type="radio"] {
-      margin-right: 6px;
-    }
+    textarea { width: 100%; min-height: 120px; resize: vertical; }
+    input[type="date"] { height: 36px; }
+    input[type="radio"] { margin-right: 6px; }
 
-    /* Table input */
-    table#inputTable { 
-      border-collapse: collapse; 
-      width: 100%; 
-      margin: 8px 0;
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-    }
-    
-    table#inputTable th, table#inputTable td { 
-      border: 1px solid var(--border-color); 
-      padding: 8px 10px; 
-      text-align: left;
-    }
-    
-    table#inputTable th {
-      background-color: var(--bg-color);
-      font-weight: 500;
-      font-size: 14px;
-    }
-    
-    table#inputTable input { 
-      width: 100%; 
-      box-sizing: border-box; 
-      padding: 6px 8px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-    }
-    
-    .table-actions { 
-      display: flex; 
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    /* Table styling */
+    table#inputTable { border-collapse: collapse; width: 100%; margin: 8px 0; border-radius: var(--radius-sm); overflow: hidden; }
+    table#inputTable th, table#inputTable td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
+    table#inputTable th { background-color: var(--bg-color); font-weight: 500; font-size: 14px; }
+    table#inputTable input { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
+    .table-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     /* Mode switcher */
-    #modeSwitcher { 
-      margin: 8px 0;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    
-    #modeSwitcher label { 
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
+    #modeSwitcher { margin: 8px 0; display: flex; gap: 16px; align-items: center; }
+    #modeSwitcher label { display: flex; align-items: center; cursor: pointer; }
 
-    /* Test output */
-    #testOutput { 
-      border: 1px dashed var(--border-color); 
-      padding: 12px; 
-      font-size: 13px; 
-      white-space: pre-wrap; 
-      max-height: 180px; 
-      overflow: auto;
-      border-radius: var(--radius-sm);
-      background-color: white;
-    }
-    
-    #qrTextDisplay {
-      width: 100%;
-      margin: 8px 0 0 0;
-      font-size: 13px;
-      padding: 12px;
-      border: 1px solid var(--border-color);
-      min-height: 120px;
-      white-space: pre-wrap;
-      overflow-y: auto;
-      border-radius: var(--radius-sm);
-      background-color: white;
-      font-family: 'Courier New', monospace;
-    }
+    /* Test output và QR display */
+    #testOutput { border: 1px dashed var(--border-color); padding: 12px; font-size: 13px; white-space: pre-wrap; max-height: 180px; overflow: auto; border-radius: var(--radius-sm); background-color: white; }
+    #qrTextDisplay { width: 100%; margin: 8px 0 0 0; font-size: 13px; padding: 12px; border: 1px solid var(--border-color); min-height: 120px; white-space: pre-wrap; overflow-y: auto; border-radius: var(--radius-sm); background-color: white; font-family: 'Courier New', monospace; }
 
-    .hint { 
-      font-size: 13px; 
-      color: var(--secondary-color);
-      margin-top: -8px;
-    }
+    /* Các element khác */
+    .hint { font-size: 13px; color: var(--secondary-color); margin-top: -8px; }
+    .section-title { font-weight: 600; font-size: 16px; margin-bottom: 8px; color: var(--text-color); }
     
-    .section-title {
-      font-weight: 600;
-      font-size: 16px;
-      margin-bottom: 8px;
-      color: var(--text-color);
-    }
+    /* Status messages */
+    .status-message { padding: 8px 12px; border-radius: var(--radius-sm); margin: 8px 0; font-size: 14px; display: none; }
+    .status-success { background-color: #ecfdf5; color: var(--success-color); border: 1px solid #a7f3d0; display: block; }
+    .status-error { background-color: #fef2f2; color: var(--error-color); border: 1px solid #fecaca; display: block; }
     
-    .status-message {
-      padding: 8px 12px;
-      border-radius: var(--radius-sm);
-      margin: 8px 0;
-      font-size: 14px;
-      display: none;
-    }
-    
-    .status-success {
-      background-color: #ecfdf5;
-      color: var(--success-color);
-      border: 1px solid #a7f3d0;
-      display: block;
-    }
-    
-    .status-error {
-      background-color: #fef2f2;
-      color: var(--error-color);
-      border: 1px solid #fecaca;
-      display: block;
-    }
-    
-    .icon {
-      width: 16px;
-      height: 16px;
-      vertical-align: middle;
-    }
+    .icon { width: 16px; height: 16px; vertical-align: middle; }
   </style>
 </head>
 <body>
   <h1 style="margin-bottom: 24px;">Tạo nhãn QR Code</h1>
   
+  <!-- PHẦN CONTROLS - Giao diện điều khiển -->
   <div class="card stack" id="controls">
-    <!-- Mode Switcher -->
+    <!-- Mode Switcher - Chuyển đổi giữa chế độ textarea và table -->
     <div id="modeSwitcher" class="row">
       <strong class="section-title">Chế độ nhập:</strong>
-      <label><input type="radio" name="mode" value="textarea" checked /> Textarea</label>
-      <label><input type="radio" name="mode" value="table" /> Bảng</label>
+      <label><input type="radio" name="mode" value="textarea" checked /> Textarea</label> <!-- Radio button cho chế độ textarea -->
+      <label><input type="radio" name="mode" value="table" /> Bảng</label> <!-- Radio button cho chế độ bảng -->
     </div>
 
-    <!-- Textarea mode -->
+    <!-- Textarea mode - Chế độ nhập bằng textarea -->
     <div id="textareaMode" class="stack">
       <label for="inputData" class="section-title">Nhập dữ liệu</label>
       <textarea id="inputData" rows="6" placeholder="Nhập từng dòng theo định dạng: SKU|Tên sản phẩm|Số lượng|Kho (tuỳ chọn)
@@ -472,139 +204,186 @@ ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
       <div class="hint">Mẹo: Có thể dùng nút "Dán từ textarea" ở chế độ Bảng để chuyển dữ liệu sang dạng bảng.</div>
     </div>
 
-    <!-- Table mode -->
+    <!-- Table mode - Chế độ nhập bằng bảng -->
     <div id="tableMode" class="stack hidden">
       <label class="section-title">Nhập dữ liệu dạng bảng</label>
       <div class="table-actions">
-        <button type="button" id="addRowBtn" class="btn-secondary">➕ Thêm dòng</button>
-        <button type="button" id="clearTableBtn" class="btn-secondary">🧹 Xóa hết</button>
-        <button type="button" id="pasteFromTextareaBtn" class="btn-secondary">📥 Dán từ textarea</button>
+        <button type="button" id="addRowBtn" class="btn-secondary">➕ Thêm dòng</button>          <!-- Nút thêm dòng mới -->
+        <button type="button" id="clearTableBtn" class="btn-secondary">🧹 Xóa hết</button>        <!-- Nút xóa toàn bộ bảng -->
+        <button type="button" id="pasteFromTextareaBtn" class="btn-secondary">📥 Dán từ textarea</button> <!-- Nút import từ textarea -->
       </div>
       <table id="inputTable">
         <thead>
           <tr>
-            <th style="width: 22%">SKU</th>
-            <th>Tên sản phẩm</th>
-            <th style="width: 12%">Số lượng</th>
-            <th style="width: 12%">Kho</th>
-            <th style="width: 6%"></th>
+            <th style="width: 22%">SKU</th>      <!-- Cột mã sản phẩm -->
+            <th>Tên sản phẩm</th>                <!-- Cột tên sản phẩm -->
+            <th style="width: 12%">Số lượng</th> <!-- Cột số lượng -->
+            <th style="width: 12%">Kho</th>      <!-- Cột kho -->
+            <th style="width: 6%"></th>          <!-- Cột nút xóa -->
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody></tbody> <!-- Tbody sẽ được populate bằng JavaScript -->
       </table>
     </div>
 
-    <!-- Date row -->
+    <!-- Date picker - Chọn ngày cho nhãn -->
     <div class="row">
       <label for="datePicker" id="datePickerLabel" style="font-weight: 500;">Ngày trên nhãn:</label>
-      <input type="date" id="datePicker" />
+      <input type="date" id="datePicker" /> <!-- Input chọn ngày -->
     </div>
 
-    <!-- Actions row -->
+    <!-- Action buttons - Các nút chức năng chính -->
     <div class="row" style="margin-top: 12px;">
-      <button id="generateButton" type="button" class="btn-primary">📦 Tạo mã QR</button>
-      <button id="printButton" type="button" class="btn-secondary">🖨️ In A5 dọc</button>
-      <button id="copyQRButton" type="button" class="btn-secondary">📋 Copy mã QR</button>
-      <button id="sendToSheetBtn" type="button" class="btn-success" title="Gửi dữ liệu sang Google Sheet">📤 Gửi Google Sheet</button>
-      <button id="runTestsBtn" type="button" class="btn-secondary" title="Chạy kiểm thử nội bộ">🧪 Chạy test</button>
+      <button id="generateButton" type="button" class="btn-primary">📦 Tạo mã QR</button>           <!-- Nút tạo QR -->
+      <button id="printButton" type="button" class="btn-secondary">🖨️ In A5 dọc</button>          <!-- Nút in -->
+      <button id="copyQRButton" type="button" class="btn-secondary">📋 Copy mã QR</button>         <!-- Nút copy QR text -->
+      <button id="sendToSheetBtn" type="button" class="btn-success" title="Gửi dữ liệu sang Google Sheet">📤 Gửi Google Sheet</button> <!-- Nút gửi Google Sheets -->
+      <button id="runTestsBtn" type="button" class="btn-secondary" title="Chạy kiểm thử nội bộ">🧪 Chạy test</button> <!-- Nút chạy test -->
     </div>
 
-    <!-- Status messages -->
+    <!-- Status messages - Hiển thị thông báo -->
     <div id="statusMessage" class="status-message"></div>
 
-    <!-- QR Text Display -->
+    <!-- QR Text Display - Hiển thị danh sách mã QR dạng text -->
     <label class="section-title">Danh sách mã QR</label>
     <pre id="qrTextDisplay" placeholder="Danh sách mã QR sẽ hiển thị ở đây..."></pre>
     
-    <!-- Test Output -->
+    <!-- Test Output - Hiển thị kết quả test (ẩn mặc định) -->
     <pre id="testOutput" class="hidden"></pre>
   </div>
 
+  <!-- GRID CONTAINER - Nơi hiển thị các nhãn QR -->
   <div class="grid" id="labelContainer"></div>
 
   <script>
     // ====== CẤU HÌNH (thay giá trị bên dưới) ======
-    // Dán URL Web App bạn vừa deploy tại Apps Script vào đây
+    // URL của Google Apps Script Web App để gửi dữ liệu lên Google Sheets
     const WEBAPP_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhsc6_p65kdQxJDoxaW5SMmUTDBrLy0fkftMHiAgDlAaz1t_9WNg3pEjGNqeJQYJe8dxKWXppKmTi40AdqmphDUqKTH-KFP_DG6AOfeZ-eg5SPxdMA-BBSDPHfTYVmIyBhCxfQiP7WSwpNQmWsrrpA5njSpbZoY6nLWKAbzCTZtRO9XvRMNVS7jhxw7km75FzMwExv9eMnQyETjI0Cb80KRJTIDeEscClqGBxLybeP3hptBm8WFXkTOCZSKr5DQTJcByQ-N1hTINctFYfvWbvHSzmDJ7Co0JNOK63m8&lib=MaMZdCsnl_NQ26YddpdBAcY1n0BzfRUfT';
     // ==============================================
 
-    let currentQRData = [];
-    let dataCacheForExport = []; // giữ payload mới nhất để gửi lên Google Sheet
+    let currentQRData = [];      // Mảng chứa các mã QR text hiện tại
+    let dataCacheForExport = []; // Cache dữ liệu để gửi lên Google Sheet
 
     // --- QRCode loader with fallback ---
+    // Danh sách các URL CDN để tải thư viện QRCode (có fallback)
     const QR_LIB_URLS = [
-      // Primary (already included in <head> as well)
-      'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
-      // Fallback from GitHub via jsDelivr
-      'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js'
+      'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',  // CDN chính
+      'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js'         // CDN dự phòng
     ];
 
+    // Hàm tải script với timeout
     function loadScript(url, timeoutMs = 10000) {
       return new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        let done = false;
+        const s = document.createElement('script'); // Tạo element script
+        let done = false;                           // Flag để tránh multiple callback
+        
+        // Timer để timeout nếu tải quá lâu
         const timer = setTimeout(() => {
           if (!done) {
-            done = true; reject(new Error('timeout')); s.remove();
+            done = true; 
+            reject(new Error('timeout')); 
+            s.remove(); // Xóa script element
           }
         }, timeoutMs);
-        s.src = url;
-        s.async = false; // maintain order if needed
-        s.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
-        s.onerror = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error('load error')); } };
-        document.head.appendChild(s);
+        
+        s.src = url;        // Set URL
+        s.async = false;    // Load đồng bộ để maintain order
+        
+        // Callback khi tải thành công
+        s.onload = () => { 
+          if (!done) { 
+            done = true; 
+            clearTimeout(timer); 
+            resolve(); 
+          } 
+        };
+        
+        // Callback khi tải thất bại
+        s.onerror = () => { 
+          if (!done) { 
+            done = true; 
+            clearTimeout(timer); 
+            reject(new Error('load error')); 
+          } 
+        };
+        
+        document.head.appendChild(s); // Thêm script vào head
       });
     }
 
+    // Hàm đảm bảo thư viện QRCode đã được tải
     async function ensureQRCodeLib() {
-      if (window.QRCode) return true;
+      if (window.QRCode) return true; // Đã có rồi thì return true
+      
+      // Thử tải từ từng URL trong danh sách
       for (const url of QR_LIB_URLS) {
         try {
-          await loadScript(url, 8000);
-          if (window.QRCode) return true;
+          await loadScript(url, 8000); // Timeout 8 giây
+          if (window.QRCode) return true; // Tải thành công
         } catch (e) {
-          console.warn('Không thể tải QRCode lib từ', url, e);
+          console.warn('Không thể tải QRCode lib từ', url, e); // Log warning
         }
       }
-      return !!window.QRCode;
+      return !!window.QRCode; // Return true nếu cuối cùng vẫn có QRCode
     }
 
-    // --- Utilities ---
+    // --- Utility Functions ---
+    
+    // Hàm chuyển đổi ngày thành Excel date number (số ngày từ 1899-12-30)
     function getExcelDateNumber(selectedDateStr) {
       let dateObj;
+      
       if (selectedDateStr) {
+        // Parse ngày từ string YYYY-MM-DD
         const [year, month, day] = selectedDateStr.split('-').map(Number);
-        dateObj = new Date(year, month - 1, day);
+        dateObj = new Date(year, month - 1, day); // month - 1 vì JS Date dùng 0-based month
       } else {
+        // Nếu không có ngày được chọn, dùng hôm nay
         const today = new Date();
         dateObj = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       }
-      const excelEpoch = new Date(1899, 11, 30);
-      const diffTime = dateObj - excelEpoch;
-      const msPerDay = 24 * 60 * 60 * 1000;
-      return Math.round(diffTime / msPerDay);
+      
+      // Excel epoch bắt đầu từ 1899-12-30 (không phải 1900-01-01)
+      const excelEpoch = new Date(1899, 11, 30); // 11 = December (0-based)
+      const diffTime = dateObj - excelEpoch;     // Tính diff theo milliseconds
+      const msPerDay = 24 * 60 * 60 * 1000;     // Milliseconds trong 1 ngày
+      return Math.round(diffTime / msPerDay);    // Convert thành số ngày và làm tròn
     }
 
+    // Hàm parse chuỗi số lượng thành mảng số
     function parseQty(qtyStr) {
-      if (!qtyStr) return [];
+      if (!qtyStr) return []; // Nếu empty thì return mảng rỗng
+      
       if (qtyStr.includes('-')) {
-        const [start, end] = qtyStr.split('-').map(Number);
+        // Nếu là range (VD: "1-5")
+        const [start, end] = qtyStr.split('-').map(Number); // Split và convert thành number
+        
+        // Validate range
         if (isNaN(start) || isNaN(end) || end < start || start <= 0) return [];
+        
+        // Tạo mảng từ start đến end
         return Array.from({ length: end - start + 1 }, (_, i) => start + i);
       } else {
+        // Nếu là số đơn (VD: "3")
         const count = parseInt(qtyStr);
-        if (isNaN(count) || count <= 0) return [];
+        if (isNaN(count) || count <= 0) return []; // Validate
+        
+        // Tạo mảng từ 1 đến count
         return Array.from({ length: count }, (_, i) => i + 1);
       }
     }
 
+    // Hàm lấy chế độ hiện tại (textarea hoặc table)
     function currentMode() {
-      return document.querySelector('input[name="mode"]:checked').value; // 'textarea' | 'table'
+      return document.querySelector('input[name="mode"]:checked').value;
     }
 
+    // Hàm thêm dòng mới vào bảng
     function addRow(values = { sku: '', name: '', qty: '', wh: '' }) {
       const tbody = document.querySelector('#inputTable tbody');
-      const tr = document.createElement('tr');
+      const tr = document.createElement('tr'); // Tạo element tr mới
+      
+      // Set innerHTML cho tr với các input field và nút delete
       tr.innerHTML = `
         <td><input type="text" value="${values.sku || ''}" placeholder="VD: N009-SI-00*1" /></td>
         <td><input type="text" value="${values.name || ''}" placeholder="VD: Vung 22 chảo" /></td>
@@ -612,168 +391,221 @@ ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
         <td><input type="text" value="${values.wh || ''}" placeholder="VD: HH" /></td>
         <td style="text-align:center"><button type="button" class="delRow btn-secondary" style="padding: 4px 8px;">✖</button></td>
       `;
-      tbody.appendChild(tr);
+      tbody.appendChild(tr); // Thêm tr vào tbody
     }
 
+    // Hàm xóa toàn bộ bảng
     function clearTable() {
       const tbody = document.querySelector('#inputTable tbody');
-      tbody.innerHTML = '';
+      tbody.innerHTML = ''; // Clear nội dung tbody
     }
 
+    // Hàm import dữ liệu từ textarea vào bảng
     function importFromTextareaToTable() {
-      const raw = document.getElementById('inputData').value.trim();
-      if (!raw) return;
-      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-      clearTable();
+      const raw = document.getElementById('inputData').value.trim(); // Lấy raw text từ textarea
+      if (!raw) return; // Nếu empty thì không làm gì
+      
+      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean); // Split thành lines và filter empty
+      clearTable(); // Clear bảng hiện tại
+      
+      // Process từng line
       for (const line of lines) {
-        const parts = line.split('|');
-        const [sku = '', name = '', qty = '', wh = ''] = parts;
-        addRow({ sku, name, qty, wh });
+        const parts = line.split('|'); // Split bằng |
+        const [sku = '', name = '', qty = '', wh = ''] = parts; // Destructure với default values
+        addRow({ sku, name, qty, wh }); // Thêm dòng vào bảng
       }
-      showStatus('Đã nhập dữ liệu từ textarea vào bảng', 'success');
+      
+      showStatus('Đã nhập dữ liệu từ textarea vào bảng', 'success'); // Show thông báo
     }
 
+    // Hàm collect dữ liệu từ textarea mode
     function collectDataFromTextarea(excelDate, out) {
       const input = document.getElementById('inputData').value.trim();
-      if (!input) return;
-      const lines = input.split('\n');
+      if (!input) return; // Nếu empty thì return
+      
+      const lines = input.split('\n'); // Split thành lines
+      
       lines.forEach(line => {
-        const parts = line.split('|');
-        if (parts.length < 3) return;
-        const [sku, name, qtyStr, warehouse = ''] = parts.map(s => s.trim());
-        const numbers = parseQty(qtyStr);
-        numbers.forEach(num => pushOne(out, { excelDate, sku, name, warehouse, num }));
+        const parts = line.split('|'); // Split line bằng |
+        if (parts.length < 3) return; // Cần ít nhất 3 parts (SKU, name, qty)
+        
+        const [sku, name, qtyStr, warehouse = ''] = parts.map(s => s.trim()); // Parse và trim whitespace
+        const numbers = parseQty(qtyStr); // Parse số lượng thành mảng
+        numbers.forEach(num => pushOne(out, { excelDate, sku, name, warehouse, num })); // Tạo nhãn cho mỗi số
       });
     }
 
+    // Hàm collect dữ liệu từ table mode
     function collectDataFromTable(excelDate, out) {
-      const rows = document.querySelectorAll('#inputTable tbody tr');
+      const rows = document.querySelectorAll('#inputTable tbody tr'); // Lấy tất cả rows
+      
       rows.forEach(row => {
-        const cells = row.querySelectorAll('input');
-        if (cells.length < 4) return;
+        const cells = row.querySelectorAll('input'); // Lấy tất cả input trong row
+        if (cells.length < 4) return; // Cần ít nhất 4 cells
+        
+        // Lấy giá trị từ các input
         const sku = cells[0].value.trim();
         const name = cells[1].value.trim();
         const qtyStr = cells[2].value.trim();
         const warehouse = cells[3].value.trim();
-        if (!sku || !name || !qtyStr) return;
-        const numbers = parseQty(qtyStr);
-        numbers.forEach(num => pushOne(out, { excelDate, sku, name, warehouse, num }));
+        
+        if (!sku || !name || !qtyStr) return; // Validate required fields
+        
+        const numbers = parseQty(qtyStr); // Parse số lượng
+        numbers.forEach(num => pushOne(out, { excelDate, sku, name, warehouse, num })); // Tạo nhãn cho mỗi số
       });
     }
 
+    // Hàm tạo một nhãn và thêm vào output array
     function pushOne(out, { excelDate, sku, name, warehouse, num }) {
-      const serialDate = `${excelDate}`;
-      const serialNum = `${num}`;
+      const serialDate = `${excelDate}`;     // Convert Excel date thành string
+      const serialNum = `${num}`;            // Convert số thành string
+      
+      // Tạo serial number đầy đủ: date*number*warehouse (nếu có warehouse)
       const serialFull = warehouse ? `${serialDate}*${serialNum}*${warehouse}` : `${serialDate}*${serialNum}`;
+      
+      // Tạo QR text theo format: SKU_serialFull
       const qrText = `${sku}_${serialFull}`;
-      currentQRData.push(qrText);
+      
+      currentQRData.push(qrText); // Thêm vào mảng QR data để copy
+      
+      // Thêm object vào output array với tất cả thông tin cần thiết
       out.push({
-        qrText,
-        skuText: sku,
-        serialDate,
-        serialNum,
-        descText: name,
-        warehouseText: warehouse
+        qrText,           // Text cho QR code
+        skuText: sku,     // SKU để hiển thị
+        serialDate,       // Ngày serial
+        serialNum,        // Số serial
+        descText: name,   // Tên sản phẩm
+        warehouseText: warehouse // Tên kho
       });
     }
 
+    // Hàm render các nhãn ra HTML
     function renderLabels(data) {
       const container = document.getElementById('labelContainer');
-      container.innerHTML = '';
+      container.innerHTML = ''; // Clear container
       
+      // Nếu không có data, hiển thị thông báo
       if (data.length === 0) {
         container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--secondary-color);">Chưa có dữ liệu nhãn. Vui lòng nhập thông tin và bấm "Tạo mã QR"</p>';
         return;
       }
       
+      // Render từng nhãn
       data.forEach((item, index) => {
+        // Tạo div chứa nhãn
         const div = document.createElement('div');
         div.className = 'label';
 
+        // Tạo block chứa thông tin serial (bên phải)
         const serialBlock = document.createElement('div');
         serialBlock.className = 'serial-block';
 
+        // Số serial
         const serialNumDiv = document.createElement('div');
         serialNumDiv.className = 'serial-number';
         serialNumDiv.innerText = item.serialNum;
 
+        // Ngày
         const dateDiv = document.createElement('div');
         dateDiv.className = 'date';
         dateDiv.innerText = item.serialDate;
 
+        // Kho
         const warehouseDiv = document.createElement('div');
         warehouseDiv.className = 'warehouse';
         warehouseDiv.innerText = item.warehouseText;
 
+        // Thêm các element vào serial block
         serialBlock.appendChild(serialNumDiv);
         serialBlock.appendChild(dateDiv);
         serialBlock.appendChild(warehouseDiv);
 
+        // Tạo div chứa QR code
         const qrDiv = document.createElement('div');
         qrDiv.className = 'qrcode';
-        qrDiv.id = 'qrcode-' + index;
+        qrDiv.id = 'qrcode-' + index; // Unique ID cho mỗi QR
 
+        // Tạo row chứa QR và serial info
         const qrRow = document.createElement('div');
         qrRow.className = 'qr-row';
-        qrRow.appendChild(qrDiv);
-        qrRow.appendChild(serialBlock);
+        qrRow.appendChild(qrDiv);      // QR bên trái
+        qrRow.appendChild(serialBlock); // Serial info bên phải
 
+        // Tạo div hiển thị SKU
         const skuDiv = document.createElement('div');
         skuDiv.className = 'sku';
         skuDiv.innerText = item.skuText;
 
+        // Tạo div hiển thị description
         const descDiv = document.createElement('div');
         descDiv.className = 'desc';
         descDiv.innerText = item.descText;
 
-        div.appendChild(qrRow);
-        div.appendChild(skuDiv);
-        div.appendChild(descDiv);
-        container.appendChild(div);
+        // Thêm tất cả elements vào label div
+        div.appendChild(qrRow);   // QR row ở trên
+        div.appendChild(skuDiv);  // SKU ở giữa
+        div.appendChild(descDiv); // Description ở dưới
+        container.appendChild(div); // Thêm label vào container
 
-        // Guard: nếu thiếu thư viện, tránh throw
+        // Tạo QR code thực tế (nếu có thư viện)
         if (window.QRCode) {
-          new QRCode(qrDiv, { text: item.qrText, width: 60, height: 60 });
+          new QRCode(qrDiv, { 
+            text: item.qrText,  // Text để encode
+            width: 60,          // Độ rộng QR
+            height: 60          // Độ cao QR
+          });
         } else {
+          // Fallback nếu không có thư viện
           qrDiv.textContent = '(QR không khả dụng)';
-          qrDiv.title = item.qrText;
+          qrDiv.title = item.qrText; // Set title để xem QR text
         }
       });
     }
 
+    // Hàm hiển thị status message
     function showStatus(message, type = 'success') {
       const el = document.getElementById('statusMessage');
-      el.textContent = message;
-      el.className = `status-message status-${type}`;
+      el.textContent = message;                        // Set text
+      el.className = `status-message status-${type}`; // Set CSS class
+      
+      // Auto hide sau 5 giây
       setTimeout(() => {
         el.className = 'status-message';
       }, 5000);
     }
 
+    // Hàm chính tạo nhãn
     async function generateLabels() {
+      // Đảm bảo thư viện QRCode đã được tải
       const libOk = await ensureQRCodeLib();
       if (!libOk) {
         showStatus('Không thể tải thư viện tạo QR. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.', 'error');
         return;
       }
 
+      // Lấy ngày được chọn và convert thành Excel date
       const selectedDateStr = document.getElementById('datePicker').value;
       const excelDate = getExcelDateNumber(selectedDateStr);
+      
+      // Reset data arrays
       currentQRData = [];
       const data = [];
 
+      // Collect data từ mode hiện tại
       if (currentMode() === 'textarea') {
         collectDataFromTextarea(excelDate, data);
       } else {
         collectDataFromTable(excelDate, data);
       }
 
+      // Validate có data không
       if (data.length === 0) {
         showStatus('Không có dữ liệu hợp lệ để tạo nhãn. Vui lòng kiểm tra lại thông tin nhập.', 'error');
         return;
       }
 
-      // cập nhật cache để gửi Google Sheet
+      // Update cache để gửi Google Sheet (tạo shallow copy)
       dataCacheForExport = data.map(d => ({
         skuText: d.skuText,
         descText: d.descText,
@@ -783,123 +615,232 @@ ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
         qrText: d.qrText
       }));
 
-      document.getElementById('qrTextDisplay').textContent = currentQRData.join('\n');
-      renderLabels(data);
-      showStatus(`Đã tạo ${data.length} nhãn QR thành công!`, 'success');
+      // Update UI
+      document.getElementById('qrTextDisplay').textContent = currentQRData.join('\n'); // Hiển thị QR text
+      renderLabels(data); // Render các nhãn
+      showStatus(`Đã tạo ${data.length} nhãn QR thành công!`, 'success'); // Show success message
     }
 
+    // Hàm gửi dữ liệu lên Google Sheets
     async function sendToGoogleSheet() {
+      // Validate WEBAPP_URL đã được config
       if (!WEBAPP_URL || WEBAPP_URL.includes('YOUR_DEPLOYMENT_ID')) {
         showStatus('Vui lòng cấu hình WEBAPP_URL với URL Web App của Google Apps Script.', 'error');
         return;
       }
+      
+      // Validate có data để gửi
       if (!Array.isArray(dataCacheForExport) || dataCacheForExport.length === 0) {
         showStatus('Vui lòng tạo QR trước khi gửi Google Sheet.', 'error');
         return;
       }
 
       try {
+        // Update UI button để show loading state
         const btn = document.getElementById('sendToSheetBtn');
-        btn.disabled = true;
-        btn.innerHTML = '⏳ Đang gửi...';
-        
+        btn.disabled = true;                    // Disable button
+        btn.innerHTML = '⏳ Đang gửi...';        // Change text
+
+        // Gửi POST request tới Google Apps Script
         const res = await fetch(WEBAPP_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dataCacheForExport)
+          method: 'POST',                                    // HTTP method
+          headers: { 'Content-Type': 'application/json' },  // Content type
+          body: JSON.stringify(dataCacheForExport)           // JSON payload
         });
-        
+
+        // Check HTTP status
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const json = await res.json().catch(() => ({ status: 'ok' }));
         
+        // Parse JSON response (với fallback nếu không parse được)
+        const json = await res.json().catch(() => ({ status: 'ok' }));
+
+        // Check response status
         if (json.status === 'ok') {
           showStatus(`Đã gửi ${dataCacheForExport.length} bản ghi vào Google Sheet thành công!`, 'success');
         } else {
           showStatus('Phản hồi không như kỳ vọng: ' + JSON.stringify(json), 'error');
         }
       } catch (err) {
+        // Handle errors
         showStatus('Lỗi khi gửi dữ liệu: ' + err.message + '\n• Kiểm tra quyền truy cập của Web App\n• Kiểm tra Triggers/Deploy đúng phiên bản', 'error');
       } finally {
+        // Restore button state
         const btn = document.getElementById('sendToSheetBtn');
-        btn.disabled = false;
-        btn.innerHTML = '📤 Gửi Google Sheet';
+        btn.disabled = false;                   // Enable lại button
+        btn.innerHTML = '📤 Gửi Google Sheet';  // Restore text
       }
     }
 
-    // --- Self tests ---
+    // --- Self test functions ---
+    
+    // Hàm so sánh 2 mảng
     function arraysEqual(a, b) {
-      return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
+      return Array.isArray(a) && Array.isArray(b) && 
+             a.length === b.length && 
+             a.every((v, i) => v === b[i]); // Check từng phần tử
     }
+    
+    // Hàm tạo test case
     function test(title, ok, details = '') {
       const line = `${ok ? '✅' : '❌'} ${title}${details ? ' — ' + details : ''}`;
-      console[ok ? 'log' : 'error'](line);
+      console[ok ? 'log' : 'error'](line); // Log kết quả
       return line;
     }
+    
+    // Hàm chạy tất cả self tests
     function runSelfTests() {
       const out = [];
+      
+      // Test parseQty function
       out.push(test('parseQty("3") => [1,2,3]', arraysEqual(parseQty('3'), [1,2,3])));
       out.push(test('parseQty("1-5") => [1..5]', arraysEqual(parseQty('1-5'), [1,2,3,4,5])));
       out.push(test('parseQty("5-1") => [] (range ngược)', arraysEqual(parseQty('5-1'), [])));
       out.push(test('parseQty("0") => []', arraysEqual(parseQty('0'), [])));
       out.push(test('parseQty("-2") => []', arraysEqual(parseQty('-2'), [])));
 
+      // Test Excel date function
       out.push(test('Excel serial 1899-12-30 => 0', getExcelDateNumber('1899-12-30') === 0));
       out.push(test('Excel serial 1899-12-31 => 1', getExcelDateNumber('1899-12-31') === 1));
       out.push(test('Excel serial 1900-01-01 => 2', getExcelDateNumber('1900-01-01') === 2));
 
+      // Test QRCode library availability
       out.push(test('QRCode lib available (may be false if offline)', !!window.QRCode));
 
+      // Hiển thị kết quả test
       const box = document.getElementById('testOutput');
-      box.classList.remove('hidden');
-      box.textContent = out.join('\n');
+      box.classList.remove('hidden'); // Show test output
+      box.textContent = out.join('\n'); // Join tất cả test results
       showStatus('Đã chạy kiểm thử, xem kết quả bên dưới', 'success');
     }
 
-    // --- Event wiring ---
-    document.getElementById('generateButton').addEventListener('click', () => { void generateLabels(); });
+    // --- Event Listeners - Gắn các sự kiện cho UI elements ---
+    
+    // Event listener cho nút "Tạo mã QR"
+    document.getElementById('generateButton').addEventListener('click', () => { 
+      void generateLabels(); // Call async function (void để tránh warning)
+    });
+    
+    // Event listener cho nút "In A5 dọc"
     document.getElementById('printButton').addEventListener('click', () => window.print());
+    
+    // Event listener cho nút "Copy mã QR"
     document.getElementById('copyQRButton').addEventListener('click', () => {
       if (currentQRData.length === 0) { 
         showStatus('Vui lòng tạo mã QR trước đã!', 'error'); 
         return; 
       }
-      const text = currentQRData.join('\n');
+      
+      const text = currentQRData.join('\n'); // Join tất cả QR text
+      
+      // Copy vào clipboard
       navigator.clipboard.writeText(text).then(() => {
         showStatus(`Đã copy ${currentQRData.length} mã QR vào clipboard!`, 'success');
       }, () => { 
         showStatus('Không thể copy vào clipboard. Hãy thử lại.', 'error');
       });
     });
+    
+    // Event listener cho nút "Chạy test"
     document.getElementById('runTestsBtn').addEventListener('click', runSelfTests);
-    document.getElementById('sendToSheetBtn').addEventListener('click', () => { void sendToGoogleSheet(); });
+    
+    // Event listener cho nút "Gửi Google Sheet"
+    document.getElementById('sendToSheetBtn').addEventListener('click', () => { 
+      void sendToGoogleSheet(); // Call async function
+    });
 
-    // Switch modes
+    // Event listener cho mode switcher (textarea vs table)
     document.querySelectorAll('input[name="mode"]').forEach(r => {
       r.addEventListener('change', () => {
         const isTextarea = currentMode() === 'textarea';
+        
+        // Show/hide tương ứng mode
         document.getElementById('textareaMode').classList.toggle('hidden', !isTextarea);
         document.getElementById('tableMode').classList.toggle('hidden', isTextarea);
       });
     });
 
-    // Table buttons
-    document.getElementById('addRowBtn').addEventListener('click', () => addRow());
-    document.getElementById('clearTableBtn').addEventListener('click', clearTable);
-    document.getElementById('pasteFromTextareaBtn').addEventListener('click', importFromTextareaToTable);
+    // Event listeners cho table controls
+    document.getElementById('addRowBtn').addEventListener('click', () => addRow());                    // Thêm dòng
+    document.getElementById('clearTableBtn').addEventListener('click', clearTable);                  // Clear table
+    document.getElementById('pasteFromTextareaBtn').addEventListener('click', importFromTextareaToTable); // Import từ textarea
 
-    // Row delete via event delegation
+    // Event delegation cho nút xóa row trong table
     document.querySelector('#inputTable tbody').addEventListener('click', (e) => {
-      if (e.target.classList.contains('delRow')) {
-        e.target.closest('tr').remove();
+      if (e.target.classList.contains('delRow')) { // Check nếu click vào nút delete row
+        e.target.closest('tr').remove();            // Tìm tr gần nhất và xóa
         showStatus('Đã xóa dòng khỏi bảng', 'success');
       }
     });
 
-    // Set today's date as default
+    // ===== INITIALIZATION - Khởi tạo ứng dụng =====
+    
+    // Set ngày hôm nay làm default cho date picker
     document.getElementById('datePicker').valueAsDate = new Date();
     
-    // Seed: một dòng mẫu khi mở bảng lần đầu
-    addRow({ sku: 'N009-SI-00*1', name: 'Vung 22 chảo sâu lòng Engler - màu bạc', qty: '3', wh: 'HH' });
+    // Seed: thêm một dòng mẫu vào table khi khởi động
+    addRow({ 
+      sku: 'N009-SI-00*1', 
+      name: 'Vung 22 chảo sâu lòng Engler - màu bạc', 
+      qty: '3', 
+      wh: 'HH' 
+    });
+  </script>
+
+  <!-- ===== PHẦN JAVASCRIPT CHO XỬ LÝ FILE (từ document đầu) ===== -->
+  <script type="text/javascript">
+    // Các biến global cho việc xử lý file Excel
+    var gk_isXlsx = false;           // Flag check file có phải Excel không
+    var gk_xlsxFileLookup = {};      // Lookup table cho file Excel
+    var gk_fileData = {};            // Data của các files
+
+    // Hàm check cell có dữ liệu không
+    function filledCell(cell) {
+      return cell !== '' && cell != null; // Cell khác rỗng và không null
+    }
+
+    // Hàm load data từ file (chủ yếu cho Excel)
+    function loadFileData(filename) {
+      // Nếu là file Excel và có trong lookup
+      if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+        try {
+          // Đọc workbook từ base64 data
+          var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+          var firstSheetName = workbook.SheetNames[0];  // Lấy sheet đầu tiên
+          var worksheet = workbook.Sheets[firstSheetName]; // Lấy worksheet
+
+          // Convert sheet thành JSON để filter blank rows
+          var jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+            header: 1,        // Dùng số thay vì header names
+            blankrows: false, // Không include blank rows
+            defval: ''        // Default value cho empty cells
+          });
+          
+          // Filter ra các rows trống (rows mà tất cả cells đều empty)
+          var filteredData = jsonData.filter(row => row.some(filledCell));
+
+          // Heuristic tìm header row: tìm row có số cells filled >= row tiếp theo
+          var headerRowIndex = filteredData.findIndex((row, index) =>
+            row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+          );
+          
+          // Fallback nếu không tìm được header hoặc header quá xa
+          if (headerRowIndex === -1 || headerRowIndex > 25) {
+            headerRowIndex = 0; // Dùng row đầu tiên
+          }
+
+          // Convert filtered data trở lại CSV format
+          var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Tạo sheet mới từ filtered array
+          csv = XLSX.utils.sheet_to_csv(csv, { header: 1 }); // Convert sheet thành CSV string
+          return csv;
+        } catch (e) {
+          console.error(e); // Log lỗi
+          return "";        // Return empty string nếu có lỗi
+        }
+      }
+      
+      // Nếu không phải Excel hoặc không có file, return raw data
+      return gk_fileData[filename] || "";
+    }
   </script>
 </body>
 </html>
