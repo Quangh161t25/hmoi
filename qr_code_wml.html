@@ -237,7 +237,6 @@ ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
       <button id="generateButton" type="button" class="btn-primary">📦 Tạo mã QR</button>           <!-- Nút tạo QR -->
       <button id="printButton" type="button" class="btn-secondary">🖨️ In A5 dọc</button>          <!-- Nút in -->
       <button id="copyQRButton" type="button" class="btn-secondary">📋 Copy mã QR</button>         <!-- Nút copy QR text -->
-      <button id="sendToSheetBtn" type="button" class="btn-success" title="Gửi dữ liệu sang Google Sheet">📤 Gửi Google Sheet</button> <!-- Nút gửi Google Sheets -->
       <button id="runTestsBtn" type="button" class="btn-secondary" title="Chạy kiểm thử nội bộ">🧪 Chạy test</button> <!-- Nút chạy test -->
     </div>
 
@@ -257,12 +256,9 @@ ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
 
   <script>
     // ====== CẤU HÌNH (thay giá trị bên dưới) ======
-    // URL của Google Apps Script Web App để gửi dữ liệu lên Google Sheets
-    const WEBAPP_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhsc6_p65kdQxJDoxaW5SMmUTDBrLy0fkftMHiAgDlAaz1t_9WNg3pEjGNqeJQYJe8dxKWXppKmTi40AdqmphDUqKTH-KFP_DG6AOfeZ-eg5SPxdMA-BBSDPHfTYVmIyBhCxfQiP7WSwpNQmWsrrpA5njSpbZoY6nLWKAbzCTZtRO9XvRMNVS7jhxw7km75FzMwExv9eMnQyETjI0Cb80KRJTIDeEscClqGBxLybeP3hptBm8WFXkTOCZSKr5DQTJcByQ-N1hTINctFYfvWbvHSzmDJ7Co0JNOK63m8&lib=MaMZdCsnl_NQ26YddpdBAcY1n0BzfRUfT';
+    // Đã bỏ biến WEBAPP_URL
     // ==============================================
-
     let currentQRData = [];      // Mảng chứa các mã QR text hiện tại
-    let dataCacheForExport = []; // Cache dữ liệu để gửi lên Google Sheet
 
     // --- QRCode loader with fallback ---
     // Danh sách các URL CDN để tải thư viện QRCode (có fallback)
@@ -605,70 +601,10 @@ ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
         return;
       }
 
-      // Update cache để gửi Google Sheet (tạo shallow copy)
-      dataCacheForExport = data.map(d => ({
-        skuText: d.skuText,
-        descText: d.descText,
-        serialDate: d.serialDate,
-        serialNum: d.serialNum,
-        warehouseText: d.warehouseText,
-        qrText: d.qrText
-      }));
-
       // Update UI
       document.getElementById('qrTextDisplay').textContent = currentQRData.join('\n'); // Hiển thị QR text
       renderLabels(data); // Render các nhãn
       showStatus(`Đã tạo ${data.length} nhãn QR thành công!`, 'success'); // Show success message
-    }
-
-    // Hàm gửi dữ liệu lên Google Sheets
-    async function sendToGoogleSheet() {
-      // Validate WEBAPP_URL đã được config
-      if (!WEBAPP_URL || WEBAPP_URL.includes('YOUR_DEPLOYMENT_ID')) {
-        showStatus('Vui lòng cấu hình WEBAPP_URL với URL Web App của Google Apps Script.', 'error');
-        return;
-      }
-      
-      // Validate có data để gửi
-      if (!Array.isArray(dataCacheForExport) || dataCacheForExport.length === 0) {
-        showStatus('Vui lòng tạo QR trước khi gửi Google Sheet.', 'error');
-        return;
-      }
-
-      try {
-        // Update UI button để show loading state
-        const btn = document.getElementById('sendToSheetBtn');
-        btn.disabled = true;                    // Disable button
-        btn.innerHTML = '⏳ Đang gửi...';        // Change text
-
-        // Gửi POST request tới Google Apps Script
-        const res = await fetch(WEBAPP_URL, {
-          method: 'POST',                                    // HTTP method
-          headers: { 'Content-Type': 'application/json' },  // Content type
-          body: JSON.stringify(dataCacheForExport)           // JSON payload
-        });
-
-        // Check HTTP status
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        
-        // Parse JSON response (với fallback nếu không parse được)
-        const json = await res.json().catch(() => ({ status: 'ok' }));
-
-        // Check response status
-        if (json.status === 'ok') {
-          showStatus(`Đã gửi ${dataCacheForExport.length} bản ghi vào Google Sheet thành công!`, 'success');
-        } else {
-          showStatus('Phản hồi không như kỳ vọng: ' + JSON.stringify(json), 'error');
-        }
-      } catch (err) {
-        // Handle errors
-        showStatus('Lỗi khi gửi dữ liệu: ' + err.message + '\n• Kiểm tra quyền truy cập của Web App\n• Kiểm tra Triggers/Deploy đúng phiên bản', 'error');
-      } finally {
-        // Restore button state
-        const btn = document.getElementById('sendToSheetBtn');
-        btn.disabled = false;                   // Enable lại button
-        btn.innerHTML = '📤 Gửi Google Sheet';  // Restore text
-      }
     }
 
     // --- Self test functions ---
@@ -743,11 +679,6 @@ ABC-123|Sản phẩm mẫu|1-5|KHO1"></textarea>
     // Event listener cho nút "Chạy test"
     document.getElementById('runTestsBtn').addEventListener('click', runSelfTests);
     
-    // Event listener cho nút "Gửi Google Sheet"
-    document.getElementById('sendToSheetBtn').addEventListener('click', () => { 
-      void sendToGoogleSheet(); // Call async function
-    });
-
     // Event listener cho mode switcher (textarea vs table)
     document.querySelectorAll('input[name="mode"]').forEach(r => {
       r.addEventListener('change', () => {
