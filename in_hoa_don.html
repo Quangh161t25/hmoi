@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Hóa đơn bán hàng</title>
+  <style>
+    body { font-family: monospace, Arial, sans-serif; margin: 20px; font-size: 14px; }
+    .seller { text-align: center; margin-bottom: 12px; }
+    .seller h2 { margin: 0; font-size: 16px; }
+    .seller div { margin: 2px 0; }
+    .product { margin: 4px 0; }
+    .name { font-weight: bold; }
+    .detail { display: flex; justify-content: space-between; margin-left: 10px; }
+    .footer { margin-top: 20px; text-align: center; font-style: italic; }
+    hr { border: none; border-top: 1px dashed #000; margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <div class="seller">
+    <h2 id="shopName">CỬA HÀNG ABC</h2>
+    <div>ĐT: <span id="shopPhone">—</span></div>
+    <div>Địa chỉ: <span id="shopAddress">—</span></div>
+  </div>
+
+  <div>Ngày giờ in: <span id="printDate"></span></div>
+  <hr>
+
+  <div id="itemsList"></div>
+  <hr>
+
+  <div style="text-align:right; font-weight:bold;">
+    Tổng cộng: <span id="grandTotal">0</span>
+  </div>
+
+  <div class="footer" id="thankyou">Xin cảm ơn Quý khách!</div>
+
+  <script>
+    function getParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name) || '';
+    }
+
+    // Thông tin cửa hàng
+    document.getElementById("shopName").textContent = getParam("shopName") || "CỬA HÀNG QUÁN QUEN";
+    document.getElementById("shopPhone").textContent = getParam("shopPhone") || "0123456789";
+    document.getElementById("shopAddress").textContent = getParam("shopAddress") || "28 ĐƯỜNG 11 LINH XUÂN THỦ ĐỨC HỒ CHÍ MINH ";
+    document.getElementById("thankyou").textContent = getParam("thankyou") || "Xin cảm ơn Quý khách!";
+
+    // Ngày giờ
+    const now = new Date();
+    document.getElementById("printDate").textContent = now.toLocaleString("vi-VN");
+
+    // Parse sản phẩm
+    const raw = decodeURIComponent(getParam("items"));
+    const rows = raw.split("_a_").filter(r => r.trim() !== "");
+    const list = document.getElementById("itemsList");
+    let total = 0;
+
+    rows.forEach(row => {
+      const parts = row.split("|").map(p => p.trim());
+      if (parts.length === 4) {
+        const [name, price, qty, amount] = parts;
+        const priceNum = parseFloat(price.replace(/\./g, "")) || 0;
+        const amountNum = parseFloat(amount.replace(/\./g, "")) || 0;
+        total += amountNum;
+
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <div class="name">${name}</div>
+          <div class="detail">
+            <span>${qty}</span>
+            <span>${priceNum.toLocaleString("vi-VN")}</span>
+            <span>${amountNum.toLocaleString("vi-VN")}</span>
+          </div>
+        `;
+        list.appendChild(div);
+      }
+    });
+
+    document.getElementById("grandTotal").textContent = total.toLocaleString("vi-VN");
+  </script>
+</body>
+</html>
