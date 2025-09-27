@@ -52,7 +52,7 @@
 
     // Parse sản phẩm
     const raw = decodeURIComponent(getParam("items"));
-    const rows = raw.split("_a_,").filter(r => r.trim() !== "");
+    const rows = raw.split("_a_").filter(r => r.trim() !== "");
     const list = document.getElementById("itemsList");
     let total = 0;
 
