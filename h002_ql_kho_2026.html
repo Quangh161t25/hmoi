@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP_DON_CT + Cột bổ sung</title>
+
+  <style>
+    /* =======================
+       PHẦN GIAO DIỆN (CSS) ĐÃ TỐI ƯU
+       ======================= */
+
+    * { 
+      box-sizing: border-box; 
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      margin: 0; 
+      padding: 20px; 
+      background-color: #f5f9ff; 
+      color: #333;
+    }
+    
+    .container { 
+      max-width: 100%; 
+      background: #fff; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 20px rgba(0,0,0,.08); 
+      overflow: hidden; 
+    }
+
+    .header { 
+      background: linear-gradient(135deg, #4a6ee0 0%, #6a3db3 100%); 
+      color: #fff; 
+      padding: 24px 20px; 
+      text-align: center; 
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+    
+    .header h2 { 
+      margin: 0; 
+      font-size: 26px; 
+      font-weight: 500; 
+      position: relative;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .controls { 
+      padding: 18px 20px; 
+      background: #f8fafe; 
+      border-bottom: 1px solid #e1e8f0; 
+      display: flex; 
+      gap: 12px; 
+      align-items: center; 
+      flex-wrap: wrap; 
+    }
+    
+    .search-box { 
+      flex: 1; 
+      min-width: 200px; 
+      padding: 10px 14px; 
+      border: 1px solid #d1d9e6; 
+      border-radius: 6px; 
+      font-size: 14px; 
+      transition: all 0.3s ease;
+      background: #fff;
+    }
+    
+    .search-box:focus {
+      outline: none;
+      border-color: #4a6ee0;
+      box-shadow: 0 0 0 3px rgba(74, 110, 224, 0.1);
+    }
+    
+    .btn { 
+      padding: 10px 18px; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-size: 14px; 
+      font-weight: 500;
+      transition: all 0.3s ease; 
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-primary { 
+      background: #4a6ee0; 
+      color: #fff; 
+    }
+    
+    .btn-primary:hover { 
+      background: #3a5ecf; 
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(74, 110, 224, 0.2);
+    }
+    
+    .btn-success { 
+      background: #2ecc71; 
+      color: #fff; 
+    }
+    
+    .btn-success:hover { 
+      background: #27ae60; 
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
+    }
+
+    .loading { 
+      text-align: center; 
+      padding: 50px; 
+      color: #666; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .spinner { 
+      display: inline-block; 
+      width: 32px; 
+      height: 32px; 
+      border: 4px solid #f3f3f3; 
+      border-top: 4px solid #4a6ee0; 
+      border-radius: 50%; 
+      animation: spin 1s linear infinite; 
+    }
+    
+    @keyframes spin { 
+      0% { transform: rotate(0deg);} 
+      100% { transform: rotate(360deg);} 
+    }
+
+    .table-wrapper { 
+      overflow-x: auto; 
+      max-height: 65vh; 
+      border: 1px solid #e1e8f0;
+      border-radius: 8px;
+      margin: 0 20px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    table { 
+      border-collapse: collapse; 
+      width: 100%; 
+      font-size: 13px; 
+      background: #fff; 
+      min-width: 1200px;
+    }
+    
+    th, td { 
+      border: 1px solid #e8edf5; 
+      padding: 10px 8px; 
+      text-align: left; 
+      white-space: nowrap; 
+    }
+    
+    th { 
+      background: linear-gradient(to bottom, #f8fafe, #eef2f9); 
+      position: sticky; 
+      top: 0; 
+      font-weight: 600; 
+      color: #2c3e50; 
+      z-index: 10; 
+      box-shadow: 0 2px 3px -1px rgba(0,0,0,.1); 
+      border-bottom: 2px solid #d1d9e6;
+    }
+    
+    tr:nth-child(even) { 
+      background-color: #fafcff; 
+    }
+    
+    tr:hover { 
+      background-color: #f0f5ff; 
+    }
+
+    /* Tô vàng đơn hủy */
+    .cancelled-order { 
+      background-color: #fff9e6 !important; 
+      border-left: 4px solid #e6b400 !important; 
+    }
+    
+    .cancelled-order td { 
+      background-color: #fff9e6 !important; 
+    }
+    
+    .cancelled-order:hover td { 
+      background-color: #fff0b3 !important; 
+    }
+
+    .error { 
+      background: #ffeaea; 
+      color: #d63031; 
+      padding: 16px 20px; 
+      margin: 20px; 
+      border-radius: 8px; 
+      border: 1px solid #ffcccc; 
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .error::before {
+      content: '⚠️';
+      font-size: 18px;
+    }
+    
+    .stats { 
+      padding: 14px 20px; 
+      background: #f0f5ff; 
+      color: #2c3e50; 
+      font-size: 14px; 
+      border-top: 1px solid #e1e8f0; 
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .stats-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .stats-badge {
+      background: #4a6ee0;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .stats-badge.huy {
+      background: #e6b400;
+    }
+    
+    .stats-badge.hople {
+      background: #2ecc71;
+    }
+
+    /* Cải tiến responsive */
+    @media (max-width: 1024px) {
+      .table-wrapper {
+        margin: 0 10px 10px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      .controls { 
+        flex-direction: column; 
+        align-items: stretch; 
+        gap: 12px;
+      }
+      
+      .search-box { 
+        min-width: unset; 
+        margin-bottom: 0; 
+      }
+      
+      .btn-group {
+        display: flex;
+        gap: 10px;
+      }
+      
+      .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      
+      .stats {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header h2 {
+        font-size: 20px;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+    
+    /* Scrollbar tùy chỉnh */
+    .table-wrapper::-webkit-scrollbar {
+      height: 10px;
+      width: 10px;
+    }
+    
+    .table-wrapper::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+    
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 5px;
+    }
+    
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+    
+    /* Hiệu ứng cho các hàng khi tải */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    tr {
+      animation: fadeIn 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Tiêu đề -->
+    <div class="header">
+      <h2>Dữ liệu từ Sheet UP_DON_CT (kèm cột bổ sung)</h2>
+    </div>
+
+    <!-- Thanh công cụ: tìm kiếm, lọc theo ngày, làm mới, xuất CSV/Excel -->
+    <div class="controls">
+      <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm trong bảng...">
+      <input type="date" id="dateFilter" class="search-box" style="max-width:200px;">
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="refreshData()">
+          <span>🔄</span> Làm mới
+        </button>
+        <button class="btn btn-success" onclick="exportToCSV()">
+          <span>📊</span> Xuất CSV
+        </button>
+        <button class="btn btn-success" onclick="exportToExcel()">
+          <span>📋</span> Xuất Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- Trạng thái loading -->
+    <div id="loadingDiv" class="loading">
+      <span class="spinner"></span>
+      <div>Đang tải dữ liệu...</div>
+    </div>
+
+    <!-- Hiển thị lỗi -->
+    <div id="errorDiv" class="error" style="display:none;"></div>
+
+    <!-- Bảng dữ liệu -->
+    <div class="table-wrapper" id="tableWrapper" style="display:none;">
+      <table id="data-table">
+        <thead><tr id="header-row"></tr></thead>
+        <tbody id="data-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Thống kê -->
+    <div class="stats" id="statsDiv" style="display:none;"></div>
+  </div>
+
+  <!-- SheetJS để xuất Excel .xlsx -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <script>
+    /* =======================
+       CẤU HÌNH & TRẠNG THÁI
+       ======================= */
+
+    // API Google Apps Script trả về JSON
+    const API_URL = "https://script.google.com/macros/s/AKfycbwwR3GI-ZwWKsueXHJX2rehWzjZOW9MfeQsmbY_mPSk0F6asm3BwfBh1Pps3jELfYJ7/exec";
+
+    // Biến giữ dữ liệu gốc và dữ liệu đang hiển thị (sau lọc)
+    let originalData = [];
+    let filteredData = [];
+
+    /* =======================
+       KHAI BÁO CỘT BỔ SUNG
+       - Giữ đủ mọi cột trên UI và khi xuất
+       - Nếu không có dữ liệu thì dùng default
+       ======================= */
+    const extraColumns = [
+      { name: "Hiển thị trên sổ", default: "0" },
+      { name: "Hình thức bán hàng", default: "0" },
+      { name: "Phương thức thanh toán", default: "0" },
+      { name: "Kiêm phiếu xuất kho", default: "1" },
+      { name: "Lập kèm hóa đơn", default: "0" },
+      { name: "Đã lập hóa đơn", default: "0" },
+      { name: "Ngày hạch toán (*)", default: "" },
+      { name: "Ngày chứng từ (*)", default: "" },
+      { name: "Số chứng từ (*)", default: "" },
+      { name: "Số phiếu xuất", default: "" },
+      { name: "Lý do xuất", default: "" },
+      { name: "Số hóa đơn", default: "" },
+      { name: "Ngày hóa đơn", default: "" },
+      { name: "Mã đơn hàng", default: "" },
+      { name: "Mã thống kê", default: "" },
+      { name: "Mã khách hàng", default: "" },
+      { name: "Tên khách hàng", default: "" },
+      { name: "Địa chỉ", default: "" },
+      { name: "Mã số thuế", default: "" },
+      { name: "Diễn giải", default: "" },
+      { name: "Nộp vào TK", default: "" },
+      { name: "NV bán hàng", default: "" },
+      { name: "Mã hàng (*)", default: "" },
+      { name: "Tên hàng", default: "" },
+      { name: "Hàng khuyến mại", default: "" },
+      { name: "TK Tiền/Chi phí/Nợ (*)", default: "131" },
+      { name: "TK Doanh thu/Có (*)", default: "5111" },
+      { name: "ĐVT", default: "" },
+      { name: "Số lượng", default: "" },
+      { name: "Đơn giá sau thuế", default: "" },
+      { name: "Đơn giá", default: "" },            /* <-- sẽ hiển thị từ row.don_gia_1 */
+      { name: "Thành tiền", default: "" },         /* <-- don_gia_1 * slg_xuat */
+      { name: "Tỷ lệ CK (%)", default: "" },
+      { name: "Tiền chiết khấu", default: "" },
+      { name: "TK chiết khấu", default: "" },
+      { name: "Giá tính thuế XK", default: "" },
+      { name: "% thuế XK", default: "" },
+      { name: "Tiền thuế XK", default: "" },
+      { name: "TK thuế XK", default: "" },
+      { name: "% thuế GTGT", default: "" },
+      { name: "Tiền thuế GTGT", default: "" },
+      { name: "TK thuế GTGT", default: "" },
+      { name: "HH không TH trên tờ khai thuế GTGT", default: "" },
+      { name: "Kho", default: "KMN" },
+      { name: "TK giá vốn", default: "632" },
+      { name: "TK Kho", default: "1561" },
+      { name: "Đơn giá vốn", default: "" },
+      { name: "Tiền vốn", default: "" },
+      { name: "Hàng hóa giữ hộ/bán hộ", default: "" }
+    ];
+
+    /* =======================
+       HÀM TIỆN ÍCH (Helper)
+       ======================= */
+
+    // Chuẩn hoá trạng thái để so sánh an toàn
+    function normalizeStatus(val) { return String(val || "").trim().toUpperCase(); }
+    function isCancelled(row) { return normalizeStatus(row.trang_thai) === "1 HỦY"; }
+
+    // Định dạng ngày dd/mm/yyyy (đầu vào có thể là chuỗi date hoặc ISO)
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (isNaN(d)) return "";
+      return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
+    }
+
+    // Định dạng ngày ddmmyy để gắn vào Số chứng từ
+    function formatDateShort(dateStr) {
+      const d = new Date(dateStr);
+      if (isNaN(d)) return "";
+      return `${String(d.getDate()).padStart(2,"0")}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getFullYear()).slice(-2)}`;
+    }
+
+    // Chuyển giá trị về số an toàn (loại , và space)
+    function toNumber(v) {
+      const n = parseFloat(String(v ?? "").replace(/[\s,]/g, ""));
+      return isNaN(n) ? 0 : n;
+    }
+
+    // Tạo Số chứng từ / Số phiếu xuất theo quy tắc đã mô tả
+    function generateSoChungTu(row) {
+      let prefix = "";
+      const sanValue = (row["san"] || "").toUpperCase().trim();
+      const khungValue = (row["khung_h"] || "").trim();
+
+      if (sanValue === "SHOPEE") prefix = (khungValue === "10H" ? "N " : "") + "SPE";
+      else if (sanValue === "LAZADA") prefix = "LDZ";
+      else if (sanValue === "BEST") prefix = "GHN";
+      else if (sanValue === "ĐƠN NGOÀI") prefix = "XDN";
+
+      const maGian = (row["ma_gian"] || "").trim();
+      const ngayFmt = formatDateShort(row["ngay"]);
+      return prefix && maGian && ngayFmt ? `${prefix}-${maGian}-${ngayFmt}.MN` : "";
+    }
+
+    // Sinh Diễn giải tuỳ theo sàn/khung giờ
+    function generateDienGiai(row) {
+      const sanValue = (row["san"] || "").trim();
+      const khungValue = (row["khung_h"] || "").trim();
+      const part = (sanValue === "ĐƠN NGOÀI") ? " " : (khungValue === "10H" ? " NOW " : " ");
+      return `MN${part}${sanValue} NGÀY ${formatDate(row["ngay"])}`;
+    }
+
+    // Lấy giá trị hiển thị cho từng cột (gồm cả cột bổ sung & cột JSON)
+    function getCellValue(row, columnName) {
+      // Cột ngày: hiển thị dd/mm/yyyy
+      if (columnName === "Ngày hạch toán (*)" || columnName === "Ngày chứng từ (*)") 
+        return formatDate(row["ngay"]);
+
+      // Số chứng từ / phiếu xuất
+      if (columnName === "Số chứng từ (*)" || columnName === "Số phiếu xuất")
+        return generateSoChungTu(row);
+
+      // Mã đơn hàng = mdh/mvd (nếu đủ), hoặc mdh, hoặc mvd
+      if (columnName === "Mã đơn hàng") {
+        const mdh = row["mdh"] || "";
+        const mvd = row["mvd"] || "";
+        return mdh && mvd ? `${mdh}/${mvd}` : (mdh || mvd);
+      }
+
+      // Mã KH = mã gian
+      if (columnName === "Mã khách hàng") return row["ma_gian"] || "";
+
+      // Diễn giải
+      if (columnName === "Diễn giải") return generateDienGiai(row);
+
+      // Mã hàng (*)
+      if (columnName === "Mã hàng (*)") return row["sku_cha"] || "";
+
+    
+
+      // Số lượng
+      if (columnName === "Số lượng") return row["slg_xuat"] || "";
+
+      // Đơn giá: LẤY TỪ don_gia_1 (theo yêu cầu)
+      if (columnName === "Đơn giá") {
+        const dg = toNumber(row["don_gia_1"]);
+        return dg ? dg.toLocaleString('vi-VN') : "";
+      }
+
+      // Thành tiền = don_gia_1 * slg_xuat (theo yêu cầu)
+      if (columnName === "Thành tiền") {
+        const donGia = toNumber(row["don_gia_1"]);
+        const soLuong = toNumber(row["slg_xuat"]);
+        const thanhTien = donGia * soLuong;
+        return thanhTien ? thanhTien.toLocaleString('vi-VN') : "";
+      }
+
+      // Nếu là cột bổ sung -> trả mặc định; nếu là cột JSON gốc -> trả theo dữ liệu
+      const extra = extraColumns.find(c => c.name === columnName);
+      return extra ? extra.default : (row[columnName] || "");
+    }
+
+    /* =======================
+       HÀM QUẢN LÝ UI
+       ======================= */
+    function showLoading() {
+      document.getElementById('loadingDiv').style.display = 'flex';
+      document.getElementById('tableWrapper').style.display = 'none';
+      document.getElementById('statsDiv').style.display = 'none';
+      document.getElementById('errorDiv').style.display = 'none';
+    }
+    
+    function hideLoading() {
+      document.getElementById('loadingDiv').style.display = 'none';
+    }
+    
+    function showError(message) {
+      const errorDiv = document.getElementById('errorDiv');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'flex';
+      hideLoading();
+    }
+    
+    function showTable() {
+      document.getElementById('tableWrapper').style.display = 'block';
+      document.getElementById('statsDiv').style.display = 'flex';
+      hideLoading();
+    }
+
+    /* =======================
+       RENDER BẢNG
+       - Sắp xếp theo ngày mới nhất
+       - Tô vàng đơn hủy
+       ======================= */
+    function renderTable(data) {
+      if (!data || !data.length) {
+        showError("Không có dữ liệu để hiển thị");
+        return;
+      }
+
+      // Sắp xếp theo ngày (mới nhất trước)
+      const sorted = [...data].sort((a,b) => new Date(b.ngay || 0) - new Date(a.ngay || 0));
+
+      // Tạo header: cột bổ sung + cột JSON gốc
+      const jsonHeaders = Object.keys(sorted[0]);
+      const allHeaders = extraColumns.map(c => c.name).concat(jsonHeaders);
+
+      const headerRow = document.getElementById("header-row");
+      const body = document.getElementById("data-body");
+      headerRow.innerHTML = "";
+      body.innerHTML = "";
+
+      // Render header
+      allHeaders.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        headerRow.appendChild(th);
+      });
+
+      // Render rows
+      sorted.forEach(row => {
+        const tr = document.createElement("tr");
+        if (isCancelled(row)) tr.classList.add('cancelled-order'); // tô vàng đơn hủy
+        allHeaders.forEach(col => {
+          const td = document.createElement("td");
+          td.textContent = getCellValue(row, col);
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+
+      filteredData = sorted;
+      updateStats(); // cập nhật thống kê
+      showTable();
+    }
+
+    /* =======================
+       THỐNG KÊ
+       - Tổng hiển thị
+       - ✅ hợp lệ (không hủy)
+       - 🟨 hủy
+       ======================= */
+    function updateStats() {
+      const total = originalData.length;
+      const visible = filteredData.length;
+      const huy = filteredData.filter(r => isCancelled(r)).length;
+      const hopLe = visible - huy;
+      
+      document.getElementById('statsDiv').innerHTML = `
+        <div class="stats-item">
+          <span>Tổng số dòng:</span>
+          <span class="stats-badge">${total}</span>
+        </div>
+        <div class="stats-item">
+          <span>Hiển thị:</span>
+          <span class="stats-badge">${visible}</span>
+        </div>
+        <div class="stats-item">
+          <span>✅ Đơn hợp lệ:</span>
+          <span class="stats-badge hople">${hopLe}</span>
+        </div>
+        <div class="stats-item">
+          <span>🟨 Đơn hủy:</span>
+          <span class="stats-badge huy">${huy}</span>
+        </div>
+      `;
+    }
+
+    /* =======================
+       LỌC DỮ LIỆU
+       - Theo ngày (chính xác theo ngày)
+       - Theo từ khoá (tìm trong mọi cột JSON)
+       ======================= */
+    function filterTable(searchTerm) {
+      const selectedDate = document.getElementById('dateFilter').value;
+      let filtered = [...originalData];
+
+      if (selectedDate) {
+        const filterDate = new Date(selectedDate);
+        filtered = filtered.filter(row => new Date(row.ngay).toDateString() === filterDate.toDateString());
+      }
+      if (searchTerm && searchTerm.trim()) {
+        const t = searchTerm.toLowerCase();
+        filtered = filtered.filter(row => Object.values(row).some(v => String(v).toLowerCase().includes(t)));
+      }
+      renderTable(filtered);
+    }
+    
+    function filterByDate() {
+      const term = document.getElementById('searchInput').value;
+      filterTable(term);
+    }
+
+    /* =======================
+       XUẤT CSV
+       - Lấy từ filteredData (những gì đang hiển thị)
+       - Loại bỏ đơn hủy
+       - Xuất đầy đủ: cột bổ sung + cột JSON
+       ======================= */
+    function exportToCSV() {
+      if (!filteredData.length) { alert('Không có dữ liệu để xuất'); return; }
+
+      // Chỉ xuất đơn KHÔNG HỦY
+      const dataToExport = filteredData.filter(r => !isCancelled(r));
+      if (!dataToExport.length) { alert('Không có dữ liệu hợp lệ để xuất'); return; }
+
+      const jsonHeaders = Object.keys(dataToExport[0]);
+      const allHeaders = extraColumns.map(c => c.name).concat(jsonHeaders);
+
+      let csv = allHeaders.map(h => `"${h}"`).join(',') + '\n';
+      dataToExport.forEach(row => {
+        const values = allHeaders.map(col => `"${String(getCellValue(row, col)).replace(/"/g, '""')}"`);
+        csv += values.join(',') + '\n';
+      });
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `UP_DON_CT_${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
+    }
+
+    /* =======================
+       XUẤT EXCEL (.xlsx) - SheetJS
+       - YÊU CẦU: chọn ngày
+       - Lọc theo ngày + loại bỏ đơn hủy
+       - Chỉ xuất CỘT BỔ SUNG, luôn đủ cột theo thứ tự
+       ======================= */
+    function exportToExcel() {
+      const selectedDate = document.getElementById('dateFilter').value;
+      if (!selectedDate) { alert('Vui lòng chọn ngày để xuất Excel'); return; }
+
+      const filterDate = new Date(selectedDate);
+      const dateFiltered = originalData.filter(r => new Date(r.ngay).toDateString() === filterDate.toDateString());
+
+      // Chỉ xuất đơn KHÔNG HỦY
+      const dataToExport = dateFiltered.filter(r => !isCancelled(r));
+      if (!dataToExport.length) { alert('Không có dữ liệu hợp lệ cho ngày đã chọn'); return; }
+
+      // Chỉ cột bổ sung (đủ, đúng thứ tự)
+      const onlyExtraCols = extraColumns.map(c => c.name);
+      const exportData = dataToExport.map(r => {
+        const obj = {};
+        onlyExtraCols.forEach(col => { obj[col] = getCellValue(r, col); });
+        return obj;
+      });
+
+      // Tạo worksheet với header đúng thứ tự; set độ rộng cột
+      const ws = XLSX.utils.json_to_sheet(exportData, { header: onlyExtraCols });
+      ws['!cols'] = onlyExtraCols.map(() => ({ wch: 20 }));
+
+      // Tạo workbook + ghi file
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "UP_DON_CT");
+
+      const dateStr = filterDate.toLocaleDateString('vi-VN').replace(/\//g, '-');
+      XLSX.writeFile(wb, `UP_DON_CT_BỔ_SUNG_${dateStr}.xlsx`);
+    }
+
+    /* =======================
+       TẢI DỮ LIỆU & SỰ KIỆN
+       ======================= */
+    function loadData() {
+      showLoading();
+      fetch(API_URL)
+        .then(resp => {
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          return resp.json();
+        })
+        .then(data => {
+          // Đảm bảo là mảng
+          originalData = Array.isArray(data) ? data : [];
+          filteredData = [...originalData];
+          renderTable(filteredData);
+        })
+        .catch(err => {
+          console.error(err);
+          showError(`Không thể tải dữ liệu: ${err.message}`);
+        });
+    }
+    
+    function refreshData() { 
+      loadData(); 
+    }
+
+    // Lắng nghe sự kiện người dùng
+    document.getElementById('searchInput').addEventListener('input', e => filterTable(e.target.value));
+    document.getElementById('dateFilter').addEventListener('change', filterByDate);
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>
