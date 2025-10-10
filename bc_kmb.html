@@ -20,6 +20,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f5f9ff;margin:0;padding:20px;
 .btn{padding:10px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all .3s ease}
 .btn:hover{opacity:.9}
 .btn-primary{background:var(--primary);color:#fff}
+.btn-secondary{background:#e8ecf9;color:#333}
 .table-wrapper{overflow-x:auto;margin:20px;border:1px solid #e1e8f0;border-radius:8px}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
 th,td{border:1px solid #e8edf5;padding:8px;text-align:left;white-space:nowrap}
@@ -49,6 +50,7 @@ tr:hover{background:#f0f5ff}
       <input type="date" id="fromDate" class="search-box" />
       <input type="date" id="toDate" class="search-box" />
       <button class="btn btn-primary" onclick="filterByDate()">📅 Lọc</button>
+      <button class="btn btn-secondary" onclick="openMisa()">⬆️ Up MISA toàn ngày</button>
     </div>
 
     <div id="tableWrapper" class="table-wrapper">
@@ -73,6 +75,7 @@ tr:hover{background:#f0f5ff}
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbz3yAT5aI77h72yYbVMo-gEb9DGwVGQuhurJ6kXSI_BaP2-CIKnRdGvh759ytdrbXLIqQ/exec";
+const MISA_URL = "https://script.google.com/macros/s/AKfycbxf6OizH6DibpPiW9r7VUVCddVCftWVh9hhL0-z55xSs7PFiQZm7wnb7Md82Ac1nMxG/exec";
 let originalData = [];
 
 /* ===== Giờ Việt Nam ===== */
@@ -81,6 +84,11 @@ function nowVN(){
   const vnOffset = 7 * 60;
   const localOffset = now.getTimezoneOffset();
   return new Date(now.getTime() + (vnOffset + localOffset) * 60000);
+}
+
+/* ===== Mở trang Up MISA ===== */
+function openMisa(){
+  window.open(MISA_URL, "_blank");
 }
 
 /* ===== Chuyển Tab ===== */
@@ -120,12 +128,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const ngayParam = params.get("ngay");
       if(ngayParam){
         try {
-          const parts = ngayParam.split("/"); // 10/10/2025
+          const parts = ngayParam.split("/");
           const iso = `${parts[2]}-${parts[1]}-${parts[0]}`;
           document.getElementById("fromDate").value = iso;
           document.getElementById("toDate").value = iso;
           switchTab('data');
-          filterByDate(); // tự động lọc ngày này
+          filterByDate();
         } catch(e){
           console.error("Lỗi parse ngày:", e);
         }
@@ -169,7 +177,7 @@ function renderTable(data) {
   });
 }
 
-/* ====== Lọc theo Ngày hạch toán (Tab dữ liệu) ====== */
+/* ====== Lọc theo Ngày hạch toán ====== */
 function filterByDate(){
   const fromVal = document.getElementById("fromDate").value;
   let toVal = document.getElementById("toDate").value;
@@ -197,7 +205,7 @@ function filterByDate(){
   renderTable(filtered);
 }
 
-/* ====== Thống kê mã hàng (Tab mới) ====== */
+/* ====== Thống kê mã hàng ====== */
 function generateSummary(){
   const fromVal = document.getElementById("fromSummary").value;
   let toVal = document.getElementById("toSummary").value;
@@ -231,7 +239,7 @@ function generateSummary(){
     return;
   }
 
-  // BẢNG 1: Tổng SỐ LƯỢNG theo MÃ HÀNG
+  // 📦 SKU
   const byMaHang = {};
   filtered.forEach(r=>{
     if(!r.ma_hang) return;
@@ -240,7 +248,7 @@ function generateSummary(){
   });
   const arr1 = Object.entries(byMaHang).map(([ma,sl])=>({ma,sl})).sort((a,b)=>b.sl-a.sl);
 
-  // BẢNG 2: Số MÃ LAZADA không trùng theo MÃ KHÁCH HÀNG
+  // 🔢 MÃ GIAN
   const byMaKH = {};
   filtered.forEach(r=>{
     const kh = r.ma_kh || "Khác";
@@ -249,7 +257,6 @@ function generateSummary(){
   });
   const arr2 = Object.entries(byMaKH).map(([kh,set])=>({ma_kh:kh,count:set.size})).sort((a,b)=>b.count-a.count);
 
-  // Render 2 bảng
   let html1 = "<div class='summary-box'><h3>📦 Tổng SỐ LƯỢNG theo MÃ HÀNG</h3><table><tr><th>MÃ HÀNG</th><th>Tổng SỐ LƯỢNG</th></tr>";
   arr1.forEach(r=>{ html1 += `<tr><td>${r.ma}</td><td>${r.sl}</td></tr>`; });
   html1 += "</table></div>";
