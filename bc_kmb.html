@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BÁO CÁO MISA</title>
+<style>
+:root{
+  --primary:#4a6ee0;--gray-light:#eef3ff;--gray-medium:#d1d9e6;
+  --white:#fff;--box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+body{font-family:'Segoe UI',sans-serif;background:#f5f9ff;margin:0;padding:20px;color:#333}
+.container{background:#fff;border-radius:12px;box-shadow:var(--box-shadow);max-width:1400px;margin:0 auto;overflow:hidden}
+.header{background:linear-gradient(135deg,var(--primary),#6a3db3);color:#fff;text-align:center;padding:20px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;background:var(--gray-light);border-bottom:1px solid var(--gray-medium)}
+.tab{flex:1;min-width:180px;text-align:center;padding:12px 0;cursor:pointer;font-weight:500;border-radius:6px 6px 0 0;transition:all .3s ease}
+.tab.active{background:var(--primary);color:#fff}
+.controls{display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;background:#f8fafe;border-bottom:1px solid #e1e8f0;align-items:center}
+.search-box{padding:10px 14px;border:1px solid var(--gray-medium);border-radius:6px;font-size:14px}
+.btn{padding:10px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all .3s ease}
+.btn:hover{opacity:.9}
+.btn-primary{background:var(--primary);color:#fff}
+.table-wrapper{overflow-x:auto;margin:20px;border:1px solid #e1e8f0;border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
+th,td{border:1px solid #e8edf5;padding:8px;text-align:left;white-space:nowrap}
+th{background:#f0f3fa;position:sticky;top:0;z-index:1}
+tr:nth-child(even){background:#fafcff}
+tr:hover{background:#f0f5ff}
+.loading{text-align:center;padding:30px}
+.flex-summary{display:flex;gap:20px;flex-wrap:wrap;padding:20px}
+.summary-box{flex:1;min-width:400px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:15px}
+.summary-box h3{text-align:center;margin-top:0;color:#355ad8}
+@media(max-width:768px){.flex-summary{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h2>BÁO CÁO MISA</h2></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" id="tabData" onclick="switchTab('data')">📋 Bảng dữ liệu</div>
+    <div class="tab" id="tabSummary" onclick="switchTab('summary')">📊 Thống kê mã hàng</div>
+  </div>
+
+  <!-- 📋 BẢNG DỮ LIỆU -->
+  <div id="dataSection">
+    <div class="controls">
+      <input type="date" id="fromDate" class="search-box" />
+      <input type="date" id="toDate" class="search-box" />
+      <button class="btn btn-primary" onclick="filterByDate()">📅 Lọc</button>
+    </div>
+
+    <div id="tableWrapper" class="table-wrapper">
+      <div id="loading" class="loading">Đang tải dữ liệu...</div>
+      <table id="data-table" style="display:none;">
+        <thead><tr id="header-row"></tr></thead>
+        <tbody id="data-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 📊 THỐNG KÊ MÃ HÀNG -->
+  <div id="summarySection" style="display:none;">
+    <div class="controls">
+      <input type="date" id="fromSummary" class="search-box" />
+      <input type="date" id="toSummary" class="search-box" />
+      <button class="btn btn-primary" onclick="generateSummary()">📅 Lọc</button>
+    </div>
+
+    <div id="summaryResult" class="flex-summary"></div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbz3yAT5aI77h72yYbVMo-gEb9DGwVGQuhurJ6kXSI_BaP2-CIKnRdGvh759ytdrbXLIqQ/exec";
+let originalData = [];
+
+/* ===== Giờ Việt Nam ===== */
+function nowVN(){
+  const now = new Date();
+  const vnOffset = 7 * 60;
+  const localOffset = now.getTimezoneOffset();
+  return new Date(now.getTime() + (vnOffset + localOffset) * 60000);
+}
+
+/* ===== Chuyển Tab ===== */
+function switchTab(tab){
+  document.getElementById("tabData").classList.remove("active");
+  document.getElementById("tabSummary").classList.remove("active");
+  document.getElementById("dataSection").style.display = "none";
+  document.getElementById("summarySection").style.display = "none";
+
+  if(tab==="data"){
+    document.getElementById("tabData").classList.add("active");
+    document.getElementById("dataSection").style.display="block";
+  }
+  if(tab==="summary"){
+    document.getElementById("tabSummary").classList.add("active");
+    document.getElementById("summarySection").style.display="block";
+  }
+}
+
+/* ====== Lấy dữ liệu từ API ====== */
+document.addEventListener("DOMContentLoaded", () => {
+  fetch(API_URL)
+    .then(r => r.json())
+    .then(res => {
+      if (!Array.isArray(res) || !res.length || !res[0].data) {
+        document.getElementById("loading").innerText = "❌ Không có dữ liệu hợp lệ.";
+        return;
+      }
+
+      originalData = res[0].data.map((r, i) => ({
+        STT: i + 1,
+        ngay: r["Ngày hạch toán (*)"] || "",
+        dien_giai: r["Diễn giải"] || "",
+        ma_kh: r["MÃ KHÁCH HÀNG"] || "",
+        ma_lazada: r["Mã hàng lazada"] || "",
+        ma_hang: r["MÃ HÀNG"] || "",
+        so_luong: Number(r["SỐ LƯỢNG"]) || 0
+      }));
+
+      renderTable(originalData);
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("loading").innerText = "⚠️ Lỗi tải dữ liệu.";
+    });
+});
+
+/* ====== Hiển thị bảng dữ liệu ====== */
+function renderTable(data) {
+  const table = document.getElementById("data-table");
+  const h = document.getElementById("header-row");
+  const b = document.getElementById("data-body");
+  document.getElementById("loading").style.display = "none";
+  table.style.display = "table";
+
+  const cols = [
+    { key: "STT", label: "STT" },
+    { key: "ngay", label: "Ngày hạch toán" },
+    { key: "dien_giai", label: "Diễn giải" },
+    { key: "ma_kh", label: "MÃ KHÁCH HÀNG" },
+    { key: "ma_lazada", label: "Mã hàng Lazada" },
+    { key: "ma_hang", label: "MÃ HÀNG" },
+    { key: "so_luong", label: "SỐ LƯỢNG" }
+  ];
+
+  h.innerHTML = "";
+  cols.forEach(c => {
+    const th = document.createElement("th");
+    th.textContent = c.label;
+    h.appendChild(th);
+  });
+
+  b.innerHTML = "";
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    cols.forEach(c => {
+      const td = document.createElement("td");
+      td.textContent = row[c.key] || "";
+      tr.appendChild(td);
+    });
+    b.appendChild(tr);
+  });
+}
+
+/* ====== Lọc theo Ngày hạch toán (Tab dữ liệu) ====== */
+function filterByDate(){
+  const fromVal = document.getElementById("fromDate").value;
+  let toVal = document.getElementById("toDate").value;
+
+  if(!fromVal && !toVal){ renderTable(originalData); return; }
+
+  if(fromVal && !toVal){
+    const vnNow = nowVN();
+    const yyyy = vnNow.getFullYear();
+    const mm = String(vnNow.getMonth()+1).padStart(2,"0");
+    const dd = String(vnNow.getDate()).padStart(2,"0");
+    toVal = `${yyyy}-${mm}-${dd}`;
+    document.getElementById("toDate").value = toVal;
+  }
+
+  const fromD = new Date(fromVal + "T00:00:00");
+  const toD = new Date(toVal + "T23:59:59");
+
+  const filtered = originalData.filter(r=>{
+    if(!r.ngay) return false;
+    const [d,m,y] = r.ngay.split("/").map(Number);
+    const dObj = new Date(y, m-1, d);
+    return dObj >= fromD && dObj <= toD;
+  });
+
+  renderTable(filtered);
+}
+
+/* ====== Thống kê mã hàng (Tab mới) ====== */
+function generateSummary(){
+  const fromVal = document.getElementById("fromSummary").value;
+  let toVal = document.getElementById("toSummary").value;
+
+  if(!fromVal && !toVal){
+    document.getElementById("summaryResult").innerHTML = "<p style='padding:20px;'>⚠️ Vui lòng chọn khoảng ngày.</p>";
+    return;
+  }
+
+  if(fromVal && !toVal){
+    const vnNow = nowVN();
+    const yyyy = vnNow.getFullYear();
+    const mm = String(vnNow.getMonth()+1).padStart(2,"0");
+    const dd = String(vnNow.getDate()).padStart(2,"0");
+    toVal = `${yyyy}-${mm}-${dd}`;
+    document.getElementById("toSummary").value = toVal;
+  }
+
+  const fromD = new Date(fromVal + "T00:00:00");
+  const toD = new Date(toVal + "T23:59:59");
+
+  const filtered = originalData.filter(r=>{
+    if(!r.ngay) return false;
+    const [d,m,y] = r.ngay.split("/").map(Number);
+    const dObj = new Date(y, m-1, d);
+    return dObj >= fromD && dObj <= toD;
+  });
+
+  if(!filtered.length){
+    document.getElementById("summaryResult").innerHTML = "<p style='padding:20px;'>❌ Không có dữ liệu trong khoảng ngày này.</p>";
+    return;
+  }
+
+  // BẢNG 1: Tổng SỐ LƯỢNG theo MÃ HÀNG
+  const byMaHang = {};
+  filtered.forEach(r=>{
+    if(!r.ma_hang) return;
+    if(!byMaHang[r.ma_hang]) byMaHang[r.ma_hang] = 0;
+    byMaHang[r.ma_hang] += r.so_luong;
+  });
+  const arr1 = Object.entries(byMaHang).map(([ma,sl])=>({ma,sl})).sort((a,b)=>b.sl-a.sl);
+
+  // BẢNG 2: Số MÃ LAZADA không trùng theo MÃ KHÁCH HÀNG
+  const byMaKH = {};
+  filtered.forEach(r=>{
+    const kh = r.ma_kh || "Khác";
+    if(!byMaKH[kh]) byMaKH[kh] = new Set();
+    if(r.ma_lazada) byMaKH[kh].add(r.ma_lazada.trim());
+  });
+  const arr2 = Object.entries(byMaKH).map(([kh,set])=>({ma_kh:kh,count:set.size})).sort((a,b)=>b.count-a.count);
+
+  // Render 2 bảng
+  let html1 = "<div class='summary-box'><h3>📦 Tổng SỐ LƯỢNG theo MÃ HÀNG</h3><table><tr><th>MÃ HÀNG</th><th>Tổng SỐ LƯỢNG</th></tr>";
+  arr1.forEach(r=>{ html1 += `<tr><td>${r.ma}</td><td>${r.sl}</td></tr>`; });
+  html1 += "</table></div>";
+
+  let html2 = "<div class='summary-box'><h3>🔢 Số MÃ LAZADA không trùng theo MÃ KHÁCH HÀNG</h3><table><tr><th>MÃ KHÁCH HÀNG</th><th>Số MÃ LAZADA</th></tr>";
+  arr2.forEach(r=>{ html2 += `<tr><td>${r.ma_kh}</td><td>${r.count}</td></tr>`; });
+  html2 += "</table></div>";
+
+  document.getElementById("summaryResult").innerHTML = `<div class='flex-summary'>${html1}${html2}</div>`;
+}
+</script>
+</body>
+</html>
