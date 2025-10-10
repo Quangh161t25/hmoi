@@ -67,7 +67,6 @@ tr:hover{background:#f0f5ff}
       <input type="date" id="toSummary" class="search-box" />
       <button class="btn btn-primary" onclick="generateSummary()">📅 Lọc</button>
     </div>
-
     <div id="summaryResult" class="flex-summary"></div>
   </div>
 </div>
@@ -90,15 +89,8 @@ function switchTab(tab){
   document.getElementById("tabSummary").classList.remove("active");
   document.getElementById("dataSection").style.display = "none";
   document.getElementById("summarySection").style.display = "none";
-
-  if(tab==="data"){
-    document.getElementById("tabData").classList.add("active");
-    document.getElementById("dataSection").style.display="block";
-  }
-  if(tab==="summary"){
-    document.getElementById("tabSummary").classList.add("active");
-    document.getElementById("summarySection").style.display="block";
-  }
+  if(tab==="data"){tabData.classList.add("active");dataSection.style.display="block";}
+  if(tab==="summary"){tabSummary.classList.add("active");summarySection.style.display="block";}
 }
 
 /* ====== Lấy dữ liệu từ API ====== */
@@ -122,6 +114,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }));
 
       renderTable(originalData);
+
+      // ✅ Kiểm tra nếu có tham số ?ngay= trong URL
+      const params = new URLSearchParams(window.location.search);
+      const ngayParam = params.get("ngay");
+      if(ngayParam){
+        try {
+          const parts = ngayParam.split("/"); // 10/10/2025
+          const iso = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          document.getElementById("fromDate").value = iso;
+          document.getElementById("toDate").value = iso;
+          switchTab('data');
+          filterByDate(); // tự động lọc ngày này
+        } catch(e){
+          console.error("Lỗi parse ngày:", e);
+        }
+      }
     })
     .catch(err => {
       console.error(err);
@@ -148,12 +156,7 @@ function renderTable(data) {
   ];
 
   h.innerHTML = "";
-  cols.forEach(c => {
-    const th = document.createElement("th");
-    th.textContent = c.label;
-    h.appendChild(th);
-  });
-
+  cols.forEach(c => { const th = document.createElement("th"); th.textContent = c.label; h.appendChild(th); });
   b.innerHTML = "";
   data.forEach(row => {
     const tr = document.createElement("tr");
@@ -170,7 +173,6 @@ function renderTable(data) {
 function filterByDate(){
   const fromVal = document.getElementById("fromDate").value;
   let toVal = document.getElementById("toDate").value;
-
   if(!fromVal && !toVal){ renderTable(originalData); return; }
 
   if(fromVal && !toVal){
