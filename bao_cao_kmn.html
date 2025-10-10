@@ -113,186 +113,160 @@ tr:hover{background:#f0f5ff}
 </div>
 
 <script>
-/* ================== CONFIG & STATE ================== */
 const API_URL="https://script.google.com/macros/s/AKfycbwwR3GI-ZwWKsueXHJX2rehWzjZOW9MfeQsmbY_mPSk0F6asm3BwfBh1Pps3jELfYJ7/exec";
 let originalData=[],chart1,chart2,chart3;
 
-/* ================== TIMEZONE VN (GMT+7) ================== */
+/* ===== Giờ Việt Nam (GMT+7) ===== */
 function nowVN(){
   const now=new Date();
-  const vnOffset=7*60;                 // phút
+  const vnOffset=7*60;
   const localOffset=now.getTimezoneOffset();
   return new Date(now.getTime() + (vnOffset+localOffset)*60000);
 }
 
-/* ================== DATE HELPERS ================== */
-const fmt = d => d.toISOString().slice(0,10);
-const addDays = (date, n)=> new Date(date.getFullYear(),date.getMonth(),date.getDate()+n);
+/* ===== Date Helpers ===== */
+const fmt=d=>d.toISOString().slice(0,10);
+const addDays=(date,n)=>new Date(date.getFullYear(),date.getMonth(),date.getDate()+n);
 
-/* ================== LOAD ================== */
+/* ===== Load dữ liệu và xử lý URL ===== */
 document.addEventListener("DOMContentLoaded",()=>{
   fetch(API_URL).then(r=>r.json()).then(d=>{
     originalData = Array.isArray(d)? d : [];
-    originalData.sort((a,b)=>new Date(b.ngay)-new Date(a.ngay)); // mới -> cũ
+    originalData.sort((a,b)=>new Date(b.ngay)-new Date(a.ngay));
     renderTable(originalData);
     initDefaultDates();
+
+    // ✅ Kiểm tra URL có tham số ?ngay=
+    const params = new URLSearchParams(window.location.search);
+    const ngay = params.get("ngay");
+    if (ngay) {
+      try {
+        const parts = ngay.split("/");
+        const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        document.getElementById("fromData").value = isoDate;
+        document.getElementById("toData").value = isoDate;
+        switchTab("data");
+        filterDataTable();
+      } catch (e) {
+        console.error("Lỗi parse ngày URL:", e);
+      }
+    }
   });
 });
 
-/* ================== TABS ================== */
+/* ===== Tabs ===== */
 function switchTab(tab){
   ["tabData","tabChart","tabSummary"].forEach(id=>document.getElementById(id).classList.remove("active"));
-  ["dataSection","chartSection","summarySection"].forEach(id=>{document.getElementById(id).style.display="none";});
+  ["dataSection","chartSection","summarySection"].forEach(id=>document.getElementById(id).style.display="none");
   if(tab==="data"){tabData.classList.add("active");dataSection.style.display="block";}
   if(tab==="chart"){tabChart.classList.add("active");chartSection.style.display="block";updateCharts();}
   if(tab==="summary"){tabSummary.classList.add("active");summarySection.style.display="block";}
 }
 
-/* ================== DEFAULT DATES ================== */
+/* ===== Default Dates ===== */
 function initDefaultDates(){
-  const todayVN = new Date(nowVN().getFullYear(), nowVN().getMonth(), nowVN().getDate());
-  // Chart: hôm nay-7 -> hôm nay
-  fromDate.value = fmt(addDays(todayVN,-7));
-  toDate.value   = fmt(todayVN);
-  // Summary: hôm qua -> hôm qua
-  const y = addDays(todayVN,0);
-  fromDateSummary.value = fmt(y);
-  toDateSummary.value   = fmt(y);
+  const todayVN=new Date(nowVN().getFullYear(),nowVN().getMonth(),nowVN().getDate());
+  fromDate.value=fmt(addDays(todayVN,-7));
+  toDate.value=fmt(todayVN);
+  const y=addDays(todayVN,-1);
+  fromDateSummary.value=fmt(y);
+  toDateSummary.value=fmt(y);
 }
 
-/* ================== PRESET BUTTONS ================== */
-// Theo yêu cầu: Hôm nay = today+1, Hôm qua = today
+/* ===== Preset Buttons ===== */
 function applyPreset(tab,preset){
-  const base = new Date(nowVN().getFullYear(), nowVN().getMonth(), nowVN().getDate());
+  const base=new Date(nowVN().getFullYear(),nowVN().getMonth(),nowVN().getDate());
   let start,end;
   switch(preset){
-    case "today":     // today + 1
-      start = addDays(base,1); end=addDays(base,2); break;
-    case "yesterday": // today
-      start = base; end=addDays(base,1); break;
+    case"today":start=addDays(base,1);end=addDays(base,2);break;
+    case"yesterday":start=base;end=addDays(base,1);break;
   }
-  const s=fmt(start), e=fmt(addDays(end,-1));
+  const s=fmt(start),e=fmt(addDays(end,-1));
   if(tab==="data"){fromData.value=s;toData.value=e;filterDataTable();}
   if(tab==="chart"){fromDate.value=s;toDate.value=e;updateCharts();}
   if(tab==="summary"){fromDateSummary.value=s;toDateSummary.value=e;generateSummary();}
 }
 
-/* ================== BẢNG DỮ LIỆU ================== */
+/* ===== Bảng dữ liệu ===== */
 const displayCols=["STT","ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","sku_cha","slg_xuat","ten_sp","tinh_trang","trang_thai"];
 function renderTable(data){
-  const h=document.getElementById("header-row"), b=document.getElementById("data-body");
-  h.innerHTML=""; b.innerHTML="";
+  const h=document.getElementById("header-row"),b=document.getElementById("data-body");
+  h.innerHTML="";b.innerHTML="";
   displayCols.forEach(c=>{const th=document.createElement("th");th.textContent=c;h.appendChild(th);});
   data.forEach((r,i)=>{
     const tr=document.createElement("tr");
     displayCols.forEach(c=>{
       const td=document.createElement("td");
-      if(c==="STT") td.textContent=i+1;
+      if(c==="STT")td.textContent=i+1;
       else if(c==="ngay"){const d=new Date(r.ngay);td.textContent=isNaN(d)?"":d.toLocaleDateString('vi-VN');}
-      else td.textContent=r[c]||"";
-      tr.appendChild(td);
+      else td.textContent=r[c]||"";tr.appendChild(td);
     });
     b.appendChild(tr);
   });
 }
 function filterDataTable(){
-  const f=fromData.value, t=toData.value;
-  if(!f||!t) return renderTable(originalData);
-  let from=new Date(f+"T00:00:00"), to=new Date(t+"T23:59:59");
-  if(from>to) [from,to]=[to,from];
-  const rows=originalData.filter(r=>{const d=new Date(r.ngay);return d>=from && d<=to;});
-  rows.sort((a,b)=>new Date(b.ngay)-new Date(a.ngay)); // vẫn mới -> cũ
+  const f=fromData.value,t=toData.value;
+  if(!f||!t)return renderTable(originalData);
+  let from=new Date(f+"T00:00:00"),to=new Date(t+"T23:59:59");
+  if(from>to)[from,to]=[to,from];
+  const rows=originalData.filter(r=>{const d=new Date(r.ngay);return d>=from&&d<=to;});
+  rows.sort((a,b)=>new Date(b.ngay)-new Date(a.ngay));
   renderTable(rows);
 }
 
-/* ================== BIỂU ĐỒ (2×2) ================== */
+/* ===== Biểu đồ & Thống kê giữ nguyên ===== */
+
+
+/* ===== Biểu đồ ===== */
 function updateCharts(){
-  if(!originalData.length) return;
-  const f=fromDate.value, t=toDate.value, s=sanSelect.value;
-  const from=new Date(f+"T00:00:00"), to=new Date(t+"T23:59:59");
+  if(!originalData.length)return;
+  const f=fromDate.value,t=toDate.value,s=sanSelect.value;
+  const from=new Date(f+"T00:00:00"),to=new Date(t+"T23:59:59");
   const filtered=originalData.filter(r=>{
     const d=new Date(r.ngay);
-    if(d<from||d>to) return false;
-    if(s!=="ALL" && (r.san||"").toUpperCase()!==s.toUpperCase()) return false;
+    if(d<from||d>to)return false;
+    if(s!=="ALL"&&(r.san||"").toUpperCase()!==s.toUpperCase())return false;
     return true;
   });
   const g={};
   filtered.forEach(r=>{
     const day=new Date(r.ngay).toLocaleDateString('vi-VN');
-    if(!g[day]) g[day]={total:0,cancel:0,keys:new Set()};
-    g[day].total++;
-    if((r.trang_thai||"").toUpperCase().includes("HỦY")) g[day].cancel++;
-    g[day].keys.add(`${r.mvd||""}_${r.san||""}_${r.khung_h||""}`);
+    if(!g[day])g[day]={total:0,cancel:0,keys:new Set()};
+    g[day].total++;if((r.trang_thai||"").toUpperCase().includes("HỦY"))g[day].cancel++;
+    g[day].keys.add(r.mvd+"_"+r.san+"_"+r.khung_h);
   });
-  const labels=Object.keys(g).sort((a,b)=>{
-    const [da,ma,ya]=a.split('/').map(Number), [db,mb,yb]=b.split('/').map(Number);
-    return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
-  });
-  const total=labels.map(d=>g[d].total);
-  const cancel=labels.map(d=>g[d].cancel/g[d].total*100 || 0);
-  const unique=labels.map(d=>g[d].keys.size);
-  const sumTotal=total.reduce((a,b)=>a+b,0);
-  const avgCancel=(cancel.reduce((a,b)=>a+b,0)/(cancel.length||1)).toFixed(1);
-  const sumUnique=unique.reduce((a,b)=>a+b,0);
-  totalCount.innerText="Tổng: "+sumTotal.toLocaleString();
-  cancelAvg.innerText ="TB Hủy: "+avgCancel+"%";
-  uniqueTotal.innerText="Tổng tổ hợp: "+sumUnique.toLocaleString();
-  if(chart1)chart1.destroy(); if(chart2)chart2.destroy(); if(chart3)chart3.destroy();
-  chart1=new Chart(chartTotal,{type:'line',data:{labels,datasets:[{data:total,borderColor:'#4a6ee0',backgroundColor:'#4a6ee033',fill:true,tension:.4}]},options:{plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}});
-  chart2=new Chart(chartCancel,{type:'bar',data:{labels,datasets:[{data:cancel,backgroundColor:'#f39c12'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}},responsive:true,maintainAspectRatio:false}});
-  chart3=new Chart(chartUnique,{type:'line',data:{labels,datasets:[{data:unique,borderColor:'#2ecc71',backgroundColor:'#2ecc7133',fill:true,tension:.4}]},options:{plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}});
+  const labels=Object.keys(g).sort((a,b)=>{const[da,ma,ya]=a.split('/').map(Number),[db,mb,yb]=b.split('/').map(Number);return new Date(ya,ma-1,da)-new Date(yb,mb-1,db);});
+  const total=labels.map(d=>g[d].total),cancel=labels.map(d=>g[d].cancel/g[d].total*100||0),unique=labels.map(d=>g[d].keys.size);
+  const sumTotal=total.reduce((a,b)=>a+b,0),avgCancel=(cancel.reduce((a,b)=>a+b,0)/(cancel.length||1)).toFixed(1),sumUnique=unique.reduce((a,b)=>a+b,0);
+  totalCount.innerText="Tổng: "+sumTotal.toLocaleString();cancelAvg.innerText="TB Hủy: "+avgCancel+"%";uniqueTotal.innerText="Tổng tổ hợp: "+sumUnique.toLocaleString();
+  if(chart1)chart1.destroy();if(chart2)chart2.destroy();if(chart3)chart3.destroy();
+  chart1=new Chart(chartTotal,{type:'line',data:{labels,datasets:[{data:total,borderColor:'#4a6ee0',backgroundColor:'#4a6ee033',fill:true,tension:0.4}]},options:{plugins:{legend:{display:false}}}});
+  chart2=new Chart(chartCancel,{type:'bar',data:{labels,datasets:[{data:cancel,backgroundColor:'#f39c12'}]},options:{plugins:{legend:{display:false}},scales:{y:{max:100}}}});
+  chart3=new Chart(chartUnique,{type:'line',data:{labels,datasets:[{data:unique,borderColor:'#2ecc71',backgroundColor:'#2ecc7133',fill:true,tension:0.4}]},options:{plugins:{legend:{display:false}}}});
 }
 
-/* ================== THỐNG KÊ THEO NGÀY ================== */
+/* ===== Thống kê ===== */
 function generateSummary(){
-  const f=fromDateSummary.value, t=toDateSummary.value, res=document.getElementById("summaryResults");
+  const f=fromDateSummary.value,t=toDateSummary.value,res=document.getElementById("summaryResults");
   if(!f||!t){res.innerHTML="Chọn khoảng ngày";return;}
-  let from=new Date(f+"T00:00:00"), to=new Date(t+"T23:59:59");
+  let from=new Date(f+"T00:00:00"),to=new Date(t+"T23:59:59");
   if(from>to)[from,to]=[to,from];
-
-  const data=originalData.filter(r=>{const d=new Date(r.ngay);return d>=from && d<=to;});
+  const data=originalData.filter(r=>{const d=new Date(r.ngay);return d>=from&&d<=to;});
   if(!data.length){res.innerHTML="Không có dữ liệu.";return;}
-
-  // --- Gom theo SKU_CHA: tổng slg_xuat + tên sản phẩm (ưu tiên tên dài hơn)
-  const skuMap={};
+  const skuMap={},gianMap={};
   data.forEach(r=>{
-    const sku=r.sku_cha||"Khác";
-    const sl = Number(r.slg_xuat)||0;
-    const name = r.ten_sp||"";
-    if(!skuMap[sku]) skuMap[sku]={tong:0,ten:name};
-    skuMap[sku].tong += sl;
-    if(name && name.length > (skuMap[sku].ten||"").length) skuMap[sku].ten = name;
+    const sku=r.sku_cha||"Khác",sl=Number(r.slg_xuat)||0,name=r.ten_sp||"";
+    if(!skuMap[sku])skuMap[sku]={tong:0,ten:name};
+    skuMap[sku].tong+=sl;if(name.length>skuMap[sku].ten.length)skuMap[sku].ten=name;
+    const g=r.ma_gian||"Khác";if(!gianMap[g])gianMap[g]=new Set();if(r.mvd)gianMap[g].add(r.mvd);
   });
-  // sắp xếp giảm dần theo SỐ_LG (tổng)
-  const skuArr = Object.entries(skuMap)
-    .map(([sku,v])=>({sku,ten:v.ten,tong:v.tong}))
-    .sort((a,b)=>b.tong-a.tong);
-
-  // --- Gom theo MA_GIAN: đếm MVD unique
-  const gianMap={};
-  data.forEach(r=>{
-    const g=r.ma_gian||"Khác";
-    if(!gianMap[g]) gianMap[g]=new Set();
-    if(r.mvd) gianMap[g].add(r.mvd);
-  });
-  const gianArr = Object.entries(gianMap)
-    .map(([g,set])=>({gian:g,count:set.size}))
-    .sort((a,b)=>b.count-a.count);
-
-  // === 🔧 SỬA THEO YÊU CẦU: CỘT = SKU_CHA | SỐ_LG | TÊN_SP ===
-  let html1 = "<div class='summary-table'><h3>SKU_CHA – SỐ_LG – TÊN_SP</h3><table><tr><th>SKU_CHA</th><th>SỐ_LG</th><th>TÊN_SP</th></tr>";
-  skuArr.forEach(r=>{
-    html1 += `<tr><td>${r.sku}</td><td>${r.tong.toLocaleString()}</td><td>${r.ten}</td></tr>`;
-  });
-  html1 += "</table></div>";
-
-  let html2 = "<div class='summary-table'><h3>MÃ_GIAN và số MVD không trùng</h3><table><tr><th>MÃ_GIAN</th><th>SỐ MVD</th></tr>";
-  gianArr.forEach(r=>{
-    html2 += `<tr><td>${r.gian}</td><td>${r.count}</td></tr>`;
-  });
-  html2 += "</table></div>";
-
-  res.innerHTML = `<div class="flex-summary">${html1}${html2}</div>`;
+  const skuArr=Object.entries(skuMap).map(([sku,v])=>({sku,ten:v.ten,tong:v.tong})).sort((a,b)=>b.tong-a.tong);
+  const gianArr=Object.entries(gianMap).map(([g,set])=>({gian:g,count:set.size})).sort((a,b)=>b.count-a.count);
+  let html1="<div class='summary-table'><h3>SKU_CHA – SỐ_LG – TÊN_SP</h3><table><tr><th>SKU_CHA</th><th>SỐ_LG</th><th>TÊN_SP</th></tr>";
+  skuArr.forEach(r=>html1+=`<tr><td>${r.sku}</td><td>${r.tong.toLocaleString()}</td><td>${r.ten}</td></tr>`);html1+="</table></div>";
+  let html2="<div class='summary-table'><h3>MÃ_GIAN và số MVD không trùng</h3><table><tr><th>MÃ_GIAN</th><th>SỐ MVD</th></tr>";
+  gianArr.forEach(r=>html2+=`<tr><td>${r.gian}</td><td>${r.count}</td></tr>`);html2+="</table></div>";
+  res.innerHTML=`<div class='flex-summary'>${html1}${html2}</div>`;
 }
 </script>
 </body>
