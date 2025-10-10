@@ -1,551 +1,298 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BÁO CÁO</title></title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BÁO CÁO</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root {
-  --primary: #4a6ee0;
-  --primary-dark: #3a5ecf;
-  --secondary: #6a3db3;
-  --success: #2ecc71;
-  --success-dark: #27ae60;
-  --warning: #f39c12;
-  --danger: #e74c3c;
-  --light: #f5f9ff;
-  --white: #ffffff;
-  --gray-light: #eef3ff;
-  --gray-medium: #d1d9e6;
-  --gray-dark: #333333;
-  --border-radius: 12px;
-  --box-shadow: 0 4px 20px rgba(0,0,0,.08);
-  --transition: all 0.3s ease;
+:root{
+  --primary:#4a6ee0;--secondary:#6a3db3;--success:#2ecc71;--warning:#f39c12;
+  --gray-light:#eef3ff;--gray-medium:#d1d9e6;--white:#fff;
+  --transition:all .3s ease;--box-shadow:0 4px 20px rgba(0,0,0,.08);
 }
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 20px;
-  background: var(--light);
-  color: var(--gray-dark);
-  line-height: 1.6;
-}
-
-.container {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  overflow: hidden;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.header {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: var(--white);
-  text-align: center;
-  padding: 22px 10px;
-  position: relative;
-  overflow: hidden;
-}
-
-.header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
-  background-size: cover;
-}
-
-.header h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 500;
-  position: relative;
-}
-
-.tabs {
-  display: flex;
-  gap: 6px;
-  background: var(--gray-light);
-  border-bottom: 1px solid var(--gray-medium);
-  padding: 0 10px;
-  flex-wrap: wrap;
-}
-
-.tab {
-  flex: 1;
-  padding: 12px 0;
-  text-align: center;
-  cursor: pointer;
-  font-weight: 500;
-  transition: var(--transition);
-  min-width: 180px;
-  border-radius: 6px 6px 0 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.tab::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 3px;
-  background: var(--primary);
-  transition: var(--transition);
-  transform: translateX(-50%);
-}
-
-.tab:hover {
-  background: rgba(74, 110, 224, 0.1);
-}
-
-.tab.active {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.tab.active::after {
-  width: 100%;
-}
-
-.summary-box {
-  padding: 15px 20px;
-  background: var(--gray-light);
-  border-bottom: 1px solid var(--gray-medium);
-  font-size: 14px;
-  line-height: 1.6;
-  transition: var(--transition);
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 16px 20px;
-  background: #f8fafe;
-  border-bottom: 1px solid #e1e8f0;
-  align-items: center;
-}
-
-.search-box {
-  padding: 10px 14px;
-  border: 1px solid var(--gray-medium);
-  border-radius: 6px;
-  flex: 1;
-  min-width: 200px;
-  transition: var(--transition);
-  font-size: 14px;
-}
-
-.search-box:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(74, 110, 224, 0.2);
-}
-
-.btn {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(74, 110, 224, 0.4);
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.btn-primary:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-}
-
-.btn-success {
-  background: var(--success);
-  color: var(--white);
-}
-
-.btn-success:hover {
-  background: var(--success-dark);
-  transform: translateY(-2px);
-}
-
-.table-wrapper {
-  overflow-x: auto;
-  margin: 0 20px 20px;
-  border: 1px solid #e1e8f0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  transition: var(--transition);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  min-width: 1000px;
-}
-
-th, td {
-  border: 1px solid #e8edf5;
-  padding: 10px 8px;
-  white-space: nowrap;
-  text-align: left;
-}
-
-th {
-  background: #f0f3fa;
-  position: sticky;
-  top: 0;
-  font-weight: 600;
-  z-index: 10;
-}
-
-tr:nth-child(even) {
-  background: #fafcff;
-}
-
-tr:hover {
-  background: #f0f5ff;
-  transform: scale(1.002);
-  transition: var(--transition);
-}
-
-.huy-row {
-  font-weight: bold;
-  background-color: rgba(231, 76, 60, 0.1) !important;
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-  font-size: 16px;
-}
-
-.stats {
-  padding: 12px 20px;
-  background: #f0f5ff;
-  border-top: 1px solid #e1e8f0;
-  font-size: 14px;
-  line-height: 1.7;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 15px;
-  background: var(--white);
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  min-width: 120px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #666;
-}
-
-.chart-container {
-  display: none;
-  padding: 20px;
-}
-
-.filter-box {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  align-items: center;
-  background: var(--gray-light);
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.filter-box label {
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.chart-box {
-  height: 250px;
-  margin: 20px 0;
-  background: var(--white);
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  body {
-    padding: 10px;
-  }
-  
-  .header h2 {
-    font-size: 20px;
-  }
-  
-  .tabs {
-    flex-direction: column;
-    gap: 0;
-  }
-  
-  .tab {
-    min-width: 100%;
-    border-radius: 0;
-  }
-  
-  .controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .search-box {
-    min-width: 100%;
-  }
-  
-  .stats {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .stat-item {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  
-  .filter-box {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .chart-box {
-    height: 200px;
-  }
-}
-
-/* Animation for loading */
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
-}
-
-.loading {
-  animation: pulse 1.5s infinite;
-}
-
-/* Custom scrollbar */
-.table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
-}
+body{font-family:'Segoe UI',sans-serif;background:#f5f9ff;margin:0;padding:20px;color:#333}
+.container{background:#fff;border-radius:12px;box-shadow:var(--box-shadow);max-width:1400px;margin:0 auto;overflow:hidden}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;text-align:center;padding:22px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;background:var(--gray-light);border-bottom:1px solid var(--gray-medium)}
+.tab{flex:1;min-width:180px;text-align:center;padding:12px 0;cursor:pointer;font-weight:500;border-radius:6px 6px 0 0;transition:var(--transition)}
+.tab.active{background:var(--primary);color:#fff}
+.controls{display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;background:#f8fafe;border-bottom:1px solid #e1e8f0;align-items:center}
+.search-box{padding:10px 14px;border:1px solid var(--gray-medium);border-radius:6px;font-size:14px}
+.btn{padding:10px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:var(--transition)}
+.btn:hover{opacity:.9}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-preset{background:#e8ecf9;color:#333}
+.table-wrapper{overflow-x:auto;margin:20px;border:1px solid #e1e8f0;border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:1000px}
+th,td{border:1px solid #e8edf5;padding:8px;text-align:left;white-space:nowrap}
+th{background:#f0f3fa;position:sticky;top:0;z-index:1}
+tr:nth-child(even){background:#fafcff}
+tr:hover{background:#f0f5ff}
+.chart-container,.summary-container{display:none;padding:20px}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:20px}
+.chart-box{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.05);padding:15px;position:relative}
+.chart-total{position:absolute;top:10px;right:16px;font-size:13px;color:#555;font-weight:500}
+.flex-summary{display:flex;gap:20px;flex-wrap:wrap}
+.summary-table{flex:1;min-width:400px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:15px}
+.summary-table h3{margin-top:0;text-align:center;color:#355ad8}
+.loading{text-align:center;padding:30px}
+@media(max-width:768px){.flex-summary{flex-direction:column}.chart-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header"><h2>Bảng dữ liệu</h2></div>
+  <div class="header"><h2>Báo cáo tổng hợp</h2></div>
 
   <!-- Tabs -->
   <div class="tabs">
     <div class="tab active" id="tabData" onclick="switchTab('data')">📋 Bảng dữ liệu</div>
     <div class="tab" id="tabChart" onclick="switchTab('chart')">📈 Biểu đồ xu hướng</div>
+    <div class="tab" id="tabSummary" onclick="switchTab('summary')">📅 Thống kê theo ngày</div>
   </div>
 
-  <!-- DỮ LIỆU -->
+  <!-- 📋 DỮ LIỆU -->
   <div id="dataSection">
-    <div id="summaryTop" class="summary-box">Đang tải thống kê...</div>
     <div class="controls">
-      <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm...">
-      <input type="date" id="dateFilter" class="search-box" style="max-width:200px;">
-      <button class="btn btn-primary" onclick="refreshData()">
-        <span class="btn-icon">🔄</span>
-        <span class="btn-text">Làm mới</span>
-      </button>
-      <button class="btn btn-success" onclick="exportCSV()">
-        <span class="btn-icon">📊</span>
-        <span class="btn-text">CSV</span>
-      </button>
-      <button class="btn btn-success" onclick="exportExcel()">
-        <span class="btn-icon">📋</span>
-        <span class="btn-text">Excel</span>
-      </button>
+      <input type="date" id="fromData" class="search-box" />
+      <input type="date" id="toData" class="search-box" />
+      <button class="btn btn-preset" onclick="applyPreset('data','today')">Hôm nay</button>
+      <button class="btn btn-preset" onclick="applyPreset('data','yesterday')">Hôm qua</button>
+      <button class="btn btn-primary" onclick="filterDataTable()">📅 Lọc</button>
     </div>
-    <div id="loadingDiv" class="loading">Đang tải dữ liệu...</div>
-    <div class="table-wrapper" id="tableWrapper" style="display:none;">
-      <table id="data-table"><thead><tr id="header-row"></tr></thead><tbody id="data-body"></tbody></table>
-    </div>
-    <div class="stats" id="statsDiv" style="display:none;">
-      <!-- Stats will be populated by JavaScript -->
+    <div class="table-wrapper" id="tableWrapper">
+      <table id="data-table">
+        <thead><tr id="header-row"></tr></thead>
+        <tbody id="data-body"></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- BIỂU ĐỒ -->
+  <!-- 📈 BIỂU ĐỒ -->
   <div id="chartSection" class="chart-container">
-    <div class="filter-box">
-      <label>Từ ngày:</label>
-      <input type="date" id="fromDate" class="search-box">
-      <label>Đến ngày:</label>
-      <input type="date" id="toDate" class="search-box">
-      <label>Sàn:</label>
+    <div class="controls">
+      <input type="date" id="fromDate" class="search-box" />
+      <input type="date" id="toDate" class="search-box" />
       <select id="sanSelect" class="search-box">
         <option value="ALL">Tất cả</option>
         <option value="Shopee">Shopee</option>
         <option value="Tiktok">Tiktok</option>
         <option value="Best">Best</option>
       </select>
-      <button class="btn btn-primary" onclick="updateCharts()">Cập nhật</button>
+      <button class="btn btn-preset" onclick="applyPreset('chart','today')">Hôm nay</button>
+      <button class="btn btn-preset" onclick="applyPreset('chart','yesterday')">Hôm qua</button>
+      <button class="btn btn-primary" onclick="updateCharts()">📊 Cập nhật</button>
     </div>
-    <div class="chart-box"><canvas id="chartTotal"></canvas></div>
-    <div class="chart-box"><canvas id="chartCancel"></canvas></div>
-    <div class="chart-box"><canvas id="chartUnique"></canvas></div>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-total" id="totalCount"></div>
+        <canvas id="chartTotal"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-total" id="cancelAvg"></div>
+        <canvas id="chartCancel"></canvas>
+      </div>
+      <div class="chart-box" style="grid-column:1/-1;">
+        <div class="chart-total" id="uniqueTotal"></div>
+        <canvas id="chartUnique"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📅 THỐNG KÊ -->
+  <div id="summarySection" class="summary-container">
+    <div class="controls">
+      <input type="date" id="fromDateSummary" class="search-box" />
+      <input type="date" id="toDateSummary" class="search-box" />
+      <button class="btn btn-preset" onclick="applyPreset('summary','today')">Hôm nay</button>
+      <button class="btn btn-preset" onclick="applyPreset('summary','yesterday')">Hôm qua</button>
+      <button class="btn btn-primary" onclick="generateSummary()">📊 Thống kê</button>
+    </div>
+    <div id="summaryResults" class="flex-summary"></div>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-// JavaScript code remains the same as in the original
+/* ================== CONFIG & STATE ================== */
 const API_URL="https://script.google.com/macros/s/AKfycbwwR3GI-ZwWKsueXHJX2rehWzjZOW9MfeQsmbY_mPSk0F6asm3BwfBh1Pps3jELfYJ7/exec";
-let originalData=[],filteredData=[];
-const displayCols=["STT","ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","sku_cha","slg_xuat","ten_sp","tinh_trang","trang_thai","mvd_san_khung_h"];
-function parseVNDate(str){if(!str)return null;const p=str.includes('/')?str.split('/'):(str.split('-'));let d,m,y;if(p[0].length===4){y=p[0];m=p[1];d=p[2];}else{d=p[0];m=p[1];y=p[2];}return new Date(`${y}-${m}-${d}`);}
-function isCancelled(r){const t=(r.trang_thai||"").toUpperCase();return t==="HỦY"||t==="1 HỦY";}
-function genKey(r){return `${(r.mvd||"").trim()}_${(r.san||"").trim()}_${(r.khung_h||"").trim()}`;}
+let originalData=[],chart1,chart2,chart3;
 
+/* ================== TIMEZONE VN (GMT+7) ================== */
+function nowVN(){
+  const now=new Date();
+  const vnOffset=7*60;                 // phút
+  const localOffset=now.getTimezoneOffset();
+  return new Date(now.getTime() + (vnOffset+localOffset)*60000);
+}
+
+/* ================== DATE HELPERS ================== */
+const fmt = d => d.toISOString().slice(0,10);
+const addDays = (date, n)=> new Date(date.getFullYear(),date.getMonth(),date.getDate()+n);
+
+/* ================== LOAD ================== */
+document.addEventListener("DOMContentLoaded",()=>{
+  fetch(API_URL).then(r=>r.json()).then(d=>{
+    originalData = Array.isArray(d)? d : [];
+    originalData.sort((a,b)=>new Date(b.ngay)-new Date(a.ngay)); // mới -> cũ
+    renderTable(originalData);
+    initDefaultDates();
+  });
+});
+
+/* ================== TABS ================== */
+function switchTab(tab){
+  ["tabData","tabChart","tabSummary"].forEach(id=>document.getElementById(id).classList.remove("active"));
+  ["dataSection","chartSection","summarySection"].forEach(id=>{document.getElementById(id).style.display="none";});
+  if(tab==="data"){tabData.classList.add("active");dataSection.style.display="block";}
+  if(tab==="chart"){tabChart.classList.add("active");chartSection.style.display="block";updateCharts();}
+  if(tab==="summary"){tabSummary.classList.add("active");summarySection.style.display="block";}
+}
+
+/* ================== DEFAULT DATES ================== */
+function initDefaultDates(){
+  const todayVN = new Date(nowVN().getFullYear(), nowVN().getMonth(), nowVN().getDate());
+  // Chart: hôm nay-7 -> hôm nay
+  fromDate.value = fmt(addDays(todayVN,-7));
+  toDate.value   = fmt(todayVN);
+  // Summary: hôm qua -> hôm qua
+  const y = addDays(todayVN,0);
+  fromDateSummary.value = fmt(y);
+  toDateSummary.value   = fmt(y);
+}
+
+/* ================== PRESET BUTTONS ================== */
+// Theo yêu cầu: Hôm nay = today+1, Hôm qua = today
+function applyPreset(tab,preset){
+  const base = new Date(nowVN().getFullYear(), nowVN().getMonth(), nowVN().getDate());
+  let start,end;
+  switch(preset){
+    case "today":     // today + 1
+      start = addDays(base,1); end=addDays(base,2); break;
+    case "yesterday": // today
+      start = base; end=addDays(base,1); break;
+  }
+  const s=fmt(start), e=fmt(addDays(end,-1));
+  if(tab==="data"){fromData.value=s;toData.value=e;filterDataTable();}
+  if(tab==="chart"){fromDate.value=s;toDate.value=e;updateCharts();}
+  if(tab==="summary"){fromDateSummary.value=s;toDateSummary.value=e;generateSummary();}
+}
+
+/* ================== BẢNG DỮ LIỆU ================== */
+const displayCols=["STT","ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","sku_cha","slg_xuat","ten_sp","tinh_trang","trang_thai"];
 function renderTable(data){
-  const h=document.getElementById("header-row"),b=document.getElementById("data-body");
-  h.innerHTML="";b.innerHTML="";
+  const h=document.getElementById("header-row"), b=document.getElementById("data-body");
+  h.innerHTML=""; b.innerHTML="";
   displayCols.forEach(c=>{const th=document.createElement("th");th.textContent=c;h.appendChild(th);});
-  if(!data.length){document.getElementById("loadingDiv").innerText="Không có dữ liệu";return;}
   data.forEach((r,i)=>{
     const tr=document.createElement("tr");
-    if(isCancelled(r))tr.classList.add("huy-row");
-    const rd={...r,mvd_san_khung_h:genKey(r)};
     displayCols.forEach(c=>{
       const td=document.createElement("td");
-      if(c==="STT")td.textContent=i+1;
+      if(c==="STT") td.textContent=i+1;
       else if(c==="ngay"){const d=new Date(r.ngay);td.textContent=isNaN(d)?"":d.toLocaleDateString('vi-VN');}
-      else td.textContent=rd[c]||"";
+      else td.textContent=r[c]||"";
       tr.appendChild(td);
     });
     b.appendChild(tr);
   });
-  filteredData=data.map((r,i)=>({...r,STT:i+1,mvd_san_khung_h:genKey(r)}));
-  updateSummaryTop();updateStats();
-  document.getElementById("loadingDiv").style.display="none";
-  document.getElementById("tableWrapper").style.display="block";
-  document.getElementById("statsDiv").style.display="flex";
+}
+function filterDataTable(){
+  const f=fromData.value, t=toData.value;
+  if(!f||!t) return renderTable(originalData);
+  let from=new Date(f+"T00:00:00"), to=new Date(t+"T23:59:59");
+  if(from>to) [from,to]=[to,from];
+  const rows=originalData.filter(r=>{const d=new Date(r.ngay);return d>=from && d<=to;});
+  rows.sort((a,b)=>new Date(b.ngay)-new Date(a.ngay)); // vẫn mới -> cũ
+  renderTable(rows);
 }
 
-function updateSummaryTop(){
-  const box=document.getElementById("summaryTop");
-  if(!filteredData.length){box.innerHTML="Không có dữ liệu.";return;}
-  const group={};filteredData.forEach(r=>{const k=genKey(r),s=(r.san||"").trim(),kh=(r.khung_h||"").trim();if(!s)return;if(!group[s])group[s]={};if(!group[s][kh])group[s][kh]=new Set();group[s][kh].add(k);});
-  let totalAll=0,html="<b>🧾 Số tổ hợp mvd_san_khung_h</b><br>";
-  for(const s in group){let t=0;html+=`<br><b>${s}</b><ul>`;for(const kh in group[s]){const c=group[s][kh].size;t+=c;html+=`<li>${kh}: ${c}</li>`;}totalAll+=t;html+=`</ul>`;}
-  box.innerHTML=html+`<br><b>Tổng tất cả tổ hợp:</b> ${totalAll}`;
+/* ================== BIỂU ĐỒ (2×2) ================== */
+function updateCharts(){
+  if(!originalData.length) return;
+  const f=fromDate.value, t=toDate.value, s=sanSelect.value;
+  const from=new Date(f+"T00:00:00"), to=new Date(t+"T23:59:59");
+  const filtered=originalData.filter(r=>{
+    const d=new Date(r.ngay);
+    if(d<from||d>to) return false;
+    if(s!=="ALL" && (r.san||"").toUpperCase()!==s.toUpperCase()) return false;
+    return true;
+  });
+  const g={};
+  filtered.forEach(r=>{
+    const day=new Date(r.ngay).toLocaleDateString('vi-VN');
+    if(!g[day]) g[day]={total:0,cancel:0,keys:new Set()};
+    g[day].total++;
+    if((r.trang_thai||"").toUpperCase().includes("HỦY")) g[day].cancel++;
+    g[day].keys.add(`${r.mvd||""}_${r.san||""}_${r.khung_h||""}`);
+  });
+  const labels=Object.keys(g).sort((a,b)=>{
+    const [da,ma,ya]=a.split('/').map(Number), [db,mb,yb]=b.split('/').map(Number);
+    return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+  });
+  const total=labels.map(d=>g[d].total);
+  const cancel=labels.map(d=>g[d].cancel/g[d].total*100 || 0);
+  const unique=labels.map(d=>g[d].keys.size);
+  const sumTotal=total.reduce((a,b)=>a+b,0);
+  const avgCancel=(cancel.reduce((a,b)=>a+b,0)/(cancel.length||1)).toFixed(1);
+  const sumUnique=unique.reduce((a,b)=>a+b,0);
+  totalCount.innerText="Tổng: "+sumTotal.toLocaleString();
+  cancelAvg.innerText ="TB Hủy: "+avgCancel+"%";
+  uniqueTotal.innerText="Tổng tổ hợp: "+sumUnique.toLocaleString();
+  if(chart1)chart1.destroy(); if(chart2)chart2.destroy(); if(chart3)chart3.destroy();
+  chart1=new Chart(chartTotal,{type:'line',data:{labels,datasets:[{data:total,borderColor:'#4a6ee0',backgroundColor:'#4a6ee033',fill:true,tension:.4}]},options:{plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}});
+  chart2=new Chart(chartCancel,{type:'bar',data:{labels,datasets:[{data:cancel,backgroundColor:'#f39c12'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}},responsive:true,maintainAspectRatio:false}});
+  chart3=new Chart(chartUnique,{type:'line',data:{labels,datasets:[{data:unique,borderColor:'#2ecc71',backgroundColor:'#2ecc7133',fill:true,tension:.4}]},options:{plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}});
 }
 
-function updateStats(){
-  const total=originalData.length,
-        v=filteredData.length,
-        h=filteredData.filter(isCancelled).length,
-        ok=v-h;
-  
-  const statsDiv = document.getElementById("statsDiv");
-  statsDiv.innerHTML = `
-    <div class="stat-item">
-      <div class="stat-label">Tổng</div>
-      <div class="stat-value">${total}</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">Hiển thị</div>
-      <div class="stat-value">${v}</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">✅ Hợp lệ</div>
-      <div class="stat-value">${ok}</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">🟨 Hủy</div>
-      <div class="stat-value">${h}</div>
-    </div>
-  `;
-}
+/* ================== THỐNG KÊ THEO NGÀY ================== */
+function generateSummary(){
+  const f=fromDateSummary.value, t=toDateSummary.value, res=document.getElementById("summaryResults");
+  if(!f||!t){res.innerHTML="Chọn khoảng ngày";return;}
+  let from=new Date(f+"T00:00:00"), to=new Date(t+"T23:59:59");
+  if(from>to)[from,to]=[to,from];
 
-function filterDataByDate(s){const d=parseVNDate(s);if(!d)return originalData;return originalData.filter(r=>new Date(r.ngay).toDateString()===d.toDateString());}
-function filterTable(t){const term=t.toLowerCase();let data=[...originalData];const dv=document.getElementById("dateFilter").value;if(dv)data=filterDataByDate(dv);if(term)data=data.filter(r=>displayCols.some(c=>String(r[c]||"").toLowerCase().includes(term)));renderTable(data);}
-function loadData(){document.getElementById("loadingDiv").style.display="block";fetch(API_URL).then(r=>r.json()).then(d=>{originalData=Array.isArray(d)?d:[];const p=new URLSearchParams(window.location.search),ng=p.get("ngay"),f=p.get("from"),t=p.get("to"),s=p.get("san");if(f&&t){switchTab('chart');document.getElementById("fromDate").value=f.split('/').reverse().join('-');document.getElementById("toDate").value=t.split('/').reverse().join('-');if(s)document.getElementById("sanSelect").value=s;updateCharts();}else if(ng){renderTable(filterDataByDate(ng));}else renderTable(originalData);}).catch(e=>document.getElementById("loadingDiv").innerText="Lỗi: "+e.message);}
-document.getElementById("searchInput").addEventListener("input",e=>filterTable(e.target.value));
-document.getElementById("dateFilter").addEventListener("change",()=>filterTable(document.getElementById("searchInput").value));
+  const data=originalData.filter(r=>{const d=new Date(r.ngay);return d>=from && d<=to;});
+  if(!data.length){res.innerHTML="Không có dữ liệu.";return;}
 
-// ---- Biểu đồ ----
-let chart1,chart2,chart3;
-function switchTab(tab){["tabData","tabChart"].forEach(id=>document.getElementById(id).classList.remove("active"));["dataSection","chartSection"].forEach(id=>document.getElementById(id).style.display="none");if(tab==="data"){document.getElementById("tabData").classList.add("active");document.getElementById("dataSection").style.display="block";}else{document.getElementById("tabChart").classList.add("active");document.getElementById("chartSection").style.display="block";initChartDates();updateCharts();}}
-function initChartDates(){const to=new Date(),from=new Date(Date.now()-7*86400000);document.getElementById("toDate").value=to.toISOString().slice(0,10);document.getElementById("fromDate").value=from.toISOString().slice(0,10);}
-function chartOptions(title,color){return{responsive:true,maintainAspectRatio:false,animation:{duration:700},plugins:{legend:{display:false},title:{display:true,text:title,font:{size:14}},tooltip:{backgroundColor:color+'cc',titleColor:'#fff',bodyColor:'#fff',padding:10,cornerRadius:8}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{beginAtZero:true,grid:{color:'#eee'},ticks:{font:{size:11}}}}};}
-function updateCharts(){if(!originalData.length)return;const f=document.getElementById("fromDate").value,t=document.getElementById("toDate").value,s=document.getElementById("sanSelect").value;const filtered=originalData.filter(r=>{const d=new Date(r.ngay);if(f&&d<new Date(f))return false;if(t&&d>new Date(t))return false;if(s!=="ALL"&&(r.san||"").toUpperCase()!==s.toUpperCase())return false;return true;});const g={};filtered.forEach(r=>{const day=new Date(r.ngay).toLocaleDateString('vi-VN');if(!g[day])g[day]={total:0,cancel:0,keys:new Set()};g[day].total++;if(isCancelled(r))g[day].cancel++;g[day].keys.add(genKey(r));});const labels=Object.keys(g).sort((a,b)=>{const[da,ma,ya]=a.split('/').map(Number),[db,mb,yb]=b.split('/').map(Number);return new Date(ya,ma-1,da)-new Date(yb,mb-1,db);});const total=labels.map(d=>g[d].total),cancel=labels.map(d=>g[d].cancel/g[d].total*100||0),unique=labels.map(d=>g[d].keys.size);if(chart1)chart1.destroy();if(chart2)chart2.destroy();if(chart3)chart3.destroy();chart1=new Chart(document.getElementById("chartTotal"),{type:'line',data:{labels,datasets:[{data:total,borderColor:'#4a6ee0',backgroundColor:'#4a6ee033',fill:true,tension:0.4}]},options:chartOptions('Tổng đơn hàng','#4a6ee0')});chart2=new Chart(document.getElementById("chartCancel"),{type:'bar',data:{labels,datasets:[{data:cancel,backgroundColor:'#f39c12'}]},options:chartOptions('Tỷ lệ hủy (%)','#f39c12')});chart3=new Chart(document.getElementById("chartUnique"),{type:'line',data:{labels,datasets:[{data:unique,borderColor:'#2ecc71',backgroundColor:'#2ecc7133',fill:true,tension:0.4}]},options:chartOptions('Tổ hợp mvd_san_khung_h','#2ecc71')});}
-document.addEventListener("DOMContentLoaded",loadData);
+  // --- Gom theo SKU_CHA: tổng slg_xuat + tên sản phẩm (ưu tiên tên dài hơn)
+  const skuMap={};
+  data.forEach(r=>{
+    const sku=r.sku_cha||"Khác";
+    const sl = Number(r.slg_xuat)||0;
+    const name = r.ten_sp||"";
+    if(!skuMap[sku]) skuMap[sku]={tong:0,ten:name};
+    skuMap[sku].tong += sl;
+    if(name && name.length > (skuMap[sku].ten||"").length) skuMap[sku].ten = name;
+  });
+  // sắp xếp giảm dần theo SỐ_LG (tổng)
+  const skuArr = Object.entries(skuMap)
+    .map(([sku,v])=>({sku,ten:v.ten,tong:v.tong}))
+    .sort((a,b)=>b.tong-a.tong);
 
-// Export functions (placeholder)
-function refreshData() {
-  loadData();
-}
+  // --- Gom theo MA_GIAN: đếm MVD unique
+  const gianMap={};
+  data.forEach(r=>{
+    const g=r.ma_gian||"Khác";
+    if(!gianMap[g]) gianMap[g]=new Set();
+    if(r.mvd) gianMap[g].add(r.mvd);
+  });
+  const gianArr = Object.entries(gianMap)
+    .map(([g,set])=>({gian:g,count:set.size}))
+    .sort((a,b)=>b.count-a.count);
 
-function exportCSV() {
-  alert("Tính năng xuất CSV sẽ được triển khai");
-}
+  // === 🔧 SỬA THEO YÊU CẦU: CỘT = SKU_CHA | SỐ_LG | TÊN_SP ===
+  let html1 = "<div class='summary-table'><h3>SKU_CHA – SỐ_LG – TÊN_SP</h3><table><tr><th>SKU_CHA</th><th>SỐ_LG</th><th>TÊN_SP</th></tr>";
+  skuArr.forEach(r=>{
+    html1 += `<tr><td>${r.sku}</td><td>${r.tong.toLocaleString()}</td><td>${r.ten}</td></tr>`;
+  });
+  html1 += "</table></div>";
 
-function exportExcel() {
-  alert("Tính năng xuất Excel sẽ được triển khai");
+  let html2 = "<div class='summary-table'><h3>MÃ_GIAN và số MVD không trùng</h3><table><tr><th>MÃ_GIAN</th><th>SỐ MVD</th></tr>";
+  gianArr.forEach(r=>{
+    html2 += `<tr><td>${r.gian}</td><td>${r.count}</td></tr>`;
+  });
+  html2 += "</table></div>";
+
+  res.innerHTML = `<div class="flex-summary">${html1}${html2}</div>`;
 }
 </script>
 </body>
