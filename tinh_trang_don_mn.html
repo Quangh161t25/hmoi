@@ -1,295 +1,875 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>BÁO CÁO DỮ LIỆU</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VieAI Dashboard</title>
 <style>
-:root{
-  --primary:#4a6ee0;--secondary:#6a3db3;
-  --gray-light:#eef3ff;--gray-medium:#d1d9e6;
-  --transition:all .3s ease;--box-shadow:0 4px 20px rgba(0,0,0,.08);
-  --row-green:#99ff92; --row-blue:#f8f8f8; --row-pink:#fcabab;
+:root {
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --secondary: #64748b;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --warning: #d97706;
+  --warning-light: #f9d958;
+  --danger: #dc2626;
+  --danger-light: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --white: #ffffff;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius: 8px;
+  --radius-lg: 12px;
 }
-body{
-  font-family:'Segoe UI',sans-serif;
-  background:#f5f9ff;margin:0;padding:10px;color:#333;
+
+* {
+  box-sizing: border-box;
 }
-.container{
-  background:#fff;border-radius:10px;box-shadow:var(--box-shadow);
-  width:100%;max-width:100%;margin:0 auto;overflow:hidden;
+
+body {
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--gray-50);
+  margin: 0;
+  color: var(--gray-800);
+  line-height: 1.5;
 }
-.header{
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:#fff;text-align:center;padding:16px;
+
+/* Header */
+.header {
+  background: var(--primary);
+  color: var(--white);
+  padding: 16px 24px;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-.tabs{display:flex;flex-wrap:wrap;background:var(--gray-light);border-bottom:1px solid var(--gray-medium)}
-.tab{flex:1;min-width:180px;text-align:center;padding:12px 0;cursor:pointer;font-weight:500;transition:var(--transition)}
-.tab.active{background:var(--primary);color:#fff}
-.controls{
-  display:flex;flex-wrap:wrap;gap:10px;padding:10px 14px;background:#f8fafe;
-  border-bottom:1px solid #e1e8f0;align-items:center;
+
+.header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.search-box{
-  padding:8px 12px;border:1px solid var(--gray-medium);border-radius:6px;font-size:14px;
+
+.header h2::before {
+  content: "📊";
+  font-size: 24px;
 }
-.btn{padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:var(--transition)}
-.btn:hover{opacity:.9}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-preset{background:#e8ecf9;color:#333}
-.table-wrapper{
-  width:100%;overflow:auto;height:calc(100vh - 160px);
-  border-top:1px solid #e1e8f0;
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--white);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--gray-200);
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-table{width:100%;border-collapse:collapse;font-size:14px;min-width:800px}
-th,td{border:1px solid #e8edf5;padding:10px;text-align:left;white-space:nowrap;line-height:1.5}
-th{background:#f0f3fa;position:sticky;top:0;z-index:2}
-tr:nth-child(even){background:#fafcff}
-tr:hover{background:#f0f5ff}
-.row-green{background:var(--row-green)!important;}
-.row-blue{background:var(--row-blue)!important;}
-.row-pink{background:var(--row-pink)!important;}
-.flex-tables{display:flex;flex-wrap:wrap;gap:20px;padding:20px}
-.subtable{flex:1;min-width:600px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:10px;}
-.subtable h3{text-align:center;color:#355ad8;margin-top:0;}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gray-600);
+}
+
+.tabs button:hover {
+  background: var(--gray-100);
+  color: var(--gray-800);
+}
+
+.tabs button.active {
+  background: var(--primary);
+  color: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.tab {
+  display: none;
+  padding: 20px;
+}
+
+.tab.active {
+  display: block;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+  padding: 16px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  min-width: 160px;
+  font-size: 14px;
+  background: var(--white);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn-ghost {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.btn-ghost:hover {
+  background: var(--gray-200);
+}
+
+/* Table */
+.table-wrap {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+  max-height: calc(100vh - 280px);
+  box-shadow: var(--shadow);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid var(--gray-200);
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: var(--gray-50);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+tr:hover {
+  background: var(--primary-light);
+}
+
+/* Status Grid */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 20px;
+}
+
+.status-box {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.status-box h3 {
+  margin: 0;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-box table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.status-box th, .status-box td {
+  border: 1px solid var(--gray-200);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+/* Row Colors */
+tr.row-red td {
+  background: var(--danger-light) !important;
+}
+
+tr.row-yellow td {
+  background: var(--warning-light) !important;
+}
+
+tr.row-green td {
+  background: var(--success-light) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tabs {
+    padding: 6px 12px;
+  }
+  
+  .tabs button {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .tab {
+    padding: 16px;
+  }
+  
+  .controls {
+    padding: 12px;
+  }
+  
+  .input, .btn {
+    min-width: 100%;
+  }
+  
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-wrap {
+    max-height: calc(100vh - 320px);
+  }
+}
+
+/* Loading State */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--white);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-success {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.badge-warning {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.badge-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.badge-info {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+/* Card */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--gray-800);
+}
+
+/* Filter Group */
+.filter-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-700);
+  min-width: 80px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray-500);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 16px;
+  margin: 0;
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h2>📋 Báo cáo dữ liệu</h2></div>
+<div class="header"><h2>VieAI Dashboard</h2></div>
 
-  <div class="tabs">
-    <div class="tab active" id="tabData" onclick="switchTab('data')">📋 Bảng dữ liệu</div>
-    <div class="tab" id="tabStatus" onclick="switchTab('status')">📦 Theo trạng thái đơn hàng</div>
-  </div>
+<!-- Tabs -->
+<div class="tabs">
+  <button data-tab="tab-don" class="active">🚚 Đơn chi tiết</button>
+  <button data-tab="tab-status">📦 Theo trạng thái đơn hàng</button>
+  <button data-tab="tab-ton">🏷️ Tồn kho</button>
+  <button data-tab="tab-hoan">🔁 Hàng hoàn BH</button>
+  <button data-tab="tab-tb">📢 Thông báo</button>
+</div>
 
-  <!-- TAB 1: BẢNG DỮ LIỆU -->
-  <div id="dataSection">
-    <div class="controls">
-      <input type="date" id="fromData" class="search-box" />
-      <input type="date" id="toData" class="search-box" />
-
-      <input list="listKhung" id="filterKhung" placeholder="Chọn hoặc nhập khung_h" class="search-box" />
-      <datalist id="listKhung"></datalist>
-
-      <input list="listGian" id="filterGian" placeholder="Chọn hoặc nhập ma_gian" class="search-box" />
-      <datalist id="listGian"></datalist>
-
-      <input list="listMvd" id="filterMvd" placeholder="Chọn hoặc nhập mvd" class="search-box" />
-      <datalist id="listMvd"></datalist>
-
-      <button class="btn btn-preset" onclick="applyPreset('today','data')">Hôm nay</button>
-      <button class="btn btn-preset" onclick="applyPreset('yesterday','data')">Hôm qua</button>
-      <button class="btn btn-primary" onclick="filterDataTable()">📅 Lọc</button>
+<!-- ========== ĐƠN CHI TIẾT ========== -->
+<div id="tab-don" class="tab active">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Đơn chi tiết</h3>
+      <div class="filter-group">
+        <span class="filter-label">Bộ lọc:</span>
+        <button class="btn btn-ghost" onclick="setDatePreset('don','today')">Hôm nay</button>
+        <button class="btn btn-ghost" onclick="setDatePreset('don','yesterday')">Hôm qua</button>
+        <button class="btn btn-ghost" onclick="setDatePreset('don','week')">Tuần này</button>
+        <button class="btn btn-ghost" onclick="resetDon()">🔄 Làm mới</button>
+      </div>
     </div>
-
-    <div class="table-wrapper">
-      <table id="data-table">
-        <thead><tr id="header-row"></tr></thead>
-        <tbody id="data-body"></tbody>
+    <div class="controls">
+      <input type="date" id="fromDateDon" class="input">
+      <input type="date" id="toDateDon" class="input">
+      <select id="fKhungDon" class="input"></select>
+      <input id="fGianDon" class="input" list="listGianDon" placeholder="Nhập mã gian...">
+      <datalist id="listGianDon"></datalist>
+      <input id="fMvdDon" class="input" placeholder="Nhập MVD...">
+    </div>
+    <div class="table-wrap">
+      <table id="tblDon">
+        <thead>
+          <tr>
+            <th>Ngày</th>
+            <th>Sân</th>
+            <th>Khung</th>
+            <th>Mã gian</th>
+            <th>MVD</th>
+            <th>MDH</th>
+            <th>ID SP</th>
+            <th>Số lượng</th>
+            <th>Tên SP</th>
+            <th>Tình trạng</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
       </table>
     </div>
   </div>
+</div>
 
-  <!-- TAB 2: THEO TRẠNG THÁI -->
-  <div id="statusSection" style="display:none">
-    <div class="controls">
-      <input type="date" id="fromStatus" class="search-box" />
-      <input type="date" id="toStatus" class="search-box" />
-
-      <input list="listKhung" id="filterKhungStatus" placeholder="Chọn hoặc nhập khung_h" class="search-box" />
-      <input list="listGian" id="filterGianStatus" placeholder="Chọn hoặc nhập ma_gian" class="search-box" />
-      <input list="listMvd" id="filterMvdStatus" placeholder="Chọn hoặc nhập mvd" class="search-box" />
-
-      <button class="btn btn-preset" onclick="applyPreset('today','status')">Hôm nay</button>
-      <button class="btn btn-preset" onclick="applyPreset('yesterday','status')">Hôm qua</button>
-      <button class="btn btn-primary" onclick="filterStatusTables()">📅 Lọc</button>
-    </div>
-
-    <div class="flex-tables">
-      <div class="subtable">
-        <h3>🧾 ĐƠN ĐÃ IN ĐƠN</h3>
-        <table id="tableInDon">
-          <thead>
-            <tr>
-              <th>STT</th><th>Ngày</th><th>Mã_gian</th><th>MVD</th><th>Tình_trạng</th><th>Trạng_thái</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+<!-- ========== TRẠNG THÁI ĐƠN HÀNG ========== -->
+<div id="tab-status" class="tab">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Trạng thái đơn hàng</h3>
+      <div class="filter-group">
+        <span class="filter-label">Bộ lọc:</span>
+        <button class="btn btn-ghost" onclick="setDatePreset('status','today')">Hôm nay</button>
+        <button class="btn btn-ghost" onclick="setDatePreset('status','yesterday')">Hôm qua</button>
+        <button class="btn btn-ghost" onclick="setDatePreset('status','week')">Tuần này</button>
+        <button class="btn btn-ghost" onclick="resetStatus()">🔄 Làm mới</button>
       </div>
-      <div class="subtable">
-        <h3>🚚 ĐƠN DVVC LẤY HÀNG</h3>
-        <table id="tableLayHang">
-          <thead>
-            <tr>
-              <th>STT</th><th>Ngày</th><th>Mã_gian</th><th>MVD</th><th>Tình_trạng</th><th>Trạng_thái</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+    </div>
+    <div class="controls">
+      <input type="date" id="fromDateStatus" class="input">
+      <input type="date" id="toDateStatus" class="input">
+      <select id="fKhungStatus" class="input"></select>
+      <input id="fGianStatus" class="input" list="listGianStatus" placeholder="Nhập mã gian...">
+      <datalist id="listGianStatus"></datalist>
+      <input id="fMvdStatus" class="input" placeholder="Nhập MVD...">
+    </div>
+    <div class="status-grid">
+      <div class="status-box">
+        <h3 style="color: var(--primary);">📘 ĐƠN ĐÃ IN ĐƠN</h3>
+        <div class="table-wrap">
+          <table id="tblPrinted">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Ngày</th>
+                <th>Mã gian</th>
+                <th>MVD</th>
+                <th>Tình trạng</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="status-box">
+        <h3 style="color: var(--success);">🚚 ĐƠN DVVC LẤY HÀNG</h3>
+        <div class="table-wrap">
+          <table id="tblPicked">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Ngày</th>
+                <th>Mã gian</th>
+                <th>MVD</th>
+                <th>Tình trạng</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ========== TỒN KHO ========== -->
+<div id="tab-ton" class="tab">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Tồn kho</h3>
+    </div>
+    <div class="controls">
+      <input id="filterIdSp" class="input" placeholder="🔍 Lọc theo ID sản phẩm..." oninput="renderTonKho()">
+      <input id="filterTenSp" class="input" placeholder="🔍 Lọc theo tên sản phẩm..." oninput="renderTonKho()">
+    </div>
+    <div class="table-wrap">
+      <table id="tblTonKho">
+        <thead>
+          <tr>
+            <th>Kho</th>
+            <th>ID SP</th>
+            <th>Tồn cuối</th>
+            <th>Tên SP</th>
+            <th>Thương hiệu</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== HÀNG HOÀN BH ========== -->
+<div id="tab-hoan" class="tab">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Hàng hoàn bảo hành</h3>
+      <div class="filter-group">
+        <button class="btn btn-ghost" onclick="resetHoan()">🔄 Làm mới</button>
+      </div>
+    </div>
+    <div class="controls">
+      <input id="fShop" class="input" placeholder="Lọc shop..." oninput="renderHoan()">
+      <input id="fMVD" class="input" placeholder="Lọc MVD..." oninput="renderHoan()">
+      <input id="fSKU" class="input" placeholder="Lọc SKU..." oninput="renderHoan()">
+    </div>
+    <div class="table-wrap">
+      <table id="tblHoan">
+        <thead>
+          <tr>
+            <th>Ngày</th>
+            <th>Shop</th>
+            <th>MVD hoàn</th>
+            <th>SKU hoàn</th>
+            <th>SLG</th>
+            <th>Ảnh</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== THÔNG BÁO ========== -->
+<div id="tab-tb" class="tab">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Thông báo</h3>
+    </div>
+    <div class="table-wrap">
+      <table id="tblTB">
+        <thead>
+          <tr>
+            <th>Ngày</th>
+            <th>Trường</th>
+            <th>Thông báo</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbwwR3GI-ZwWKsueXHJX2rehWzjZOW9MfeQsmbY_mPSk0F6asm3BwfBh1Pps3jELfYJ7/exec";
-let originalData=[];
+// ========== DỮ LIỆU ==========
+const API_URL="https://script.google.com/macros/s/AKfycbzEgZwWIGr_31qDy4ZJjehUVP_-0Tpq2SKrGGgubU28dQZMV7lnYkJVzlRvVXRlL9cR/exec";
+let RAW=[],DON=[],TON=[],HOAN=[],TB=[];
+const $=s=>document.querySelector(s);
 
-/* ===== Date helpers ===== */
-function parseVNDate(str){
-  if(!str)return null;
-  const parts=str.split(/[\/\-]/);
-  if(parts.length===3){const[d,m,y]=parts.map(Number);if(y&&m&&d)return new Date(y,m-1,d);}
-  const d2=new Date(str);return isNaN(d2)?null:d2;
-}
-function nowVN(){const now=new Date();const vnOffset=7*60;const localOffset=now.getTimezoneOffset();return new Date(now.getTime()+(vnOffset+localOffset)*60000);}
-const fmt=d=>d.toISOString().slice(0,10);
-const addDays=(date,n)=>new Date(date.getFullYear(),date.getMonth(),date.getDate()+n);
-
-/* ===== Load Data ===== */
-document.addEventListener("DOMContentLoaded",()=>{
-  fetch(API_URL).then(r=>r.json()).then(d=>{
-    originalData = Array.isArray(d)? d.sort((a,b)=>parseVNDate(b.ngay)-parseVNDate(a.ngay)):[];
-    renderTable(originalData);
-    fillUniqueLists(originalData);
-
-    // ✅ Lọc mặc định ngày hôm nay cho tab trạng thái
-    const today = nowVN();
-    const todayStr = fmt(today);
-    fromStatus.value = todayStr;
-    toStatus.value = todayStr;
-    filterStatusTables(); // tự lọc hôm nay khi load
-  });
+// ========== LOAD ==========
+fetch(API_URL).then(r=>r.json()).then(d=>{
+ RAW=d;DON=RAW.filter(r=>r.id_up_don);TON=RAW.filter(r=>r.kho);HOAN=RAW.filter(r=>r.mvd_hoan);TB=RAW.filter(r=>r.tb);
+ initDropdowns();initDateDefaults();
+ renderDon();renderStatusTables(true);renderTonKho();renderHoan();renderTB();
 });
 
-/* ===== Tabs ===== */
-function switchTab(tab){
-  ["tabData","tabStatus"].forEach(id=>document.getElementById(id).classList.remove("active"));
-  ["dataSection","statusSection"].forEach(id=>document.getElementById(id).style.display="none");
-  if(tab==="data"){tabData.classList.add("active");dataSection.style.display="block";}
-  if(tab==="status"){tabStatus.classList.add("active");statusSection.style.display="block";}
+// ========== HÀM CHUNG ==========
+function parseVNDate(d){if(!d)return new Date(0);const[a,b,c]=d.split("/").map(Number);return new Date(c,b-1,a);}
+// ✅ Chuyển sang múi giờ Việt Nam trước khi format yyyy-MM-dd
+function fmt(d){
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0,10);
 }
 
-/* ===== Fill unique lists ===== */
-function fillUniqueLists(data){
-  const khungSet=new Set(),gianSet=new Set(),mvdSet=new Set();
-  data.forEach(r=>{
-    if(r.khung_h) khungSet.add(r.khung_h.trim());
-    if(r.ma_gian) gianSet.add(r.ma_gian.trim());
-    if(r.mvd)     mvdSet.add(r.mvd.trim());
+function addDays(dt,n){return new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+n);}
+function setDatePreset(tab,type){
+ const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ let f=today,t=today;if(type==="yesterday"){f=addDays(today,-1);t=addDays(today,-1);}
+ if(type==="week"){const d=today.getDay()||7;f=addDays(today,1-d);t=addDays(f,6);}
+ if(tab==="don"){$("#fromDateDon").value=fmt(f);$("#toDateDon").value=fmt(t);renderDon();}
+ if(tab==="status"){$("#fromDateStatus").value=fmt(f);$("#toDateStatus").value=fmt(t);renderStatusTables();}
+}
+function initDateDefaults(){const t=new Date(),f=fmt(t);["#fromDateDon","#toDateDon","#fromDateStatus","#toDateStatus"].forEach(id=>$(id).value=f);}
+function uniq(a){return["Tất cả",...[...new Set(a.filter(x=>x))]];}
+
+// ========== DROPDOWN ==========
+function initDropdowns(){
+  const uKhung = uniq(DON.map(r => r.khung_h));
+  const uGian  = uniq(DON.map(r => r.ma_gian));
+
+  // Gán list cho Khung_h
+  const fill = (id, arr) => $(id).innerHTML = arr.map(v => `<option value="${v}">`).join("");
+  ["#fKhungDon", "#fKhungStatus"].forEach(i => {
+    const sel = document.querySelector(i);
+    sel.innerHTML = uKhung.map(v => `<option>${v}</option>`).join("");
   });
-  const fill=(id,set)=>{
-    const dl=document.getElementById(id);
-    if(!dl) return;
-    dl.innerHTML="";
-    Array.from(set).sort().forEach(v=>{
-      const opt=document.createElement("option");
-      opt.value=v;dl.appendChild(opt);
-    });
-  };
-  fill("listKhung",khungSet);
-  fill("listGian",gianSet);
-  fill("listMvd",mvdSet);
+
+  // ⚙️ Gợi ý cho mã gian
+  fill("#listGianDon", uGian);
+  fill("#listGianStatus", uGian);
+
+  // Gắn sự kiện lọc
+  $("#fKhungDon").onchange = renderDon;
+  $("#fKhungStatus").onchange = renderStatusTables;
+  $("#fGianDon").oninput = renderDon;
+  $("#fGianStatus").oninput = renderStatusTables;
+  $("#fMvdDon").oninput = renderDon;
+  $("#fMvdStatus").oninput = renderStatusTables;
 }
 
-/* ===== Preset Buttons ===== */
-function applyPreset(preset,tab){
-  const base=new Date(nowVN().getFullYear(),nowVN().getMonth(),nowVN().getDate());
-  let start,end;
-  switch(preset){case"today":start=addDays(base,1);end=addDays(base,2);break;case"yesterday":start=base;end=addDays(base,1);break;}
-  const s=fmt(start),e=fmt(addDays(end,-1));
-  if(tab==="data"){fromData.value=s;toData.value=e;filterDataTable();}
-  if(tab==="status"){fromStatus.value=s;toStatus.value=e;filterStatusTables();}
+// ========== ĐƠN CHI TIẾT ==========
+function renderDon(){
+ const tb=$("#tblDon tbody");tb.innerHTML="";
+ const fK=$("#fKhungDon").value,fG=$("#fGianDon").value,fM=$("#fMvdDon").value;
+ const from=$("#fromDateDon").value,to=$("#toDateDon").value;
+ const f1=new Date(from+"T00:00:00"),f2=new Date(to+"T23:59:59");
+ const filtered=DON.filter(r=>{
+   const d=parseVNDate(r.ngay);
+   return (!fK||fK==="Tất cả"||r.khung_h===fK)&&(!fG||fG==="Tất cả"||r.ma_gian===fG)&&(!fM||fM==="Tất cả"||r.mvd===fM)&&(d>=f1&&d<=f2);
+ }).sort((a,b)=>parseVNDate(b.ngay)-parseVNDate(a.ngay));
+ 
+ if (filtered.length === 0) {
+   tb.innerHTML = `<tr><td colspan="11" class="empty-state">
+     <div class="empty-state-icon">📭</div>
+     <p class="empty-state-text">Không có dữ liệu đơn hàng</p>
+   </td></tr>`;
+   return;
+ }
+ 
+ filtered.forEach(r=>{
+   const tr=document.createElement("tr");
+   if((r.tinh_trang||"").trim()==="3 DVVC LẤY HÀNG")tr.classList.add("row-green");
+   if((r.trang_thai||"").trim()==="1 HỦY")tr.classList.add("row-red");
+   ["ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","so_luong","ten_sp","tinh_trang","trang_thai"]
+     .forEach(k=>{const td=document.createElement("td");td.textContent=r[k]||"";tr.appendChild(td);});
+   tb.appendChild(tr);
+ });
 }
+function resetDon(){["#fKhungDon","#fGianDon","#fMvdDon"].forEach(s=>$(s).value="Tất cả");renderDon();}
 
-/* ===== Table Rendering with color logic ===== */
-function rowColor(r){
-  const tt=(r.trang_thai||"").trim().toUpperCase();
-  const tinh=(r.tinh_trang||"").trim().toUpperCase();
-  if(tt==="1 HỦY")return "row-pink";
-  if(tinh==="3 DVVC LẤY HÀNG")return "row-green";
-  if(tinh==="1 ĐÃ IN ĐƠN")return "row-blue";
-  return "";
+// ========== TRẠNG THÁI ==========
+function renderStatusTables(auto=false){
+ const pT=$("#tblPrinted tbody"),pK=$("#tblPicked tbody");pT.innerHTML="";pK.innerHTML="";
+ let fK=$("#fKhungStatus").value,fG=$("#fGianStatus").value,fM=$("#fMvdStatus").value;
+ let from=$("#fromDateStatus").value,to=$("#toDateStatus").value;
+ if(auto){const t=fmt(new Date());from=to=t;$("#fromDateStatus").value=t;$("#toDateStatus").value=t;}
+ const f1=new Date(from+"T00:00:00"),f2=new Date(to+"T23:59:59");
+ const filtered=DON.filter(r=>{
+   const d=parseVNDate(r.ngay);
+   return (!fK||fK==="Tất cả"||r.khung_h===fK)&&(!fG||fG==="Tất cả"||r.ma_gian===fG)&&(!fM||fM==="Tất cả"||r.mvd===fM)&&(d>=f1&&d<=f2);
+ });
+ const printed=filtered.filter(r=>(r.tinh_trang||"").trim()==="1 ĐÃ IN ĐƠN"),picked=filtered.filter(r=>(r.tinh_trang||"").trim()==="3 DVVC LẤY HÀNG");
+ 
+ // Empty state for printed table
+ if (printed.length === 0) {
+   pT.innerHTML = `<tr><td colspan="6" class="empty-state">
+     <div class="empty-state-icon">📄</div>
+     <p class="empty-state-text">Không có đơn đã in</p>
+   </td></tr>`;
+ } else {
+   printed.forEach((r,i)=>{const tr=document.createElement("tr");if((r.trang_thai||"").trim()==="1 HỦY")tr.classList.add("row-red");
+   ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"].forEach(k=>{const td=document.createElement("td");td.textContent=k==="STT"?i+1:(r[k]||"");tr.appendChild(td);});pT.appendChild(tr);});
+ }
+ 
+ // Empty state for picked table
+ if (picked.length === 0) {
+   pK.innerHTML = `<tr><td colspan="6" class="empty-state">
+     <div class="empty-state-icon">🚚</div>
+     <p class="empty-state-text">Không có đơn DVVC lấy hàng</p>
+   </td></tr>`;
+ } else {
+   picked.forEach((r,i)=>{const tr=document.createElement("tr");tr.classList.add("row-green");if((r.trang_thai||"").trim()==="1 HỦY")tr.classList.add("row-red");
+   ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"].forEach(k=>{const td=document.createElement("td");td.textContent=k==="STT"?i+1:(r[k]||"");tr.appendChild(td);});pK.appendChild(tr);});
+ }
 }
+function resetStatus(){["#fKhungStatus","#fGianStatus","#fMvdStatus"].forEach(s=>$(s).value="Tất cả");renderStatusTables();}
 
-/* ===== BẢNG DỮ LIỆU ===== */
-const displayCols=["STT","ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","sku_cha","slg_xuat","ten_sp","tinh_trang","trang_thai"];
-function renderTable(data){
-  const h=document.getElementById("header-row"),b=document.getElementById("data-body");
-  h.innerHTML="";b.innerHTML="";
-  displayCols.forEach(c=>{const th=document.createElement("th");th.textContent=c;h.appendChild(th);});
-  data.forEach((r,i)=>{
-    const tr=document.createElement("tr");
-    const color=rowColor(r);if(color)tr.classList.add(color);
-    displayCols.forEach(c=>{
-      const td=document.createElement("td");
-      if(c==="STT")td.textContent=i+1;
-      else if(c==="ngay"){const d=parseVNDate(r.ngay);td.textContent=d?d.toLocaleDateString('vi-VN'):(r.ngay||"");}
-      else td.textContent=r[c]||"";
+// ========== TỒN KHO ==========
+function renderTonKho() {
+  const tb = document.querySelector("#tblTonKho tbody");
+  tb.innerHTML = "";
+
+  // Lấy giá trị lọc (viết thường, bỏ khoảng trắng)
+  const idVal = ($("#filterIdSp").value || "").trim().toLowerCase();
+  const tenVal = ($("#filterTenSp").value || "").trim().toLowerCase();
+
+  // Lọc dữ liệu theo text nhập
+  const filtered = TON.filter(r => {
+    const idMatch = !idVal || (r.id_sp || "").toLowerCase().includes(idVal);
+    const tenMatch = !tenVal || (r.ten_sp || "").toLowerCase().includes(tenVal);
+    return idMatch && tenMatch;
+  });
+
+  if (filtered.length === 0) {
+    tb.innerHTML = `<tr><td colspan="5" class="empty-state">
+      <div class="empty-state-icon">📦</div>
+      <p class="empty-state-text">Không có dữ liệu tồn kho</p>
+    </td></tr>`;
+    return;
+  }
+
+  // Sắp xếp kho → id_sp (A→Z)
+  filtered.sort((a, b) => {
+    const khoA = (a.kho || "").toUpperCase();
+    const khoB = (b.kho || "").toUpperCase();
+    if (khoA > khoB) return -1;
+    if (khoA < khoB) return 1;
+
+    const idA = (a.id_sp || "").toUpperCase();
+    const idB = (b.id_sp || "").toUpperCase();
+    if (idA < idB) return -1;
+    if (idA > idB) return 1;
+
+    return 0;
+  });
+
+  // Render dữ liệu + tô màu
+  filtered.forEach(r => {
+    const tr = document.createElement("tr");
+    const ton = Number(r.ton_cuoi) || 0;
+
+    // Tô màu
+    if (ton <= 0) tr.classList.add("row-red");
+    else if (ton <= 4) tr.classList.add("row-yellow");
+
+    ["kho", "id_sp","ton_cuoi", "ten_sp", "thuong_hieu"].forEach(k => {
+      const td = document.createElement("td");
+      td.textContent = r[k] || "";
       tr.appendChild(td);
     });
-    b.appendChild(tr);
+    tb.appendChild(tr);
   });
 }
 
-/* ===== Filter bảng chính ===== */
-function filterDataTable(){
-  const f=fromData.value,t=toData.value;
-  const kh=filterKhung.value.trim().toLowerCase(),mg=filterGian.value.trim().toLowerCase(),mv=filterMvd.value.trim().toLowerCase();
-  let rows=[...originalData];
-  if(f&&t){let from=new Date(f+"T00:00:00"),to=new Date(t+"T23:59:59");if(from>to)[from,to]=[to,from];rows=rows.filter(r=>{const d=parseVNDate(r.ngay);return d&&d>=from&&d<=to;});}
-  rows=rows.filter(r=>{
-    if(kh&&!(r.khung_h||"").toLowerCase().includes(kh))return false;
-    if(mg&&!(r.ma_gian||"").toLowerCase().includes(mg))return false;
-    if(mv&&!(r.mvd||"").toLowerCase().includes(mv))return false;
-    return true;
-  });
-  rows.sort((a,b)=>parseVNDate(b.ngay)-parseVNDate(a.ngay));
-  renderTable(rows);
-}
+function resetTon(){$("#filterIdSp").value=$("#filterTenSp").value="";renderTonKho();}
 
-/* ===== TAB 2: THEO TRẠNG THÁI ===== */
-function fillSubTable(id,data){
-  const body=document.querySelector(`#${id} tbody`);body.innerHTML="";
-  data.sort((a,b)=>parseVNDate(b.ngay)-parseVNDate(a.ngay));
-  data.forEach((r,i)=>{
-    const tr=document.createElement("tr");const color=rowColor(r);if(color)tr.classList.add(color);
-    ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"].forEach(c=>{
-      const td=document.createElement("td");
-      if(c==="STT")td.textContent=i+1;
-      else if(c==="ngay"){const d=parseVNDate(r.ngay);td.textContent=d?d.toLocaleDateString('vi-VN'):(r.ngay||"");}
-      else td.textContent=r[c]||"";
+// ========== HÀNG HOÀN ==========
+function renderHoan(){
+  const tb = document.querySelector("#tblHoan tbody");
+  tb.innerHTML = "";
+
+  const s = ($("#fShop").value || "").toLowerCase();
+  const m = ($("#fMVD").value || "").toLowerCase();
+  const sku = ($("#fSKU").value || "").toLowerCase();
+
+  // Lọc theo shop / mvd / sku
+  const data = HOAN.filter(r =>
+    (!s || (r.shop || "").toLowerCase().includes(s)) &&
+    (!m || (r.mvd_hoan || "").toLowerCase().includes(m)) &&
+    (!sku || (r.sku_hoan || "").toLowerCase().includes(sku))
+  ).sort((a, b) => parseVNDate(b.ngay) - parseVNDate(a.ngay));
+
+  if (data.length === 0) {
+    tb.innerHTML = `<tr><td colspan="6" class="empty-state">
+      <div class="empty-state-icon">🔁</div>
+      <p class="empty-state-text">Không có dữ liệu hàng hoàn</p>
+    </td></tr>`;
+    return;
+  }
+
+  // Render từng dòng
+  data.forEach(r => {
+    const tr = document.createElement("tr");
+
+    ["ngay", "shop", "mvd_hoan", "sku_hoan", "slg"].forEach(k => {
+      const td = document.createElement("td");
+      td.textContent = r[k] || "";
       tr.appendChild(td);
     });
-    body.appendChild(tr);
+
+    // 🖼️ Cột ảnh
+    const tdImg = document.createElement("td");
+    const link = r.link_anh || r.anh || ""; // Ưu tiên link_anh nếu có
+    if (link) {
+      const img = document.createElement("img");
+      img.src = link;
+      img.style.width = "80px";
+      img.style.height = "80px";
+      img.style.objectFit = "cover";
+      img.style.borderRadius = "6px";
+      img.style.cursor = "pointer";
+      img.title = "Bấm để xem ảnh lớn";
+      img.onclick = () => window.open(link, "_blank");
+      tdImg.appendChild(img);
+    } else {
+      tdImg.textContent = "(Không có ảnh)";
+      tdImg.style.color = "#999";
+      tdImg.style.fontStyle = "italic";
+    }
+
+    tr.appendChild(tdImg);
+    tb.appendChild(tr);
   });
-}
-function renderStatusTables(filtered=null){
-  const data=filtered||originalData;
-  const inDon = data.filter(r=>(r.tinh_trang||"").trim().toUpperCase()==="1 ĐÃ IN ĐƠN");
-  const layHang = data.filter(r=>(r.tinh_trang||"").trim().toUpperCase()==="3 DVVC LẤY HÀNG");
-  fillSubTable("tableInDon",inDon);
-  fillSubTable("tableLayHang",layHang);
 }
 
-/* ===== Lọc trong TAB 2 ===== */
-function filterStatusTables(){
-  const f=fromStatus.value,t=toStatus.value;
-  const kh=filterKhungStatus.value.trim().toLowerCase();
-  const mg=filterGianStatus.value.trim().toLowerCase();
-  const mv=filterMvdStatus.value.trim().toLowerCase();
-  let rows=[...originalData];
-  if(f&&t){let from=new Date(f+"T00:00:00"),to=new Date(t+"T23:59:59");if(from>to)[from,to]=[to,from];rows=rows.filter(r=>{const d=parseVNDate(r.ngay);return d&&d>=from&&d<=to;});}
-  rows=rows.filter(r=>{
-    if(kh&&!(r.khung_h||"").toLowerCase().includes(kh))return false;
-    if(mg&&!(r.ma_gian||"").toLowerCase().includes(mg))return false;
-    if(mv&&!(r.mvd||"").toLowerCase().includes(mv))return false;
-    return true;
-  });
-  renderStatusTables(rows);
+function resetHoan(){$("#fShop").value=$("#fMVD").value=$("#fSKU").value="";renderHoan();}
+
+// ========== THÔNG BÁO ==========
+function renderTB(){
+ const tb=$("#tblTB tbody");tb.innerHTML="";
+ const sorted=[...TB].sort((a,b)=>parseVNDate(b.ngay)-parseVNDate(a.ngay));
+ 
+ if (sorted.length === 0) {
+   tb.innerHTML = `<tr><td colspan="3" class="empty-state">
+     <div class="empty-state-icon">📢</div>
+     <p class="empty-state-text">Không có thông báo</p>
+   </td></tr>`;
+   return;
+ }
+ 
+ sorted.forEach(r=>{const tr=document.createElement("tr");const td1=document.createElement("td");td1.textContent=r.ngay||"";tr.appendChild(td1);
+ const td2=document.createElement("td");td2.textContent=r.truong||"";tr.appendChild(td2);
+ const td3=document.createElement("td");td3.innerHTML=formatTB(r.tb||"");tr.appendChild(td3);tb.appendChild(tr);});
 }
+function formatTB(t){return"<table style='border-collapse:collapse;width:100%;font-size:12px'>"+t.split(/\n+/).filter(Boolean).map(r=>"<tr>"+r.split("|").map(c=>`<td style='border:1px solid #ddd;padding:3px'>${c}</td>`).join("")+"</tr>").join("")+"</table>";}
+
+// ========== TAB ==========
+document.querySelectorAll(".tabs button").forEach(btn=>{
+ btn.onclick=()=>{document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+ btn.classList.add("active");document.getElementById(btn.dataset.tab).classList.add("active");
+ if(btn.dataset.tab==="tab-status")renderStatusTables(true);}
+});
 </script>
 </body>
 </html>
