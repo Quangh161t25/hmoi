@@ -6,433 +6,195 @@
 <title>VieAI Dashboard</title>
 <style>
 :root {
-  --primary: #2563eb;
-  --primary-light: #dbeafe;
-  --primary-dark: #1d4ed8;
-  --secondary: #64748b;
-  --success: #16a34a;
-  --success-light: #dcfce7;
-  --warning: #d97706;
-  --warning-light: #f9d958;
-  --danger: #dc2626;
-  --danger-light: #fee2e2;
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
-  --white: #ffffff;
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --radius: 8px;
-  --radius-lg: 12px;
+  --primary: #2563eb; --primary-light: #dbeafe; --primary-dark: #1d4ed8;
+  --success: #16a34a; --success-light: #dcfce7;
+  --warning: #d97706; --warning-light: #f9d958;
+  --danger: #dc2626; --danger-light: #fee2e2;
+  --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+  --gray-500: #6b7280; --gray-700: #374151; --gray-800: #1f2937; --white: #ffffff;
+  --shadow: 0 1px 3px 0 rgba(0,0, 0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+  --radius: 8px; --radius-lg: 12px;
 }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", -apple-system, sans-serif; background: var(--gray-50); color: var(--gray-700); line-height: 1.5; }
+.header { background: var(--primary); color: white; padding: 16px 24px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+.header h2 { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.header h2::before { content: "Chart"; font-size: 24px; }
 
-* { box-sizing: border-box; }
-
-body {
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--gray-50);
-  margin: 0;
-  color: var(--gray-800);
-  line-height: 1.5;
-}
-
-/* Header */
-.header {
-  background: var(--primary);
-  color: var(--white);
-  padding: 16px 24px;
-  box-shadow: var(--shadow-md);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.header h2::before {
-  content: "📊";
-  font-size: 24px;
-}
-
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--white);
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--gray-200);
-  position: sticky;
-  top: 64px;
-  z-index: 90;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
+.tabs { display: flex; gap: 4px; background: white; padding: 8px 16px; border-bottom: 1px solid var(--gray-200); position: sticky; top: 64px; z-index: 90; overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
-
-.tabs button {
-  padding: 12px 16px;
-  border: none;
-  border-radius: var(--radius);
-  background: transparent;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--gray-600);
-}
-
-.tabs button:hover {
-  background: var(--gray-100);
-  color: var(--gray-800);
-}
-
-.tabs button.active {
-  background: var(--primary);
-  color: var(--white);
-  box-shadow: var(--shadow);
-}
+.tabs button { padding: 10px 14px; border: none; border-radius: var(--radius); background: transparent; font-weight: 500; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; color: var(--gray-600); transition: all 0.2s; }
+.tabs button:hover { background: var(--gray-100); }
+.tabs button.active { background: var(--primary); color: white; }
 
 .tab { display: none; padding: 20px; }
 .tab.active { display: block; }
 
-/* Controls */
-.controls {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-  align-items: center;
-  padding: 16px;
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-}
+.card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+.card-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--gray-200); }
+.card-title { font-size: 18px; font-weight: 600; color: var(--gray-800); }
 
-.input {
-  padding: 10px 12px;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--radius);
-  min-width: 160px;
-  font-size: 14px;
-  background: var(--white);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.btn {
-  padding: 10px 16px;
-  border: none;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.btn-primary:hover { background: var(--primary-dark); }
-
-.btn-ghost {
-  background: var(--gray-100);
-  color: var(--gray-700);
-  border: 1px solid var(--gray-300);
-}
-
+.controls { display: flex; gap: 12px; flex-wrap: wrap; padding: 16px 20px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
+.input, .btn { padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; background: white; }
+.input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.btn { cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.btn-ghost { background: var(--gray-100); color: var(--gray-700); }
 .btn-ghost:hover { background: var(--gray-200); }
+.btn.active-filter { background: var(--primary); color: white; }
 
-.btn.active-filter {
-  background: var(--primary);
-  color: var(--white);
-  box-shadow: var(--shadow);
-}
-
-/* Table */
-.table-wrap {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-lg);
-  overflow: auto;
-  max-height: calc(100vh - 280px);
-  box-shadow: var(--shadow);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-th, td {
-  border: 1px solid var(--gray-200);
-  padding: 10px 12px;
-  text-align: left;
-  white-space: nowrap;
-}
-
-th {
-  background: var(--gray-50);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  font-weight: 600;
-  color: var(--gray-700);
-}
-
+.table-container { position: relative; overflow: auto; max-height: calc(100vh - 280px); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px 12px; text-align: left; border: 1px solid var(--gray-200); white-space: nowrap; }
+th { background: var(--gray-50); position: sticky; top: 0; z-index: 1; font-weight: 600; }
 tr:hover { background: var(--primary-light); }
 
-/* Status Grid */
-.status-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 20px;
-}
-
-.status-box {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.status-box h3 {
-  margin: 0;
-  padding: 16px 20px;
-  font-size: 16px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Row Colors */
 tr.row-red td { background: var(--danger-light) !important; }
 tr.row-yellow td { background: var(--warning-light) !important; }
 tr.row-green td { background: var(--success-light) !important; }
 
+.loading {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 1s linear infinite; z-index: 10;
+}
+@keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--gray-500); }
+.empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state-text { font-size: 16px; }
+
+.filter-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.filter-label { font-weight: 500; color: var(--gray-700); min-width: 80px; }
+
+/* Status Grid */
+.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; }
+.status-box { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+.status-box h3 { margin: 0; padding: 16px 20px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.status-box .table-container { min-height: 200px; }
+.status-box .loading { width: 32px; height: 32px; }
+
+/* Virtual Scroll */
+.virtual-tbody { position: relative; }
+.virtual-row { position: absolute; top: 0; left: 0; width: 100%; }
+
 /* Responsive */
 @media (max-width: 768px) {
-  .tabs { padding: 6px 12px; }
-  .tabs button { padding: 10px 12px; font-size: 14px; }
-  .tab { padding: 16px; }
-  .controls { padding: 12px; }
+  .controls, .card-header { flex-direction: column; align-items: stretch; }
   .input, .btn { min-width: 100%; }
   .status-grid { grid-template-columns: 1fr; }
-  .table-wrap { max-height: calc(100vh - 320px); }
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--gray-500);
-}
-
-.empty-state-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
-.empty-state-text {
-  font-size: 16px;
-  margin: 0;
-}
-
-/* Card */
-.card {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.card-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--gray-800);
-}
-
-.filter-group {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.filter-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--gray-700);
-  min-width: 80px;
+  .table-container { max-height: calc(100vh - 320px); }
 }
 </style>
 </head>
 <body>
 <div class="header"><h2>VieAI Dashboard</h2></div>
 
-<!-- Tabs -->
 <div class="tabs">
-  <button data-tab="tab-don" class="active">🚚 Đơn chi tiết</button>
-  <button data-tab="tab-status">📦 Theo trạng thái đơn hàng</button>
-  <button data-tab="tab-ton">🏷️ Tồn kho</button>
-  <button data-tab="tab-hoan">🔁 Hàng hoàn BH</button>
-  <button data-tab="tab-tb">📢 Thông báo</button>
+  <button data-tab="tab-don" class="active">Đơn chi tiết</button>
+  <button data-tab="tab-status">Theo trạng thái</button>
+  <button data-tab="tab-ton">Tồn kho</button>
+  <button data-tab="tab-hoan">Hàng hoàn</button>
+  <button data-tab="tab-tb">Thông báo</button>
 </div>
 
-<!-- ========== ĐƠN CHI TIẾT ========== -->
+<!-- TAB ĐƠN CHI TIẾT -->
 <div id="tab-don" class="tab active">
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Đơn chi tiết</h3>
       <div class="filter-group">
-        <span class="filter-label">Bộ lọc:</span>
         <button class="btn btn-ghost" onclick="setDatePreset('don','today')">Hôm nay</button>
-        <button class="btn btn-ghost" onclick="setDatePreset('don','yesterday')">Hôm qua</button>
+        <button class="btn btn-ghost" onclick="setDatePreset('don','yesterday')">Hômにとっては</button>
         <button class="btn btn-ghost" onclick="setDatePreset('don','week')">Tuần này</button>
-        <button class="btn btn-ghost" onclick="resetDon()">🔄 Làm mới</button>
+        <button class="btn btn-ghost" onclick="resetFilters('don')">Làm mới</button>
       </div>
     </div>
     <div class="controls">
       <input type="date" id="fromDateDon" class="input">
       <input type="date" id="toDateDon" class="input">
       <select id="fKhungDon" class="input"></select>
-      <input id="fGianDon" class="input" list="listGianDon" placeholder="Nhập mã gian...">
+      <input id="fGianDon" class="input" list="listGianDon" placeholder="Mã gian..." debounce="300">
       <datalist id="listGianDon"></datalist>
-      <input id="fMvdDon" class="input" placeholder="Nhập MVD...">
+      <input id="fMvdDon" class="input" placeholder="MVD..." debounce="300">
       <div class="filter-group">
         <span class="filter-label">Tình trạng:</span>
-        <button class="btn btn-ghost" onclick="filterTinhTrangDon(this, 1)">ĐÃ IN ĐƠN</button>
-        <button class="btn btn-ghost" onclick="filterTinhTrangDon(this, 3)">DVVC LẤY HÀNG</button>
-        <span class="filter-label" style="margin-left:16px;">Trạng thái:</span>
-        <button class="btn btn-ghost" onclick="filterTrangThaiDon(this, 1)">HỦY</button>
-        <button class="btn btn-ghost" onclick="clearFiltersDon()">✖ Xóa lọc</button>
+        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="1">ĐÃ IN ĐƠN</button>
+        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="3">DVVC LẤY HÀNG</button>
+        <span class="filter-label">Trạng thái:</span>
+        <button class="btn btn-ghost" data-filter="trang_thai" data-value="1">HỦY</button>
+        <button class="btn btn-ghost" onclick="clearStatusFilters('don')">Xóa lọc</button>
       </div>
     </div>
-    <div class="table-wrap">
+    <div class="table-container" id="donContainer">
+      <div class="loading"></div>
       <table id="tblDon">
         <thead>
           <tr>
-            <th>Ngày</th>
-            <th>Sân</th>
-            <th>Khung</th>
-            <th>Mã gian</th>
-            <th>MVD</th>
-            <th>MDH</th>
-            <th>ID SP</th>
-            <th>Số lượng</th>
-            <th>Tên SP</th>
-            <th>Tình trạng</th>
-            <th>Trạng thái</th>
-            <th>Ghi chú</th>
+            <th>Ngày</th><th>Sân</th><th>Khung</th><th>Mã gian</th><th>MVD</th><th>MDH</th>
+            <th>ID SP</th><th>SL</th><th>Tên SP</th><th>Tình trạng</th><th>Trạng thái</th><th>Ghi chú</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody class="virtual-tbody"></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- ========== TRẠNG THÁI ĐƠN HÀNG ========== -->
+<!-- TAB THEO TRẠNG THÁI -->
 <div id="tab-status" class="tab">
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Trạng thái đơn hàng</h3>
       <div class="filter-group">
-        <span class="filter-label">Bộ lọc:</span>
         <button class="btn btn-ghost" onclick="setDatePreset('status','today')">Hôm nay</button>
         <button class="btn btn-ghost" onclick="setDatePreset('status','yesterday')">Hôm qua</button>
         <button class="btn btn-ghost" onclick="setDatePreset('status','week')">Tuần này</button>
-        <button class="btn btn-ghost" onclick="resetStatus()">🔄 Làm mới</button>
+        <button class="btn btn-ghost" onclick="resetFilters('status')">Làm mới</button>
       </div>
     </div>
     <div class="controls">
       <input type="date" id="fromDateStatus" class="input">
       <input type="date" id="toDateStatus" class="input">
       <select id="fKhungStatus" class="input"></select>
-      <input id="fGianStatus" class="input" list="listGianStatus" placeholder="Nhập mã gian...">
+      <input id="fGianStatus" class="input" list="listGianStatus" placeholder="Mã gian..." debounce="300">
       <datalist id="listGianStatus"></datalist>
-      <input id="fMvdStatus" class="input" placeholder="Nhập MVD...">
+      <input id="fMvdStatus" class="input" placeholder="MVD..." debounce="300">
       <div class="filter-group">
         <span class="filter-label">Tình trạng:</span>
-        <button class="btn btn-ghost" onclick="filterTinhTrangStatus(this, 1)">ĐÃ IN ĐƠN</button>
-        <button class="btn btn-ghost" onclick="filterTinhTrangStatus(this, 3)">DVVC LẤY HÀNG</button>
-        <span class="filter-label" style="margin-left:16px;">Trạng thái:</span>
-        <button class="btn btn-ghost" onclick="filterTrangThaiStatus(this, 1)">HỦY</button>
-        <button class="btn btn-ghost" onclick="clearFiltersStatus()">✖ Xóa lọc</button>
+        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="1">ĐÃ IN ĐƠN</button>
+        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="3">DVVC LẤY HÀNG</button>
+        <span class="filter-label">Trạng thái:</span>
+        <button class="btn btn-ghost" data-filter="trang_thai" data-value="1">HỦY</button>
+        <button class="btn btn-ghost" onclick="clearStatusFilters('status')">Xóa lọc</button>
       </div>
     </div>
+
     <div class="status-grid">
       <div class="status-box">
-        <h3 style="color: var(--primary);">📘 ĐƠN ĐÃ IN ĐƠN</h3>
-        <div class="table-wrap">
+        <h3 style="color: var(--primary);">ĐƠN ĐÃ IN ĐƠN</h3>
+        <div class="table-container">
+          <div class="loading" id="loadingPrinted"></div>
           <table id="tblPrinted">
             <thead>
               <tr>
-                <th>STT</th>
-                <th>Ngày</th>
-                <th>Mã gian</th>
-                <th>MVD</th>
-                <th>ID SP</th>
-                <th>Tình trạng</th>
-                <th>Trạng thái</th>
-                <th>Ghi chú</th>
+                <th>STT</th><th>Ngày</th><th>Mã gian</th><th>MVD</th><th>ID SP</th>
+                <th>Tình trạng</th><th>Trạng thái</th><th>Ghi chú</th><th>Khung</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
+
       <div class="status-box">
-        <h3 style="color: var(--success);">🚚 ĐƠN DVVC LẤY HÀNG</h3>
-        <div class="table-wrap">
+        <h3 style="color: var(--success);">ĐƠN DVVC LẤY HÀNG</h3>
+        <div class="table-container">
+          <div class="loading" id="loadingPicked"></div>
           <table id="tblPicked">
             <thead>
               <tr>
-                <th>STT</th>
-                <th>Ngày</th>
-                <th>Mã gian</th>
-                <th>MVD</th>
-                <th>Tình trạng</th>
-                <th>Trạng thái</th>
+                <th>STT</th><th>Ngày</th><th>Mã gian</th><th>MVD</th>
+                <th>Tình trạng</th><th>Trạng thái</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -443,334 +205,362 @@ tr.row-green td { background: var(--success-light) !important; }
   </div>
 </div>
 
-<!-- Các tab còn lại giữ nguyên -->
-<!-- (Tồn kho, Hàng hoàn, Thông báo) -->
+<!-- TAB TỒN KHO -->
+<div id="tab-ton" class="tab">
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">Tồn kho</h3></div>
+    <div class="controls">
+      <input id="filterIdSp" class="input" placeholder="Lọc ID SP..." debounce="300">
+      <input id="filterTenSp" class="input" placeholder="Lọc tên SP..." debounce="300">
+    </div>
+    <div class="table-container">
+      <table id="tblTonKho">
+        <thead><tr><th>Kho</th><th>ID SP</th><th>Tồn cuối</th><th>Tên SP</th><th>Thương hiệu</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB HÀNG HOÀN -->
+<div id="tab-hoan" class="tab">
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">Hàng hoàn bảo hành</h3></div>
+    <div class="controls">
+      <input id="fShop" class="input" placeholder="Lọc shop..." debounce="300">
+      <input id="fMVD" class="input" placeholder="Lọc MVD..." debounce="300">
+      <input id="fSKU" class="input" placeholder="Lọc SKU..." debounce="300">
+    </div>
+    <div class="table-container">
+      <table id="tblHoan">
+        <thead><tr><th>Ngày</th><th>Shop</th><th>MVD hoàn</th><th>SKU hoàn</th><th>SLG</th><th>Ảnh</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB THÔNG BÁO -->
+<div id="tab-tb" class="tab">
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">Thông báo</h3></div>
+    <div class="table-container">
+      <table id="tblTB">
+        <thead><tr><th>Ngày</th><th>Trường</th><th>Thông báo</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <script>
-// ========== DỮ LIỆU ==========
-const API_URL="https://script.google.com/macros/s/AKfycbzEgZwWIGr_31qDy4ZJjehUVP_-0Tpq2SKrGGgubU28dQZMV7lnYkJVzlRvVXRlL9cR/exec";
-let RAW=[],DON=[],TON=[],HOAN=[],TB=[];
+// ========== DỮ LIỆU & CACHE ==========
+const API_URL = "https://script.google.com/macros/s/AKfycbzEgZwWIGr_31qDy4ZJjehUVP_-0Tpq2SKrGGgubU28dQZMV7lnYkJVzlRvVXRlL9cR/exec";
+let DATA = { DON: [], TON: [], HOAN: [], TB: [] };
 const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 
-// ========== LOAD ==========
-fetch(API_URL).then(r=>r.json()).then(d=>{
-  RAW=d;
-  DON=RAW.filter(r=>r.id_up_don);
-  TON=RAW.filter(r=>r.kho);
-  HOAN=RAW.filter(r=>r.mvd_hoan);
-  TB=RAW.filter(r=>r.tb);
-  initDropdowns(); initDateDefaults();
-  renderDon(); renderStatusTables(true); renderTonKho(); renderHoan(); renderTB();
+// ========== DEBOUNCE ==========
+function debounce(fn, delay) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); };
+}
+
+// ========== INPUT DEBOUNCE ==========
+document.addEventListener("input", e => {
+  if (e.target.hasAttribute("debounce")) {
+    e.target._debounce ||= debounce(() => {
+      const tab = e.target.closest(".tab").id;
+      if (tab === "tab-don") renderDon();
+      else if (tab === "tab-status") renderStatusTables();
+      else if (tab === "tab-ton") renderTonKho();
+      else if (tab === "tab-hoan") renderHoan();
+    }, +e.target.getAttribute("debounce"));
+    e.target._debounce();
+  }
 });
 
-// ========== HÀM CHUNG ==========
-function parseVNDate(d){ if(!d) return new Date(0); const [a,b,c]=d.split("/").map(Number); return new Date(c,b-1,a); }
-function fmt(d){
-  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0,10);
-}
-function addDays(dt,n){ return new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+n); }
-
-function setDatePreset(tab,type){
-  const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  let f=today, t=today;
-  if(type==="yesterday"){ f=t=addDays(today,-1); }
-  if(type==="week"){ const d=today.getDay()||7; f=addDays(today,1-d); t=addDays(f,6); }
-  if(tab==="don"){ $("#fromDateDon").value=fmt(f); $("#toDateDon").value=fmt(t); renderDon(); }
-  if(tab==="status"){ $("#fromDateStatus").value=fmt(f); $("#toDateStatus").value=fmt(t); renderStatusTables(); }
-}
-
-function initDateDefaults(){
-  const t=fmt(new Date());
-  ["#fromDateDon","#toDateDon","#fromDateStatus","#toDateStatus"].forEach(id=>$(id).value=t);
-}
-
-function uniq(a){ return ["Tất cả",...[...new Set(a.filter(x=>x))]]; }
-
-// ========== DROPDOWN ==========
-function initDropdowns(){
-  const uKhung = uniq(DON.map(r => r.khung_h));
-  const uGian  = uniq(DON.map(r => r.ma_gian));
-  ["#fKhungDon", "#fKhungStatus"].forEach(i => {
-    $(i).innerHTML = uKhung.map(v => `<option>${v}</option>`).join("");
+// ========== LOAD DATA ==========
+fetch(API_URL)
+  .then(r => r.json())
+  .then(raw => {
+    DATA.DON = raw.filter(r => r.id_up_don);
+    DATA.TON = raw.filter(r => r.kho);
+    DATA.HOAN = raw.filter(r => r.mvd_hoan);
+    DATA.TB = raw.filter(r => r.tb);
+    initUI();
+    renderAll();
   });
-  ["#listGianDon", "#listGianStatus"].forEach(id => $(id).innerHTML = uGian.map(v => `<option value="${v}">`).join(""));
-  $("#fKhungDon").onchange = renderDon;
-  $("#fKhungStatus").onchange = renderStatusTables;
-  $("#fGianDon").oninput = renderDon;
-  $("#fGianStatus").oninput = renderStatusTables;
-  $("#fMvdDon").oninput = renderDon;
-  $("#fMvdStatus").oninput = renderStatusTables;
+
+// ========== INIT UI ==========
+function initUI() {
+  const today = new Date().toISOString().slice(0,10);
+  ["#fromDateDon","#toDateDon","#fromDateStatus","#toDateStatus"].forEach(id => $(id).value = today);
+
+  const khung = ["Tất cả", ...new Set(DATA.DON.map(r => r.khung_h).filter(Boolean))];
+  const gian = [...new Set(DATA.DON.map(r => r.ma_gian).filter(Boolean))];
+
+  ["#fKhungDon", "#fKhungStatus"].forEach(sel => {
+    sel.innerHTML = khung.map(v => `<option>${v}</option>`).join("");
+  });
+  ["#listGianDon", "#listGianStatus"].forEach(dl => {
+    dl.innerHTML = gian.map(v => `<option value="${v}">`).join("");
+  });
+
+  $$("button[data-filter]").forEach(btn => {
+    btn.onclick = () => {
+      const filter = btn.dataset.filter;
+      const tab = btn.closest(".tab").id;
+      $$(`#${tab} button[data-filter="${filter}"]`).forEach(b => b.classList.remove("active-filter"));
+      btn.classList.toggle("active-filter");
+      tab === "tab-don" ? renderDon() : renderStatusTables();
+    };
+  });
 }
 
-// ========== ĐƠN CHI TIẾT ==========
-let activeTinhTrangDon = null, activeTrangThaiDon = null;
-
-function filterTinhTrangDon(btn, value) {
-  const btns = document.querySelectorAll('#tab-don button[onclick^="filterTinhTrangDon"]');
-  btns.forEach(b => b.classList.remove("active-filter"));
-  if (activeTinhTrangDon === value) {
-    activeTinhTrangDon = null;
-  } else {
-    activeTinhTrangDon = value;
-    btn.classList.add("active-filter");
-  }
+// ========== RENDER ALL ==========
+function renderAll() {
   renderDon();
+  renderStatusTables(true);
+  renderTonKho();
+  renderHoan();
+  renderTB();
 }
 
-function filterTrangThaiDon(btn, value) {
-  const btns = document.querySelectorAll('#tab-don button[onclick^="filterTrangThaiDon"]');
-  btns.forEach(b => b.classList.remove("active-filter"));
-  if (activeTrangThaiDon === value) {
-    activeTrangThaiDon = null;
-  } else {
-    activeTrangThaiDon = value;
-    btn.classList.add("active-filter");
+// ========== VIRTUAL SCROLL (ĐƠN CHI TIẾT) ==========
+class VirtualTable {
+  constructor(tbody, rowHeight = 48) {
+    this.tbody = tbody;
+    thesef.rowHeight = rowHeight;
+    this.data = [];
+    this.start = 0;
+    this.visible = 0;
+    this.container = tbody.parentElement.parentElement;
+    this.init();
   }
-  renderDon();
-}
-
-function clearFiltersDon() {
-  activeTinhTrangDon = activeTrangThaiDon = null;
-  document.querySelectorAll('#tab-don button[onclick^="filterTinhTrangDon"], #tab-don button[onclick^="filterTrangThaiDon"]')
-    .forEach(b => b.classList.remove("active-filter"));
-  renderDon();
-}
-
-function renderDon(){
-  const tb=$("#tblDon tbody"); tb.innerHTML="";
-  const fK=$("#fKhungDon").value, fG=$("#fGianDon").value, fM=$("#fMvdDon").value;
-  const from=$("#fromDateDon").value, to=$("#toDateDon").value;
-  const f1=new Date(from+"T00:00:00"), f2=new Date(to+"T23:59:59");
-  let filtered = DON.filter(r=>{
-    const d=parseVNDate(r.ngay);
-    const matchDate = d>=f1 && d<=f2;
-    const matchKhung = !fK || fK==="Tất cả" || r.khung_h===fK;
-    const matchGian = !fG || r.ma_gian===fG;
-    const matchMvd = !fM || r.mvd===fM;
-    const matchTinhTrang = !activeTinhTrangDon || (r.tinh_trang||"").trim().includes(activeTinhTrangDon === 1 ? "ĐÃ IN ĐƠN" : "DVVC LẤY HÀNG");
-    const matchTrangThai = !activeTrangThaiDon || (r.trang_thai||"").trim().includes("HỦY");
-    return matchDate && matchKhung && matchGian && matchMvd && matchTinhTrang && matchTrangThai;
-  }).sort((a,b)=>parseVNDate(b.ngay)-parseVNDate(a.ngay));
-
-  if (!filtered.length) {
-    tb.innerHTML = `<tr><td colspan="12" class="empty-state"><div class="empty-state-icon">📭</div><p class="empty-state-text">Không có dữ liệu đơn hàng</p></td></tr>`;
-    return;
+  init() {
+    this.container.addEventListener("scroll", debounce(() => this.render(), 10));
+    this.visible = Math.ceil(this.container.clientHeight / this.rowHeight) + 5;
   }
-
-  filtered.forEach(r=>{
-    const tr=document.createElement("tr");
-    if ((r.trang_thai||"").trim().includes("HỦY")) tr.classList.add("row-red");
-    else if ((r.tinh_trang||"").trim().includes("DVVC LẤY HÀNG")) tr.classList.add("row-green");
-    ["ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","so_luong","ten_sp","tinh_trang","trang_thai","ghi_chu"]
-      .forEach(k=>{ const td=document.createElement("td"); td.textContent=r[k]||""; tr.appendChild(td); });
-    tb.appendChild(tr);
-  });
-}
-
-function resetDon(){
-  ["#fKhungDon","#fGianDon","#fMvdDon"].forEach(s=>$(s).value="Tất cả");
-  clearFiltersDon();
-}
-
-// ========== TRẠNG THÁI ==========
-let activeTinhTrangStatus = null, activeTrangThaiStatus = null;
-
-function filterTinhTrangStatus(btn, value) {
-  const btns = document.querySelectorAll('#tab-status button[onclick^="filterTinhTrangStatus"]');
-  btns.forEach(b => b.classList.remove("active-filter"));
-  activeTinhTrangStatus = activeTinhTrangStatus === value ? null : value;
-  if (activeTinhTrangStatus) btn.classList.add("active-filter");
-  renderStatusTables();
-}
-
-function filterTrangThaiStatus(btn, value) {
-  const btns = document.querySelectorAll('#tab-status button[onclick^="filterTrangThaiStatus"]');
-  btns.forEach(b => b.classList.remove("active-filter"));
-  activeTrangThaiStatus = activeTrangThaiStatus === value ? null : value;
-  if (activeTrangThaiStatus) btn.classList.add("active-filter");
-  renderStatusTables();
-}
-
-function clearFiltersStatus() {
-  activeTinhTrangStatus = activeTrangThaiStatus = null;
-  document.querySelectorAll('#tab-status button[onclick^="filterTinhTrangStatus"], #tab-status button[onclick^="filterTrangThaiStatus"]')
-    .forEach(b => b.classList.remove("active-filter"));
-  renderStatusTables();
-}
-
-function renderStatusTables(auto=false){
-  const pT=$("#tblPrinted tbody"), pK=$("#tblPicked tbody"); pT.innerHTML=""; pK.innerHTML="";
-  let fK=$("#fKhungStatus").value, fG=$("#fGianStatus").value, fM=$("#fMvdStatus").value;
-  let from=$("#fromDateStatus").value, to=$("#toDateStatus").value;
-  if(auto){ const t=fmt(new Date()); from=to=t; $("#fromDateStatus").value=t; $("#toDateStatus").value=t; }
-  const f1=new Date(from+"T00:00:00"), f2=new Date(to+"T23:59:59");
-  let filtered = DON.filter(r=>{
-    const d=parseVNDate(r.ngay);
-    const matchDate = d>=f1 && d<=f2;
-    const matchKhung = !fK || fK==="Tất cả" || r.khung_h===fK;
-    const matchGian = !fG || r.ma_gian===fG;
-    const matchMvd = !fM || r.mvd===fM;
-    const matchTinhTrang = !activeTinhTrangStatus || (r.tinh_trang||"").trim().includes(activeTinhTrangStatus === 1 ? "ĐÃ IN ĐƠN" : "DVVC LẤY HÀNG");
-    const matchTrangThai = !activeTrangThaiStatus || (r.trang_thai||"").trim().includes("HỦY");
-    return matchDate && matchKhung && matchGian && matchMvd && matchTinhTrang && matchTrangThai;
-  });
-
-  const printed = filtered.filter(r => (r.tinh_trang||"").trim().includes("ĐÃ IN ĐƠN"));
-  const picked = filtered.filter(r => (r.tinh_trang||"").trim().includes("DVVC LẤY HÀNG"));
-
-  // Render printed
-  if (!printed.length) {
-    pT.innerHTML = `<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">📄</div><p class="empty-state-text">Không có đơn đã in</p></td></tr>`;
-  } else {
-    printed.forEach((r,i)=>{
-      const tr=document.createElement("tr");
-      if ((r.trang_thai||"").includes("HỦY")) tr.classList.add("row-red");
-      ["STT","ngay","ma_gian","mvd","id_sp","tinh_trang","trang_thai","ghi_chu"].forEach(k=>{
-        const td=document.createElement("td");
-        td.textContent = k==="STT" ? i+1 : (r[k]||"");
-        tr.appendChild(td);
-      });
-      pT.appendChild(tr);
-    });
+  setData(data) {
+    this.data = data;
+    this.tbody.style.height = `${data.length * this.rowHeight}px`;
+    this.render();
   }
-
-  // Render picked
-  if (!picked.length) {
-    pK.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">🚚</div><p class="empty-state-text">Không có đơn DVVC lấy hàng</p></td></tr>`;
-  } else {
-    picked.forEach((r,i)=>{
-      const tr=document.createElement("tr");
-      if ((r.trang_thai||"").includes("HỦY")) tr.classList.add("row-red");
-      else tr.classList.add("row-green");
-      ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"].forEach(k=>{
-        const td=document.createElement("td");
-        td.textContent = k==="STT" ? i+1 : (r[k]||"");
-        tr.appendChild(td);
-      });
-      pK.appendChild(tr);
-    });
+  render() {
+    const scrollTop = this.container.scrollTop;
+    this.start = Math.max(0, Math.floor(scrollTop / this.rowHeight) - 5);
+    const end = Math.min(this.start + this.visible, this.data.length);
+    const fragment = new DocumentFragment();
+    for (let i = this.start; i < end; i++) {
+      const r = this.data[i];
+      const tr = document.createElement("tr");
+      tr.className = (r.trang_thai||"").includes("HỦY") ? "row-red" : (r.tinh_trang||"").includes("DVVC LẤY HÀNG") ? "row-green" : "";
+      tr.style.top = `${i * this.rowHeight}px`;
+      ["ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","so_luong","ten_sp","tinh_trang","trang_thai","ghi_chu"]
+        .forEach(k => { const td = document.createElement("td"); td.textContent = r[k] || ""; tr.appendChild(td); });
+      fragment.appendChild(tr);
+    }
+    this.tbody.innerHTML = "";
+    this.tbody.appendChild(fragment);
   }
 }
+let virtualDon = null;
 
-function resetStatus(){
-  ["#fKhungStatus","#fGianStatus","#fMvdStatus"].forEach(s=>$(s).value="Tất cả");
-  clearFiltersStatus();
+// ========== RENDER ĐƠN ==========
+function renderDon() {
+  const loading = $("#donContainer .loading");
+  loading.style.display = "block";
+  setTimeout(() => {
+    const f = getFilters("don");
+    const filtered = DATA.DON.filter(r => applyFilters(r, f))
+      .sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
+    if (!virtualDon) virtualDon = new VirtualTable($(".virtual-tbody"));
+    virtualDon.setData(filtered);
+    loading.style.display = filtered.length ? "none" : "block";
+    if (!filtered.length) $(".virtual-tbody").innerHTML = `<tr><td colspan="12" class="empty-state"><div class="empty-state-icon">Empty Inbox</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
+  }, 10);
 }
 
-// ========== TỒN KHO, HOÀN, THÔNG BÁO (giữ nguyên) ==========
-function renderTonKho() {
-  const tb = $("#tblTonKho tbody"); tb.innerHTML = "";
-  const idVal = ($("#filterIdSp").value || "").trim().toLowerCase();
-  const tenVal = ($("#filterTenSp").value || "").trim().toLowerCase();
-  const filtered = TON.filter(r => {
-    const idMatch = !idVal || (r.id_sp || "").toLowerCase().includes(idVal);
-    const tenMatch = !tenVal || (r.ten_sp || "").toLowerCase().includes(tenVal);
-    return idMatch && tenMatch;
-  }).sort((a,b) => {
-    if (a.kho > b.kho) return -1;
-    if (a.kho < b.kho) return 1;
-    return (a.id_sp || "").localeCompare(b.id_sp || "");
-  });
+// ========== RENDER TRẠNG THÁI (SẮP XẾP NGÀY GIẢM DẦN) ==========
+function renderStatusTables(auto = false) {
+  const lp = $("#loadingPrinted"), lk = $("#loadingPicked");
+  lp.style.display = lk.style.display = "block";
+  setTimeout(() => {
+    const f = getFilters("status");
+    if (auto) { 
+      const t = new Date().toISOString().slice(0,10); 
+      $("#fromDateStatus").value = $("#toDateStatus").value = t; 
+    }
 
-  if (!filtered.length) {
-    tb.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📦</div><p class="empty-state-text">Không có dữ liệu tồn kho</p></td></tr>`;
-    return;
-  }
+    const all = DATA.DON.filter(r => applyFilters(r, f))
+      .sort((a, b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
 
+    const printed = all.filter(r => (r.tinh_trang || "").trim() === "1 ĐÃ IN ĐƠN");
+    const picked = all.filter(r => (r.tinh_trang || "").trim() === "3 DVVC LẤY HÀNG");
+
+    renderSimpleTable("#tblPrinted", printed, ["STT","ngay","ma_gian","mvd","id_sp","tinh_trang","trang_thai","ghi_chu","khung_h"]);
+    renderSimpleTable("#tblPicked", picked, ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"], false, "row-green");
+    $$("#tblPicked tr").forEach(tr => { if (tr.textContent.includes("HỦY")) tr.classList.add("row-red"); });
+    
+    lp.style.display = printed.length ? "none" : "block";
+    lk.style.display = picked.length ? "none" : "block";
+  }, 50);
+}
+
+// ========== RENDER HÀNG HOÀN (SẮP XẾP NGÀY GIẢM DẦN) ==========
+function renderHoan() {
+  const s = ($("#fShop").value||"").toLowerCase();
+  const m = ($("#fMVD").value||"").toLowerCase();
+  const sku = ($("#fSKU").value||"").toLowerCase();
+
+  const filtered = DATA.HOAN
+    .filter(r => 
+      (!s || (r.shop||"").toLowerCase().includes(s)) &&
+      (!m || (r.mvd_hoan||"").toLowerCase().includes(m)) &&
+      (!sku || (r.sku_hoan||"").toLowerCase().includes(sku))
+    )
+    .sort((a, b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
+
+  const tbody = $("#tblHoan tbody");
+  tbody.innerHTML = filtered.length ? "" : `<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">Return</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
+  
   filtered.forEach(r => {
-    const tr = document.createElement("tr");
-    const ton = Number(r.ton_cuoi) || 0;
-    if (ton <= 0) tr.classList.add("row-red");
-    else if (ton <= 4) tr.classList.add("row-yellow");
-    ["kho","id_sp","ton_cuoi","ten_sp","thuong_hieu"].forEach(k => {
-      const td = document.createElement("td");
-      td.textContent = r[k] || "";
-      tr.appendChild(td);
-    });
-    tb.appendChild(tr);
-  });
-}
-
-function renderHoan(){
-  const tb = $("#tblHoan tbody"); tb.innerHTML = "";
-  const s = ($("#fShop").value || "").toLowerCase();
-  const m = ($("#fMVD").value || "").toLowerCase();
-  const sku = ($("#fSKU").value || "").toLowerCase();
-  const data = HOAN.filter(r =>
-    (!s || (r.shop || "").toLowerCase().includes(s)) &&
-    (!m || (r.mvd_hoan || "").toLowerCase().includes(m)) &&
-    (!sku || (r.sku_hoan || "").toLowerCase().includes(sku))
-  ).sort((a,b) => parseVNDate(b.ngay) - parseVNDate(a.ngay));
-
-  if (!data.length) {
-    tb.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">🔁</div><p class="empty-state-text">Không có dữ liệu hàng hoàn</p></td></tr>`;
-    return;
-  }
-
-  data.forEach(r => {
     const tr = document.createElement("tr");
     ["ngay","shop","mvd_hoan","sku_hoan","slg"].forEach(k => {
       const td = document.createElement("td");
       td.textContent = r[k] || "";
       tr.appendChild(td);
     });
-    const tdImg = document.createElement("td");
+    const td = document.createElement("td");
     const link = r.link_anh || r.anh || "";
     if (link) {
       const img = document.createElement("img");
-      img.src = link; img.style = "width:80px;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;";
+      img.src = link;
+      img.style = "width:80px;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;";
       img.onclick = () => window.open(link, "_blank");
-      tdImg.appendChild(img);
+      td.appendChild(img);
     } else {
-      tdImg.textContent = "(Không có ảnh)"; tdImg.style.color = "#999"; tdImg.style.fontStyle = "italic";
+      td.textContent = "(Không ảnh)";
+      td.style.color = "#999";
+      td.style.fontStyle = "italic";
     }
-    tr.appendChild(tdImg);
-    tb.appendChild(tr);
+    tr.appendChild(td);
+    tbody.appendChild(tr);
   });
 }
 
-function renderTB(){
-  const tb=$("#tblTB tbody"); tb.innerHTML="";
-  const sorted = [...TB].sort((a,b)=>parseVNDate(b.ngay)-parseVNDate(a.ngay));
-  if (!sorted.length) {
-    tb.innerHTML = `<tr><td colspan="3" class="empty-state"><div class="empty-state-icon">📢</div><p class="empty-state-text">Không có thông báo</p></td></tr>`;
+// ========== RENDER TỒN KHO ==========
+function renderTonKho() {
+  const id = ($("#filterIdSp").value||"").toLowerCase();
+  const ten = ($("#filterTenSp").value||"").toLowerCase();
+  const filtered = DATA.TON.filter(r => (!id || (r.id_sp||"").toLowerCase().includes(id)) && (!ten || (r.ten_sp||"").toLowerCase().includes(ten)));
+  renderSimpleTable("#tblTonKho", filtered, ["kho","id_sp","ton_cuoi","ten_sp","thuong_hieu"]);
+  $$("#tblTonKho tr").forEach(tr => {
+    const ton = +tr.children[2].textContent;
+    tr.className = ton <= 0 ? "row-red" : ton <= 4 ? "row-yellow" : "";
+  });
+}
+
+// ========== RENDER THÔNG BÁO ==========
+function renderTB() {
+  const sorted = [...DATA.TB].sort((a,b) => new Date(b.ngay.split("/").reverse()) - new Date(a.ngay.split("/").reverse()));
+  renderSimpleTable("#tblTB", sorted, ["ngay","truong","tb"]);
+  $$("#tblTB td:last-child").forEach(td => {
+    td.innerHTML = (td.textContent||"").replace(/\n/g, "<br>").replace(/\|/g, "</td><td>").replace(/^(.*)$/gm, "<tr><td style='border:1px solid #ddd;padding:3px'>$1</td></tr>");
+    td.innerHTML = `<table style="width:100%;font-size:12px;border-collapse:collapse">${td.innerHTML}</table>`;
+  });
+}
+
+// ========== RENDER BẢNG ĐƠN GIẢN ==========
+function renderSimpleTable(id, data, keys, hasSTT = false, defClass = "") {
+  const tbody = $(id + " tbody");
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="${keys.length}" class="empty-state"><div class="empty-state-icon">File</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
     return;
   }
-  sorted.forEach(r=>{
-    const tr=document.createElement("tr");
-    [r.ngay, r.truong, formatTB(r.tb||"")].forEach((val, i) => {
+  const frag = new DocumentFragment();
+  data.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    if ((r.trang_thai||"").includes("HỦY")) tr.className = "row-red";
+    else if (defClass) tr.classList.add(defClass);
+    keys.forEach(k => {
       const td = document.createElement("td");
-      if (i === 2) td.innerHTML = val;
-      else td.textContent = val || "";
+      td.textContent = k === "STT" ? i+1 : (r[k] || "");
       tr.appendChild(td);
     });
-    tb.appendChild(tr);
+    frag.appendChild(tr);
   });
+  tbody.innerHTML = ""; tbody.appendChild(frag);
 }
 
-function formatTB(t){
-  return "<table style='border-collapse:collapse;width:100%;font-size:12px'>"+t.split(/\n+/).filter(Boolean).map(r=>"<tr>"+r.split("|").map(c=>`<td style='border:1px solid #ddd;padding:3px'>${c}</td>`).join("")+"</tr>").join("")+"</table>";
+// ========== LỌC ==========
+function getFilters(tab) {
+  const prefix = tab === "don" ? "Don" : "Status";
+  const from = $(`#fromDate${prefix}`).value ? new Date($(`#fromDate${prefix}`).value) : null;
+  const to = $(`#toDate${prefix}`).value ? new Date($(`#toDate${prefix}`).value) : null;
+  const active = $$(`#tab-${tab} button.active-filter`);
+  const tinh = [...active].find(b => b.dataset.filter === "tinh_trang")?.dataset.value;
+  const trang = [...active].find(b => b.dataset.filter === "trang_thai")?.dataset.value;
+  return {
+    from, to,
+    khung: $(`#fKhung${prefix}`).value,
+    gian: $(`#fGian${prefix}`).value,
+    mvd: $(`#fMvd${prefix}`).value,
+    tinh_trang: tinh,
+    trang_thai: trang
+  };
+}
+function applyFilters(r, f) {
+  const d = new Date(r.ngay.split("/").reverse().join("-"));
+  if (f.from && d < f.from) return false;
+  if (f.to && d > f.to) return false;
+  if (f.khung && f.khung !== "Tất cả" && r.khung_h !== f.khung) return false;
+  if (f.gian && r.ma_gian !== f.gian) return false;
+  if (f.mvd && r.mvd !== f.mvd) return false;
+  if (f.tinh_trang) {
+    const target = f.tinh_trang === "1" ? "1 ĐÃ IN ĐƠN" : "3 DVVC LẤY HÀNG";
+    if ((r.tinh_trang || "").trim() !== target) return false;
+  }
+  if (f.trang_thai && !(r.trang_thai || "").includes("HỦY")) return false;
+  return true;
 }
 
-// ========== TAB ==========
-document.querySelectorAll(".tabs button").forEach(btn=>{
+// ========== HỖ TRỢ ==========
+function setDatePreset(tab, type) {
+  const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let from = today, to = today;
+  if (type === "yesterday") from = to = new Date(today - 86400000);
+  if (type === "week") { const d = today.getDay() || 7; from = new Date(today - (d-1)*86400000); to = new Date(from.getTime() + 6*86400000); }
+  const prefix = tab === "don" ? "Don" : "Status";
+  $(`#fromDate${prefix}`).value = from.toISOString().slice(0,10);
+  $(`#toDate${prefix}`).value = to.toISOString().slice(0,10);
+  tab === "don" ? renderDon() : renderStatusTables();
+}
+function resetFilters(tab) {
+  const prefix = tab === "don" ? "Don" : "Status";
+  $(`#fKhung${prefix}`).value = "Tất cả";
+  $(`#fGian${prefix}`).value = "";
+  $(`#fMvd${prefix}`).value = "";
+  clearStatusFilters(tab);
+}
+function clearStatusFilters(tab) {
+  $$(`#tab-${tab} button[data-filter]`).forEach(b => b.classList.remove("active-filter"));
+  tab === "don" ? renderDon() : renderStatusTables();
+}
+
+// ========== TAB SWITCH ==========
+$$(".tabs button").forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll(".tabs button, .tab").forEach(el => el.classList.remove("active"));
+    $$(".tabs button, .tab").forEach(el => el.classList.remove("active"));
     btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
+    $(`#${btn.dataset.tab}`).classList.add("active");
     if (btn.dataset.tab === "tab-status") renderStatusTables(true);
     if (btn.dataset.tab === "tab-don") renderDon();
+    if (btn.dataset.tab === "tab-ton") renderTonKho();
+    if (btn.dataset.tab === "tab-hoan") renderHoan();
+    if (btn.dataset.tab === "tab-tb") renderTB();
   };
 });
-
-// Khởi tạo các bảng còn lại
-$("#filterIdSp").oninput = renderTonKho;
-$("#filterTenSp").oninput = renderTonKho;
-$("#fShop").oninput = renderHoan;
-$("#fMVD").oninput = renderHoan;
-$("#fSKU").oninput = renderHoan;
-
 </script>
 </body>
 </html>
