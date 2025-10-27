@@ -450,6 +450,7 @@ tr.row-green td {
             <th>Tên SP</th>
             <th>Tình trạng</th>
             <th>Trạng thái</th>
+            <th>Ghi chú</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -490,8 +491,10 @@ tr.row-green td {
                 <th>Ngày</th>
                 <th>Mã gian</th>
                 <th>MVD</th>
+                <th>ID SP</th>
                 <th>Tình trạng</th>
                 <th>Trạng thái</th>
+                <th>Ghi chú</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -680,7 +683,7 @@ function renderDon(){
    const tr=document.createElement("tr");
    if((r.tinh_trang||"").trim()==="3 DVVC LẤY HÀNG")tr.classList.add("row-green");
    if((r.trang_thai||"").trim()==="1 HỦY")tr.classList.add("row-red");
-   ["ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","so_luong","ten_sp","tinh_trang","trang_thai"]
+   ["ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","so_luong","ten_sp","tinh_trang","trang_thai", "ghi_chu"]
      .forEach(k=>{const td=document.createElement("td");td.textContent=r[k]||"";tr.appendChild(td);});
    tb.appendChild(tr);
  });
@@ -708,7 +711,7 @@ function renderStatusTables(auto=false){
    </td></tr>`;
  } else {
    printed.forEach((r,i)=>{const tr=document.createElement("tr");if((r.trang_thai||"").trim()==="1 HỦY")tr.classList.add("row-red");
-   ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"].forEach(k=>{const td=document.createElement("td");td.textContent=k==="STT"?i+1:(r[k]||"");tr.appendChild(td);});pT.appendChild(tr);});
+   ["STT","ngay","ma_gian","mvd","id_sp","tinh_trang","trang_thai", "ghi_chu"].forEach(k=>{const td=document.createElement("td");td.textContent=k==="STT"?i+1:(r[k]||"");tr.appendChild(td);});pT.appendChild(tr);});
  }
  
  // Empty state for picked table
