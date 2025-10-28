@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>QR Label 2x4 – Ô cao 44mm, STT & Ngày & Kho to hơn</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --border:#d1d5db;
+  --gray:#4b5563;
+  --text:#111827;
+  --primary:#2563eb;
+  --radius:3px;
+  --bg:#f9fafb;
+}
+
+/* ===== IN A5 ===== */
+@page{size:A5 portrait;margin:0;}
+@media print{
+  #controls,h1{display:none!important;}
+  body{margin:0;padding:0;background:white;}
+  .sheet{
+    display:grid;
+    grid-template-columns:repeat(2,73mm);
+    grid-template-rows:repeat(4,44mm);
+    width:146mm;height:176mm;
+    padding:2mm;
+    box-sizing:border-box;
+  }
+  .label{
+    border:0.2mm solid var(--border);
+    border-radius:var(--radius);
+    background:white;
+    display:flex;flex-direction:column;
+    justify-content:flex-start;
+    padding:2.6mm;
+    box-sizing:border-box;
+  }
+  .top-row{display:flex;justify-content:space-between;align-items:flex-start;height:28mm;}
+  .qrcode{width:28mm;height:28mm;}
+  .serial-block{text-align:right;line-height:1.5;}
+  .serial-number{color:var(--primary);font-weight:700;font-size:16px;}
+  .date,.warehouse{color:var(--gray);font-size:15px;font-weight:700;}
+  .sku{font-weight:800;font-size:15px;margin-top:1.5mm;}
+  .desc{
+    font-size:11.5px;color:var(--gray);line-height:1.25;width:100%;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+}
+
+/* ===== WEB PREVIEW ===== */
+body{
+  font-family:Arial,sans-serif;background:var(--bg);color:var(--text);
+  max-width:1200px;margin:auto;padding:16px;
+}
+.sheet{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  grid-template-rows:repeat(4,auto);
+  gap:6px;padding:6px;
+}
+.label{
+  background:white;border:1px solid var(--border);border-radius:var(--radius);
+  padding:8px;display:flex;flex-direction:column;
+}
+.top-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.qrcode{width:95px;height:95px;border:1px solid var(--border);}
+.serial-block{text-align:right;line-height:1.4;}
+.serial-number{color:var(--primary);font-weight:700;font-size:21px;}
+.date,.warehouse{color:var(--gray);font-size:18px;font-weight:700;}
+.sku{font-weight:800;font-size:19px;margin-top:3px;}
+.desc{
+  font-size:14px;color:var(--gray);line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;text-overflow:ellipsis;
+}
+button{padding:6px 12px;margin:3px;cursor:pointer;}
+textarea{width:100%;min-height:100px;font-family:monospace;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid #ddd;padding:5px 7px;font-size:14px;}
+th{background:#f0f0f0;}
+.hidden{display:none!important;}
+.status-message{padding:6px 10px;border-radius:4px;font-size:14px;margin-top:8px;}
+.status-success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;}
+.status-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+
+/* THAY ĐỔI: Bảng nằm DƯỚI Textarea */
+#inputContainer {
+  display: block; /* Dọc */
+  margin-top: 12px;
+}
+#textareaMode, #tableMode {
+  margin-bottom: 16px;
+}
+</style>
+</head>
+<body>
+<h1>Tạo nhãn QR Code 2×4 – Ô cao 44mm, STT Ngày Kho to hơn</h1>
+
+<div id="controls">
+  <div>
+    <label><input type="radio" name="mode" value="textarea" checked> Textarea</label>
+    <label><input type="radio" name="mode" value="table"> Bảng</label>
+  </div>
+
+  <!-- Bảng nằm DƯỚI Textarea -->
+  <div id="inputContainer">
+    <div id="textareaMode">
+      <textarea id="inputData" placeholder="SKU|Tên sản phẩm|Số lượng|Kho
+VD: N009-SI-00*1|Vung 22 chảo sâu lòng Engler – test font to hơn|8|HH"></textarea>
+    </div>
+
+    <div id="tableMode">
+      <div style="margin:6px 0;">
+        <button id="addRowBtn">Thêm dòng</button>
+        <button id="clearTableBtn">Xóa hết</button>
+        <button id="pasteFromTextareaBtn">Dán từ textarea</button>
+      </div>
+      <table id="inputTable">
+        <thead><tr><th>SKU</th><th>Tên sản phẩm</th><th>Số lượng</th><th>Kho</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:8px;">
+    <label>Ngày trên nhãn:</label>
+    <input type="date" id="datePicker">
+  </div>
+
+  <div style="margin-top:8px;">
+    <button id="generateButton">Tạo mã QR</button>
+    <button id="printButton">In A5</button>
+    <button id="copyQRButton">Copy mã QR</button>
+  </div>
+
+  <div id="statusMessage" class="status-message"></div>
+  <pre id="qrTextDisplay" style="background:white;padding:8px;border:1px solid #e5e7eb;border-radius:4px;"></pre>
+</div>
+
+<div class="sheet" id="labelContainer"></div>
+
+<script>
+document.getElementById('datePicker').valueAsDate=new Date();
+let currentQRData=[];
+
+// === GIỮ NGUYÊN TẤT CẢ HÀM CŨ ===
+function parseQty(q){if(!q)return[];if(q.includes('-')){const[a,b]=q.split('-').map(Number);return Array.from({length:b-a+1},(_,i)=>a+i);}const n=parseInt(q);return Array.from({length:n},(_,i)=>i+1);}
+function getExcelDateNumber(str){const d=str?new Date(str):new Date();const base=new Date(1899,11,30);return Math.round((d-base)/(24*60*60*1000));}
+function showStatus(msg,type='success'){const e=document.getElementById('statusMessage');e.textContent=msg;e.className=`status-message status-${type}`;setTimeout(()=>e.className='status-message',4000);}
+function addRow(v={sku:'',name:'',qty:'',wh:''}){const tb=document.querySelector('#inputTable tbody');const tr=document.createElement('tr');
+tr.innerHTML=`<td><input value="${v.sku}"></td><td><input value="${v.name}"></td><td><input value="${v.qty}"></td><td><input value="${v.wh}"></td><td><button class='delRow'>X</button></td>`;tb.appendChild(tr);}
+function clearTable(){document.querySelector('#inputTable tbody').innerHTML='';}
+function importFromTextareaToTable(){
+  const raw=document.getElementById('inputData').value.trim();
+  if(!raw)return;
+  clearTable();
+  raw.split('\n').filter(Boolean).forEach(line=>{
+    const[sku,name,qty,wh='']=line.split('|').map(x=>x.trim());
+    addRow({sku,name,qty,wh});
+  });
+  showStatus('Đã nhập từ textarea','success');
+}
+
+function renderLabels(data){
+  const c=document.getElementById('labelContainer');c.innerHTML='';
+  if(!data.length){c.innerHTML='<p>Chưa có dữ liệu</p>';return;}
+  data.forEach((d,i)=>{
+    const div=document.createElement('div');
+    div.className='label';
+    div.innerHTML=`
+      <div class="top-row">
+        <div class="qrcode" id="qr${i}"></div>
+        <div class="serial-block">
+          <div class="serial-number">${d.num}</div>
+          <div class="date">${d.date}</div>
+          <div class="warehouse">${d.wh}</div>
+        </div>
+      </div>
+      <div class="sku">${d.sku}</div>
+      <div class="desc">${d.name}</div>`;
+    c.appendChild(div);
+    new QRCode(document.getElementById(`qr${i}`),{text:d.qr,width:95,height:95});
+  });
+}
+function generateLabels(){
+  const date=getExcelDateNumber(document.getElementById('datePicker').value);
+  const mode=document.querySelector('input[name="mode"]:checked').value;
+  const arr=[];currentQRData=[];
+  if(mode==='textarea'){
+    const lines=document.getElementById('inputData').value.trim().split('\n').filter(Boolean);
+    lines.forEach(l=>{
+      const[sku,name,qty,wh='']=l.split('|').map(x=>x.trim());
+      parseQty(qty).forEach(num=>{
+        const qr=`${sku}_${date}*${num}${wh?`*${wh}`:''}`;
+        arr.push({qr,sku,name,num,date,wh});
+        currentQRData.push(qr);
+      });
+    });
+  }else{
+    document.querySelectorAll('#inputTable tbody tr').forEach(r=>{
+      const t=r.querySelectorAll('input');
+      const[sku,name,qty,wh]=[...t].map(x=>x.value.trim());
+      parseQty(qty).forEach(num=>{
+        const qr=`${sku}_${date}*${num}${wh?`*${wh}`:''}`;
+        arr.push({qr,sku,name,num,date,wh});
+        currentQRData.push(qr);
+      });
+    });
+  }
+  if(!arr.length)return showStatus('Không có dữ liệu','error');
+  document.getElementById('qrTextDisplay').textContent=currentQRData.join('\n');
+  renderLabels(arr);
+  showStatus(`Đã tạo ${arr.length} nhãn!`,'success');
+}
+
+// === ĐỒNG BỘ 2 CHIỀU (GIỮ NGUYÊN) ===
+function syncTableToTextarea() {
+  const rows = document.querySelectorAll('#inputTable tbody tr');
+  const lines = Array.from(rows).map(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const [sku, name, qty, wh] = Array.from(inputs).map(i => i.value.trim());
+    return `${sku}|${name}|${qty}|${wh || ''}`;
+  });
+  document.getElementById('inputData').value = lines.join('\n');
+}
+
+function syncTextareaToTable() {
+  const raw = document.getElementById('inputData').value.trim();
+  if (!raw) {
+    clearTable();
+    return;
+  }
+  const lines = raw.split('\n').filter(Boolean);
+  clearTable();
+  lines.forEach(line => {
+    const [sku = '', name = '', qty = '', wh = ''] = line.split('|').map(x => x.trim());
+    addRow({ sku, name, qty, wh });
+  });
+}
+
+// === GẮN SỰ KIỆN ===
+const textarea = document.getElementById('inputData');
+textarea.addEventListener('input', () => {
+  if (document.querySelector('input[name="mode"]:checked').value === 'textarea') return;
+  syncTextareaToTable();
+});
+
+document.querySelector('#inputTable tbody').addEventListener('input', e => {
+  if (e.target.tagName === 'INPUT') {
+    syncTableToTextarea();
+  }
+});
+document.querySelector('#inputTable tbody').addEventListener('click', e => {
+  if (e.target.classList.contains('delRow')) {
+    e.target.closest('tr').remove();
+    syncTableToTextarea();
+  }
+});
+document.getElementById('addRowBtn').onclick = () => {
+  addRow();
+  syncTableToTextarea();
+};
+document.getElementById('clearTableBtn').onclick = () => {
+  clearTable();
+  document.getElementById('inputData').value = '';
+};
+document.getElementById('pasteFromTextareaBtn').onclick = () => {
+  syncTextareaToTable();
+  showStatus('Đã đồng bộ từ textarea', 'success');
+};
+
+document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener('change', () => {
+  const isTextarea = r.value === 'textarea';
+  if (isTextarea) {
+    syncTableToTextarea();
+  } else {
+    syncTextareaToTable();
+  }
+}));
+
+// === SỰ KIỆN CŨ ===
+document.getElementById('generateButton').onclick=generateLabels;
+document.getElementById('printButton').onclick=()=>window.print();
+document.getElementById('copyQRButton').onclick=()=>{
+  if(!currentQRData.length)return showStatus('Chưa có mã','error');
+  navigator.clipboard.writeText(currentQRData.join('\n')).then(()=>showStatus('Đã copy','success'));
+};
+
+// Khởi tạo
+addRow({sku:'N009-SI-00*1',name:'Vung 22 chảo sâu lòng Engler – test font to hơn',qty:'8',wh:'HH'});
+syncTableToTextarea();
+</script>
+</body>
+</html>
