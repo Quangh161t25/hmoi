@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VieAI - Đơn hàng</title>
+  <!-- SheetJS CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #ea580c; --primary-light: #fff7ed; --green: #16a34a; --green-light: #bbf7d0;
+      --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+      --gray-500: #6b7280; --gray-700: #374151; --white: #fff; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --radius: 8px; --radius-lg: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", sans-serif; background: var(--gray-50); color: var(--gray-700); line-height: 1.5; }
+    .header { background: white; padding: 16px 24px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+    .header h2 { font-size: 18px; font-weight: 600; color: var(--gray-700); }
+    .btn-add, .btn-export { background: var(--primary); color: white; padding: 8px 16px; border-radius: var(--radius); font-weight: 500; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .btn-add:hover, .btn-export:hover { background: #c2410c; }
+    .btn-export { background: #15803d; }
+    .btn-export:hover { background: #166534; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+    .controls { margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .input { padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; background: white; flex: 1; min-width: 200px; }
+    .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(234,88,12,0.1); }
+    .panel { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+    .panel-header { padding: 12px 16px; background: var(--gray-100); font-weight: 600; font-size: 14px; color: var(--gray-700); border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
+    .panel-actions { display: flex; gap: 8px; }
+    .table-container { flex: 1; overflow: auto; position: relative; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+    th { background: var(--gray-50); position: sticky; top: 0; z-index: 1; font-weight: 600; font-size: 12px; }
+    tr:hover { background: var(--primary-light); }
+    tr.selected { background: #fef3c7 !important; }
+    .text-right { text-align: right; }
+    .loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 36px; height: 36px; border: 4px solid #f3f4f6; border-top-color: var(--primary);
+      border-radius: 50%; animation: spin 1s linear infinite; z-index: 10;
+    }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-500); font-size: 14px; }
+    .badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+    .badge-xuat { background: #fed7aa; color: #9a3412; }
+    .badge-nhap { background: #bbf7d0; color: #166534; }
+    .badge-hoan { background: var(--gray-200); color: var(--gray-600); }
+    .row-xuat { color: #9a3412; }
+    .row-nhap { color: #166534; }
+    @media (max-width: 992px) {
+      .container { grid-template-columns: 1fr; }
+      .panel-left { order: 2; }
+      .panel-right { order: 1; }
+    }
+    @media (max-width: 600px) {
+      .controls { flex-direction: column; }
+      .input { width: 100%; }
+      th, td { font-size: 12px; padding: 6px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>Đơn hàng</h2>
+    <div>
+      <button class="btn-add">+ Add</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- BẢNG TRÁI: DANH SÁCH ID_DH DUY NHẤT -->
+    <div class="panel panel-left">
+      <div class="panel-header">
+        <span>Danh sách đơn hàng (ID)</span>
+      </div>
+      <div class="controls">
+        <input type="text" id="filterIdDH" class="input" placeholder="Tìm ID đơn hàng...">
+      </div>
+      <div class="table-container">
+        <div class="loading" id="loadingLeft"></div>
+        <table id="tblIdDH">
+          <thead>
+            <tr>
+              <th>ID Đơn</th>
+              <th>Ngày</th>
+              <th class="text-right">SL</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BẢNG PHẢI: HIỂN THỊ ĐẦY ĐỦ 7 CỘT -->
+    <div class="panel panel-right">
+      <div class="panel-header">
+        <span>Chi tiết đơn hàng</span>
+        <div class="panel-actions">
+          <button class="btn-export" id="btnExport" style="display:none;">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6zm3 2a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V9a1 1 0 00-1-1H7z"/></svg>
+            Xuất Excel
+          </button>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="loading" id="loadingRight"></div>
+        <table id="tblChiTiet">
+          <thead>
+            <tr>
+              <th>Ngày</th>
+              <th>Trạng thái</th>
+              <th>NCC</th>
+              <th>Kho</th>
+              <th>ID SP</th>
+              <th class="text-right">Số lượng</th>
+              <th>Thương hiệu</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== CẤU HÌNH ==========
+    const API_URL = "https://script.google.com/macros/s/AKfycbxNG88EMIe9WWHHyU-lfoNC03XL_xGNSHvSmgBSY_jzG3s3zaw-NHTfRR5i_Wp5XQNG/exec";
+    let DATA = { DON_HANG_CT: [] };
+    let selectedIdDH = null;
+    const $ = s => document.querySelector(s);
+
+    // ========== LẤY DỮ LIỆU ==========
+    async function loadData() {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Lỗi mạng");
+        const raw = await response.json();
+        DATA.DON_HANG_CT = raw.filter(r => r._sheet === "DON_HANG_CT");
+        renderAll();
+        setupFilter();
+        setupExport();
+      } catch (err) {
+        alert("Không thể tải dữ liệu. Kiểm tra kết nối hoặc URL API.");
+        console.error(err);
+      }
+    }
+
+    // ========== HIỂN THỊ CẢ HAI BẢNG ==========
+    function renderAll() {
+      renderLeftPanel();
+      renderRightPanel();
+    }
+
+    // ========== BẢNG TRÁI: UNIQUE ID_DH + MÀU ==========
+    function renderLeftPanel() {
+      const loading = $("#loadingLeft");
+      loading.style.display = "block";
+
+      setTimeout(() => {
+        const filterText = ($("#filterIdDH").value || "").trim().toLowerCase();
+
+        const groupMap = {};
+        DATA.DON_HANG_CT.forEach(r => {
+          if (!r.id_dh || !r.id_sp) return;
+          const id = r.id_dh.toString();
+          if (!groupMap[id]) {
+            groupMap[id] = { id, ngay: [], sl: 0, type: new Set() };
+          }
+          groupMap[id].ngay.push(r.ngay);
+          groupMap[id].sl += +r.so_luong || 0;
+          if (r.trương) groupMap[id].type.add(r.trương);
+        });
+
+        let groups = Object.values(groupMap);
+
+        if (filterText) {
+          groups = groups.filter(g => g.id.toLowerCase().includes(filterText));
+        }
+
+        groups.sort((a, b) => {
+          const da = a.ngay[0] ? new Date(a.ngay[0].split("/").reverse().join("-")) : new Date(0);
+          const db = b.ngay[0] ? new Date(b.ngay[0].split("/").reverse().join("-")) : new Date(0);
+          return db - da;
+        });
+
+        const tbody = $("#tblIdDH tbody");
+        tbody.innerHTML = "";
+
+        if (groups.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Không có đơn hàng</td></tr>`;
+          loading.style.display = "none";
+          return;
+        }
+
+        const frag = new DocumentFragment();
+        groups.forEach(g => {
+          const tr = document.createElement("tr");
+          tr.dataset.id = g.id;
+          if (selectedIdDH === g.id) tr.classList.add("selected");
+
+          const ngayDau = g.ngay.sort((a,b) => new Date(b.split("/").reverse().join("-")) - new Date(a.split("/").reverse().join("-")))[0] || "";
+
+          let rowClass = "";
+          if (g.type.has("XUẤT")) rowClass = "row-xuat";
+          else if (g.type.has("NHẬP")) rowClass = "row-nhap";
+
+          tr.className = rowClass;
+          tr.innerHTML = `
+            <td><strong>${g.id}</strong></td>
+            <td>${ngayDau}</td>
+            <td class="text-right"><strong>${g.sl}</strong></td>
+          `;
+          tr.onclick = (e) => {
+            e.stopPropagation();
+            selectIdDH(g.id);
+          };
+          frag.appendChild(tr);
+        });
+
+        tbody.appendChild(frag);
+        loading.style.display = "none";
+      }, 50);
+    }
+
+    // ========== BẢNG PHẢI: HIỂN THỊ ĐẦY ĐỦ 7 CỘT ==========
+    function renderRightPanel() {
+      const loading = $("#loadingRight");
+      loading.style.display = "block";
+
+      setTimeout(() => {
+        let rows = DATA.DON_HANG_CT.filter(r => r.id_sp && r.id_sp.trim() !== "");
+
+        if (selectedIdDH) {
+          rows = rows.filter(r => r.id_dh && r.id_dh.toString() === selectedIdDH);
+        }
+
+        rows.sort((a, b) => {
+          const da = a.ngay ? new Date(a.ngay.split("/").reverse().join("-")) : new Date(0);
+          const db = b.ngay ? new Date(b.ngay.split("/").reverse().join("-")) : new Date(0);
+          return db - da;
+        });
+
+        const tbody = $("#tblChiTiet tbody");
+        tbody.innerHTML = "";
+
+        if (rows.length === 0) {
+          const msg = selectedIdDH ? "Không có chi tiết cho đơn này" : "Vui lòng chọn đơn hàng";
+          tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${msg}</td></tr>`;
+          $("#btnExport").style.display = "none";
+          loading.style.display = "none";
+          return;
+        }
+
+        const frag = new DocumentFragment();
+        rows.forEach(r => {
+          const tr = document.createElement("tr");
+
+          const statusClass = r.trương === "XUẤT" ? "badge-xuat" : r.trương === "NHẬP" ? "badge-nhap" : "badge-hoan";
+
+          tr.innerHTML = `
+            <td>${r.ngay || ""}</td>
+            <td><span class="badge ${statusClass}">${r.trương || ""}</span></td>
+            <td>${r.ncc || ""}</td>
+            <td>${r.kho || ""}</td>
+            <td><strong>${r.id_sp || ""}</strong></td>
+            <td class="text-right"><strong>${r.so_luong || 0}</strong></td>
+            <td>${r.thuong_hieu || ""}</td>
+          `;
+          frag.appendChild(tr);
+        });
+
+        tbody.appendChild(frag);
+        $("#btnExport").style.display = "flex";
+        loading.style.display = "none";
+      }, 50);
+    }
+
+    // ========== CHỌN ID_DH ==========
+    function selectIdDH(id) {
+      selectedIdDH = id;
+      renderAll();
+    }
+
+    // ========== TÌM KIẾM ==========
+    function setupFilter() {
+      const input = $("#filterIdDH");
+      let timeout;
+      input.addEventListener("input", () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          selectedIdDH = null;
+          renderAll();
+        }, 300);
+      });
+    }
+
+    // ========== XUẤT EXCEL: CHỈ 2 CỘT ID SP + SỐ LƯỢNG (TỔNG HỢP) ==========
+    function setupExport() {
+      $("#btnExport").onclick = () => {
+        if (!selectedIdDH) return;
+
+        // Gom nhóm theo ID SP để tổng số lượng
+        const summary = {};
+        DATA.DON_HANG_CT.forEach(r => {
+          if (r.id_dh && r.id_dh.toString() === selectedIdDH && r.id_sp) {
+            const key = r.id_sp;
+            if (!summary[key]) summary[key] = 0;
+            summary[key] += +r.so_luong || 0;
+          }
+        });
+
+        const rows = Object.entries(summary).map(([id_sp, sl]) => ({
+          "ID SP": id_sp,
+          "Số lượng": sl
+        }));
+
+        if (rows.length === 0) return;
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(rows);
+        ws['!cols'] = [{ wch: 20 }, { wch: 12 }]; // ID SP rộng, SL hẹp
+
+        XLSX.utils.book_append_sheet(wb, ws, "Danh sách sản phẩm");
+
+        const now = new Date();
+        const timestamp = now.toLocaleString('vi-VN').replace(/[/:]/g, '-').replace(' ', '_');
+        const filename = `${selectedIdDH}_${timestamp}.xlsx`;
+
+        XLSX.writeFile(wb, filename);
+      };
+    }
+
+    // Click ngoài để bỏ chọn
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".panel-left") && selectedIdDH) {
+        selectedIdDH = null;
+        renderAll();
+      }
+    });
+
+    // ========== KHỞI CHẠY ==========
+    loadData();
+  </script>
+</body>
+</html>
