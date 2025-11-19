@@ -4,125 +4,281 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VieAI Dashboard</title>
+<!-- Import Font Inter cho hiện đại -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #2563eb; --primary-light: #dbeafe; --primary-dark: #1d4ed8;
-  --success: #16a34a; --success-light: #dcfce7;
-  --warning: #d97706; --warning-light: #f9d958;
-  --danger: #dc2626; --danger-light: #fee2e2;
-  --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
-  --gray-500: #6b7280; --gray-700: #374151; --gray-800: #1f2937; --white: #ffffff;
-  --shadow: 0 1px 3px 0 rgba(0,0, 0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
-  --radius: 8px; --radius-lg: 12px;
+  /* Palette màu hiện đại hơn (Indigo theme) */
+  --primary: #4f46e5;       --primary-hover: #4338ca; --primary-bg: #eef2ff;
+  --success: #10b981;       --success-bg: #d1fae5;
+  --warning: #f59e0b;       --warning-bg: #fef3c7;
+  --danger: #ef4444;        --danger-bg: #fee2e2;
+  
+  /* Grayscale & Backgrounds */
+  --bg-body: #f3f4f6;
+  --bg-card: #ffffff;
+  --text-main: #111827;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
+
+  /* Effects */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --radius: 8px;
+  --radius-lg: 16px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: "Segoe UI", -apple-system, sans-serif; background: var(--gray-50); color: var(--gray-700); line-height: 1.5; }
-.header { background: var(--primary); color: white; padding: 16px 24px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
-.header h2 { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.header h2::before { content: "Chart"; font-size: 24px; }
 
-.tabs { display: flex; gap: 4px; background: white; padding: 8px 16px; border-bottom: 1px solid var(--gray-200); position: sticky; top: 64px; z-index: 90; overflow-x: auto; scrollbar-width: none; }
-.tabs::-webkit-scrollbar { display: none; }
-.tabs button { padding: 10px 14px; border: none; border-radius: var(--radius); background: transparent; font-weight: 500; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; color: var(--gray-600); transition: all 0.2s; }
-.tabs button:hover { background: var(--gray-100); }
-.tabs button.active { background: var(--primary); color: white; }
+body { 
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+    background: var(--bg-body); 
+    color: var(--text-main); 
+    line-height: 1.6; 
+    font-size: 14px;
+}
 
-.tab { display: none; padding: 20px; }
-.tab.active { display: block; }
+/* Header Gradient đẹp hơn */
+.header { 
+    background: linear-gradient(135deg, var(--primary), #6366f1); 
+    color: white; 
+    padding: 16px 24px; 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h2 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; letter-spacing: -0.025em; }
+.header h2::before { content: "📊"; font-size: 22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
 
-.card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
-.card-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--gray-200); }
-.card-title { font-size: 18px; font-weight: 600; color: var(--gray-800); }
+/* Tabs Style dạng Pills nổi */
+.tabs { 
+    display: flex; 
+    gap: 8px; 
+    padding: 12px 24px; 
+    background: rgba(255,255,255,0.9); 
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border); 
+    position: sticky; 
+    top: 60px; 
+    z-index: 90; 
+    overflow-x: auto; 
+    scrollbar-width: none; 
+}
+.tabs button { 
+    padding: 8px 16px; 
+    border: 1px solid transparent; 
+    border-radius: 20px; /* Pill shape */
+    background: transparent; 
+    font-weight: 600; 
+    cursor: pointer; 
+    white-space: nowrap; 
+    color: var(--text-secondary); 
+    transition: var(--transition);
+    font-size: 13px;
+}
+.tabs button:hover { background: var(--gray-100); color: var(--primary); }
+.tabs button.active { 
+    background: var(--primary-bg); 
+    color: var(--primary); 
+    border-color: rgba(79, 70, 229, 0.1);
+    box-shadow: var(--shadow-sm);
+}
 
-.controls { display: flex; gap: 12px; flex-wrap: wrap; padding: 16px 20px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
-.input, .btn { padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; background: white; }
-.input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-.btn { cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-.btn-ghost { background: var(--gray-100); color: var(--gray-700); }
-.btn-ghost:hover { background: var(--gray-200); }
-.btn.active-filter { background: var(--primary); color: white; }
+.tab { display: none; padding: 24px; max-width: 1600px; margin: 0 auto; }
+.tab.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-.table-container { position: relative; overflow: auto; max-height: calc(100vh - 280px); }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { padding: 10px 12px; text-align: left; border: 1px solid var(--gray-200); white-space: nowrap; }
-th { background: var(--gray-50); position: sticky; top: 0; z-index: 1; font-weight: 600; }
-tr:hover { background: var(--primary-light); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-tr.row-red td { background: var(--danger-light) !important; }
-tr.row-yellow td { background: var(--warning-light) !important; }
-tr.row-green td { background: var(--success-light) !important; }
+/* Card Design */
+.card { 
+    background: var(--bg-card); 
+    border-radius: var(--radius-lg); 
+    box-shadow: var(--shadow); 
+    margin-bottom: 24px; 
+    border: 1px solid rgba(0,0,0,0.02);
+    overflow: hidden; 
+}
+.card-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 20px 24px; 
+    border-bottom: 1px solid var(--border);
+    background: #fafafa;
+}
+.card-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
 
+/* Controls Area */
+.controls { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    padding: 20px 24px; 
+    background: var(--bg-card); 
+    align-items: center;
+}
+
+/* Inputs & Selects */
+.input, .btn, select.input { 
+    padding: 10px 14px; 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius); 
+    font-size: 14px; 
+    background: white; 
+    transition: var(--transition);
+    color: var(--text-main);
+}
+.input:focus { 
+    outline: none; 
+    border-color: var(--primary); 
+    box-shadow: 0 0 0 3px var(--primary-bg); 
+}
+
+/* Buttons */
+.btn { 
+    cursor: pointer; 
+    font-weight: 600; 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    gap: 8px; 
+}
+.btn-success { 
+    background: linear-gradient(to bottom, #10b981, #059669); 
+    color: white; 
+    border: none; 
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+.btn-success:hover { transform: translateY(-1px); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3); }
+
+.btn-ghost { 
+    background: transparent; 
+    color: var(--text-secondary); 
+    border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--bg-body); border-color: var(--text-secondary); color: var(--text-main); }
+.btn.active-filter { 
+    background: var(--primary); 
+    color: white; 
+    border-color: var(--primary);
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+}
+
+/* Table Styles */
+.table-container { position: relative; overflow: auto; max-height: calc(100vh - 300px); border-top: 1px solid var(--border); }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+th { 
+    background: #f8fafc; 
+    position: sticky; 
+    top: 0; 
+    z-index: 10; 
+    font-weight: 600; 
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+td { 
+    padding: 14px 16px; 
+    border-bottom: 1px solid var(--border); 
+    color: var(--text-main);
+    white-space: nowrap; 
+    transition: background 0.1s;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8fafc; }
+
+/* Status Highlights */
+tr.row-red td { background: #fef2f2; color: #991b1b; }
+tr.row-yellow td { background: #fffbeb; color: #92400e; }
+tr.row-green td { background: #f0fdf4; color: #166534; }
+.text-right { text-align: right; }
+.font-bold { font-weight: 600; }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 80px 20px; color: var(--text-secondary); }
+.empty-state-icon { font-size: 56px; margin-bottom: 16px; display: block; filter: grayscale(100%); opacity: 0.3; }
+
+/* Filter Group */
+.filter-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.filter-label { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; margin-right: 4px; }
+
+/* Status Grid */
+.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
+.status-box { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); }
+.status-box h3 { margin: 0; padding: 16px 24px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; background: #fafafa; border-bottom: 1px solid var(--border); }
+
+/* Loading */
 .loading {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top-color: var(--primary);
-  border-radius: 50%; animation: spin 1s linear infinite; z-index: 10;
+  width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 0.8s linear infinite; z-index: 10;
 }
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
-.empty-state { text-align: center; padding: 60px 20px; color: var(--gray-500); }
-.empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
-.empty-state-text { font-size: 16px; }
-
-.filter-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.filter-label { font-weight: 500; color: var(--gray-700); min-width: 80px; }
-
-/* Status Grid */
-.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; }
-.status-box { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
-.status-box h3 { margin: 0; padding: 16px 20px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.status-box .table-container { min-height: 200px; }
-.status-box .loading { width: 32px; height: 32px; }
-
-/* Virtual Scroll */
-.virtual-tbody { position: relative; }
-.virtual-row { position: absolute; top: 0; left: 0; width: 100%; }
-
 /* Responsive */
 @media (max-width: 768px) {
-  .controls, .card-header { flex-direction: column; align-items: stretch; }
-  .input, .btn { min-width: 100%; }
+  .header { padding: 12px 16px; }
+  .tabs { top: 56px; padding: 8px 16px; }
+  .tab { padding: 16px 0; }
+  .card { border-radius: 0; box-shadow: none; border: none; border-bottom: 1px solid var(--border); }
+  .controls, .card-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .input, .btn { width: 100%; }
   .status-grid { grid-template-columns: 1fr; }
-  .table-container { max-height: calc(100vh - 320px); }
 }
 </style>
 </head>
 <body>
-<div class="header"><h2>VieAI Dashboard</h2></div>
+<div class="header">
+    <h2>VieAI Dashboard</h2>
+</div>
 
 <div class="tabs">
-  <button data-tab="tab-don" class="active">Đơn chi tiết</button>
-  <button data-tab="tab-status">Theo trạng thái</button>
-  <button data-tab="tab-ton">Tồn kho</button>
-  <button data-tab="tab-hoan">Hàng hoàn</button>
-  <button data-tab="tab-tb">Thông báo</button>
+  <button data-tab="tab-don" class="active">📄 Đơn chi tiết</button>
+  <button data-tab="tab-status">📊 Trạng thái</button>
+  <button data-tab="tab-ton">📦 Tồn kho</button>
+  <button data-tab="tab-hoan">↩️ Hàng hoàn</button>
+  <button data-tab="tab-tb">🔔 Thông báo</button>
 </div>
 
 <!-- TAB ĐƠN CHI TIẾT -->
 <div id="tab-don" class="tab active">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Đơn chi tiết</h3>
-      <div class="filter-group">
-        <button class="btn btn-ghost" onclick="setDatePreset('don','today')">Hôm nay</button>
-        <button class="btn btn-ghost" onclick="setDatePreset('don','yesterday')">Hômにとっては</button>
-        <button class="btn btn-ghost" onclick="setDatePreset('don','week')">Tuần này</button>
-        <button class="btn btn-ghost" onclick="resetFilters('don')">Làm mới</button>
-      </div>
+      <h3 class="card-title">Danh sách Đơn hàng</h3>
     </div>
     <div class="controls">
-      <input type="date" id="fromDateDon" class="input">
-      <input type="date" id="toDateDon" class="input">
-      <select id="fKhungDon" class="input"></select>
-      <input id="fGianDon" class="input" list="listGianDon" placeholder="Mã gian..." debounce="300">
-      <datalist id="listGianDon"></datalist>
-      <input id="fMvdDon" class="input" placeholder="MVD..." debounce="300">
       <div class="filter-group">
-        <span class="filter-label">Tình trạng:</span>
-        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="1">ĐÃ IN ĐƠN</button>
-        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="3">DVVC LẤY HÀNG</button>
-        <span class="filter-label">Trạng thái:</span>
-        <button class="btn btn-ghost" data-filter="trang_thai" data-value="1">HỦY</button>
-        <button class="btn btn-ghost" onclick="clearStatusFilters('don')">Xóa lọc</button>
+        <span class="filter-label">Thời gian:</span>
+        <button class="btn btn-ghost" onclick="setDatePreset('don','today')">Hôm nay</button>
+        <button class="btn btn-ghost" onclick="setDatePreset('don','yesterday')">Hôm qua</button>
+        <button class="btn btn-ghost" onclick="setDatePreset('don','week')">Tuần này</button>
+      </div>
+      <div style="flex: 1"></div>
+      <button class="btn btn-ghost" onclick="resetFilters('don')">↺ Làm mới</button>
+    </div>
+    <div class="controls" style="border-top: 1px dashed var(--border); background: #fdfdfd;">
+      <input type="date" id="fromDateDon" class="input" style="width: 140px;">
+      <span style="color: var(--text-secondary);">-</span>
+      <input type="date" id="toDateDon" class="input" style="width: 140px;">
+      <select id="fKhungDon" class="input" style="width: 120px;"></select>
+      <input id="fGianDon" class="input" list="listGianDon" placeholder="Mã gian..." debounce="300" style="width: 120px;">
+      <datalist id="listGianDon"></datalist>
+      <input id="fMvdDon" class="input" placeholder="Tìm MVD..." debounce="300" style="flex-grow: 1;">
+      
+      <div class="filter-group">
+        <span class="filter-label">Lọc nhanh:</span>
+        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="1">Đã in</button>
+        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="3">Đã lấy</button>
+        <button class="btn btn-ghost" data-filter="trang_thai" data-value="1" style="color: var(--danger);">Hủy</button>
+        <button class="btn btn-ghost" onclick="clearStatusFilters('don')">X</button>
       </div>
     </div>
     <div class="table-container" id="donContainer">
@@ -144,12 +300,11 @@ tr.row-green td { background: var(--success-light) !important; }
 <div id="tab-status" class="tab">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Trạng thái đơn hàng</h3>
+      <h3 class="card-title">Theo dõi Trạng thái</h3>
       <div class="filter-group">
         <button class="btn btn-ghost" onclick="setDatePreset('status','today')">Hôm nay</button>
         <button class="btn btn-ghost" onclick="setDatePreset('status','yesterday')">Hôm qua</button>
         <button class="btn btn-ghost" onclick="setDatePreset('status','week')">Tuần này</button>
-        <button class="btn btn-ghost" onclick="resetFilters('status')">Làm mới</button>
       </div>
     </div>
     <div class="controls">
@@ -160,18 +315,13 @@ tr.row-green td { background: var(--success-light) !important; }
       <datalist id="listGianStatus"></datalist>
       <input id="fMvdStatus" class="input" placeholder="MVD..." debounce="300">
       <div class="filter-group">
-        <span class="filter-label">Tình trạng:</span>
-        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="1">ĐÃ IN ĐƠN</button>
-        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="3">DVVC LẤY HÀNG</button>
-        <span class="filter-label">Trạng thái:</span>
-        <button class="btn btn-ghost" data-filter="trang_thai" data-value="1">HỦY</button>
-        <button class="btn btn-ghost" onclick="clearStatusFilters('status')">Xóa lọc</button>
+        <button class="btn btn-ghost" onclick="resetFilters('status')">Làm mới</button>
       </div>
     </div>
 
     <div class="status-grid">
       <div class="status-box">
-        <h3 style="color: var(--primary);">ĐƠN ĐÃ IN ĐƠN</h3>
+        <h3 style="color: var(--primary);">📋 ĐƠN ĐÃ IN ĐƠN</h3>
         <div class="table-container">
           <div class="loading" id="loadingPrinted"></div>
           <table id="tblPrinted">
@@ -187,7 +337,7 @@ tr.row-green td { background: var(--success-light) !important; }
       </div>
 
       <div class="status-box">
-        <h3 style="color: var(--success);">ĐƠN DVVC LẤY HÀNG</h3>
+        <h3 style="color: var(--success);">🚚 ĐƠN DVVC LẤY HÀNG</h3>
         <div class="table-container">
           <div class="loading" id="loadingPicked"></div>
           <table id="tblPicked">
@@ -205,18 +355,35 @@ tr.row-green td { background: var(--success-light) !important; }
   </div>
 </div>
 
-<!-- TAB TỒN KHO -->
+<!-- TAB TỒN KHO (API Google Sheet) -->
 <div id="tab-ton" class="tab">
   <div class="card">
-    <div class="card-header"><h3 class="card-title">Tồn kho</h3></div>
-    <div class="controls">
-      <input id="filterIdSp" class="input" placeholder="Lọc ID SP..." debounce="300">
-      <input id="filterTenSp" class="input" placeholder="Lọc tên SP..." debounce="300">
+    <div class="card-header">
+        <h3 class="card-title">Dữ liệu Tồn kho (API)</h3>
+        <div style="display:flex; gap:8px;">
+            <button class="btn btn-success" onclick="exportInventoryExcel()">📥 Xuất Excel</button>
+        </div>
     </div>
+
+    <!-- Bộ lọc -->
+    <div class="controls">
+      <input id="filterIdSp" class="input" placeholder="🔍 Tìm theo ID sản phẩm..." onkeyup="renderTonKho()" style="flex: 1;">
+      <input id="filterTenSp" class="input" placeholder="🔍 Tìm theo tên sản phẩm..." onkeyup="renderTonKho()" style="flex: 2;">
+    </div>
+
     <div class="table-container">
+      <div class="loading" id="loadingTon"></div>
       <table id="tblTonKho">
-        <thead><tr><th>Kho</th><th>ID SP</th><th>Tồn cuối</th><th>Tên SP</th><th>Thương hiệu</th></tr></thead>
-        <tbody></tbody>
+        <thead>
+            <tr>
+                <th>Kho</th>
+                <th>ID SP</th>
+                <th class="text-right">Tồn cuối</th>
+                <th>Tên SP</th>
+                <th>Thương hiệu</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyTonKho"></tbody>
       </table>
     </div>
   </div>
@@ -225,7 +392,7 @@ tr.row-green td { background: var(--success-light) !important; }
 <!-- TAB HÀNG HOÀN -->
 <div id="tab-hoan" class="tab">
   <div class="card">
-    <div class="card-header"><h3 class="card-title">Hàng hoàn bảo hành</h3></div>
+    <div class="card-header"><h3 class="card-title">Quản lý Hàng hoàn</h3></div>
     <div class="controls">
       <input id="fShop" class="input" placeholder="Lọc shop..." debounce="300">
       <input id="fMVD" class="input" placeholder="Lọc MVD..." debounce="300">
@@ -243,10 +410,10 @@ tr.row-green td { background: var(--success-light) !important; }
 <!-- TAB THÔNG BÁO -->
 <div id="tab-tb" class="tab">
   <div class="card">
-    <div class="card-header"><h3 class="card-title">Thông báo</h3></div>
+    <div class="card-header"><h3 class="card-title">Thông báo Hệ thống</h3></div>
     <div class="table-container">
       <table id="tblTB">
-        <thead><tr><th>Ngày</th><th>Trường</th><th>Thông báo</th></tr></thead>
+        <thead><tr><th>Ngày</th><th>Trường</th><th>Nội dung thông báo</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -254,11 +421,24 @@ tr.row-green td { background: var(--success-light) !important; }
 </div>
 
 <script>
-// ========== DỮ LIỆU & CACHE ==========
+// ========== DỮ LIỆU API ==========
 const API_URL = "https://script.google.com/macros/s/AKfycbzEgZwWIGr_31qDy4ZJjehUVP_-0Tpq2SKrGGgubU28dQZMV7lnYkJVzlRvVXRlL9cR/exec";
 let DATA = { DON: [], TON: [], HOAN: [], TB: [] };
+
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
+
+// ========== HELPER LẤY NGÀY GIỜ VN (GMT+7) ==========
+function getVNDateString(offsetDays = 0) {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const vnTime = new Date(utc + (3600000 * 7));
+  vnTime.setDate(vnTime.getDate() + offsetDays);
+  const y = vnTime.getFullYear();
+  const m = String(vnTime.getMonth() + 1).padStart(2, '0');
+  const d = String(vnTime.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 // ========== DEBOUNCE ==========
 function debounce(fn, delay) {
@@ -272,38 +452,42 @@ document.addEventListener("input", e => {
       const tab = e.target.closest(".tab").id;
       if (tab === "tab-don") renderDon();
       else if (tab === "tab-status") renderStatusTables();
-      else if (tab === "tab-ton") renderTonKho();
       else if (tab === "tab-hoan") renderHoan();
     }, +e.target.getAttribute("debounce"));
     e.target._debounce();
   }
 });
 
-// ========== LOAD DATA ==========
+// ========== LOAD DATA TỪ API ==========
 fetch(API_URL)
   .then(r => r.json())
   .then(raw => {
     DATA.DON = raw.filter(r => r.id_up_don);
-    DATA.TON = raw.filter(r => r.kho);
+    // Lấy dữ liệu tồn kho từ API
+    DATA.TON = raw.filter(r => r.kho); 
     DATA.HOAN = raw.filter(r => r.mvd_hoan);
     DATA.TB = raw.filter(r => r.tb);
     initUI();
     renderAll();
-  });
+  })
+  .catch(e => console.log("API Load Error: " + e));
 
 // ========== INIT UI ==========
 function initUI() {
-  const today = new Date().toISOString().slice(0,10);
-  ["#fromDateDon","#toDateDon","#fromDateStatus","#toDateStatus"].forEach(id => $(id).value = today);
+  const todayVN = getVNDateString(0);
+  
+  ["#fromDateDon","#toDateDon","#fromDateStatus","#toDateStatus"].forEach(id => {
+    if($(id)) $(id).value = todayVN;
+  });
 
   const khung = ["Tất cả", ...new Set(DATA.DON.map(r => r.khung_h).filter(Boolean))];
   const gian = [...new Set(DATA.DON.map(r => r.ma_gian).filter(Boolean))];
 
   ["#fKhungDon", "#fKhungStatus"].forEach(sel => {
-    sel.innerHTML = khung.map(v => `<option>${v}</option>`).join("");
+    if($(sel)) $(sel).innerHTML = khung.map(v => `<option>${v}</option>`).join("");
   });
   ["#listGianDon", "#listGianStatus"].forEach(dl => {
-    dl.innerHTML = gian.map(v => `<option value="${v}">`).join("");
+    if($(dl)) $(dl).innerHTML = gian.map(v => `<option value="${v}">`).join("");
   });
 
   $$("button[data-filter]").forEach(btn => {
@@ -321,74 +505,140 @@ function initUI() {
 function renderAll() {
   renderDon();
   renderStatusTables(true);
-  renderTonKho();
+  renderTonKho(); 
   renderHoan();
   renderTB();
 }
 
-// ========== VIRTUAL SCROLL (ĐƠN CHI TIẾT) ==========
+// ============================================================
+// LOGIC TỒN KHO (API + SORT Z-A KHO, A-Z ID)
+// ============================================================
+
+function renderTonKho() {
+    const tbody = $('#tbodyTonKho');
+    const loading = $('#loadingTon');
+    const filterId = ($('#filterIdSp').value || "").toLowerCase();
+    const filterName = ($('#filterTenSp').value || "").toLowerCase();
+
+    if(loading) loading.style.display = "block";
+
+    // Giả lập độ trễ nhẹ để UI mượt
+    setTimeout(() => {
+        // Lọc dữ liệu từ DATA.TON
+        let filtered = DATA.TON.filter(item => 
+            (!filterId || (item.id_sp || "").toLowerCase().includes(filterId)) && 
+            (!filterName || (item.ten_sp || "").toLowerCase().includes(filterName))
+        );
+
+        // SẮP XẾP: Kho (Z -> A) sau đó tới ID SP (A -> Z)
+        filtered.sort((a, b) => {
+            const khoA = (a.kho || "").toLowerCase();
+            const khoB = (b.kho || "").toLowerCase();
+            if (khoA < khoB) return 1; // Z lên đầu
+            if (khoA > khoB) return -1;
+            
+            const idA = (a.id_sp || "").toLowerCase();
+            const idB = (b.id_sp || "").toLowerCase();
+            if (idA < idB) return -1; // A lên đầu
+            if (idA > idB) return 1;
+            
+            return 0;
+        });
+
+        if(loading) loading.style.display = "none";
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📦</div><p>Chưa có dữ liệu tồn kho</p></td></tr>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(item => {
+            const tonCuoi = parseInt(item.ton_cuoi) || 0;
+            let rowClass = "";
+            if (tonCuoi <= 0) rowClass = "row-red";
+            else if (tonCuoi <= 5) rowClass = "row-yellow";
+
+            html += `
+                <tr class="${rowClass}">
+                    <td>${item.kho || ""}</td>
+                    <td class="font-bold">${item.id_sp || ""}</td>
+                    <td class="text-right font-bold" style="color:${tonCuoi <= 0 ? '#dc2626' : 'inherit'}">
+                        ${tonCuoi.toLocaleString('vi-VN')}
+                    </td>
+                    <td>${item.ten_sp || ""}</td>
+                    <td>${item.thuong_hieu || ""}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }, 50);
+}
+
+function exportInventoryExcel() {
+    const table = document.getElementById("tblTonKho");
+    const html = table.outerHTML.replace(/ /g, '%20');
+    const a = document.createElement("a");
+    a.href = 'data:application/vnd.ms-excel,' + html;
+    a.download = 'Ton_Kho_VieAI.xls';
+    a.click();
+}
+
+// ============================================================
+// CÁC HÀM KHÁC
+// ============================================================
+
 class VirtualTable {
   constructor(tbody, rowHeight = 48) {
-    this.tbody = tbody;
-    thesef.rowHeight = rowHeight;
-    this.data = [];
-    this.start = 0;
-    this.visible = 0;
+    this.tbody = tbody; this.rowHeight = rowHeight; this.data = [];
     this.container = tbody.parentElement.parentElement;
     this.init();
   }
-  init() {
-    this.container.addEventListener("scroll", debounce(() => this.render(), 10));
-    this.visible = Math.ceil(this.container.clientHeight / this.rowHeight) + 5;
-  }
-  setData(data) {
-    this.data = data;
-    this.tbody.style.height = `${data.length * this.rowHeight}px`;
-    this.render();
-  }
+  init() { this.container.addEventListener("scroll", debounce(() => this.render(), 10)); }
+  setData(data) { this.data = data; this.tbody.style.height = `${data.length * this.rowHeight}px`; this.render(); }
   render() {
-    const scrollTop = this.container.scrollTop;
-    this.start = Math.max(0, Math.floor(scrollTop / this.rowHeight) - 5);
-    const end = Math.min(this.start + this.visible, this.data.length);
-    const fragment = new DocumentFragment();
-    for (let i = this.start; i < end; i++) {
+    const start = Math.max(0, Math.floor(this.container.scrollTop / this.rowHeight) - 5);
+    const end = Math.min(start + Math.ceil(this.container.clientHeight / this.rowHeight) + 5, this.data.length);
+    this.tbody.innerHTML = "";
+    const frag = new DocumentFragment();
+    for (let i = start; i < end; i++) {
       const r = this.data[i];
       const tr = document.createElement("tr");
       tr.className = (r.trang_thai||"").includes("HỦY") ? "row-red" : (r.tinh_trang||"").includes("DVVC LẤY HÀNG") ? "row-green" : "";
       tr.style.top = `${i * this.rowHeight}px`;
+      tr.style.position = "absolute"; tr.style.width = "100%";
       ["ngay","san","khung_h","ma_gian","mvd","mdh","id_sp","so_luong","ten_sp","tinh_trang","trang_thai","ghi_chu"]
         .forEach(k => { const td = document.createElement("td"); td.textContent = r[k] || ""; tr.appendChild(td); });
-      fragment.appendChild(tr);
+      frag.appendChild(tr);
     }
-    this.tbody.innerHTML = "";
-    this.tbody.appendChild(fragment);
+    this.tbody.appendChild(frag);
   }
 }
 let virtualDon = null;
 
-// ========== RENDER ĐƠN ==========
 function renderDon() {
   const loading = $("#donContainer .loading");
-  loading.style.display = "block";
+  if(loading) loading.style.display = "block";
   setTimeout(() => {
     const f = getFilters("don");
     const filtered = DATA.DON.filter(r => applyFilters(r, f))
       .sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
-    if (!virtualDon) virtualDon = new VirtualTable($(".virtual-tbody"));
-    virtualDon.setData(filtered);
-    loading.style.display = filtered.length ? "none" : "block";
-    if (!filtered.length) $(".virtual-tbody").innerHTML = `<tr><td colspan="12" class="empty-state"><div class="empty-state-icon">Empty Inbox</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
+    if (!virtualDon && $(".virtual-tbody")) virtualDon = new VirtualTable($(".virtual-tbody"));
+    if(virtualDon) virtualDon.setData(filtered);
+    if(loading) loading.style.display = filtered.length ? "none" : "block";
+    if (!filtered.length && $(".virtual-tbody")) $(".virtual-tbody").innerHTML = `<tr><td colspan="12" class="empty-state"><div class="empty-state-icon">📭</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
   }, 10);
 }
 
-// ========== RENDER TRẠNG THÁI (SẮP XẾP NGÀY GIẢM DẦN) ==========
 function renderStatusTables(auto = false) {
   const lp = $("#loadingPrinted"), lk = $("#loadingPicked");
-  lp.style.display = lk.style.display = "block";
+  if(lp) lp.style.display = "block"; 
+  if(lk) lk.style.display = "block";
+  
   setTimeout(() => {
     const f = getFilters("status");
-    if (auto) { 
-      const t = new Date().toISOString().slice(0,10); 
+    if (auto && $("#fromDateStatus")) { 
+      const t = getVNDateString(0);
       $("#fromDateStatus").value = $("#toDateStatus").value = t; 
     }
 
@@ -402,12 +652,11 @@ function renderStatusTables(auto = false) {
     renderSimpleTable("#tblPicked", picked, ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"], false, "row-green");
     $$("#tblPicked tr").forEach(tr => { if (tr.textContent.includes("HỦY")) tr.classList.add("row-red"); });
     
-    lp.style.display = printed.length ? "none" : "block";
-    lk.style.display = picked.length ? "none" : "block";
+    if(lp) lp.style.display = printed.length ? "none" : "block";
+    if(lk) lk.style.display = picked.length ? "none" : "block";
   }, 50);
 }
 
-// ========== RENDER HÀNG HOÀN (SẮP XẾP NGÀY GIẢM DẦN) ==========
 function renderHoan() {
   const s = ($("#fShop").value||"").toLowerCase();
   const m = ($("#fMVD").value||"").toLowerCase();
@@ -422,7 +671,9 @@ function renderHoan() {
     .sort((a, b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
 
   const tbody = $("#tblHoan tbody");
-  tbody.innerHTML = filtered.length ? "" : `<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">Return</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
+  if(!tbody) return;
+  
+  tbody.innerHTML = filtered.length ? "" : `<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">↩️</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
   
   filtered.forEach(r => {
     const tr = document.createElement("tr");
@@ -431,85 +682,64 @@ function renderHoan() {
       td.textContent = r[k] || "";
       tr.appendChild(td);
     });
-    const td = document.createElement("td");
+    const tdImg = document.createElement("td");
     const link = r.link_anh || r.anh || "";
     if (link) {
       const img = document.createElement("img");
       img.src = link;
-      img.style = "width:80px;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;";
+      img.style = "width:50px;height:50px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border);";
       img.onclick = () => window.open(link, "_blank");
-      td.appendChild(img);
+      tdImg.appendChild(img);
     } else {
-      td.textContent = "(Không ảnh)";
-      td.style.color = "#999";
-      td.style.fontStyle = "italic";
+      tdImg.textContent = "-";
+      tdImg.style.color = "#999";
+      tdImg.style.textAlign = "center";
     }
-    tr.appendChild(td);
+    tr.appendChild(tdImg);
     tbody.appendChild(tr);
   });
 }
 
-// ========== RENDER TỒN KHO ==========
-function renderTonKho() {
-  const id = ($("#filterIdSp").value||"").toLowerCase();
-  const ten = ($("#filterTenSp").value||"").toLowerCase();
-  const filtered = DATA.TON.filter(r => (!id || (r.id_sp||"").toLowerCase().includes(id)) && (!ten || (r.ten_sp||"").toLowerCase().includes(ten)));
-  renderSimpleTable("#tblTonKho", filtered, ["kho","id_sp","ton_cuoi","ten_sp","thuong_hieu"]);
-  $$("#tblTonKho tr").forEach(tr => {
-    const ton = +tr.children[2].textContent;
-    tr.className = ton <= 0 ? "row-red" : ton <= 4 ? "row-yellow" : "";
-  });
-}
-
-// ========== RENDER THÔNG BÁO ==========
 function renderTB() {
   const sorted = [...DATA.TB].sort((a,b) => new Date(b.ngay.split("/").reverse()) - new Date(a.ngay.split("/").reverse()));
   renderSimpleTable("#tblTB", sorted, ["ngay","truong","tb"]);
   $$("#tblTB td:last-child").forEach(td => {
-    td.innerHTML = (td.textContent||"").replace(/\n/g, "<br>").replace(/\|/g, "</td><td>").replace(/^(.*)$/gm, "<tr><td style='border:1px solid #ddd;padding:3px'>$1</td></tr>");
-    td.innerHTML = `<table style="width:100%;font-size:12px;border-collapse:collapse">${td.innerHTML}</table>`;
+    td.innerHTML = (td.textContent||"").replace(/\n/g, "<br>").replace(/\|/g, "</td><td>").replace(/^(.*)$/gm, "<tr><td style='border:1px solid var(--border);padding:4px 8px'>$1</td></tr>");
+    td.innerHTML = `<table style="width:100%;font-size:13px;border-collapse:collapse">${td.innerHTML}</table>`;
   });
 }
 
-// ========== RENDER BẢNG ĐƠN GIẢN ==========
 function renderSimpleTable(id, data, keys, hasSTT = false, defClass = "") {
   const tbody = $(id + " tbody");
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="${keys.length}" class="empty-state"><div class="empty-state-icon">File</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
-    return;
-  }
+  if(!tbody) return;
+  tbody.innerHTML = data.length ? "" : `<tr><td colspan="${keys.length}" class="empty-state"><div class="empty-state-icon">📭</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
   const frag = new DocumentFragment();
   data.forEach((r, i) => {
     const tr = document.createElement("tr");
-    if ((r.trang_thai||"").includes("HỦY")) tr.className = "row-red";
-    else if (defClass) tr.classList.add(defClass);
+    if ((r.trang_thai||"").includes("HỦY")) tr.className = "row-red"; else if (defClass) tr.classList.add(defClass);
     keys.forEach(k => {
-      const td = document.createElement("td");
-      td.textContent = k === "STT" ? i+1 : (r[k] || "");
-      tr.appendChild(td);
+      const td = document.createElement("td"); td.textContent = k === "STT" ? i+1 : (r[k] || ""); tr.appendChild(td);
     });
     frag.appendChild(tr);
   });
-  tbody.innerHTML = ""; tbody.appendChild(frag);
+  tbody.appendChild(frag);
 }
 
-// ========== LỌC ==========
 function getFilters(tab) {
   const prefix = tab === "don" ? "Don" : "Status";
-  const from = $(`#fromDate${prefix}`).value ? new Date($(`#fromDate${prefix}`).value) : null;
-  const to = $(`#toDate${prefix}`).value ? new Date($(`#toDate${prefix}`).value) : null;
-  const active = $$(`#tab-${tab} button.active-filter`);
-  const tinh = [...active].find(b => b.dataset.filter === "tinh_trang")?.dataset.value;
-  const trang = [...active].find(b => b.dataset.filter === "trang_thai")?.dataset.value;
+  const fromEl = $(`#fromDate${prefix}`);
+  const toEl = $(`#toDate${prefix}`);
   return {
-    from, to,
-    khung: $(`#fKhung${prefix}`).value,
-    gian: $(`#fGian${prefix}`).value,
-    mvd: $(`#fMvd${prefix}`).value,
-    tinh_trang: tinh,
-    trang_thai: trang
+    from: fromEl && fromEl.value ? new Date(fromEl.value) : null,
+    to: toEl && toEl.value ? new Date(toEl.value) : null,
+    khung: $(`#fKhung${prefix}`) ? $(`#fKhung${prefix}`).value : "Tất cả",
+    gian: $(`#fGian${prefix}`) ? $(`#fGian${prefix}`).value : "",
+    mvd: $(`#fMvd${prefix}`) ? $(`#fMvd${prefix}`).value : "",
+    tinh_trang: [...$$(`#tab-${tab} button.active-filter`)].find(b => b.dataset.filter === "tinh_trang")?.dataset.value,
+    trang_thai: [...$$(`#tab-${tab} button.active-filter`)].find(b => b.dataset.filter === "trang_thai")?.dataset.value
   };
 }
+
 function applyFilters(r, f) {
   const d = new Date(r.ngay.split("/").reverse().join("-"));
   if (f.from && d < f.from) return false;
@@ -525,30 +755,39 @@ function applyFilters(r, f) {
   return true;
 }
 
-// ========== HỖ TRỢ ==========
 function setDatePreset(tab, type) {
-  const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  let from = today, to = today;
-  if (type === "yesterday") from = to = new Date(today - 86400000);
-  if (type === "week") { const d = today.getDay() || 7; from = new Date(today - (d-1)*86400000); to = new Date(from.getTime() + 6*86400000); }
+  let fromStr, toStr;
+  if (type === "today") {
+    fromStr = toStr = getVNDateString(0);
+  } else if (type === "yesterday") {
+    fromStr = toStr = getVNDateString(-1);
+  } else if (type === "week") {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const vnTime = new Date(utc + (3600000 * 7));
+    const day = vnTime.getDay() || 7;
+    fromStr = getVNDateString(1 - day); 
+    toStr = getVNDateString(7 - day);   
+  }
   const prefix = tab === "don" ? "Don" : "Status";
-  $(`#fromDate${prefix}`).value = from.toISOString().slice(0,10);
-  $(`#toDate${prefix}`).value = to.toISOString().slice(0,10);
+  if($(`#fromDate${prefix}`)) $(`#fromDate${prefix}`).value = fromStr;
+  if($(`#toDate${prefix}`)) $(`#toDate${prefix}`).value = toStr;
   tab === "don" ? renderDon() : renderStatusTables();
 }
+
 function resetFilters(tab) {
   const prefix = tab === "don" ? "Don" : "Status";
-  $(`#fKhung${prefix}`).value = "Tất cả";
-  $(`#fGian${prefix}`).value = "";
-  $(`#fMvd${prefix}`).value = "";
+  if($(`#fKhung${prefix}`)) $(`#fKhung${prefix}`).value = "Tất cả";
+  if($(`#fGian${prefix}`)) $(`#fGian${prefix}`).value = "";
+  if($(`#fMvd${prefix}`)) $(`#fMvd${prefix}`).value = "";
   clearStatusFilters(tab);
 }
+
 function clearStatusFilters(tab) {
   $$(`#tab-${tab} button[data-filter]`).forEach(b => b.classList.remove("active-filter"));
   tab === "don" ? renderDon() : renderStatusTables();
 }
 
-// ========== TAB SWITCH ==========
 $$(".tabs button").forEach(btn => {
   btn.onclick = () => {
     $$(".tabs button, .tab").forEach(el => el.classList.remove("active"));
@@ -556,11 +795,13 @@ $$(".tabs button").forEach(btn => {
     $(`#${btn.dataset.tab}`).classList.add("active");
     if (btn.dataset.tab === "tab-status") renderStatusTables(true);
     if (btn.dataset.tab === "tab-don") renderDon();
-    if (btn.dataset.tab === "tab-ton") renderTonKho();
+    if (btn.dataset.tab === "tab-ton") renderTonKho(); 
     if (btn.dataset.tab === "tab-hoan") renderHoan();
     if (btn.dataset.tab === "tab-tb") renderTB();
   };
 });
+
+initUI();
 </script>
 </body>
 </html>
