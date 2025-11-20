@@ -233,11 +233,86 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   .input, .btn { width: 100%; }
   .status-grid { grid-template-columns: 1fr; }
 }
+
+
+/* ================= DARK MODE ĐẸP ================= *//* ================= DARK MODE HOÀN HẢO 100% ================= */
+@media (prefers-color-scheme: dark) {
+  :root:not(.dark-mode) {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border: #334155;
+    --primary: #818cf8;
+    --primary-bg: #312e81;
+  }
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root, body {
+    --bg-body: #0f172a !important;
+    --bg-card: #1e293b !important;
+    --text-main: #f1f5f9 !important;
+    --text-secondary: #94a3b8 !important;
+    --border: #334155 !important;
+    --primary: #818cf8 !important;
+    --primary-bg: #312e81 !important;
+  }
+
+  body { background: var(--bg-body); color: var(--text-main); }
+  .header { background: linear-gradient(135deg, #6b21d9, #a855f7) !important; }
+  .card, .status-box { background: var(--bg-card) !important; border-color: var(--border) !important; }
+  th { background: #1e293b !important; color: #cbd5e1 !important; }
+  td { color: #e2e8f0 !important; }
+  input, select, .input { background: #1e293b !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+  .btn-ghost { color: #cbd5e1 !important; }
+  tr:hover td { background: #334155 !important; }
+
+  /* Dòng HỦY - đỏ đậm cực nổi */
+  .row-red td {
+    background: #7f1d1d !important;
+    color: #fca5a5 !important;
+    font-weight: 600 !important;
+  }
+  .row-red:hover td { background: #991b1b !important; }
+
+  /* Dòng CHƯA IN / TỒN SẮP HẾT - vàng cam */
+  .row-yellow td {
+    background: #78350f !important;
+    color: #fcd34d !important;
+    font-weight: 600 !important;
+  }
+
+  /* Dòng ĐÃ LẤY HÀNG - xanh lá */
+  .row-green td {
+    background: #166534 !important;
+    color: #86efac !important;
+  }
+
+  /* Tồn kho = 0 → đỏ đậm chữ trắng */
+  tr.row-red td { background: #7f1d1d !important; color: #ffffff !important; font-weight: 700 !important; }
+
+  /* Đơn đã in (nền tím nhạt) */
+  tr[style*="background"] td {
+    color: #ddd6fe !important;
+  }
+
+  /* Empty state */
+  .empty-state { color: #94a3b8 !important; }
+}
+
 </style>
 </head>
 <body>
 <div class="header">
     <h2>VieAI Dashboard</h2>
+    <div style="display:flex; align-items:center; gap:12px;">
+        <!-- Ô tìm kiếm toàn dashboard -->
+        <input type="text" id="globalSearch" placeholder="🔍 Tìm MVD / MDH / Mã gian..." 
+               style="padding:8px 12px; border-radius:20px; border:none; width:280px; font-size:14px;">
+        <button id="themeToggle" class="btn-ghost" style="padding:8px 12px; font-size:18px;">🌙</button>
+    </div>
 </div>
 
 <div class="tabs">
@@ -246,6 +321,9 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   <button data-tab="tab-ton">📦 Tồn kho</button>
   <button data-tab="tab-hoan">↩️ Hàng hoàn</button>
   <button data-tab="tab-tb">🔔 Thông báo</button>
+  <button data-tab="tab-chuain">⏳ Chưa in đơn</button>
+  <button data-tab="tab-huy">❌ Đơn hủy hôm nay</button>
+</div>
 </div>
 
 <!-- TAB ĐƠN CHI TIẾT -->
@@ -423,7 +501,44 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   </div>
 </div>
 
+
+<!-- TAB CHƯA IN ĐƠN -->
+<div id="tab-chuain" class="tab">
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">⏳ Đơn Chưa In (Hôm nay & Hôm qua)</h3></div>
+    <div class="table-container" style="max-height: calc(100vh - 260px);">
+      <div class="loading" id="loadingChuaIn"></div>
+      <table id="tblChuaIn">
+        <thead><tr><th>STT</th><th>Ngày</th><th>Sân</th><th>Khung</th><th>Mã gian</th><th>MVD</th><th>ID SP</th><th>SL</th><th>Tên SP</th><th>Ghi chú</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB ĐƠN HỦY HÔM NAY -->
+<div id="tab-huy" class="tab">
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">❌ Đơn bị Hủy hôm nay</h3></div>
+    <div class="table-container" style="max-height: calc(100vh - 260px);">
+      <div class="loading" id="loadingHuy"></div>
+      <table id="tblHuy">
+        <thead><tr><th>STT</th><th>Ngày</th><th>Sân</th><th>Khung</th><th>Mã gian</th><th>MVD</th><th>ID SP</th><th>SL</th><th>Tên SP</th><th>Lý do hủy</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
 <script>
+
+
+
+
+
+
 // ========== DỮ LIỆU API ==========
 const API_URL = "https://script.google.com/macros/s/AKfycbzEgZwWIGr_31qDy4ZJjehUVP_-0Tpq2SKrGGgubU28dQZMV7lnYkJVzlRvVXRlL9cR/exec";
 let DATA = { DON: [], TON: [], HOAN: [], TB: [] };
@@ -839,18 +954,216 @@ function clearStatusFilters(tab) {
   tab === "don" ? renderDon() : renderStatusTables();
 }
 
+
+
+// ================= DARK MODE TỰ ĐỘNG + NÚT BẬT/TẮT =================
+const themeToggle = $('#themeToggle');
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.body.classList.add('dark-mode');
+  themeToggle.textContent = '☀️';
+} else {
+  themeToggle.textContent = '🌙';
+}
+
+themeToggle.onclick = () => {
+  document.body.classList.toggle('dark-mode');
+  themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+};
+
+// ================= 2 TAB MỚI: CHƯA IN + HỦY HÔM NAY =================
+function renderChuaIn() {
+  const today = getVNDateString(0);
+  const yesterday = getVNDateString(-1);
+  const data = DATA.DON.filter(r => 
+    (r.ngay === today || r.ngay === yesterday) &&
+    !["1 ĐÃ IN ĐƠN", "3 DVVC LẤY HÀNG"].some(s => (r.tinh_trang||"").includes(s))
+  ).sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
+
+  renderSimpleTable("#tblChuaIn", data, ["STT","ngay","san","khung_h","ma_gian","mvd","id_sp","so_luong","ten_sp","ghi_chu"]);
+  $$("#tblChuaIn tbody tr").forEach(tr => tr.classList.add("row-yellow")); // highlight vàng
+  $("#loadingChuaIn").style.display = data.length ? "none" : "block";
+}
+
+function renderDonHuyHomNay() {
+  const today = getVNDateString(0);
+  const data = DATA.DON.filter(r => 
+    r.ngay === today && (r.trang_thai||"").includes("HỦY")
+  ).sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
+
+  renderSimpleTable("#tblHuy", data, ["STT","ngay","san","khung_h","ma_gian","mvd","id_sp","so_luong","ten_sp","trang_thai"]);
+  $$("#tblHuy tbody tr").forEach(tr => tr.classList.add("row-red"));
+  $("#loadingHuy").style.display = data.length ? "none" : "block";
+}
+
+
+
+
+// Thêm vào phần render khi chuyển tab
+const originalTabClick = $$(".tabs button")[0].onclick; // giữ logic cũ
 $$(".tabs button").forEach(btn => {
   btn.onclick = () => {
     $$(".tabs button, .tab").forEach(el => el.classList.remove("active"));
     btn.classList.add("active");
     $(`#${btn.dataset.tab}`).classList.add("active");
-    if (btn.dataset.tab === "tab-status") renderStatusTables(true);
+
+    if (btn.dataset.tab === "tab-chuain") renderChuaIn();
+    if (btn.dataset.tab === "tab-huy") renderDonHuyHomNay();
+    // các tab cũ giữ nguyên...
     if (btn.dataset.tab === "tab-don") renderDon();
-    if (btn.dataset.tab === "tab-ton") renderTonKho(); 
+    if (btn.dataset.tab === "tab-status") renderStatusTables(true);
+    if (btn.dataset.tab === "tab-ton") renderTonKho();
     if (btn.dataset.tab === "tab-hoan") renderHoan();
     if (btn.dataset.tab === "tab-tb") renderTB();
   };
 });
+
+// ================= TÌM KIẾM TOÀN DASHBOARD + COPY NHANH =================
+const globalSearch = $('#globalSearch');
+
+globalSearch?.addEventListener('input', debounce(() => {
+  const query = globalSearch.value.trim().toLowerCase();
+  if (!query) {
+    // Xóa highlight cũ
+    $$('.highlight-row').forEach(el => el.classList.remove('highlight-row'));
+    return;
+  }
+
+  let found = false;
+
+  // Duyệt tất cả các tab có bảng đơn hàng
+  const tabs = [
+    { id: 'tab-don', table: '#tblDonChiTiet', cols: [5,6,4] },       // MVD (cột 6), MDH (7), Mã gian (5)
+    { id: 'tab-status', table: '#tblPrinted', cols: [3] },
+    { id: 'tab-status', table: '#tblPicked', cols: [3] },
+    { id: 'tab-chuain', table: '#tblChuaIn', cols: [5,6,4] },
+    { id: 'tab-huy', table: '#tblHuy', cols: [5,6,4] },
+  ];
+
+  tabs.forEach(tab => {
+    const rows = $$(`${tab.table} tbody tr`);
+    rows.forEach(tr => {
+      tr.classList.remove('highlight-row');
+      const tds = tr.querySelectorAll('td');
+      tab.cols.forEach(colIdx => {
+        if (tds[colIdx] && tds[colIdx].textContent.toLowerCase().includes(query)) {
+          tr.classList.add('highlight-row');
+          if (!found) {
+            // Chuyển tab tự động
+            $$(`.tabs button`).forEach(b => b.classList.remove('active'));
+            $$(`.tab`).forEach(t => t.classList.remove('active'));
+            $(`.tabs button[data-tab="${tab.id}"]`)?.classList.add('active');
+            $(`#${tab.id}`).classList.add('active');
+            $(`#${tab.id}`).scrollIntoView({ behavior: 'smooth' });
+            found = true;
+          }
+          // Cuộn đến dòng đầu tiên tìm thấy
+          tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+  });
+}, 300));
+
+// Highlight dòng tìm thấy
+const style = document.createElement('style');
+style.textContent = `
+  .highlight-row td {
+    background: #fef3c7 !important;
+    animation: pulse 2s infinite;
+    font-weight: 600;
+  }
+  @keyframes pulse {
+    0%, 100% { background: #fef3c7; }
+    50% { background: #fcd34d; }
+  }
+`;
+document.head.appendChild(style);
+
+// Nút Copy nhanh MVD / MDH / Mã gian
+// ================= COPY 1 PHÁT 4 THỨ: Mã gian + MVD + MDH + ID SP =================
+function addOneClickCopy() {
+  const tables = ['#tblDonChiTiet', '#tblPrinted', '#tblPicked', '#tblChuaIn', '#tblHuy'];
+  
+  tables.forEach(selector => {
+    const rows = $$(selector + ' tbody tr');
+    rows.forEach(tr => {
+      // Nếu đã có nút rồi thì bỏ qua
+      if (tr.querySelector('.onecopy-btn')) return;
+
+      const tds = tr.querySelectorAll('td');
+      if (tds.length < 9) return;
+
+      const magian = (tds[4]?.textContent || '').trim();  // cột Mã gian
+      const mvd    = (tds[5]?.textContent || '').trim();  // cột MVD
+      const mdh    = (tds[6]?.textContent || '').trim();  // cột MDH
+      const idsp   = (tds[7]?.textContent || '').trim();  // cột ID SP
+
+      if (!magian && !mvd && !mdh && !idsp) return;
+
+      // Tạo nút copy 1 phát
+      const btn = document.createElement('button');
+      btn.className = 'onecopy-btn';
+      btn.innerHTML = '⚡ Copy 4';
+      btn.title = 'Copy Mã gian + MVD + MDH + ID SP';
+      btn.style = 'margin-left:8px; padding:3px 8px; font-size:11px; background:#8b5cf6; color:white; border:none; border-radius:4px; cursor:pointer;';
+
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const text = `Mã gian: ${magian}\nMVD: ${mvd}\nMDH: ${mdh}\nID SP: ${idsp}`.trim();
+        navigator.clipboard.writeText(text).then(() => {
+          const old = btn.innerHTML;
+          btn.innerHTML = '✓ Đã copy!';
+          btn.style.background = '#10b981';
+          setTimeout(() => {
+            btn.innerHTML = old;
+            btn.style.background = '#8b5cf6';
+          }, 1200);
+        });
+      };
+
+      // Thêm nút vào cột đầu tiên (STT)
+      tds[0].style.position = 'relative';
+      tds[0].appendChild(btn);
+    });
+  });
+}
+
+// Gọi lại sau mỗi lần render bảng
+const oldRenderDon = renderDon;
+renderDon = function() { oldRenderDon(); setTimeout(addOneClickCopy, 100); };
+
+const oldRenderStatus = renderStatusTables;
+renderStatusTables = function() { oldRenderStatus(); setTimeout(addOneClickCopy, 100); };
+
+const oldChuaIn = renderChuaIn;
+renderChuaIn = function() { oldChuaIn(); setTimeout(addOneClickCopy, 100); };
+
+const oldHuy = renderDonHuyHomNay;
+renderDonHuyHomNay = function() { oldHuy(); setTimeout(addOneClickCopy, 100); };
+
+// Chạy lần đầu khi load xong
+setTimeout(addOneClickCopy, 2000);
+
+// Xử lý click copy
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('copy-btn')) {
+    const text = e.target.dataset.clip;
+    navigator.clipboard.writeText(text).then(() => {
+      const oldText = e.target.textContent;
+      e.target.textContent = '✓ Đã copy!';
+      e.target.style.background = '#10b981';
+      e.target.style.color = 'white';
+      setTimeout(() => {
+        e.target.textContent = oldText;
+        e.target.style.background = '';
+        e.target.style.color = '';
+      }, 1000);
+    });
+  }
+});
+
+// Chạy lần đầu khi load xong
+setTimeout(addCopyButtons, 2000);
 
 initUI();
 </script>
