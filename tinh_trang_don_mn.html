@@ -232,36 +232,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   .controls, .card-header { flex-direction: column; align-items: stretch; gap: 12px; }
   .input, .btn { width: 100%; }
   .status-grid { grid-template-columns: 1fr; }
-  
-}
-
-
-#brandListTon .brand-btn {
-  width: 100%;
-  text-align: left;
-  padding: 12px 16px;        /* tăng padding cho dễ bấm */
-  margin: 0;                 /* bỏ margin cũ */
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: var(--transition);
-  white-space: nowrap;       /* không xuống dòng */
-  overflow: hidden;
-  text-overflow: ellipsis;   /* nếu tên dài quá thì có ... */
-}
-
-#brandListTon .brand-btn:hover {
-  background: var(--primary-bg) !important;
-  color: var(--primary);
-}
-
-#brandListTon .brand-btn.active {
-  background: var(--primary) !important;
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(79,70,229,0.3);
 }
 </style>
 </head>
@@ -279,48 +249,51 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
 </div>
 
 <!-- TAB ĐƠN CHI TIẾT -->
+ <!-- TAB ĐƠN CHI TIẾT - BẢNG LỚN ĐẸP NHƯ CHUYÊN NGHIỆP -->
 <div id="tab-don" class="tab active">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Danh sách Đơn hàng</h3>
-    </div>
-    <div class="controls">
+      <h3 class="card-title">📄 Danh sách Đơn hàng Chi tiết</h3>
       <div class="filter-group">
-        <span class="filter-label">Thời gian:</span>
         <button class="btn btn-ghost" onclick="setDatePreset('don','today')">Hôm nay</button>
         <button class="btn btn-ghost" onclick="setDatePreset('don','yesterday')">Hôm qua</button>
         <button class="btn btn-ghost" onclick="setDatePreset('don','week')">Tuần này</button>
+        <button class="btn btn-ghost" onclick="resetFilters('don')">↺ Làm mới</button>
       </div>
-      <div style="flex: 1"></div>
-      <button class="btn btn-ghost" onclick="resetFilters('don')">↺ Làm mới</button>
     </div>
-    <div class="controls" style="border-top: 1px dashed var(--border); background: #fdfdfd;">
-      <input type="date" id="fromDateDon" class="input" style="width: 140px;">
-      <span style="color: var(--text-secondary);">-</span>
-      <input type="date" id="toDateDon" class="input" style="width: 140px;">
-      <select id="fKhungDon" class="input" style="width: 120px;"></select>
-      <input id="fGianDon" class="input" list="listGianDon" placeholder="Mã gian..." debounce="300" style="width: 120px;">
+
+    <div class="controls">
+      <input type="date" id="fromDateDon" class="input" style="width:140px;">
+      <span>-</span>
+      <input type="date" id="toDateDon" class="input" style="width:140px;">
+      <select id="fKhungDon" class="input" style="width:120px;"></select>
+      <input id="fGianDon" class="input" list="listGianDon" placeholder="Mã gian..." debounce="300">
       <datalist id="listGianDon"></datalist>
-      <input id="fMvdDon" class="input" placeholder="Tìm MVD..." debounce="300" style="flex-grow: 1;">
-      
-      <div class="filter-group">
-        <span class="filter-label">Lọc nhanh:</span>
-        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="1">Đã in</button>
-        <button class="btn btn-ghost" data-filter="tinh_trang" data-value="3">Đã lấy</button>
-        <button class="btn btn-ghost" data-filter="trang_thai" data-value="1" style="color: var(--danger);">Hủy</button>
-        <button class="btn btn-ghost" onclick="clearStatusFilters('don')">X</button>
-      </div>
+      <input id="fMvdDon" class="input" placeholder="Tìm MVD hoặc MDH..." debounce="300" style="flex:1;">
     </div>
-    <div class="table-container" id="donContainer">
-      <div class="loading"></div>
-      <table id="tblDon">
+
+    <!-- BẢNG LỚN ĐẸP - GIỮ NGUYÊN TẤT CẢ CỘT -->
+    <div class="table-container" style="max-height: calc(100vh - 280px);">
+      <div class="loading" id="loadingDon"></div>
+      <table id="tblDonChiTiet">
         <thead>
           <tr>
-            <th>Ngày</th><th>Sân</th><th>Khung</th><th>Mã gian</th><th>MVD</th><th>MDH</th>
-            <th>ID SP</th><th>SL</th><th>Tên SP</th><th>Tình trạng</th><th>Trạng thái</th><th>Ghi chú</th>
+            <th>STT</th>
+            <th>Ngày</th>
+            <th>Sân</th>
+            <th>Khung</th>
+            <th>Mã gian</th>
+            <th>MVD</th>
+            <th>MDH</th>
+            <th>ID SP</th>
+            <th>SL</th>
+            <th>Tên SP</th>
+            <th>Tình trạng</th>
+            <th>Trạng thái</th>
+            <th>Ghi chú</th>
           </tr>
         </thead>
-        <tbody class="virtual-tbody"></tbody>
+        <tbody id="tbodyDon"></tbody>
       </table>
     </div>
   </div>
@@ -386,56 +359,35 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
 </div>
 
 <!-- TAB TỒN KHO (API Google Sheet) -->
-<!-- TAB TỒN KHO (ĐÃ CHIA 2 CỘT + LỌC THEO THƯƠNG HIỆU) -->
 <div id="tab-ton" class="tab">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Dữ liệu Tồn kho (API)</h3>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-success" onclick="exportInventoryExcel()">📥 Xuất Excel</button>
-      </div>
+        <h3 class="card-title">Dữ liệu Tồn kho (API)</h3>
+        <div style="display:flex; gap:8px;">
+            <button class="btn btn-success" onclick="exportInventoryExcel()">📥 Xuất Excel</button>
+        </div>
     </div>
 
-    <!-- Bộ lọc tìm kiếm nhanh (giữ nguyên) -->
+    <!-- Bộ lọc -->
     <div class="controls">
-      <input id="filterIdSp" class="input" placeholder="🔍 Tìm theo ID sản phẩm..." style="flex: 1;">
-      <input id="filterTenSp" class="input" placeholder="🔍 Tìm theo tên sản phẩm..." style="flex: 2;">
+      <input id="filterIdSp" class="input" placeholder="🔍 Tìm theo ID sản phẩm..." onkeyup="renderTonKho()" style="flex: 1;">
+      <input id="filterTenSp" class="input" placeholder="🔍 Tìm theo tên sản phẩm..." onkeyup="renderTonKho()" style="flex: 2;">
     </div>
 
-    <!-- GRID 2 CỘT: Thương hiệu trái + Bảng tồn phải -->
-    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 24px; margin-top: 8px;">
-
-      <!-- CỘT TRÁI: Danh sách Thương hiệu -->
-      <div class="status-box" style="height: fit-content;">
-        <h3 style="margin:0; padding:16px 20px; font-size:15px; background:var(--primary); color:white; border-radius:8px 8px 0 0;">
-          🏭 Thương hiệu <span id="brandCount" style="float:right; opacity:0.8; font-weight:normal;"></span>
-        </h3>
-        <div id="brandListTon" style="max-height: calc(100vh - 320px); overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:4px;"></div>
-      </div>
-
-      <!-- CỘT PHẢI: Bảng tồn kho chi tiết -->
-      <div class="status-box">
-        <h3 style="margin:0; padding:16px 20px; font-size:15px; background:#fafafa;">
-          📦 Tồn kho 
-          <span id="currentBrandTitle" style="font-weight:normal; color:var(--text-secondary); margin-left:8px;"></span>
-        </h3>
-        <div class="table-container" id="tonContainer">
-          <div class="loading" id="loadingTon"></div>
-          <table id="tblTonKho">
-            <thead>
-              <tr>
+    <div class="table-container">
+      <div class="loading" id="loadingTon"></div>
+      <table id="tblTonKho">
+        <thead>
+            <tr>
                 <th>Kho</th>
                 <th>ID SP</th>
                 <th class="text-right">Tồn cuối</th>
                 <th>Tên SP</th>
                 <th>Thương hiệu</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyTonKho"></tbody>
-          </table>
-        </div>
-      </div>
-
+            </tr>
+        </thead>
+        <tbody id="tbodyTonKho"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -565,116 +517,66 @@ function renderAll() {
 // LOGIC TỒN KHO (API + SORT Z-A KHO, A-Z ID)
 // ============================================================
 
-let currentBrandTon = "all"; // theo dõi thương hiệu đang chọn trong tab tồn kho
-
 function renderTonKho() {
-  // 1. Render danh sách thương hiệu (cột trái)
-  // Sắp xếp thương hiệu theo số lượng SP giảm dần
-const brandCountMap = {};
-DATA.TON.forEach(item => {
-  const brand = item.thuong_hieu || "Không xác định";
-  brandCountMap[brand] = (brandCountMap[brand] || 0) + 1;
-});
+    const tbody = $('#tbodyTonKho');
+    const loading = $('#loadingTon');
+    const filterId = ($('#filterIdSp').value || "").toLowerCase();
+    const filterName = ($('#filterTenSp').value || "").toLowerCase();
 
-const brands = Object.keys(brandCountMap).sort((a, b) => brandCountMap[b] - brandCountMap[a]);
-  const brandList = $("#brandListTon");
-  const brandCount = $("#brandCount");
-  if (brandCount) brandCount.textContent = `(${brands.length})`;
+    if(loading) loading.style.display = "block";
 
-  if (brandList) {
-brandList.innerHTML = `
-  <button class="brand-btn active" data-brand="all">
-    📌 Tất cả thương hiệu
-    <span style="float:right; opacity:0.7; font-size:12px;">${DATA.TON.length} SP</span>
-  </button>
-` + brands.map(b => {
-  const count = brandCountMap[b];
-  return `
-    <button class="brand-btn ${currentBrandTon === b ? 'active' : ''}" data-brand="${b}">
-      ${b}
-      <span style="float:right; opacity:0.7; font-size:12px;">${count} SP</span>
-    </button>
-  `;
-}).join("");
+    // Giả lập độ trễ nhẹ để UI mượt
+    setTimeout(() => {
+        // Lọc dữ liệu từ DATA.TON
+        let filtered = DATA.TON.filter(item => 
+            (!filterId || (item.id_sp || "").toLowerCase().includes(filterId)) && 
+            (!filterName || (item.ten_sp || "").toLowerCase().includes(filterName))
+        );
 
-    // Sự kiện click thương hiệu
-    $$("#brandListTon .brand-btn").forEach(btn => {
-      btn.onclick = () => {
-        $$("#brandListTon .brand-btn").forEach(x => x.classList.remove("active"));
-        btn.classList.add("active");
-        currentBrandTon = btn.dataset.brand;
-        renderTonKhoTable(); // chỉ render lại bảng phải
-      };
-    });
-  }
+        // SẮP XẾP: Kho (Z -> A) sau đó tới ID SP (A -> Z)
+        filtered.sort((a, b) => {
+            const khoA = (a.kho || "").toLowerCase();
+            const khoB = (b.kho || "").toLowerCase();
+            if (khoA < khoB) return 1; // Z lên đầu
+            if (khoA > khoB) return -1;
+            
+            const idA = (a.id_sp || "").toLowerCase();
+            const idB = (b.id_sp || "").toLowerCase();
+            if (idA < idB) return -1; // A lên đầu
+            if (idA > idB) return 1;
+            
+            return 0;
+        });
 
-  // 2. Render bảng tồn kho (cột phải)
-  renderTonKhoTable();
+        if(loading) loading.style.display = "none";
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📦</div><p>Chưa có dữ liệu tồn kho</p></td></tr>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(item => {
+            const tonCuoi = parseInt(item.ton_cuoi) || 0;
+            let rowClass = "";
+            if (tonCuoi <= 0) rowClass = "row-red";
+            else if (tonCuoi <= 5) rowClass = "row-yellow";
+
+            html += `
+                <tr class="${rowClass}">
+                    <td>${item.kho || ""}</td>
+                    <td class="font-bold">${item.id_sp || ""}</td>
+                    <td class="text-right font-bold" style="color:${tonCuoi <= 0 ? '#dc2626' : 'inherit'}">
+                        ${tonCuoi.toLocaleString('vi-VN')}
+                    </td>
+                    <td>${item.ten_sp || ""}</td>
+                    <td>${item.thuong_hieu || ""}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }, 50);
 }
-
-function renderTonKhoTable() {
-  const tbody = $('#tbodyTonKho');
-  const loading = $('#loadingTon');
-  const filterId = ($('#filterIdSp').value || "").toLowerCase();
-  const filterName = ($('#filterTenSp').value || "").toLowerCase();
-  const title = $('#currentBrandTitle');
-
-  if (loading) loading.style.display = "block";
-
-  setTimeout(() => {
-    let filtered = DATA.TON.filter(item => {
-      if (currentBrandTon !== "all" && item.thuong_hieu !== currentBrandTon) return false;
-      if (filterId && !(item.id_sp || "").toLowerCase().includes(filterId)) return false;
-      if (filterName && !(item.ten_sp || "").toLowerCase().includes(filterName)) return false;
-      return true;
-    });
-
-    // Sắp xếp: Kho Z→A trước, rồi ID SP A→Z (giữ nguyên logic cũ)
-    filtered.sort((a, b) => {
-      const khoA = (a.kho || "").toLowerCase();
-      const khoB = (b.kho || "").toLowerCase();
-      if (khoA < khoB) return 1;
-      if (khoA > khoB) return -1;
-      const idA = (a.id_sp || "").toLowerCase();
-      const idB = (b.id_sp || "").toLowerCase();
-      return idA.localeCompare(idB);
-    });
-
-    if (title) {
-      title.textContent = currentBrandTon === "all" ? "" : `(Đang xem: ${currentBrandTon} - ${filtered.length} sản phẩm)`;
-    }
-
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📦</div><p>Không tìm thấy sản phẩm nào</p></td></tr>`;
-      if (loading) loading.style.display = "none";
-      return;
-    }
-
-    let html = '';
-    filtered.forEach(item => {
-      const tonCuoi = parseInt(item.ton_cuoi) || 0;
-      let rowClass = tonCuoi <= 0 ? "row-red" : tonCuoi <= 5 ? "row-yellow" : "";
-      html += `
-        <tr class="${rowClass}">
-          <td>${item.kho || ""}</td>
-          <td class="font-bold">${item.id_sp || ""}</td>
-          <td class="text-right font-bold" style="color:${tonCuoi <= 0 ? '#dc2626' : 'inherit'}">
-            ${tonCuoi.toLocaleString('vi-VN')}
-          </td>
-          <td>${item.ten_sp || ""}</td>
-          <td>${item.thuong_hieu || ""}</td>
-        </tr>
-      `;
-    });
-
-    tbody.innerHTML = html;
-    if (loading) loading.style.display = "none";
-  }, 50);
-}
-
-// Thêm debounce cho 2 ô tìm kiếm (nếu chưa có)
-$('#filterIdSp')?.addEventListener('input', debounce(() => renderTonKhoTable(), 300));
-$('#filterTenSp')?.addEventListener('input', debounce(() => renderTonKhoTable(), 300));
 
 function exportInventoryExcel() {
     const table = document.getElementById("tblTonKho");
@@ -718,18 +620,66 @@ class VirtualTable {
 let virtualDon = null;
 
 function renderDon() {
-  const loading = $("#donContainer .loading");
+  const loading = $("#loadingDon");
+  const tbody = $("#tbodyDon");
   if(loading) loading.style.display = "block";
+
   setTimeout(() => {
     const f = getFilters("don");
-    const filtered = DATA.DON.filter(r => applyFilters(r, f))
+
+    let filtered = DATA.DON.filter(r => applyFilters(r, f))
       .sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
-    if (!virtualDon && $(".virtual-tbody")) virtualDon = new VirtualTable($(".virtual-tbody"));
-    if(virtualDon) virtualDon.setData(filtered);
-    if(loading) loading.style.display = filtered.length ? "none" : "block";
-    if (!filtered.length && $(".virtual-tbody")) $(".virtual-tbody").innerHTML = `<tr><td colspan="12" class="empty-state"><div class="empty-state-icon">📭</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
-  }, 10);
+
+    // Render bảng
+    tbody.innerHTML = "";
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="13" class="empty-state"><div class="empty-state-icon">📭</div><p>Không có đơn hàng nào</p></td></tr>`;
+      if(loading) loading.style.display = "none";
+      return;
+    }
+
+    filtered.forEach((r, i) => {
+      const tr = document.createElement("tr");
+
+      // Tô màu dòng theo tình trạng
+      if ((r.trang_thai||"").includes("HỦY")) tr.classList.add("row-red");
+      else if ((r.tinh_trang||"").includes("DVVC LẤY HÀNG")) tr.classList.add("row-green");
+      else if ((r.tinh_trang||"").includes("ĐÃ IN ĐƠN")) tr.style.background = "#eef2ff"; // tím nhạt
+
+      // STT + các cột
+      const cols = [
+        i+1,
+        r.ngay || "",
+        r.san || "",
+        r.khung_h || "",
+        r.ma_gian || "",
+        r.mvd || "",
+        r.mdh || "",
+        r.id_sp || "",
+        r.so_luong || "",
+        r.ten_sp || "",
+        r.tinh_trang || "",
+        r.trang_thai || "",
+        r.ghi_chu || ""
+      ];
+
+      cols.forEach(text => {
+        const td = document.createElement("td");
+        td.textContent = text;
+        // In đậm SL và ID SP cho dễ nhìn
+        if (text === r.id_sp) td.classList.add("font-bold");
+        if (text === r.so_luong) td.style.textAlign = "center";
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    if(loading) loading.style.display = "none";
+  }, 50);
 }
+
 
 function renderStatusTables(auto = false) {
   const lp = $("#loadingPrinted"), lk = $("#loadingPicked");
