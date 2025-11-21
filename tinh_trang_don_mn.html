@@ -194,11 +194,9 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
 .filter-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .filter-label { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; margin-right: 4px; }
 /* Status Grid */
-.status-grid {
-  display: grid;
-  grid-template-columns: minmax(200px, 300px) 1fr;  /* Cột thương hiệu nhỏ hơn (tối thiểu 200px, tối đa 300px), cột sản phẩm chiếm phần còn lại */
-  gap: 24px;
-}
+.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
+#tab-status .status-grid { grid-template-columns: 1fr 1fr; } /* Hai bảng bằng nhau */
+#tab-ton .status-grid { grid-template-columns: minmax(200px, 300px) 1fr; } /* Thương hiệu nhỏ */
 .status-box { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); }
 .status-box h3 { margin: 0; padding: 16px 24px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; background: #fafafa; border-bottom: 1px solid var(--border); }
 /* Loading */
@@ -274,27 +272,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   }
   /* Empty state */
   .empty-state { color: #94a3b8 !important; }
-}
-
-#tblThuongHieu {
-  width: 250px;  /* Giảm chiều rộng bảng xuống 250px (bạn có thể chỉnh thành 200px hoặc nhỏ hơn) */
-  max-height: 400px;  /* Giới hạn chiều cao tối đa, nếu vượt sẽ cuộn */
-  overflow-y: auto;  /* Thêm thanh cuộn dọc nếu danh sách thương hiệu dài */
-}
-#tblThuongHieu th, #tblThuongHieu td {
-  padding: 8px 12px;  /* Giảm padding để bảng gọn hơn */
-  font-size: 12px;  /* Giảm kích thước chữ để vừa với bảng nhỏ */
-}
-
-@media (max-width: 768px) {
-  .status-grid {
-    grid-template-columns: 1fr;  /* Chuyển sang 1 cột trên mobile, bảng thương hiệu sẽ nằm trên */
-  }
-  #tblThuongHieu {
-    width: 100%;  /* Bảng đầy rộng trên mobile */
-    max-height: 300px;  /* Giới hạn chiều cao và cuộn */
-    overflow-y: auto;
-  }
 }
 </style>
 </head>
