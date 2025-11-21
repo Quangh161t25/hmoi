@@ -9,18 +9,17 @@
 <style>
 :root {
   /* Palette màu hiện đại hơn (Indigo theme) */
-  --primary: #4f46e5;       --primary-hover: #4338ca; --primary-bg: #eef2ff;
-  --success: #10b981;       --success-bg: #d1fae5;
-  --warning: #f59e0b;       --warning-bg: #fef3c7;
-  --danger: #ef4444;        --danger-bg: #fee2e2;
-  
+  --primary: #4f46e5; --primary-hover: #4338ca; --primary-bg: #eef2ff;
+  --success: #10b981; --success-bg: #d1fae5;
+  --warning: #f59e0b; --warning-bg: #fef3c7;
+  --danger: #ef4444; --danger-bg: #fee2e2;
+ 
   /* Grayscale & Backgrounds */
   --bg-body: #f3f4f6;
   --bg-card: #ffffff;
   --text-main: #111827;
   --text-secondary: #6b7280;
   --border: #e5e7eb;
-
   /* Effects */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -28,25 +27,22 @@
   --radius-lg: 16px;
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body { 
-    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-    background: var(--bg-body); 
-    color: var(--text-main); 
-    line-height: 1.6; 
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.6;
     font-size: 14px;
 }
-
 /* Header Gradient đẹp hơn */
-.header { 
-    background: linear-gradient(135deg, var(--primary), #6366f1); 
-    color: white; 
-    padding: 16px 24px; 
-    position: sticky; 
-    top: 0; 
-    z-index: 100; 
+.header {
+    background: linear-gradient(135deg, var(--primary), #6366f1);
+    color: white;
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     box-shadow: var(--shadow);
     display: flex;
     align-items: center;
@@ -54,130 +50,121 @@ body {
 }
 .header h2 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; letter-spacing: -0.025em; }
 .header h2::before { content: "📊"; font-size: 22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-
 /* Tabs Style dạng Pills nổi */
-.tabs { 
-    display: flex; 
-    gap: 8px; 
-    padding: 12px 24px; 
-    background: rgba(255,255,255,0.9); 
+.tabs {
+    display: flex;
+    gap: 8px;
+    padding: 12px 24px;
+    background: rgba(255,255,255,0.9);
     backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border); 
-    position: sticky; 
-    top: 60px; 
-    z-index: 90; 
-    overflow-x: auto; 
-    scrollbar-width: none; 
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 60px;
+    z-index: 90;
+    overflow-x: auto;
+    scrollbar-width: none;
 }
-.tabs button { 
-    padding: 8px 16px; 
-    border: 1px solid transparent; 
+.tabs button {
+    padding: 8px 16px;
+    border: 1px solid transparent;
     border-radius: 20px; /* Pill shape */
-    background: transparent; 
-    font-weight: 600; 
-    cursor: pointer; 
-    white-space: nowrap; 
-    color: var(--text-secondary); 
+    background: transparent;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-secondary);
     transition: var(--transition);
     font-size: 13px;
 }
 .tabs button:hover { background: var(--gray-100); color: var(--primary); }
-.tabs button.active { 
-    background: var(--primary-bg); 
-    color: var(--primary); 
+.tabs button.active {
+    background: var(--primary-bg);
+    color: var(--primary);
     border-color: rgba(79, 70, 229, 0.1);
     box-shadow: var(--shadow-sm);
 }
-
 .tab { display: none; padding: 24px; max-width: 1600px; margin: 0 auto; }
 .tab.active { display: block; animation: fadeIn 0.3s ease-out; }
-
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
 /* Card Design */
-.card { 
-    background: var(--bg-card); 
-    border-radius: var(--radius-lg); 
-    box-shadow: var(--shadow); 
-    margin-bottom: 24px; 
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
     border: 1px solid rgba(0,0,0,0.02);
-    overflow: hidden; 
+    overflow: hidden;
 }
-.card-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 20px 24px; 
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
     border-bottom: 1px solid var(--border);
     background: #fafafa;
 }
 .card-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
-
 /* Controls Area */
-.controls { 
-    display: flex; 
-    gap: 12px; 
-    flex-wrap: wrap; 
-    padding: 20px 24px; 
-    background: var(--bg-card); 
+.controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 20px 24px;
+    background: var(--bg-card);
     align-items: center;
 }
-
 /* Inputs & Selects */
-.input, .btn, select.input { 
-    padding: 10px 14px; 
-    border: 1px solid var(--border); 
-    border-radius: var(--radius); 
-    font-size: 14px; 
-    background: white; 
+.input, .btn, select.input {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background: white;
     transition: var(--transition);
     color: var(--text-main);
 }
-.input:focus { 
-    outline: none; 
-    border-color: var(--primary); 
-    box-shadow: 0 0 0 3px var(--primary-bg); 
+.input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-bg);
 }
-
 /* Buttons */
-.btn { 
-    cursor: pointer; 
-    font-weight: 600; 
-    display: inline-flex; 
-    align-items: center; 
+.btn {
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    gap: 8px; 
+    gap: 8px;
 }
-.btn-success { 
-    background: linear-gradient(to bottom, #10b981, #059669); 
-    color: white; 
-    border: none; 
+.btn-success {
+    background: linear-gradient(to bottom, #10b981, #059669);
+    color: white;
+    border: none;
     box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 .btn-success:hover { transform: translateY(-1px); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3); }
-
-.btn-ghost { 
-    background: transparent; 
-    color: var(--text-secondary); 
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
     border: 1px solid var(--border);
 }
 .btn-ghost:hover { background: var(--bg-body); border-color: var(--text-secondary); color: var(--text-main); }
-.btn.active-filter { 
-    background: var(--primary); 
-    color: white; 
+.btn.active-filter {
+    background: var(--primary);
+    color: white;
     border-color: var(--primary);
     box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
 }
-
 /* Table Styles */
 .table-container { position: relative; overflow: auto; max-height: calc(100vh - 300px); border-top: 1px solid var(--border); }
 table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
-th { 
-    background: #f8fafc; 
-    position: sticky; 
-    top: 0; 
-    z-index: 10; 
-    font-weight: 600; 
+th {
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
     font-size: 11px;
@@ -185,36 +172,35 @@ th {
     padding: 14px 16px;
     border-bottom: 1px solid var(--border);
 }
-td { 
-    padding: 14px 16px; 
-    border-bottom: 1px solid var(--border); 
+td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
     color: var(--text-main);
-    white-space: nowrap; 
+    white-space: nowrap;
     transition: background 0.1s;
 }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: #f8fafc; }
-
 /* Status Highlights */
 tr.row-red td { background: #fef2f2; color: #991b1b; }
 tr.row-yellow td { background: #fffbeb; color: #92400e; }
 tr.row-green td { background: #f0fdf4; color: #166534; }
 .text-right { text-align: right; }
 .font-bold { font-weight: 600; }
-
 /* Empty State */
 .empty-state { text-align: center; padding: 80px 20px; color: var(--text-secondary); }
 .empty-state-icon { font-size: 56px; margin-bottom: 16px; display: block; filter: grayscale(100%); opacity: 0.3; }
-
 /* Filter Group */
 .filter-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .filter-label { font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; margin-right: 4px; }
-
 /* Status Grid */
-.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
+.status-grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) 1fr;  /* Cột thương hiệu nhỏ hơn (tối thiểu 200px, tối đa 300px), cột sản phẩm chiếm phần còn lại */
+  gap: 24px;
+}
 .status-box { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); }
 .status-box h3 { margin: 0; padding: 16px 24px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; background: #fafafa; border-bottom: 1px solid var(--border); }
-
 /* Loading */
 .loading {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -222,7 +208,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   border-radius: 50%; animation: spin 0.8s linear infinite; z-index: 10;
 }
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-
 /* Responsive */
 @media (max-width: 768px) {
   .header { padding: 12px 16px; }
@@ -233,8 +218,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   .input, .btn { width: 100%; }
   .status-grid { grid-template-columns: 1fr; }
 }
-
-
 /* ================= DARK MODE ĐẸP ================= *//* ================= DARK MODE HOÀN HẢO 100% ================= */
 @media (prefers-color-scheme: dark) {
   :root:not(.dark-mode) {
@@ -247,8 +230,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     --primary-bg: #312e81;
   }
 }
-
-
 @media (prefers-color-scheme: dark) {
   :root, body {
     --bg-body: #0f172a !important;
@@ -259,7 +240,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     --primary: #818cf8 !important;
     --primary-bg: #312e81 !important;
   }
-
   body { background: var(--bg-body); color: var(--text-main); }
   .header { background: linear-gradient(135deg, #6b21d9, #a855f7) !important; }
   .card, .status-box { background: var(--bg-card) !important; border-color: var(--border) !important; }
@@ -268,7 +248,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   input, select, .input { background: #1e293b !important; color: #e2e8f0 !important; border-color: #475569 !important; }
   .btn-ghost { color: #cbd5e1 !important; }
   tr:hover td { background: #334155 !important; }
-
   /* Dòng HỦY - đỏ đậm cực nổi */
   .row-red td {
     background: #7f1d1d !important;
@@ -276,32 +255,47 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     font-weight: 600 !important;
   }
   .row-red:hover td { background: #991b1b !important; }
-
   /* Dòng CHƯA IN / TỒN SẮP HẾT - vàng cam */
   .row-yellow td {
     background: #78350f !important;
     color: #fcd34d !important;
     font-weight: 600 !important;
   }
-
   /* Dòng ĐÃ LẤY HÀNG - xanh lá */
   .row-green td {
     background: #166534 !important;
     color: #86efac !important;
   }
-
   /* Tồn kho = 0 → đỏ đậm chữ trắng */
   tr.row-red td { background: #7f1d1d !important; color: #ffffff !important; font-weight: 700 !important; }
-
   /* Đơn đã in (nền tím nhạt) */
   tr[style*="background"] td {
     color: #ddd6fe !important;
   }
-
   /* Empty state */
   .empty-state { color: #94a3b8 !important; }
 }
 
+#tblThuongHieu {
+  width: 250px;  /* Giảm chiều rộng bảng xuống 250px (bạn có thể chỉnh thành 200px hoặc nhỏ hơn) */
+  max-height: 400px;  /* Giới hạn chiều cao tối đa, nếu vượt sẽ cuộn */
+  overflow-y: auto;  /* Thêm thanh cuộn dọc nếu danh sách thương hiệu dài */
+}
+#tblThuongHieu th, #tblThuongHieu td {
+  padding: 8px 12px;  /* Giảm padding để bảng gọn hơn */
+  font-size: 12px;  /* Giảm kích thước chữ để vừa với bảng nhỏ */
+}
+
+@media (max-width: 768px) {
+  .status-grid {
+    grid-template-columns: 1fr;  /* Chuyển sang 1 cột trên mobile, bảng thương hiệu sẽ nằm trên */
+  }
+  #tblThuongHieu {
+    width: 100%;  /* Bảng đầy rộng trên mobile */
+    max-height: 300px;  /* Giới hạn chiều cao và cuộn */
+    overflow-y: auto;
+  }
+}
 </style>
 </head>
 <body>
@@ -309,12 +303,11 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     <h2>VieAI Dashboard</h2>
     <div style="display:flex; align-items:center; gap:12px;">
         <!-- Ô tìm kiếm toàn dashboard -->
-        <input type="text" id="globalSearch" placeholder="🔍 Tìm MVD / MDH / Mã gian..." 
+        <input type="text" id="globalSearch" placeholder="🔍 Tìm MVD / MDH / Mã gian..."
                style="padding:8px 12px; border-radius:20px; border:none; width:280px; font-size:14px;">
         <button id="themeToggle" class="btn-ghost" style="padding:8px 12px; font-size:18px;">🌙</button>
     </div>
 </div>
-
 <div class="tabs">
   <button data-tab="tab-don" class="active">📄 Đơn chi tiết</button>
   <button data-tab="tab-status">📊 Trạng thái</button>
@@ -325,7 +318,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
   <button data-tab="tab-huy">❌ Đơn hủy hôm nay</button>
 </div>
 </div>
-
 <!-- TAB ĐƠN CHI TIẾT -->
  <!-- TAB ĐƠN CHI TIẾT - BẢNG LỚN ĐẸP NHƯ CHUYÊN NGHIỆP -->
 <div id="tab-don" class="tab active">
@@ -339,7 +331,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
         <button class="btn btn-ghost" onclick="resetFilters('don')">↺ Làm mới</button>
       </div>
     </div>
-
     <div class="controls">
       <input type="date" id="fromDateDon" class="input" style="width:140px;">
       <span>-</span>
@@ -349,7 +340,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
       <datalist id="listGianDon"></datalist>
       <input id="fMvdDon" class="input" placeholder="Tìm MVD hoặc MDH..." debounce="300" style="flex:1;">
     </div>
-
     <!-- BẢNG LỚN ĐẸP - GIỮ NGUYÊN TẤT CẢ CỘT -->
     <div class="table-container" style="max-height: calc(100vh - 280px);">
       <div class="loading" id="loadingDon"></div>
@@ -376,7 +366,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     </div>
   </div>
 </div>
-
 <!-- TAB THEO TRẠNG THÁI -->
 <div id="tab-status" class="tab">
   <div class="card">
@@ -399,7 +388,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
         <button class="btn btn-ghost" onclick="resetFilters('status')">Làm mới</button>
       </div>
     </div>
-
     <div class="status-grid">
       <div class="status-box">
         <h3 style="color: var(--primary);">📋 ĐƠN ĐÃ IN ĐƠN</h3>
@@ -416,7 +404,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
           </table>
         </div>
       </div>
-
       <div class="status-box">
         <h3 style="color: var(--success);">🚚 ĐƠN DVVC LẤY HÀNG</h3>
         <div class="table-container">
@@ -435,7 +422,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     </div>
   </div>
 </div>
-
 <!-- TAB TỒN KHO (API Google Sheet) -->
 <div id="tab-ton" class="tab">
   <div class="card">
@@ -445,31 +431,47 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
             <button class="btn btn-success" onclick="exportInventoryExcel()">📥 Xuất Excel</button>
         </div>
     </div>
-
-    <!-- Bộ lọc -->
-    <div class="controls">
-      <input id="filterIdSp" class="input" placeholder="🔍 Tìm theo ID sản phẩm..." onkeyup="renderTonKho()" style="flex: 1;">
-      <input id="filterTenSp" class="input" placeholder="🔍 Tìm theo tên sản phẩm..." onkeyup="renderTonKho()" style="flex: 2;">
-    </div>
-
-    <div class="table-container">
-      <div class="loading" id="loadingTon"></div>
-      <table id="tblTonKho">
-        <thead>
-            <tr>
+    <div class="status-grid">
+      <div class="status-box">
+        <h3>📌 Danh sách Thương hiệu</h3>
+        <div class="table-container">
+          <table id="tblThuongHieu">
+            <thead>
+              <tr>
+                <th>Thương hiệu</th>
+                <th>Số SP</th>
+                <th class="text-right">Tồn tổng</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyThuongHieu"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="status-box">
+        <h3>📦 Chi tiết Sản phẩm</h3>
+        <div class="controls">
+          <input id="filterIdSp" class="input" placeholder="🔍 Tìm theo ID sản phẩm..." onkeyup="renderTonKho()" style="flex: 1;">
+          <input id="filterTenSp" class="input" placeholder="🔍 Tìm theo tên sản phẩm..." onkeyup="renderTonKho()" style="flex: 2;">
+        </div>
+        <div class="table-container">
+          <div class="loading" id="loadingTon"></div>
+          <table id="tblTonKho">
+            <thead>
+              <tr>
                 <th>Kho</th>
                 <th>ID SP</th>
                 <th class="text-right">Tồn cuối</th>
                 <th>Tên SP</th>
                 <th>Thương hiệu</th>
-            </tr>
-        </thead>
-        <tbody id="tbodyTonKho"></tbody>
-      </table>
+              </tr>
+            </thead>
+            <tbody id="tbodyTonKho"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
 <!-- TAB HÀNG HOÀN -->
 <div id="tab-hoan" class="tab">
   <div class="card">
@@ -487,7 +489,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     </div>
   </div>
 </div>
-
 <!-- TAB THÔNG BÁO -->
 <div id="tab-tb" class="tab">
   <div class="card">
@@ -500,8 +501,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     </div>
   </div>
 </div>
-
-
 <!-- TAB CHƯA IN ĐƠN -->
 <div id="tab-chuain" class="tab">
   <div class="card">
@@ -515,7 +514,6 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     </div>
   </div>
 </div>
-
 <!-- TAB ĐƠN HỦY HÔM NAY -->
 <div id="tab-huy" class="tab">
   <div class="card">
@@ -529,23 +527,12 @@ tr.row-green td { background: #f0fdf4; color: #166534; }
     </div>
   </div>
 </div>
-
-
-
 <script>
-
-
-
-
-
-
 // ========== DỮ LIỆU API ==========
 const API_URL = "https://script.google.com/macros/s/AKfycbzEgZwWIGr_31qDy4ZJjehUVP_-0Tpq2SKrGGgubU28dQZMV7lnYkJVzlRvVXRlL9cR/exec";
 let DATA = { DON: [], TON: [], HOAN: [], TB: [] };
-
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-
 // ========== HELPER LẤY NGÀY GIỜ VN (GMT+7) ==========
 function getVNDateString(offsetDays = 0) {
   const now = new Date();
@@ -557,12 +544,10 @@ function getVNDateString(offsetDays = 0) {
   const d = String(vnTime.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
-
 // ========== DEBOUNCE ==========
 function debounce(fn, delay) {
   let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); };
 }
-
 // ========== INPUT DEBOUNCE ==========
 document.addEventListener("input", e => {
   if (e.target.hasAttribute("debounce")) {
@@ -575,39 +560,34 @@ document.addEventListener("input", e => {
     e.target._debounce();
   }
 });
-
 // ========== LOAD DATA TỪ API ==========
 fetch(API_URL)
   .then(r => r.json())
   .then(raw => {
     DATA.DON = raw.filter(r => r.id_up_don);
     // Lấy dữ liệu tồn kho từ API
-    DATA.TON = raw.filter(r => r.kho); 
+    DATA.TON = raw.filter(r => r.kho);
     DATA.HOAN = raw.filter(r => r.mvd_hoan);
     DATA.TB = raw.filter(r => r.tb);
     initUI();
     renderAll();
   })
   .catch(e => console.log("API Load Error: " + e));
-
 // ========== INIT UI ==========
 function initUI() {
   const todayVN = getVNDateString(0);
-  
+ 
   ["#fromDateDon","#toDateDon","#fromDateStatus","#toDateStatus"].forEach(id => {
     if($(id)) $(id).value = todayVN;
   });
-
   const khung = ["Tất cả", ...new Set(DATA.DON.map(r => r.khung_h).filter(Boolean))];
   const gian = [...new Set(DATA.DON.map(r => r.ma_gian).filter(Boolean))];
-
   ["#fKhungDon", "#fKhungStatus"].forEach(sel => {
     if($(sel)) $(sel).innerHTML = khung.map(v => `<option>${v}</option>`).join("");
   });
   ["#listGianDon", "#listGianStatus"].forEach(dl => {
     if($(dl)) $(dl).innerHTML = gian.map(v => `<option value="${v}">`).join("");
   });
-
   $$("button[data-filter]").forEach(btn => {
     btn.onclick = () => {
       const filter = btn.dataset.filter;
@@ -617,66 +597,108 @@ function initUI() {
       tab === "tab-don" ? renderDon() : renderStatusTables();
     };
   });
+  renderThuongHieu();
 }
-
 // ========== RENDER ALL ==========
 function renderAll() {
   renderDon();
   renderStatusTables(true);
-  renderTonKho(); 
+  renderTonKho();
   renderHoan();
   renderTB();
 }
-
 // ============================================================
 // LOGIC TỒN KHO (API + SORT Z-A KHO, A-Z ID)
 // ============================================================
-
+let currentThuongHieu = '';
+function renderThuongHieu() {
+  const tbody = $('#tbodyThuongHieu');
+  const groups = {};
+  let totalCount = 0;
+  let totalTon = 0;
+  DATA.TON.forEach(item => {
+    const th = item.thuong_hieu || "Không có";
+    if (!groups[th]) groups[th] = { count: 0, ton: 0 };
+    groups[th].count++;
+    groups[th].ton += parseInt(item.ton_cuoi) || 0;
+    totalCount++;
+    totalTon += parseInt(item.ton_cuoi) || 0;
+  });
+  const sorted = Object.entries(groups).sort((a, b) => b[1].count - a[1].count);
+  tbody.innerHTML = '';
+  // Dòng "Tất cả" ở đầu
+  const allTr = document.createElement('tr');
+  allTr.innerHTML = `
+    <td class="font-bold">Tất cả</td>
+    <td>${totalCount}</td>
+    <td class="text-right">${totalTon.toLocaleString('vi-VN')}</td>
+  `;
+  allTr.style.cursor = 'pointer';
+  allTr.classList.add('row-yellow'); // Highlight mặc định
+  allTr.onclick = () => {
+    currentThuongHieu = '';
+    $$('#tblThuongHieu tr').forEach(t => t.classList.remove('row-yellow'));
+    allTr.classList.add('row-yellow');
+    renderTonKho();
+  };
+  tbody.appendChild(allTr);
+  // Các thương hiệu khác
+  sorted.forEach(([th, {count, ton}]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="font-bold">${th}</td>
+      <td>${count}</td>
+      <td class="text-right">${ton.toLocaleString('vi-VN')}</td>
+    `;
+    tr.style.cursor = 'pointer';
+    tr.onclick = () => {
+      currentThuongHieu = th === "Không có" ? "" : th;
+      $$('#tblThuongHieu tr').forEach(t => t.classList.remove('row-yellow'));
+      tr.classList.add('row-yellow');
+      renderTonKho();
+    };
+    tbody.appendChild(tr);
+  });
+}
 function renderTonKho() {
     const tbody = $('#tbodyTonKho');
     const loading = $('#loadingTon');
     const filterId = ($('#filterIdSp').value || "").toLowerCase();
     const filterName = ($('#filterTenSp').value || "").toLowerCase();
-
     if(loading) loading.style.display = "block";
-
     // Giả lập độ trễ nhẹ để UI mượt
     setTimeout(() => {
         // Lọc dữ liệu từ DATA.TON
-        let filtered = DATA.TON.filter(item => 
-            (!filterId || (item.id_sp || "").toLowerCase().includes(filterId)) && 
-            (!filterName || (item.ten_sp || "").toLowerCase().includes(filterName))
+        let filtered = DATA.TON.filter(item =>
+            (!filterId || (item.id_sp || "").toLowerCase().includes(filterId)) &&
+            (!filterName || (item.ten_sp || "").toLowerCase().includes(filterName)) &&
+            (!currentThuongHieu || (item.thuong_hieu || "") === currentThuongHieu)
         );
-
         // SẮP XẾP: Kho (Z -> A) sau đó tới ID SP (A -> Z)
         filtered.sort((a, b) => {
             const khoA = (a.kho || "").toLowerCase();
             const khoB = (b.kho || "").toLowerCase();
             if (khoA < khoB) return 1; // Z lên đầu
             if (khoA > khoB) return -1;
-            
+           
             const idA = (a.id_sp || "").toLowerCase();
             const idB = (b.id_sp || "").toLowerCase();
             if (idA < idB) return -1; // A lên đầu
             if (idA > idB) return 1;
-            
+           
             return 0;
         });
-
         if(loading) loading.style.display = "none";
-
         if (filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📦</div><p>Chưa có dữ liệu tồn kho</p></td></tr>`;
             return;
         }
-
         let html = '';
         filtered.forEach(item => {
             const tonCuoi = parseInt(item.ton_cuoi) || 0;
             let rowClass = "";
             if (tonCuoi <= 0) rowClass = "row-red";
             else if (tonCuoi <= 5) rowClass = "row-yellow";
-
             html += `
                 <tr class="${rowClass}">
                     <td>${item.kho || ""}</td>
@@ -692,7 +714,6 @@ function renderTonKho() {
         tbody.innerHTML = html;
     }, 50);
 }
-
 function exportInventoryExcel() {
     const table = document.getElementById("tblTonKho");
     const html = table.outerHTML.replace(/ /g, '%20');
@@ -701,11 +722,9 @@ function exportInventoryExcel() {
     a.download = 'Ton_Kho_VieAI.xls';
     a.click();
 }
-
 // ============================================================
 // CÁC HÀM KHÁC
 // ============================================================
-
 class VirtualTable {
   constructor(tbody, rowHeight = 48) {
     this.tbody = tbody; this.rowHeight = rowHeight; this.data = [];
@@ -733,35 +752,27 @@ class VirtualTable {
   }
 }
 let virtualDon = null;
-
 function renderDon() {
   const loading = $("#loadingDon");
   const tbody = $("#tbodyDon");
   if(loading) loading.style.display = "block";
-
   setTimeout(() => {
     const f = getFilters("don");
-
     let filtered = DATA.DON.filter(r => applyFilters(r, f))
       .sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
-
     // Render bảng
     tbody.innerHTML = "";
-
     if (filtered.length === 0) {
       tbody.innerHTML = `<tr><td colspan="13" class="empty-state"><div class="empty-state-icon">📭</div><p>Không có đơn hàng nào</p></td></tr>`;
       if(loading) loading.style.display = "none";
       return;
     }
-
     filtered.forEach((r, i) => {
       const tr = document.createElement("tr");
-
       // Tô màu dòng theo tình trạng
       if ((r.trang_thai||"").includes("HỦY")) tr.classList.add("row-red");
       else if ((r.tinh_trang||"").includes("DVVC LẤY HÀNG")) tr.classList.add("row-green");
       else if ((r.tinh_trang||"").includes("ĐÃ IN ĐƠN")) tr.style.background = "#eef2ff"; // tím nhạt
-
       // STT + các cột
       const cols = [
         i+1,
@@ -778,7 +789,6 @@ function renderDon() {
         r.trang_thai || "",
         r.ghi_chu || ""
       ];
-
       cols.forEach(text => {
         const td = document.createElement("td");
         td.textContent = text;
@@ -787,60 +797,50 @@ function renderDon() {
         if (text === r.so_luong) td.style.textAlign = "center";
         tr.appendChild(td);
       });
-
       tbody.appendChild(tr);
     });
-
     if(loading) loading.style.display = "none";
   }, 50);
 }
-
-
 function renderStatusTables(auto = false) {
   const lp = $("#loadingPrinted"), lk = $("#loadingPicked");
-  if(lp) lp.style.display = "block"; 
+  if(lp) lp.style.display = "block";
   if(lk) lk.style.display = "block";
-  
+ 
   setTimeout(() => {
     const f = getFilters("status");
-    if (auto && $("#fromDateStatus")) { 
+    if (auto && $("#fromDateStatus")) {
       const t = getVNDateString(0);
-      $("#fromDateStatus").value = $("#toDateStatus").value = t; 
+      $("#fromDateStatus").value = $("#toDateStatus").value = t;
     }
-
     const all = DATA.DON.filter(r => applyFilters(r, f))
       .sort((a, b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
-
     const printed = all.filter(r => (r.tinh_trang || "").trim() === "1 ĐÃ IN ĐƠN");
     const picked = all.filter(r => (r.tinh_trang || "").trim() === "3 DVVC LẤY HÀNG");
-
     renderSimpleTable("#tblPrinted", printed, ["STT","ngay","ma_gian","mvd","id_sp","tinh_trang","trang_thai","ghi_chu","khung_h"]);
     renderSimpleTable("#tblPicked", picked, ["STT","ngay","ma_gian","mvd","tinh_trang","trang_thai"], false, "row-green");
     $$("#tblPicked tr").forEach(tr => { if (tr.textContent.includes("HỦY")) tr.classList.add("row-red"); });
-    
+   
     if(lp) lp.style.display = printed.length ? "none" : "block";
     if(lk) lk.style.display = picked.length ? "none" : "block";
   }, 50);
 }
-
 function renderHoan() {
   const s = ($("#fShop").value||"").toLowerCase();
   const m = ($("#fMVD").value||"").toLowerCase();
   const sku = ($("#fSKU").value||"").toLowerCase();
-
   const filtered = DATA.HOAN
-    .filter(r => 
+    .filter(r =>
       (!s || (r.shop||"").toLowerCase().includes(s)) &&
       (!m || (r.mvd_hoan||"").toLowerCase().includes(m)) &&
       (!sku || (r.sku_hoan||"").toLowerCase().includes(sku))
     )
     .sort((a, b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
-
   const tbody = $("#tblHoan tbody");
   if(!tbody) return;
-  
+ 
   tbody.innerHTML = filtered.length ? "" : `<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">↩️</div><p class="empty-state-text">Không có dữ liệu</p></td></tr>`;
-  
+ 
   filtered.forEach(r => {
     const tr = document.createElement("tr");
     ["ngay","shop","mvd_hoan","sku_hoan","slg"].forEach(k => {
@@ -865,7 +865,6 @@ function renderHoan() {
     tbody.appendChild(tr);
   });
 }
-
 function renderTB() {
   const sorted = [...DATA.TB].sort((a,b) => new Date(b.ngay.split("/").reverse()) - new Date(a.ngay.split("/").reverse()));
   renderSimpleTable("#tblTB", sorted, ["ngay","truong","tb"]);
@@ -874,7 +873,6 @@ function renderTB() {
     td.innerHTML = `<table style="width:100%;font-size:13px;border-collapse:collapse">${td.innerHTML}</table>`;
   });
 }
-
 function renderSimpleTable(id, data, keys, hasSTT = false, defClass = "") {
   const tbody = $(id + " tbody");
   if(!tbody) return;
@@ -890,7 +888,6 @@ function renderSimpleTable(id, data, keys, hasSTT = false, defClass = "") {
   });
   tbody.appendChild(frag);
 }
-
 function getFilters(tab) {
   const prefix = tab === "don" ? "Don" : "Status";
   const fromEl = $(`#fromDate${prefix}`);
@@ -905,7 +902,6 @@ function getFilters(tab) {
     trang_thai: [...$$(`#tab-${tab} button.active-filter`)].find(b => b.dataset.filter === "trang_thai")?.dataset.value
   };
 }
-
 function applyFilters(r, f) {
   const d = new Date(r.ngay.split("/").reverse().join("-"));
   if (f.from && d < f.from) return false;
@@ -920,7 +916,6 @@ function applyFilters(r, f) {
   if (f.trang_thai && !(r.trang_thai || "").includes("HỦY")) return false;
   return true;
 }
-
 function setDatePreset(tab, type) {
   let fromStr, toStr;
   if (type === "today") {
@@ -932,15 +927,14 @@ function setDatePreset(tab, type) {
     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
     const vnTime = new Date(utc + (3600000 * 7));
     const day = vnTime.getDay() || 7;
-    fromStr = getVNDateString(1 - day); 
-    toStr = getVNDateString(7 - day);   
+    fromStr = getVNDateString(1 - day);
+    toStr = getVNDateString(7 - day);
   }
   const prefix = tab === "don" ? "Don" : "Status";
   if($(`#fromDate${prefix}`)) $(`#fromDate${prefix}`).value = fromStr;
   if($(`#toDate${prefix}`)) $(`#toDate${prefix}`).value = toStr;
   tab === "don" ? renderDon() : renderStatusTables();
 }
-
 function resetFilters(tab) {
   const prefix = tab === "don" ? "Don" : "Status";
   if($(`#fKhung${prefix}`)) $(`#fKhung${prefix}`).value = "Tất cả";
@@ -948,14 +942,10 @@ function resetFilters(tab) {
   if($(`#fMvd${prefix}`)) $(`#fMvd${prefix}`).value = "";
   clearStatusFilters(tab);
 }
-
 function clearStatusFilters(tab) {
   $$(`#tab-${tab} button[data-filter]`).forEach(b => b.classList.remove("active-filter"));
   tab === "don" ? renderDon() : renderStatusTables();
 }
-
-
-
 // ================= DARK MODE TỰ ĐỘNG + NÚT BẬT/TẮT =================
 const themeToggle = $('#themeToggle');
 if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -964,40 +954,31 @@ if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
 } else {
   themeToggle.textContent = '🌙';
 }
-
 themeToggle.onclick = () => {
   document.body.classList.toggle('dark-mode');
   themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
 };
-
 // ================= 2 TAB MỚI: CHƯA IN + HỦY HÔM NAY =================
 function renderChuaIn() {
   const today = getVNDateString(0);
   const yesterday = getVNDateString(-1);
-  const data = DATA.DON.filter(r => 
+  const data = DATA.DON.filter(r =>
     (r.ngay === today || r.ngay === yesterday) &&
     !["1 ĐÃ IN ĐƠN", "3 DVVC LẤY HÀNG"].some(s => (r.tinh_trang||"").includes(s))
   ).sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
-
   renderSimpleTable("#tblChuaIn", data, ["STT","ngay","san","khung_h","ma_gian","mvd","id_sp","so_luong","ten_sp","ghi_chu"]);
   $$("#tblChuaIn tbody tr").forEach(tr => tr.classList.add("row-yellow")); // highlight vàng
   $("#loadingChuaIn").style.display = data.length ? "none" : "block";
 }
-
 function renderDonHuyHomNay() {
   const today = getVNDateString(0);
-  const data = DATA.DON.filter(r => 
+  const data = DATA.DON.filter(r =>
     r.ngay === today && (r.trang_thai||"").includes("HỦY")
   ).sort((a,b) => new Date(b.ngay.split("/").reverse().join("-")) - new Date(a.ngay.split("/").reverse().join("-")));
-
   renderSimpleTable("#tblHuy", data, ["STT","ngay","san","khung_h","ma_gian","mvd","id_sp","so_luong","ten_sp","trang_thai"]);
   $$("#tblHuy tbody tr").forEach(tr => tr.classList.add("row-red"));
   $("#loadingHuy").style.display = data.length ? "none" : "block";
 }
-
-
-
-
 // Thêm vào phần render khi chuyển tab
 const originalTabClick = $$(".tabs button")[0].onclick; // giữ logic cũ
 $$(".tabs button").forEach(btn => {
@@ -1005,7 +986,6 @@ $$(".tabs button").forEach(btn => {
     $$(".tabs button, .tab").forEach(el => el.classList.remove("active"));
     btn.classList.add("active");
     $(`#${btn.dataset.tab}`).classList.add("active");
-
     if (btn.dataset.tab === "tab-chuain") renderChuaIn();
     if (btn.dataset.tab === "tab-huy") renderDonHuyHomNay();
     // các tab cũ giữ nguyên...
@@ -1016,10 +996,8 @@ $$(".tabs button").forEach(btn => {
     if (btn.dataset.tab === "tab-tb") renderTB();
   };
 });
-
 // ================= TÌM KIẾM TOÀN DASHBOARD + COPY NHANH =================
 const globalSearch = $('#globalSearch');
-
 globalSearch?.addEventListener('input', debounce(() => {
   const query = globalSearch.value.trim().toLowerCase();
   if (!query) {
@@ -1027,18 +1005,15 @@ globalSearch?.addEventListener('input', debounce(() => {
     $$('.highlight-row').forEach(el => el.classList.remove('highlight-row'));
     return;
   }
-
   let found = false;
-
   // Duyệt tất cả các tab có bảng đơn hàng
   const tabs = [
-    { id: 'tab-don', table: '#tblDonChiTiet', cols: [5,6,4] },       // MVD (cột 6), MDH (7), Mã gian (5)
+    { id: 'tab-don', table: '#tblDonChiTiet', cols: [5,6,4] }, // MVD (cột 6), MDH (7), Mã gian (5)
     { id: 'tab-status', table: '#tblPrinted', cols: [3] },
     { id: 'tab-status', table: '#tblPicked', cols: [3] },
     { id: 'tab-chuain', table: '#tblChuaIn', cols: [5,6,4] },
     { id: 'tab-huy', table: '#tblHuy', cols: [5,6,4] },
   ];
-
   tabs.forEach(tab => {
     const rows = $$(`${tab.table} tbody tr`);
     rows.forEach(tr => {
@@ -1063,7 +1038,6 @@ globalSearch?.addEventListener('input', debounce(() => {
     });
   });
 }, 300));
-
 // Highlight dòng tìm thấy
 const style = document.createElement('style');
 style.textContent = `
@@ -1078,35 +1052,29 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
-
 // Nút Copy nhanh MVD / MDH / Mã gian
 // ================= COPY 1 PHÁT 4 THỨ: Mã gian + MVD + MDH + ID SP =================
 function addOneClickCopy() {
   const tables = ['#tblDonChiTiet', '#tblPrinted', '#tblPicked', '#tblChuaIn', '#tblHuy'];
-  
+ 
   tables.forEach(selector => {
     const rows = $$(selector + ' tbody tr');
     rows.forEach(tr => {
       // Nếu đã có nút rồi thì bỏ qua
       if (tr.querySelector('.onecopy-btn')) return;
-
       const tds = tr.querySelectorAll('td');
       if (tds.length < 9) return;
-
-      const magian = (tds[4]?.textContent || '').trim();  // cột Mã gian
-      const mvd    = (tds[5]?.textContent || '').trim();  // cột MVD
-      const mdh    = (tds[6]?.textContent || '').trim();  // cột MDH
-      const idsp   = (tds[7]?.textContent || '').trim();  // cột ID SP
-
+      const magian = (tds[4]?.textContent || '').trim(); // cột Mã gian
+      const mvd = (tds[5]?.textContent || '').trim(); // cột MVD
+      const mdh = (tds[6]?.textContent || '').trim(); // cột MDH
+      const idsp = (tds[7]?.textContent || '').trim(); // cột ID SP
       if (!magian && !mvd && !mdh && !idsp) return;
-
       // Tạo nút copy 1 phát
       const btn = document.createElement('button');
       btn.className = 'onecopy-btn';
       btn.innerHTML = '⚡ Copy 4';
       btn.title = 'Copy Mã gian + MVD + MDH + ID SP';
       btn.style = 'margin-left:8px; padding:3px 8px; font-size:11px; background:#8b5cf6; color:white; border:none; border-radius:4px; cursor:pointer;';
-
       btn.onclick = (e) => {
         e.stopPropagation();
         const text = `Mã gian: ${magian}\nMVD: ${mvd}\nMDH: ${mdh}\nID SP: ${idsp}`.trim();
@@ -1120,30 +1088,23 @@ function addOneClickCopy() {
           }, 1200);
         });
       };
-
       // Thêm nút vào cột đầu tiên (STT)
       tds[0].style.position = 'relative';
       tds[0].appendChild(btn);
     });
   });
 }
-
 // Gọi lại sau mỗi lần render bảng
 const oldRenderDon = renderDon;
 renderDon = function() { oldRenderDon(); setTimeout(addOneClickCopy, 100); };
-
 const oldRenderStatus = renderStatusTables;
 renderStatusTables = function() { oldRenderStatus(); setTimeout(addOneClickCopy, 100); };
-
 const oldChuaIn = renderChuaIn;
 renderChuaIn = function() { oldChuaIn(); setTimeout(addOneClickCopy, 100); };
-
 const oldHuy = renderDonHuyHomNay;
 renderDonHuyHomNay = function() { oldHuy(); setTimeout(addOneClickCopy, 100); };
-
 // Chạy lần đầu khi load xong
 setTimeout(addOneClickCopy, 2000);
-
 // Xử lý click copy
 document.addEventListener('click', e => {
   if (e.target.classList.contains('copy-btn')) {
@@ -1161,10 +1122,8 @@ document.addEventListener('click', e => {
     });
   }
 });
-
 // Chạy lần đầu khi load xong
 setTimeout(addCopyButtons, 2000);
-
 initUI();
 </script>
 </body>
