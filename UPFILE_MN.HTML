@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
   <base target="_top">
   <meta charset="utf-8">
@@ -7,71 +7,397 @@
   <title>Hệ thống Quản lý Đơn hàng</title>
   <style>
     /* CSS CHUẨN */
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 100%; margin: 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; min-height: 90vh; display: flex; flex-direction: column; }
+    :root {
+      --primary-color: #3498db;
+      --primary-hover: #2980b9;
+      --success-color: #27ae60;
+      --success-hover: #219150;
+      --danger-color: #e74c3c;
+      --warning-color: #f39c12;
+      --dark-color: #2c3e50;
+      --light-gray: #ecf0f1;
+      --medium-gray: #bdc3c7;
+      --text-color: #333;
+      --border-radius: 8px;
+      --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: #f4f6f9; 
+      margin: 0; 
+      padding: 20px; 
+      color: var(--text-color); 
+      line-height: 1.5;
+    }
+    
+    .container { 
+      max-width: 100%; 
+      margin: 0 auto; 
+      background: #fff; 
+      border-radius: var(--border-radius); 
+      box-shadow: var(--box-shadow); 
+      overflow: hidden; 
+      min-height: 90vh; 
+      display: flex; 
+      flex-direction: column; 
+    }
     
     /* Header */
-    .header { background: #2c3e50; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .header h2 { margin: 0; font-size: 1.2rem; }
+    .header { 
+      background: var(--dark-color); 
+      color: #fff; 
+      padding: 15px 20px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .header h2 { 
+      margin: 0; 
+      font-size: 1.2rem; 
+    }
 
     /* Tabs Navigation */
-    .tabs { display: flex; background: #ecf0f1; border-bottom: 1px solid #ddd; }
-    .tab { padding: 12px 20px; cursor: pointer; font-weight: 600; color: #555; transition: 0.3s; user-select: none; }
-    .tab:hover { background: #e0e0e0; }
-    .tab.active { background: #fff; color: #2980b9; border-bottom: 3px solid #2980b9; }
+    .tabs { 
+      display: flex; 
+      background: var(--light-gray); 
+      border-bottom: 1px solid #ddd; 
+      overflow-x: auto;
+    }
+    .tab { 
+      padding: 12px 20px; 
+      cursor: pointer; 
+      font-weight: 600; 
+      color: #555; 
+      transition: var(--transition); 
+      user-select: none; 
+      white-space: nowrap;
+    }
+    .tab:hover { 
+      background: #e0e0e0; 
+    }
+    .tab.active { 
+      background: #fff; 
+      color: var(--primary-color); 
+      border-bottom: 3px solid var(--primary-color); 
+    }
     
     /* Tabs Content */
-    .tab-content { display: none; padding: 20px; flex: 1; overflow-y: auto; }
-    .tab-content.active { display: block; }
+    .tab-content { 
+      display: none; 
+      padding: 20px; 
+      flex: 1; 
+      overflow-y: auto; 
+    }
+    .tab-content.active { 
+      display: block; 
+    }
 
     /* Controls & Buttons */
-    .controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
-    .search-box { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px; outline: none; font-size: 14px; }
-    .search-box:focus { border-color: #3498db; }
-    .btn-group { display: flex; gap: 8px; }
-    .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: 0.2s; color: #fff; }
-    .btn-primary { background-color: #3498db; } .btn-primary:hover { background-color: #2980b9; }
-    .btn-success { background-color: #27ae60; } .btn-success:hover { background-color: #219150; }
+    .controls { 
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 15px; 
+      flex-wrap: wrap; 
+      align-items: center; 
+    }
+    .search-box { 
+      padding: 8px 12px; 
+      border: 1px solid #ddd; 
+      border-radius: 4px; 
+      width: 250px; 
+      outline: none; 
+      font-size: 14px; 
+      transition: var(--transition);
+    }
+    .search-box:focus { 
+      border-color: var(--primary-color); 
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    .btn-group { 
+      display: flex; 
+      gap: 8px; 
+    }
+    .btn { 
+      padding: 8px 15px; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 13px; 
+      font-weight: 600; 
+      display: flex; 
+      align-items: center; 
+      gap: 5px; 
+      transition: var(--transition); 
+      color: #fff; 
+    }
+    .btn-primary { 
+      background-color: var(--primary-color); 
+    } 
+    .btn-primary:hover { 
+      background-color: var(--primary-hover); 
+    }
+    .btn-success { 
+      background-color: var(--success-color); 
+    } 
+    .btn-success:hover { 
+      background-color: var(--success-hover); 
+    }
+    .btn:disabled {
+      background-color: var(--medium-gray);
+      cursor: not-allowed;
+    }
 
     /* Table Styles */
-    .table-wrapper { overflow-x: auto; border: 1px solid #eee; border-radius: 4px; max-height: 65vh; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
-    th { background: #f8f9fa; color: #444; font-weight: 600; padding: 10px; text-align: left; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 10; }
-    td { padding: 8px 10px; border-bottom: 1px solid #eee; color: #555; }
-    tr:hover { background-color: #f1f7ff; }
-    tr.cancelled-order td { text-decoration: line-through; color: #999; background-color: #fff5f5; }
+    .table-wrapper { 
+      overflow-x: auto; 
+      border: 1px solid #eee; 
+      border-radius: 4px; 
+      max-height: 65vh; 
+      position: relative;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 13px; 
+      white-space: nowrap; 
+    }
+    th { 
+      background: #f8f9fa; 
+      color: #444; 
+      font-weight: 600; 
+      padding: 10px; 
+      text-align: left; 
+      border-bottom: 2px solid #ddd; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10; 
+    }
+    td { 
+      padding: 8px 10px; 
+      border-bottom: 1px solid #eee; 
+      color: #555; 
+    }
+    tr:hover { 
+      background-color: #f1f7ff; 
+    }
+    tr.cancelled-order td { 
+      text-decoration: line-through; 
+      color: #999; 
+      background-color: #fff5f5; 
+    }
 
     /* Loading & Stats */
-    .loading { display: none; text-align: center; padding: 20px; color: #666; }
-    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; margin-bottom: 5px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .stats { margin-top: 15px; display: flex; gap: 15px; font-size: 13px; color: #666; background: #fafafa; padding: 10px; border-radius: 4px; border: 1px solid #eee; }
-    .stats-item { display: flex; align-items: center; gap: 5px; }
-    .stats-badge { font-weight: bold; padding: 2px 6px; border-radius: 10px; background: #eee; font-size: 11px; }
-    .stats-badge.huy { background: #f8d7da; color: #721c24; }
+    .loading { 
+      display: none; 
+      text-align: center; 
+      padding: 20px; 
+      color: #666; 
+    }
+    .spinner { 
+      border: 3px solid #f3f3f3; 
+      border-top: 3px solid var(--primary-color); 
+      border-radius: 50%; 
+      width: 20px; 
+      height: 20px; 
+      animation: spin 1s linear infinite; 
+      display: inline-block; 
+      margin-bottom: 5px; 
+    }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    .stats { 
+      margin-top: 15px; 
+      display: flex; 
+      gap: 15px; 
+      font-size: 13px; 
+      color: #666; 
+      background: #fafafa; 
+      padding: 10px; 
+      border-radius: 4px; 
+      border: 1px solid #eee; 
+      flex-wrap: wrap;
+    }
+    .stats-item { 
+      display: flex; 
+      align-items: center; 
+      gap: 5px; 
+    }
+    .stats-badge { 
+      font-weight: bold; 
+      padding: 2px 6px; 
+      border-radius: 10px; 
+      background: #eee; 
+      font-size: 11px; 
+    }
+    .stats-badge.huy { 
+      background: #f8d7da; 
+      color: #721c24; 
+    }
 
     /* Split Panels (Tab 2 & 3) */
-    .panel-container { display: flex; gap: 20px; height: calc(100vh - 160px); }
-    .panel { background: #fff; border: 1px solid #ddd; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; }
-    .panel-left { width: 350px; flex-shrink: 0; }
-    .panel-right { flex: 1; }
-    .panel-header { padding: 10px 15px; background: #f1f3f5; font-weight: 600; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-    .panel-body { flex: 1; overflow-y: auto; padding: 0; }
-    .panel-table { width: 100%; border-collapse: collapse; }
-    .panel-table th { position: sticky; top: 0; background: #fff; z-index: 5; padding: 8px 10px; border-bottom: 2px solid #eee; text-align: left; font-size: 12px; color: #666; }
-    .panel-table td { padding: 8px 10px; border-bottom: 1px solid #f5f5f5; font-size: 13px; cursor: pointer; }
-    .panel-table tr:hover { background-color: #f8f9fa; }
-    .panel-table tr.selected { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
-    .text-right { text-align: right !important; }
-    .empty-state { padding: 30px; text-align: center; color: #999; font-style: italic; }
+    .panel-container { 
+      display: flex; 
+      gap: 20px; 
+      height: calc(100vh - 160px); 
+    }
+    .panel { 
+      background: #fff; 
+      border: 1px solid #ddd; 
+      border-radius: 6px; 
+      display: flex; 
+      flex-direction: column; 
+      overflow: hidden; 
+    }
+    .panel-left { 
+      width: 350px; 
+      flex-shrink: 0; 
+    }
+    .panel-right { 
+      flex: 1; 
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header { 
+      padding: 10px 15px; 
+      background: #f1f3f5; 
+      font-weight: 600; 
+      border-bottom: 1px solid #ddd; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .panel-body { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 0; 
+    }
+    .panel-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+    }
+    .panel-table th { 
+      position: sticky; 
+      top: 0; 
+      background: #fff; 
+      z-index: 5; 
+      padding: 8px 10px; 
+      border-bottom: 2px solid #eee; 
+      text-align: left; 
+      font-size: 12px; 
+      color: #666; 
+    }
+    .panel-table td { 
+      padding: 8px 10px; 
+      border-bottom: 1px solid #f5f5f5; 
+      font-size: 13px; 
+      cursor: pointer; 
+    }
+    .panel-table tr:hover { 
+      background-color: #f8f9fa; 
+    }
+    .panel-table tr.selected { 
+      background-color: #e3f2fd; 
+      border-left: 4px solid var(--primary-color); 
+    }
+    .text-right { 
+      text-align: right !important; 
+    }
+    .empty-state { 
+      padding: 30px; 
+      text-align: center; 
+      color: #999; 
+      font-style: italic; 
+    }
 
     /* Badges */
-    .row-xuat { color: #2ecc71; } .row-nhap { color: #e67e22; }
-    .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #fff; }
+    .row-xuat { color: #2ecc71; } 
+    .row-nhap { color: #e67e22; }
+    .badge { 
+      padding: 3px 8px; 
+      border-radius: 12px; 
+      font-size: 11px; 
+      font-weight: 600; 
+      color: #fff; 
+    }
     .badge-xuat { background-color: #ff822f; }
     .badge-nhap { background-color: #40ff27; }
-    .badge-hoan { background-color: #e74c3c; }
-    .row-empty-date td { font-weight: bold; background-color: #ffebee; } /* Highlight row empty date */
+    .badge-hoan { background-color: var(--danger-color); }
+    .row-empty-date td { 
+      font-weight: bold; 
+      background-color: #ffebee; 
+    }
+
+    /* Pagination for Tab 2 Right Panel */
+    .pagination-tab2-right {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      background: #fafafa;
+      border-top: 1px solid #eee;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .panel-container {
+        flex-direction: column;
+        height: auto;
+      }
+      .panel-left, .panel-right {
+        width: 100%;
+      }
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-box {
+        width: 100%;
+      }
+      .btn-group {
+        width: 100%;
+        justify-content: center;
+      }
+      .pagination-tab2-right {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 600;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+    }
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .notification.success {
+      background-color: var(--success-color);
+    }
+    .notification.error {
+      background-color: var(--danger-color);
+    }
+    .notification.info {
+      background-color: var(--primary-color);
+    }
   </style>
 </head>
 <body>
@@ -90,12 +416,31 @@
       <div class="controls">
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm...">
         <input type="date" id="dateFilter" class="search-box" style="max-width:200px;">
+        
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <label for="rowsPerPage" style="font-size: 14px; font-weight: 600;">Dòng/Trang:</label>
+          <select id="rowsPerPage" class="search-box" style="width: auto; min-width: 80px;">
+            <option value="100" selected>100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="500">500</option>
+            <option value="99999">Tất cả</option>
+          </select>
+        </div>
+        
         <div class="btn-group">
-          <button class="btn btn-primary" onclick="refreshData()"><span>🔄</span> Làm mới</button>
-          <button class="btn btn-success" onclick="exportToCSV()"><span>📊</span> Xuất CSV</button>
-          <button class="btn btn-success" onclick="exportToExcel()"><span>📋</span> Xuất Excel</button>
+          <button class="btn btn-primary" id="refreshBtn"><span>🔄</span> Làm mới</button>
+          <button class="btn btn-success" id="exportCsvBtn"><span>📊</span> Xuất CSV</button>
+          <button class="btn btn-success" id="exportExcelBtn"><span>📋</span> Xuất Excel</button>
+        </div>
+
+        <div id="paginationControls" class="btn-group" style="margin-left: auto;">
+          <button class="btn btn-primary" id="prevPageBtn" disabled>← Trước</button>
+          <span id="pageInfo" style="padding: 8px 15px; font-weight: 600; background: #ecf0f1; border-radius: 4px;">Trang 0 / 0</span>
+          <button class="btn btn-primary" id="nextPageBtn" disabled>Sau →</button>
         </div>
       </div>
+      
       <div id="loadingDiv" class="loading"><span class="spinner"></span><div>Đang tải dữ liệu...</div></div>
       <div id="errorDiv" class="error" style="display:none; color: red; text-align:center; margin-bottom:10px;"></div>
       
@@ -109,17 +454,43 @@
       <div class="panel-container">
         <div class="panel panel-left">
           <div class="panel-header"><span>Danh sách đơn hàng (ID)</span></div>
-          <div class="controls" style="padding: 10px; margin:0; border-bottom: 1px solid #eee;">
-            <input type="text" id="filterIdDH" class="search-box" style="width:100%" placeholder="Tìm ID đơn hàng...">
-          </div>
           <div class="panel-body">
             <table class="panel-table" id="tblIdDH"><thead><tr><th>ID Đơn</th><th>Ngày</th><th class="text-right">SL</th></tr></thead><tbody></tbody></table>
           </div>
         </div>
+        
         <div class="panel panel-right">
-          <div class="panel-header"><span>Chi tiết đơn hàng</span><div class="panel-actions"><button class="btn btn-success" id="btnExport" style="display:none;"><span>📋</span> Xuất Excel</button></div></div>
+          <div class="panel-header">
+            <span>Chi tiết đơn hàng</span>
+            <div class="panel-actions">
+              <div style="display: flex; align-items: center; gap: 5px;">
+                <label for="rowsPerPageTab2Right" style="font-size: 12px; font-weight: 600;">Dòng/Trang:</label>
+                <select id="rowsPerPageTab2Right" class="search-box" style="width: auto; min-width: 70px; font-size: 12px; padding: 4px 8px;">
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="300">300</option>
+                  <option value="500">500</option>
+                  <option value="99999">Tất cả</option>
+                </select>
+              </div>
+              <button class="btn btn-success" id="btnExport" style="display:none;"><span>📋</span> Xuất Excel</button>
+            </div>
+          </div>
           <div class="panel-body">
             <table class="panel-table" id="tblChiTiet"><thead><tr><th>Ngày</th><th>Trạng thái</th><th>NCC</th><th>Kho</th><th>ID SP</th><th class="text-right">Số lượng</th><th>Thương hiệu</th></tr></thead><tbody></tbody></table>
+          </div>
+          <!-- PAGINATION FOR RIGHT PANEL (CHI TIẾT ĐƠN HÀNG) -->
+          <div class="pagination-tab2-right">
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <span style="font-size: 13px; font-weight: 600;">Hiển thị:</span>
+              <span id="pageStatsTab2Right" style="font-size: 13px;">0-0 của 0</span>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-primary" id="prevPageBtnTab2Right" disabled>← Trước</button>
+              <span id="pageInfoTab2Right" style="padding: 6px 12px; font-weight: 600; background: #ecf0f1; border-radius: 4px; font-size: 12px;">Trang 0 / 0</span>
+              <button class="btn btn-primary" id="nextPageBtnTab2Right" disabled>Sau →</button>
+            </div>
           </div>
         </div>
       </div>
@@ -137,7 +508,7 @@
           <div class="panel-header">
             <span>Chi tiết Đơn Hoàn (MISA)</span>
             <div class="panel-actions">
-              <button class="btn btn-success" id="btnExportHoan" style="display:none;" onclick="exportTab3Excel()"><span>📋</span> Xuất Excel MISA</button>
+              <button class="btn btn-success" id="btnExportHoan" style="display:none;"><span>📋</span> Xuất Excel MISA</button>
             </div>
           </div>
           <div class="panel-body">
@@ -146,23 +517,37 @@
         </div>
       </div>
     </div>
-
   </div>
+
+  <div id="notification" class="notification"></div>
 
 <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
 
 <script>
   /* ======================= CẤU HÌNH & TRẠNG THÁI ======================= */
   const API_URL = "https://script.google.com/macros/s/AKfycbxgZdpFA8V6DDZvz3hUjIsAah7zEeL0VYjdI8wRwMKN-7vtOh-bnNpR3P01RgEaowGAVw/exec";
-  const NO_DATE_GROUP = "NO_DATE_GROUP"; // Key đặc biệt cho nhóm Ngày trống
+  const NO_DATE_GROUP = "NO_DATE_GROUP";
 
+  // Biến toàn cục
   let originalData = [];
   let filteredData = [];
   let donHangData = [];
   let hangHoanData = [];
+  
+  // State cho Phân trang Tab 1
+  let currentPage = 1;
+  let rowsPerPage = 100;
+
+  // State cho Phân trang Tab 2 RIGHT PANEL (BẢNG CHI TIẾT)
+  let currentPageTab2Right = 1;
+  let rowsPerPageTab2Right = 50;
+  let currentDonHangDetails = []; // Lưu chi tiết đơn hàng hiện tại
 
   let selectedIdDH = null;
   let selectedDateHoan = null;
+
+  // Debounce timer
+  let debounceTimer;
 
   /* ======================= CỘT TAB 1 ======================= */
   const extraColumns = [
@@ -198,7 +583,32 @@
   ];
 
   /* ======================= HELPERS ======================= */
-  function toNumber(v) { const n = parseFloat(String(v ?? "").replace(/[\s,]/g, "")); return isNaN(n) ? 0 : n; }
+  
+  // Hiển thị thông báo
+  function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type} show`;
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 3000);
+  }
+
+  // Debounce function để tối ưu hóa tìm kiếm
+  function debounce(func, delay) {
+    return function() {
+      const context = this;
+      const args = arguments;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    };
+  }
+
+  function toNumber(v) { 
+    const n = parseFloat(String(v ?? "").replace(/[\s,]/g, "")); 
+    return isNaN(n) ? 0 : n; 
+  }
   
   function parseDateVN(dateStr) {
     if (!dateStr) return null;
@@ -215,28 +625,39 @@
   }
 
   /* --- LOGIC CELL VALUE TAB 1 --- */
+  // Helper để lấy giá trị số của Thành tiền (dùng cho sắp xếp)
+  function getNumericThanhTien(row) {
+    return toNumber(row["don_gia_1"]) * toNumber(row["slg_xuat"]);
+  }
+
   function getCellValue(row, colName) {
     if (colName === "Ngày hạch toán (*)" || colName === "Ngày chứng từ (*)") return row["ngay"] || "";
     if (colName === "Số chứng từ (*)" || colName === "Số phiếu xuất") {
-      let prefix = ""; const san = (row["san"]||"").toUpperCase().trim(); const kh = (row["khung_h"]||"").trim();
+      let prefix = ""; 
+      const san = (row["san"]||"").toUpperCase().trim(); 
+      const kh = (row["khung_h"]||"").trim();
+      
       if (san === "SHOPEE") prefix = (kh === "10H" ? "N " : "") + "SPE";
       else if (san === "LAZADA") prefix = "LDZ";
       else if (san === "BEST") prefix = "GHN";
       else if (san === "ĐƠN NGOÀI") prefix = "XDN";
-      const mg = (row["ma_gian"]||"").trim(); const nf = formatDateShortFromStr(row["ngay"]);
+      
+      const mg = (row["ma_gian"]||"").trim(); 
+      const nf = formatDateShortFromStr(row["ngay"]);
       return prefix && mg && nf ? `${prefix}-${mg}-${nf}.MN` : "";
     }
     if (colName === "Mã đơn hàng") return (row["mdh"]&&row["mvd"]) ? `${row["mdh"]}/${row["mvd"]}` : (row["mdh"]||row["mvd"]||"");
     if (colName === "Mã khách hàng") return row["ma_gian"] || "";
     if (colName === "Diễn giải") {
-      const san = (row["san"]||"").trim(); const kh = (row["khung_h"]||"").trim();
+      const san = (row["san"]||"").trim(); 
+      const kh = (row["khung_h"]||"").trim();
       const p = (san === "ĐƠN NGOÀI") ? " " : (kh === "10H" ? " NOW " : " ");
       return `MN${p}${san} NGÀY ${row["ngay"]||""}`;
     }
     if (colName === "Mã hàng (*)") return row["sku_cha"] || "";
     if (colName === "Số lượng") return row["slg_xuat"] || "";
     if (colName === "Đơn giá") return toNumber(row["don_gia_1"]).toLocaleString('vi-VN') || "";
-    if (colName === "Thành tiền") return (toNumber(row["don_gia_1"]) * toNumber(row["slg_xuat"])).toLocaleString('vi-VN') || "";
+    if (colName === "Thành tiền") return getNumericThanhTien(row).toLocaleString('vi-VN') || "";
 
     const ex = extraColumns.find(c => c.name === colName);
     return ex ? ex.default : (row[colName] || "");
@@ -244,21 +665,44 @@
 
   /* --- LOGIC CELL VALUE TAB 3 --- */
   function getHangHoanValue(row, colName) {
-    const sl = toNumber(row["slg"]); const dg = toNumber(row["don_gia"]);
+    const sl = toNumber(row["slg"]); 
+    const dg = toNumber(row["don_gia"]);
+    
     switch (colName) {
-      case "Hiển thị trên sổ": case "Hình thức bán hàng": case "Phương thức thanh toán": return "0";
-      case "Kiêm phiếu nhập kho": return "1";
-      case "Ngày hạch toán (*)": case "Ngày chứng từ (*)": return row["ngay_hoan_misa"] || "";
-      case "Số chứng từ (*)": case "Số phiếu nhập": return row["mvd_hoan"] || "";
-      case "Mã khách hàng": return row["shop"] || "";
-      case "Mã hàng (*)": return row["sku"] || "";
-      case "TK trả lại/TK nợ (*)": return "5212";
-      case "TK công nợ/TK tiền/TK có (*)": return "131";
-      case "Kho": return "KMN"; case "TK Kho": return "1561"; case "TK giá vốn": return "632";
-      case "Số lượng": return sl || 0;
-      case "Đơn giá": return dg || 0;
-      case "Thành tiền": return sl * dg;
-      default: return "";
+      case "Hiển thị trên sổ": 
+      case "Hình thức bán hàng": 
+      case "Phương thức thanh toán": 
+        return "0";
+      case "Kiêm phiếu nhập kho": 
+        return "1";
+      case "Ngày hạch toán (*)": 
+      case "Ngày chứng từ (*)": 
+        return row["ngay_hoan_misa"] || "";
+      case "Số chứng từ (*)": 
+      case "Số phiếu nhập": 
+        return row["mvd_hoan"] || "";
+      case "Mã khách hàng": 
+        return row["shop"] || "";
+      case "Mã hàng (*)": 
+        return row["sku"] || "";
+      case "TK trả lại/TK nợ (*)": 
+        return "5212";
+      case "TK công nợ/TK tiền/TK có (*)": 
+        return "131";
+      case "Kho": 
+        return "KMN"; 
+      case "TK Kho": 
+        return "1561"; 
+      case "TK giá vốn": 
+        return "632";
+      case "Số lượng": 
+        return sl || 0;
+      case "Đơn giá": 
+        return dg || 0;
+      case "Thành tiền": 
+        return sl * dg;
+      default: 
+        return "";
     }
   }
 
@@ -266,9 +710,15 @@
   function loadData() {
     document.getElementById('loadingDiv').style.display = 'block';
     document.getElementById('tableWrapper').style.display = 'none';
+    document.getElementById('errorDiv').style.display = 'none';
     
     fetch(API_URL)
-      .then(resp => resp.json())
+      .then(resp => {
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        return resp.json();
+      })
       .then(data => {
         const allData = Array.isArray(data) ? data : [];
         originalData = allData.filter(i => i._sheet === "UP_DON_CT");
@@ -281,58 +731,100 @@
         document.getElementById('dateFilter').value = localDate;
 
         // Render All Tabs
-        processFilterAndRender(); // Tab 1
-        renderAllDonHang();       // Tab 2
+        processFilterAndRender(1); // Tab 1
+        renderTab2();             // Tab 2
         renderTab3();             // Tab 3
+        
+        showNotification('Dữ liệu đã được tải thành công', 'success');
       })
       .catch(err => {
-        console.error(err);
+        console.error('Lỗi khi tải dữ liệu:', err);
         document.getElementById('errorDiv').textContent = "Lỗi kết nối: " + err.message;
         document.getElementById('errorDiv').style.display = 'block';
+        showNotification('Lỗi khi tải dữ liệu: ' + err.message, 'error');
       })
       .finally(() => {
         document.getElementById('loadingDiv').style.display = 'none';
         if(originalData.length) document.getElementById('tableWrapper').style.display = 'block';
       });
   }
-  function refreshData() { loadData(); }
 
-  /* ======================= RENDER TAB 1 & 2 (Unchanged) ======================= */
+  /* ======================= RENDER TAB 1 (Sorting & Pagination) ======================= */
   
-  function processFilterAndRender() {
+  function processFilterAndRender(page = currentPage) {
     const dateInput = document.getElementById('dateFilter').value;
     const searchVal = document.getElementById('searchInput').value.toLowerCase();
     let result = [...originalData];
 
+    // 1. Filtering
     if (dateInput) {
       const [y, m, d] = dateInput.split('-');
       const target = `${d}/${m}/${y}`;
       result = result.filter(r => r.ngay === target);
     }
     if (searchVal) {
-      result = result.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(searchVal)));
+      result = result.filter(r => 
+        Object.values(r).some(v => 
+          String(v).toLowerCase().includes(searchVal)
+        )
+      );
     }
-    filteredData = result;
 
+    // 2. Sorting (Sort by Thành tiền ascending - Nhỏ tới Lớn)
+    result.sort((a, b) => {
+      const tt_a = getNumericThanhTien(a);
+      const tt_b = getNumericThanhTien(b);
+      
+      if (tt_a !== tt_b) return tt_a - tt_b; // Sort Thành tiền ASC
+      
+      // Fallback: Sort by Date Descending
+      const da = parseDateVN(a.ngay) || new Date(0); 
+      const db = parseDateVN(b.ngay) || new Date(0); 
+      return db - da; 
+    });
+    
+    filteredData = result; // Lưu lại toàn bộ dữ liệu đã lọc & sắp xếp
+
+    // 3. Pagination Logic
+    rowsPerPage = parseInt(document.getElementById('rowsPerPage')?.value || 100);
+    const totalRows = filteredData.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    
+    currentPage = page;
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+    if (totalPages === 0) currentPage = 0;
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const paginatedData = filteredData.slice(start, end);
+    
+    // 4. Render Table
     const tbody = document.getElementById("data-body");
     const thead = document.getElementById("header-row");
-    tbody.innerHTML = ""; thead.innerHTML = "";
+    tbody.innerHTML = ""; 
+    thead.innerHTML = "";
 
-    if(!filteredData.length) { tbody.innerHTML = '<tr><td colspan="100" class="empty-state">Không có dữ liệu</td></tr>'; return; }
+    if(!paginatedData.length) { 
+      tbody.innerHTML = '<tr><td colspan="100" class="empty-state">Không có dữ liệu</td></tr>'; 
+      renderPaginationControls(totalRows, totalPages); 
+      return; 
+    }
 
-    filteredData.sort((a,b) => {
-       const da = parseDateVN(a.ngay)||new Date(0); const db = parseDateVN(b.ngay)||new Date(0);
-       return db - da; 
+    const keys = Object.keys(originalData[0]||{}); // Lấy keys từ originalData (vì filteredData có thể rỗng)
+    const allCols = extraColumns.map(c => c.name).concat(keys.filter(k => k !== '_sheet')); // Loại bỏ _sheet
+    
+    allCols.forEach(h => { 
+      const th = document.createElement("th"); 
+      th.textContent = h; 
+      thead.appendChild(th); 
     });
 
-    const keys = Object.keys(filteredData[0]||{});
-    const allCols = extraColumns.map(c => c.name).concat(keys);
-    allCols.forEach(h => { const th = document.createElement("th"); th.textContent = h; thead.appendChild(th); });
-
     const frag = new DocumentFragment();
-    filteredData.forEach(row => {
+    paginatedData.forEach(row => { // Render dữ liệu đã phân trang
       const tr = document.createElement("tr");
       if(String(row.trang_thai).toUpperCase().includes("HỦY")) tr.classList.add('cancelled-order');
+      
       allCols.forEach(col => {
         const td = document.createElement("td");
         td.textContent = getCellValue(row, col);
@@ -342,38 +834,109 @@
     });
     tbody.appendChild(frag);
 
+    // 5. Render Stats & Pagination Controls
     const huy = filteredData.filter(r => String(r.trang_thai).toUpperCase().includes("HỦY")).length;
-    document.getElementById('statsDiv').innerHTML = `<div class="stats-item"><span>Tổng:</span><span class="stats-badge">${originalData.length}</span></div><div class="stats-item"><span>Hiển thị:</span><span class="stats-badge">${filteredData.length}</span></div><div class="stats-item"><span>Hủy:</span><span class="stats-badge huy">${huy}</span></div>`;
+    document.getElementById('statsDiv').innerHTML = `
+      <div class="stats-item"><span>Tổng:</span><span class="stats-badge">${originalData.length}</span></div>
+      <div class="stats-item"><span>Hiển thị:</span><span class="stats-badge">${filteredData.length}</span></div>
+      <div class="stats-item"><span>Hủy:</span><span class="stats-badge huy">${huy}</span></div>
+    `;
     document.getElementById('statsDiv').style.display = 'flex';
+    
+    renderPaginationControls(totalRows, totalPages);
+  }
+
+  // Pagination Handlers
+  function renderPaginationControls(totalRows, totalPages) {
+    const controlsDiv = document.getElementById('paginationControls');
+    const pageInfoSpan = document.getElementById('pageInfo');
+    const prevBtn = document.getElementById('prevPageBtn');
+    const nextBtn = document.getElementById('nextPageBtn');
+
+    if (totalRows > rowsPerPage && rowsPerPage !== 99999) {
+      controlsDiv.style.display = 'flex';
+      pageInfoSpan.textContent = `Trang ${currentPage} / ${totalPages}`;
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
+    } else {
+      controlsDiv.style.display = 'none';
+    }
+  }
+
+  function changePage(delta) {
+    const newPage = currentPage + delta;
+    processFilterAndRender(newPage);
+  }
+
+  function changeRowsPerPage(value) {
+    rowsPerPage = parseInt(value);
+    processFilterAndRender(1); // Luôn về trang 1 khi đổi số dòng/trang
   }
 
   function exportToCSV() {
-    if (!filteredData.length) return alert('Không có dữ liệu');
+    if (!filteredData.length) {
+      showNotification('Không có dữ liệu để xuất', 'error');
+      return;
+    }
+    
     const data = filteredData.filter(r => !String(r.trang_thai).toUpperCase().includes("HỦY"));
+    if (!data.length) {
+      showNotification('Không có dữ liệu hợp lệ để xuất', 'error');
+      return;
+    }
+    
     const keys = Object.keys(data[0]||{});
-    const cols = extraColumns.map(c => c.name).concat(keys);
+    const cols = extraColumns.map(c => c.name).concat(keys.filter(k => k !== '_sheet'));
     let csv = cols.map(h => `"${h}"`).join(',') + '\n';
-    data.forEach(r => { csv += cols.map(c => `"${String(getCellValue(r,c)).replace(/"/g, '""')}"`).join(',') + '\n'; });
+    
+    data.forEach(r => { 
+      csv += cols.map(c => {
+        const val = String(getCellValue(r,c)).replace(/"/g, '""');
+        return `"${val}"`;
+      }).join(',') + '\n'; 
+    });
+    
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `UP_DON_${document.getElementById('dateFilter').value}.csv`;
     link.click();
+    
+    showNotification('Xuất CSV thành công', 'success');
   }
+
   function exportToExcel() {
     const data = filteredData.filter(r => !String(r.trang_thai).toUpperCase().includes("HỦY"));
-    if (!data.length) return alert('Không có dữ liệu hợp lệ');
+    if (!data.length) {
+      showNotification('Không có dữ liệu hợp lệ để xuất', 'error');
+      return;
+    }
+    
     const cols = extraColumns.map(c => c.name);
-    const exData = data.map(r => { const o = {}; cols.forEach(c => o[c] = getCellValue(r,c)); return o; });
+    const exData = data.map(r => { 
+      const o = {}; 
+      cols.forEach(c => o[c] = getCellValue(r,c)); 
+      return o; 
+    });
+    
     const ws = XLSX.utils.json_to_sheet(exData, { header: cols });
     ws['!cols'] = cols.map(() => ({ wch: 20 }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "UP_DON");
     XLSX.writeFile(wb, `UP_DON_${document.getElementById('dateFilter').value}.xlsx`);
+    
+    showNotification('Xuất Excel thành công', 'success');
   }
 
-  function renderAllDonHang() {
-    const filterText = (document.getElementById("filterIdDH").value || "").trim().toLowerCase();
+  /* ======================= TAB 2 - QUẢN LÝ ĐƠN HÀNG ======================= */
+  
+  function renderTab2() {
+    renderTab2LeftPanel();
+    renderTab2RightPanel();
+  }
+
+  // Render danh sách đơn hàng bên trái (KHÔNG phân trang)
+  function renderTab2LeftPanel() {
     const groupMap = {};
     donHangData.forEach(r => {
       if (!r.id_dh || !r.id_sp) return;
@@ -384,57 +947,156 @@
       if (r.trương) groupMap[id].type.add(r.trương);
     });
 
-    let groups = Object.values(groupMap);
-    if (filterText) groups = groups.filter(g => g.id.toLowerCase().includes(filterText));
+    const groups = Object.values(groupMap);
     groups.sort((a,b) => (b.ngay[0]?parseDateVN(b.ngay[0]):new Date(0)) - (a.ngay[0]?parseDateVN(a.ngay[0]):new Date(0)));
 
     const tbodyL = document.getElementById("tblIdDH").querySelector("tbody");
     tbodyL.innerHTML = "";
     const fragL = new DocumentFragment();
+    
     groups.forEach(g => {
        const tr = document.createElement("tr");
        if (selectedIdDH === g.id) tr.classList.add("selected");
-       let cls = ""; if(g.type.has("XUẤT")) cls="row-xuat"; else if(g.type.has("NHẬP")) cls="row-nhap";
+       let cls = ""; 
+       if(g.type.has("XUẤT")) cls="row-xuat"; 
+       else if(g.type.has("NHẬP")) cls="row-nhap";
        tr.className = cls;
-       tr.innerHTML = `<td><strong>${g.id}</strong></td><td>${g.ngay[0]||""}</td><td class="text-right"><strong>${g.sl}</strong></td>`;
-       tr.onclick = (e) => { e.stopPropagation(); selectedIdDH = g.id; renderAllDonHang(); };
+       tr.innerHTML = `
+         <td><strong>${g.id}</strong></td>
+         <td>${g.ngay[0]||""}</td>
+         <td class="text-right"><strong>${g.sl}</strong></td>
+       `;
+       tr.onclick = (e) => { 
+         e.stopPropagation(); 
+         selectedIdDH = g.id; 
+         // Khi click vào đơn hàng, render chi tiết với phân trang
+         renderTab2RightPanel();
+       };
        fragL.appendChild(tr);
     });
     tbodyL.appendChild(fragL);
+  }
 
-    let rows = donHangData.filter(r => r.id_sp);
-    if (selectedIdDH) rows = rows.filter(r => r.id_dh && r.id_dh.toString() === selectedIdDH);
-    rows.sort((a,b) => (b.ngay?parseDateVN(b.ngay):new Date(0)) - (a.ngay?parseDateVN(a.ngay):new Date(0)));
+  // Render bảng chi tiết đơn hàng bên phải (CÓ phân trang)
+  function renderTab2RightPanel(page = currentPageTab2Right) {
+    let allDetails = donHangData.filter(r => r.id_sp);
     
+    // Lọc theo đơn hàng được chọn
+    if (selectedIdDH) {
+      allDetails = allDetails.filter(r => r.id_dh && r.id_dh.toString() === selectedIdDH);
+    }
+    
+    // Sắp xếp theo ngày (mới nhất trước)
+    allDetails.sort((a,b) => (b.ngay?parseDateVN(b.ngay):new Date(0)) - (a.ngay?parseDateVN(a.ngay):new Date(0)));
+    
+    // Lưu chi tiết đơn hàng hiện tại
+    currentDonHangDetails = allDetails;
+
+    // Phân trang cho bảng chi tiết
+    rowsPerPageTab2Right = parseInt(document.getElementById('rowsPerPageTab2Right')?.value || 50);
+    const totalRows = currentDonHangDetails.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPageTab2Right);
+    
+    currentPageTab2Right = page;
+    if (currentPageTab2Right < 1) currentPageTab2Right = 1;
+    if (currentPageTab2Right > totalPages && totalPages > 0) currentPageTab2Right = totalPages;
+    if (totalPages === 0) currentPageTab2Right = 0;
+
+    const start = (currentPageTab2Right - 1) * rowsPerPageTab2Right;
+    const end = start + rowsPerPageTab2Right;
+    const paginatedDetails = currentDonHangDetails.slice(start, end);
+
+    // Render bảng chi tiết
     const tbodyR = document.getElementById("tblChiTiet").querySelector("tbody");
     tbodyR.innerHTML = "";
     const fragR = new DocumentFragment();
-    if (!rows.length) {
+    
+    if (!paginatedDetails.length) {
       tbodyR.innerHTML = `<tr><td colspan="7" class="empty-state">${selectedIdDH?"Không có chi tiết":"Chọn đơn hàng"}</td></tr>`;
       document.getElementById("btnExport").style.display = "none";
     } else {
-      rows.forEach(r => {
+      paginatedDetails.forEach(r => {
         const tr = document.createElement("tr");
         const stt = r.trương === "XUẤT" ? "badge-xuat" : r.trương === "NHẬP" ? "badge-nhap" : "badge-hoan";
-        tr.innerHTML = `<td>${r.ngay||""}</td><td><span class="badge ${stt}">${r.trương||""}</span></td><td>${r.ncc||""}</td><td>${r.kho||""}</td><td><strong>${r.id_sp}</strong></td><td class="text-right"><strong>${r.so_luong||0}</strong></td><td>${r.thuong_hieu||""}</td>`;
+        tr.innerHTML = `
+          <td>${r.ngay||""}</td>
+          <td><span class="badge ${stt}">${r.trương||""}</span></td>
+          <td>${r.ncc||""}</td>
+          <td>${r.kho||""}</td>
+          <td><strong>${r.id_sp}</strong></td>
+          <td class="text-right"><strong>${r.so_luong||0}</strong></td>
+          <td>${r.thuong_hieu||""}</td>
+        `;
         fragR.appendChild(tr);
       });
       tbodyR.appendChild(fragR);
       document.getElementById("btnExport").style.display = "inline-block";
     }
+
+    // Render phân trang cho bảng chi tiết
+    renderTab2RightPagination(totalRows, totalPages);
   }
 
-  document.getElementById("filterIdDH").addEventListener("input", (e) => { setTimeout(() => { selectedIdDH = null; renderAllDonHang(); }, 300); });
-  document.getElementById("btnExport").onclick = () => {
-    if (!selectedIdDH) return;
+  // Render phân trang cho bảng chi tiết
+  function renderTab2RightPagination(totalRows, totalPages) {
+    const pageStats = document.getElementById('pageStatsTab2Right');
+    const pageInfo = document.getElementById('pageInfoTab2Right');
+    const prevBtn = document.getElementById('prevPageBtnTab2Right');
+    const nextBtn = document.getElementById('nextPageBtnTab2Right');
+
+    if (totalRows > rowsPerPageTab2Right && rowsPerPageTab2Right !== 99999) {
+      const start = (currentPageTab2Right - 1) * rowsPerPageTab2Right + 1;
+      const end = Math.min(currentPageTab2Right * rowsPerPageTab2Right, totalRows);
+      
+      pageStats.textContent = `${start}-${end} của ${totalRows}`;
+      pageInfo.textContent = `Trang ${currentPageTab2Right} / ${totalPages}`;
+      prevBtn.disabled = currentPageTab2Right <= 1;
+      nextBtn.disabled = currentPageTab2Right >= totalPages;
+    } else {
+      pageStats.textContent = `1-${totalRows} của ${totalRows}`;
+      pageInfo.textContent = `Trang 1 / 1`;
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    }
+  }
+
+  // Chuyển trang cho bảng chi tiết
+  function changePageTab2Right(delta) {
+    const newPage = currentPageTab2Right + delta;
+    renderTab2RightPanel(newPage);
+  }
+
+  // Thay đổi số dòng/trang cho bảng chi tiết
+  function changeRowsPerPageTab2Right(value) {
+    rowsPerPageTab2Right = parseInt(value);
+    renderTab2RightPanel(1); // Luôn về trang 1 khi đổi số dòng/trang
+  }
+
+  function exportDonHangExcel() {
+    if (!selectedIdDH) {
+      showNotification('Vui lòng chọn đơn hàng để xuất', 'error');
+      return;
+    }
+    
     const sum = {};
-    donHangData.filter(r => r.id_dh == selectedIdDH && r.id_sp).forEach(r => { sum[r.id_sp] = (sum[r.id_sp]||0) + toNumber(r.so_luong); });
+    donHangData.filter(r => r.id_dh == selectedIdDH && r.id_sp).forEach(r => { 
+      sum[r.id_sp] = (sum[r.id_sp]||0) + toNumber(r.so_luong); 
+    });
+    
     const arr = Object.entries(sum).map(([k,v]) => ({ "ID SP": k, "Số lượng": v }));
-    if(!arr.length) return;
-    const wb = XLSX.utils.book_new(); const ws = XLSX.utils.json_to_sheet(arr);
+    if(!arr.length) {
+      showNotification('Không có dữ liệu để xuất', 'error');
+      return;
+    }
+    
+    const wb = XLSX.utils.book_new(); 
+    const ws = XLSX.utils.json_to_sheet(arr);
     ws['!cols'] = [{ wch: 20 }, { wch: 12 }];
-    XLSX.utils.book_append_sheet(wb, ws, "SP"); XLSX.writeFile(wb, `${selectedIdDH}_SP.xlsx`);
-  };
+    XLSX.utils.book_append_sheet(wb, ws, "SP"); 
+    XLSX.writeFile(wb, `${selectedIdDH}_SP.xlsx`);
+    
+    showNotification('Xuất Excel đơn hàng thành công', 'success');
+  }
 
   /* ======================= RENDER TAB 3 (HÀNG HOÀN) ======================= */
   
@@ -468,7 +1130,10 @@
       return db - da;
     });
 
-    if (dates.length === 0) { tbody.innerHTML = `<tr><td colspan="2" class="empty-state">Không có dữ liệu hàng hoàn</td></tr>`; return; }
+    if (dates.length === 0) { 
+      tbody.innerHTML = `<tr><td colspan="2" class="empty-state">Không có dữ liệu hàng hoàn</td></tr>`; 
+      return; 
+    }
 
     const frag = new DocumentFragment();
     dates.forEach(d => {
@@ -495,14 +1160,22 @@
   function renderTab3Right() {
     const thead = document.getElementById("headerHoan");
     const tbody = document.getElementById("bodyHoan");
-    thead.innerHTML = ""; tbody.innerHTML = "";
+    thead.innerHTML = ""; 
+    tbody.innerHTML = "";
     document.getElementById("btnExportHoan").style.display = "none";
 
     const trHead = document.createElement("tr");
-    HOAN_HEADERS.forEach(h => { const th = document.createElement("th"); th.textContent = h; trHead.appendChild(th); });
+    HOAN_HEADERS.forEach(h => { 
+      const th = document.createElement("th"); 
+      th.textContent = h; 
+      trHead.appendChild(th); 
+    });
     thead.appendChild(trHead);
 
-    if (!selectedDateHoan) { tbody.innerHTML = `<tr><td colspan="${HOAN_HEADERS.length}" class="empty-state">Vui lòng chọn ngày hoàn</td></tr>`; return; }
+    if (!selectedDateHoan) { 
+      tbody.innerHTML = `<tr><td colspan="${HOAN_HEADERS.length}" class="empty-state">Vui lòng chọn ngày hoàn</td></tr>`; 
+      return; 
+    }
 
     // 1. Filtering Logic
     const filteredRows = hangHoanData.filter(r => {
@@ -519,7 +1192,10 @@
       return db - da; // Descending (Lớn nhất lên đầu)
     });
     
-    if (filteredRows.length === 0) { tbody.innerHTML = `<tr><td colspan="${HOAN_HEADERS.length}" class="empty-state">Không có dữ liệu</td></tr>`; return; }
+    if (filteredRows.length === 0) { 
+      tbody.innerHTML = `<tr><td colspan="${HOAN_HEADERS.length}" class="empty-state">Không có dữ liệu</td></tr>`; 
+      return; 
+    }
 
     // 3. Rendering Logic
     const frag = new DocumentFragment();
@@ -540,7 +1216,10 @@
 
   // 3. Xuất Excel Tab 3
   function exportTab3Excel() {
-    if (!selectedDateHoan) return;
+    if (!selectedDateHoan) {
+      showNotification('Vui lòng chọn ngày hoàn để xuất', 'error');
+      return;
+    }
     
     // 1. Filtering Logic
     const rows = hangHoanData.filter(r => {
@@ -557,11 +1236,16 @@
       return db - da;
     });
 
-    if (!rows.length) return alert("Không có dữ liệu để xuất");
+    if (!rows.length) {
+      showNotification('Không có dữ liệu để xuất', 'error');
+      return;
+    }
 
     // 3. Mapping and Export
     const exportData = rows.map(r => {
-      const o = {}; HOAN_HEADERS.forEach(c => o[c] = getHangHoanValue(r, c)); return o;
+      const o = {}; 
+      HOAN_HEADERS.forEach(c => o[c] = getHangHoanValue(r, c)); 
+      return o;
     });
 
     const ws = XLSX.utils.json_to_sheet(exportData, { header: HOAN_HEADERS });
@@ -572,24 +1256,51 @@
     XLSX.utils.book_append_sheet(wb, ws, "HANG_HOAN");
     
     XLSX.writeFile(wb, `MISA_HOAN_${safeName}.xlsx`);
+    
+    showNotification('Xuất Excel hàng hoàn thành công', 'success');
   }
 
   /* ======================= INIT ======================= */
   document.addEventListener('DOMContentLoaded', () => {
+    // Lấy giá trị mặc định khi DOMContentLoaded
+    rowsPerPage = parseInt(document.getElementById('rowsPerPage')?.value || 100);
+    rowsPerPageTab2Right = parseInt(document.getElementById('rowsPerPageTab2Right')?.value || 50);
+
+    // Tab Navigation
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(t => t.addEventListener('click', () => {
-      tabs.forEach(x => x.classList.remove('active')); t.classList.add('active');
+      tabs.forEach(x => x.classList.remove('active')); 
+      t.classList.add('active');
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.getElementById(t.getAttribute('data-tab')).classList.add('active');
     }));
-    document.addEventListener("click", (e) => {
-       if (!e.target.closest(".panel-left") && selectedIdDH) { }
-    });
+
+    // Event listeners cho Tab 1
+    document.getElementById('dateFilter').addEventListener('change', () => processFilterAndRender(1));
+    document.getElementById('searchInput').addEventListener('input', 
+      debounce(() => processFilterAndRender(1), 300)
+    );
+    document.getElementById('rowsPerPage').addEventListener('change', (e) => changeRowsPerPage(e.target.value));
+    
+    // Button Event Listeners Tab 1
+    document.getElementById('refreshBtn').addEventListener('click', loadData);
+    document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+    document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+    document.getElementById('prevPageBtn').addEventListener('click', () => changePage(-1));
+    document.getElementById('nextPageBtn').addEventListener('click', () => changePage(1));
+    
+    // Event listeners cho Tab 2 RIGHT PANEL (BẢNG CHI TIẾT)
+    document.getElementById("rowsPerPageTab2Right").addEventListener("change", (e) => changeRowsPerPageTab2Right(e.target.value));
+    document.getElementById("prevPageBtnTab2Right").addEventListener("click", () => changePageTab2Right(-1));
+    document.getElementById("nextPageBtnTab2Right").addEventListener("click", () => changePageTab2Right(1));
+    document.getElementById("btnExport").addEventListener("click", exportDonHangExcel);
+    
+    // Tab 3 Event Listeners
+    document.getElementById("btnExportHoan").addEventListener("click", exportTab3Excel);
+    
+    // Load data initially
     loadData();
   });
-  document.getElementById('dateFilter').addEventListener('change', processFilterAndRender);
-  document.getElementById('searchInput').addEventListener('input', processFilterAndRender);
-
 </script>
 </body>
 </html>
