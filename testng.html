@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hệ thống Quản lý Đơn hàng</title>
+  <style>
+    /* CSS CHUẨN */
+    :root {
+      --primary-color: #3498db;
+      --primary-hover: #2980b9;
+      --success-color: #27ae60;
+      --success-hover: #219150;
+      --danger-color: #e74c3c;
+      --warning-color: #f39c12;
+      --dark-color: #2c3e50;
+      --light-gray: #ecf0f1;
+      --medium-gray: #bdc3c7;
+      --text-color: #333;
+      --border-radius: 8px;
+      --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: #f4f6f9; 
+      margin: 0; 
+      padding: 20px; 
+      color: var(--text-color); 
+      line-height: 1.5;
+    }
+    
+    .container { 
+      max-width: 100%; 
+      margin: 0 auto; 
+      background: #fff; 
+      border-radius: var(--border-radius); 
+      box-shadow: var(--box-shadow); 
+      overflow: hidden; 
+      min-height: 90vh; 
+      display: flex; 
+      flex-direction: column; 
+      position: relative;
+    }
+    
+    /* Header */
+    .header { 
+      background: var(--dark-color); 
+      color: #fff; 
+      padding: 15px 20px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      position: relative;
+    }
+    .header h2 { 
+      margin: 0; 
+      font-size: 1.2rem; 
+    }
+
+    /* Visitor Tracking Widget */
+    .visitor-widget {
+      position: relative;
+      display: inline-block;
+    }
+
+    .visitor-icon {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .visitor-icon:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .visitor-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--danger-color);
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: bold;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .visitor-dropdown {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      width: 350px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .visitor-dropdown.show {
+      display: block;
+    }
+
+    .visitor-header {
+      padding: 12px 15px;
+      background: var(--dark-color);
+      color: white;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      font-weight: 600;
+    }
+
+    .visitor-stats {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .visitor-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .visitor-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 12px;
+    }
+
+    .visitor-item:last-child {
+      border-bottom: none;
+    }
+
+    .visitor-time {
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .visitor-details {
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .visitor-ip {
+      font-family: monospace;
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    .visitor-location, .visitor-duration {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 3px;
+    }
+
+    .empty-visitors {
+      padding: 30px;
+      text-align: center;
+      color: #999;
+      font-style: italic;
+    }
+
+    /* Các style khác giữ nguyên */
+    .tabs { 
+      display: flex; 
+      background: var(--light-gray); 
+      border-bottom: 1px solid #ddd; 
+      overflow-x: auto;
+    }
+    .tab { 
+      padding: 12px 20px; 
+      cursor: pointer; 
+      font-weight: 600; 
+      color: #555; 
+      transition: var(--transition); 
+      user-select: none; 
+      white-space: nowrap;
+    }
+    .tab:hover { 
+      background: #e0e0e0; 
+    }
+    .tab.active { 
+      background: #fff; 
+      color: var(--primary-color); 
+      border-bottom: 3px solid var(--primary-color); 
+    }
+    
+    .tab-content { 
+      display: none; 
+      padding: 20px; 
+      flex: 1; 
+      overflow-y: auto; 
+    }
+    .tab-content.active { 
+      display: block; 
+    }
+
+    .controls { 
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 15px; 
+      flex-wrap: wrap; 
+      align-items: center; 
+    }
+    .search-box { 
+      padding: 8px 12px; 
+      border: 1px solid #ddd; 
+      border-radius: 4px; 
+      width: 250px; 
+      outline: none; 
+      font-size: 14px; 
+      transition: var(--transition);
+    }
+    .search-box:focus { 
+      border-color: var(--primary-color); 
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    .btn-group { 
+      display: flex; 
+      gap: 8px; 
+    }
+    .btn { 
+      padding: 8px 15px; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 13px; 
+      font-weight: 600; 
+      display: flex; 
+      align-items: center; 
+      gap: 5px; 
+      transition: var(--transition); 
+      color: #fff; 
+    }
+    .btn-primary { 
+      background-color: var(--primary-color); 
+    } 
+    .btn-primary:hover { 
+      background-color: var(--primary-hover); 
+    }
+    .btn-success { 
+      background-color: var(--success-color); 
+    } 
+    .btn-success:hover { 
+      background-color: var(--success-hover); 
+    }
+    .btn:disabled {
+      background-color: var(--medium-gray);
+      cursor: not-allowed;
+    }
+
+    .table-wrapper { 
+      overflow-x: auto; 
+      border: 1px solid #eee; 
+      border-radius: 4px; 
+      max-height: 65vh; 
+      position: relative;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 13px; 
+      white-space: nowrap; 
+    }
+    th { 
+      background: #f8f9fa; 
+      color: #444; 
+      font-weight: 600; 
+      padding: 10px; 
+      text-align: left; 
+      border-bottom: 2px solid #ddd; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10; 
+    }
+    td { 
+      padding: 8px 10px; 
+      border-bottom: 1px solid #eee; 
+      color: #555; 
+    }
+    tr:hover { 
+      background-color: #f1f7ff; 
+    }
+    tr.cancelled-order td { 
+      text-decoration: line-through; 
+      color: #999; 
+      background-color: #fff5f5; 
+    }
+
+    .loading { 
+      display: none; 
+      text-align: center; 
+      padding: 20px; 
+      color: #666; 
+    }
+    .spinner { 
+      border: 3px solid #f3f3f3; 
+      border-top: 3px solid var(--primary-color); 
+      border-radius: 50%; 
+      width: 20px; 
+      height: 20px; 
+      animation: spin 1s linear infinite; 
+      display: inline-block; 
+      margin-bottom: 5px; 
+    }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    .stats { 
+      margin-top: 15px; 
+      display: flex; 
+      gap: 15px; 
+      font-size: 13px; 
+      color: #666; 
+      background: #fafafa; 
+      padding: 10px; 
+      border-radius: 4px; 
+      border: 1px solid #eee; 
+      flex-wrap: wrap;
+    }
+    .stats-item { 
+      display: flex; 
+      align-items: center; 
+      gap: 5px; 
+    }
+    .stats-badge { 
+      font-weight: bold; 
+      padding: 2px 6px; 
+      border-radius: 10px; 
+      background: #eee; 
+      font-size: 11px; 
+    }
+    .stats-badge.huy { 
+      background: #f8d7da; 
+      color: #721c24; 
+    }
+
+    .panel-container { 
+      display: flex; 
+      gap: 20px; 
+      height: calc(100vh - 160px); 
+    }
+    .panel { 
+      background: #fff; 
+      border: 1px solid #ddd; 
+      border-radius: 6px; 
+      display: flex; 
+      flex-direction: column; 
+      overflow: hidden; 
+    }
+    .panel-left { 
+      width: 350px; 
+      flex-shrink: 0; 
+    }
+    .panel-right { 
+      flex: 1; 
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header { 
+      padding: 10px 15px; 
+      background: #f1f3f5; 
+      font-weight: 600; 
+      border-bottom: 1px solid #ddd; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .panel-body { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 0; 
+    }
+    .panel-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+    }
+    .panel-table th { 
+      position: sticky; 
+      top: 0; 
+      background: #fff; 
+      z-index: 5; 
+      padding: 8px 10px; 
+      border-bottom: 2px solid #eee; 
+      text-align: left; 
+      font-size: 12px; 
+      color: #666; 
+    }
+    .panel-table td { 
+      padding: 8px 10px; 
+      border-bottom: 1px solid #f5f5f5; 
+      font-size: 13px; 
+      cursor: pointer; 
+    }
+    .panel-table tr:hover { 
+      background-color: #f8f9fa; 
+    }
+    .panel-table tr.selected { 
+      background-color: #e3f2fd; 
+      border-left: 4px solid var(--primary-color); 
+    }
+    .text-right { 
+      text-align: right !important; 
+    }
+    .empty-state { 
+      padding: 30px; 
+      text-align: center; 
+      color: #999; 
+      font-style: italic; 
+    }
+
+    .row-xuat { color: #2ecc71; } 
+    .row-nhap { color: #e67e22; }
+    .badge { 
+      padding: 3px 8px; 
+      border-radius: 12px; 
+      font-size: 11px; 
+      font-weight: 600; 
+      color: #fff; 
+    }
+    .badge-xuat { background-color: #ff822f; }
+    .badge-nhap { background-color: #40ff27; }
+    .badge-hoan { background-color: var(--danger-color); }
+    .row-empty-date td { 
+      font-weight: bold; 
+      background-color: #ffebee; 
+    }
+
+    .pagination-tab2-right {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      background: #fafafa;
+      border-top: 1px solid #eee;
+    }
+
+    @media (max-width: 768px) {
+      .panel-container {
+        flex-direction: column;
+        height: auto;
+      }
+      .panel-left, .panel-right {
+        width: 100%;
+      }
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-box {
+        width: 100%;
+      }
+      .btn-group {
+        width: 100%;
+        justify-content: center;
+      }
+      .pagination-tab2-right {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .visitor-dropdown {
+        width: 300px;
+        right: -50px;
+      }
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 600;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+    }
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .notification.success {
+      background-color: var(--success-color);
+    }
+    .notification.error {
+      background-color: var(--danger-color);
+    }
+    .notification.info {
+      background-color: var(--primary-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Hệ thống Quản lý Đơn hàng</h2>
+      
+      <!-- Visitor Tracking Widget -->
+      <div class="visitor-widget">
+        <div class="visitor-icon" id="visitorIcon">
+          👥
+          <div class="visitor-badge" id="visitorBadge">0</div>
+        </div>
+        <div class="visitor-dropdown" id="visitorDropdown">
+          <div class="visitor-header">
+            📊 THỐNG KÊ TRUY CẬP
+          </div>
+          <div class="visitor-stats">
+            <div class="stat-item">
+              <span>Tổng lượt truy cập:</span>
+              <span class="stat-value" id="totalVisits">0</span>
+            </div>
+            <div class="stat-item">
+              <span>Hôm nay:</span>
+              <span class="stat-value" id="todayVisits">0</span>
+            </div>
+            <div class="stat-item">
+              <span>Đang online:</span>
+              <span class="stat-value" id="onlineNow">0</span>
+            </div>
+          </div>
+          <div class="visitor-list" id="visitorList">
+            <!-- Visitor items will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rest of your existing HTML content remains the same -->
+    <div class="tabs">
+      <div class="tab active" data-tab="tab1">UP_DON_CT + Cột bổ sung</div>
+      <div class="tab" data-tab="tab2">Quản lý Đơn hàng</div>
+      <div class="tab" data-tab="tab3">Hàng Hoàn</div>
+    </div>
+
+    <div id="tab1" class="tab-content active">
+      <div class="controls">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm...">
+        <input type="date" id="dateFilter" class="search-box" style="max-width:200px;">
+        
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <label for="rowsPerPage" style="font-size: 14px; font-weight: 600;">Dòng/Trang:</label>
+          <select id="rowsPerPage" class="search-box" style="width: auto; min-width: 80px;">
+            <option value="100" selected>100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="500">500</option>
+            <option value="99999">Tất cả</option>
+          </select>
+        </div>
+        
+        <div class="btn-group">
+          <button class="btn btn-primary" id="refreshBtn"><span>🔄</span> Làm mới</button>
+          <button class="btn btn-success" id="exportCsvBtn"><span>📊</span> Xuất CSV</button>
+          <button class="btn btn-success" id="exportExcelBtn"><span>📋</span> Xuất Excel</button>
+        </div>
+
+        <div id="paginationControls" class="btn-group" style="margin-left: auto;">
+          <button class="btn btn-primary" id="prevPageBtn" disabled>← Trước</button>
+          <span id="pageInfo" style="padding: 8px 15px; font-weight: 600; background: #ecf0f1; border-radius: 4px;">Trang 0 / 0</span>
+          <button class="btn btn-primary" id="nextPageBtn" disabled>Sau →</button>
+        </div>
+      </div>
+      
+      <div id="loadingDiv" class="loading"><span class="spinner"></span><div>Đang tải dữ liệu...</div></div>
+      <div id="errorDiv" class="error" style="display:none; color: red; text-align:center; margin-bottom:10px;"></div>
+      
+      <div class="table-wrapper" id="tableWrapper" style="display:none;">
+        <table id="data-table"><thead><tr id="header-row"></tr></thead><tbody id="data-body"></tbody></table>
+      </div>
+      <div class="stats" id="statsDiv" style="display:none;"></div>
+    </div>
+
+    <div id="tab2" class="tab-content">
+      <div class="panel-container">
+        <div class="panel panel-left">
+          <div class="panel-header"><span>Danh sách đơn hàng (ID)</span></div>
+          <div class="panel-body">
+            <table class="panel-table" id="tblIdDH"><thead><tr><th>ID Đơn</th><th>Ngày</th><th class="text-right">SL</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+        
+        <div class="panel panel-right">
+          <div class="panel-header">
+            <span>Chi tiết đơn hàng</span>
+            <div class="panel-actions">
+              <div style="display: flex; align-items: center; gap: 5px;">
+                <label for="rowsPerPageTab2Right" style="font-size: 12px; font-weight: 600;">Dòng/Trang:</label>
+                <select id="rowsPerPageTab2Right" class="search-box" style="width: auto; min-width: 70px; font-size: 12px; padding: 4px 8px;">
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="300">300</option>
+                  <option value="500">500</option>
+                  <option value="99999">Tất cả</option>
+                </select>
+              </div>
+              <button class="btn btn-success" id="btnExport" style="display:none;"><span>📋</span> Xuất Excel</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <table class="panel-table" id="tblChiTiet"><thead><tr><th>Ngày</th><th>Trạng thái</th><th>NCC</th><th>Kho</th><th>ID SP</th><th class="text-right">Số lượng</th><th>Thương hiệu</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div class="pagination-tab2-right">
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <span style="font-size: 13px; font-weight: 600;">Hiển thị:</span>
+              <span id="pageStatsTab2Right" style="font-size: 13px;">0-0 của 0</span>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-primary" id="prevPageBtnTab2Right" disabled>← Trước</button>
+              <span id="pageInfoTab2Right" style="padding: 6px 12px; font-weight: 600; background: #ecf0f1; border-radius: 4px; font-size: 12px;">Trang 0 / 0</span>
+              <button class="btn btn-primary" id="nextPageBtnTab2Right" disabled>Sau →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab3" class="tab-content">
+      <div class="panel-container">
+        <div class="panel panel-left">
+          <div class="panel-header"><span>Danh sách Ngày Hoàn</span></div>
+          <div class="panel-body">
+            <table class="panel-table" id="tblNgayHoan"><thead><tr><th>Ngày hoàn MISA</th><th class="text-right">Số dòng</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+        <div class="panel panel-right">
+          <div class="panel-header">
+            <span>Chi tiết Đơn Hoàn (MISA)</span>
+            <div class="panel-actions">
+              <button class="btn btn-success" id="btnExportHoan" style="display:none;"><span>📋</span> Xuất Excel MISA</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <table class="panel-table" id="tblChiTietHoan"><thead id="headerHoan"></thead><tbody id="bodyHoan"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="notification" class="notification"></div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+
+<script>
+  // ======================= VISITOR TRACKING SYSTEM =======================
+  class VisitorTracker {
+    constructor() {
+      this.storageKey = 'website_visitors';
+      this.currentSessionId = this.generateSessionId();
+      this.cleanupInterval = 24 * 60 * 60 * 1000; // 24 hours
+      this.init();
+    }
+
+    generateSessionId() {
+      return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    async init() {
+      this.recordVisit();
+      this.setupCleanup();
+      this.updateDisplay();
+      
+      // Update online status every 30 seconds
+      setInterval(() => this.updateOnlineStatus(), 30000);
+      
+      // Auto-hide dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('visitorDropdown');
+        const icon = document.getElementById('visitorIcon');
+        if (!dropdown.contains(e.target) && !icon.contains(e.target)) {
+          dropdown.classList.remove('show');
+        }
+      });
+    }
+
+    async recordVisit() {
+      const visitors = this.getVisitors();
+      const now = new Date();
+      
+      try {
+        // Get IP and location
+        const ipInfo = await this.getIPInfo();
+        
+        const visitorData = {
+          id: this.currentSessionId,
+          timestamp: now.toISOString(),
+          ip: ipInfo.ip,
+          country: ipInfo.country,
+          city: ipInfo.city,
+          browser: this.getBrowserInfo(),
+          device: this.getDeviceInfo(),
+          lastActive: now.toISOString(),
+          visitCount: 1
+        };
+
+        // Check if this IP visited recently
+        const existingVisitor = visitors.find(v => v.ip === ipInfo.ip);
+        if (existingVisitor) {
+          existingVisitor.lastActive = now.toISOString();
+          existingVisitor.visitCount += 1;
+          // Update location if available
+          if (ipInfo.country) {
+            existingVisitor.country = ipInfo.country;
+            existingVisitor.city = ipInfo.city;
+          }
+        } else {
+          visitors.push(visitorData);
+        }
+
+        this.saveVisitors(visitors);
+        this.updateDisplay();
+      } catch (error) {
+        console.log('Could not get IP info, using fallback data');
+        this.recordVisitWithFallback();
+      }
+    }
+
+    recordVisitWithFallback() {
+      const visitors = this.getVisitors();
+      const now = new Date();
+      
+      const visitorData = {
+        id: this.currentSessionId,
+        timestamp: now.toISOString(),
+        ip: 'Unknown',
+        country: 'Unknown',
+        city: 'Unknown',
+        browser: this.getBrowserInfo(),
+        device: this.getDeviceInfo(),
+        lastActive: now.toISOString(),
+        visitCount: 1
+      };
+
+      visitors.push(visitorData);
+      this.saveVisitors(visitors);
+      this.updateDisplay();
+    }
+
+    async getIPInfo() {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        
+        // For demo purposes, we'll use mock location data
+        // In a real application, you'd use a service like ipapi.co or ipgeolocation.io
+        const mockLocations = [
+          { country: 'Vietnam', city: 'Hà Nội' },
+          { country: 'Vietnam', city: 'TP.HCM' },
+          { country: 'Vietnam', city: 'Đà Nẵng' },
+          { country: 'United States', city: 'New York' },
+          { country: 'Japan', city: 'Tokyo' }
+        ];
+        
+        const randomLocation = mockLocations[Math.floor(Math.random() * mockLocations.length)];
+        
+        return {
+          ip: data.ip,
+          country: randomLocation.country,
+          city: randomLocation.city
+        };
+      } catch (error) {
+        throw new Error('IP info unavailable');
+      }
+    }
+
+    getBrowserInfo() {
+      const ua = navigator.userAgent;
+      if (ua.includes('Chrome')) return 'Chrome';
+      if (ua.includes('Firefox')) return 'Firefox';
+      if (ua.includes('Safari')) return 'Safari';
+      if (ua.includes('Edge')) return 'Edge';
+      return 'Unknown';
+    }
+
+    getDeviceInfo() {
+      const ua = navigator.userAgent;
+      if (ua.includes('Mobile')) return 'Mobile';
+      if (ua.includes('Tablet')) return 'Tablet';
+      return 'Desktop';
+    }
+
+    getVisitors() {
+      const stored = localStorage.getItem(this.storageKey);
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    saveVisitors(visitors) {
+      localStorage.setItem(this.storageKey, JSON.stringify(visitors));
+    }
+
+    setupCleanup() {
+      // Clean up old visitors every hour
+      setInterval(() => this.cleanupOldVisitors(), 60 * 60 * 1000);
+      this.cleanupOldVisitors(); // Run immediately
+    }
+
+    cleanupOldVisitors() {
+      const visitors = this.getVisitors();
+      const now = new Date();
+      const twentyFourHoursAgo = new Date(now.getTime() - this.cleanupInterval);
+
+      const filteredVisitors = visitors.filter(visitor => {
+        const visitTime = new Date(visitor.timestamp);
+        return visitTime > twentyFourHoursAgo;
+      });
+
+      if (filteredVisitors.length !== visitors.length) {
+        this.saveVisitors(filteredVisitors);
+        this.updateDisplay();
+      }
+    }
+
+    updateOnlineStatus() {
+      const visitors = this.getVisitors();
+      const now = new Date();
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+
+      visitors.forEach(visitor => {
+        if (visitor.id === this.currentSessionId) {
+          visitor.lastActive = now.toISOString();
+        }
+      });
+
+      this.saveVisitors(visitors);
+      this.updateDisplay();
+    }
+
+    updateDisplay() {
+      const visitors = this.getVisitors();
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+
+      // Calculate stats
+      const totalVisits = visitors.length;
+      const todayVisits = visitors.filter(v => new Date(v.timestamp) >= todayStart).length;
+      const onlineNow = visitors.filter(v => new Date(v.lastActive) >= fiveMinutesAgo).length;
+
+      // Update badge and stats
+      document.getElementById('visitorBadge').textContent = totalVisits;
+      document.getElementById('totalVisits').textContent = totalVisits;
+      document.getElementById('todayVisits').textContent = todayVisits;
+      document.getElementById('onlineNow').textContent = onlineNow;
+
+      // Update visitor list
+      this.updateVisitorList(visitors);
+    }
+
+    updateVisitorList(visitors) {
+      const visitorList = document.getElementById('visitorList');
+      
+      if (visitors.length === 0) {
+        visitorList.innerHTML = '<div class="empty-visitors">Chưa có lượt truy cập nào</div>';
+        return;
+      }
+
+      // Sort by most recent first
+      const sortedVisitors = [...visitors].sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+      );
+
+      visitorList.innerHTML = sortedVisitors.map(visitor => {
+        const visitTime = new Date(visitor.timestamp);
+        const duration = this.calculateDuration(visitTime);
+        
+        return `
+          <div class="visitor-item">
+            <div class="visitor-time">
+              <span>🕒 ${this.formatTime(visitTime)}</span>
+              <span>-</span>
+              <span>${visitor.browser} ${visitor.device !== 'Desktop' ? `(${visitor.device})` : ''}</span>
+            </div>
+            <div class="visitor-details">
+              <div>
+                <span class="visitor-ip">IP: ${visitor.ip}</span>
+              </div>
+              <div class="visitor-location">
+                <span>📍 ${visitor.city}, ${visitor.country}</span>
+              </div>
+              <div class="visitor-duration">
+                <span>⏱️ ${duration}</span>
+                <span>•</span>
+                <span>${visitor.visitCount} lượt</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    calculateDuration(startTime) {
+      const now = new Date();
+      const diffMs = now - startTime;
+      const diffMins = Math.floor(diffMs / 60000);
+      
+      if (diffMins < 1) return 'Vừa xong';
+      if (diffMins < 60) return `${diffMins} phút trước`;
+      
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours} giờ trước`;
+      
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays} ngày trước`;
+    }
+
+    formatTime(date) {
+      return date.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }) + ' ' + date.toLocaleDateString('vi-VN');
+    }
+  }
+
+  // Initialize visitor tracking
+  const visitorTracker = new VisitorTracker();
+
+  // Toggle dropdown visibility
+  document.getElementById('visitorIcon').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dropdown = document.getElementById('visitorDropdown');
+    dropdown.classList.toggle('show');
+    visitorTracker.updateDisplay(); // Refresh data when opening
+  });
+
+  // ======================= EXISTING APPLICATION CODE =======================
+  // (Your existing JavaScript code for the order management system goes here)
+  // This would include all the existing functionality for tabs, data loading, etc.
+
+  // Placeholder for existing application initialization
+  document.addEventListener('DOMContentLoaded', function() {
+    // Your existing application initialization code
+    console.log('Application loaded');
+    
+    // Initialize visitor tracking (already done above)
+    // Your existing tab navigation, data loading, etc.
+  });
+
+</script>
+</body>
+</html>
