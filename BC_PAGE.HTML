@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BÁO CÁO CHI TIẾT ĐƠN HÀNG</title>
+<style>
+/* CSS cho giao diện tổng thể và các biến màu */
+:root{
+  --primary:#3498db;--secondary:#2c3e50;--success:#27ae60;--danger:#e74c3c;
+  --warning:#f39c12;--info:#17a2b8;--light:#f8f9fa;--dark:#343a40;
+  --transition:all .3s ease;--box-shadow:0 4px 12px rgba(0,0,0,.08);
+  --border-radius:8px;
+}
+* {
+  box-sizing: border-box;
+}
+body{
+  font-family:'Segoe UI', 'Roboto', sans-serif;
+  background:#f0f4f8;
+  margin:0;
+  padding:20px;
+  color:#333;
+  line-height:1.5;
+}
+.container{
+  background:#fff;
+  border-radius:var(--border-radius);
+  box-shadow:var(--box-shadow);
+  max-width:1400px;
+  margin:0 auto;
+  overflow:hidden;
+}
+.header{
+  background:linear-gradient(135deg, var(--primary), var(--secondary));
+  color:#fff;
+  text-align:center;
+  padding:25px 20px;
+  position:relative;
+}
+.header h2 {
+  margin:0;
+  font-weight:600;
+  font-size:1.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+/* CSS cho Filter Controls */
+.filter-section {
+  padding:20px;
+  background:#f8fafc;
+  border-bottom:1px solid #e1e8f0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+}
+.filter-group {
+  flex:1;
+  min-width:200px;
+}
+.filter-label {
+  font-size:14px;
+  color:#555;
+  margin-bottom:8px;
+  font-weight:600;
+  display:block;
+}
+.filter-buttons-container {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.btn-filter {
+  padding:8px 14px;
+  border:1px solid #d1d9e6;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+  background-color:#fff;
+  color:#333;
+  transition:var(--transition);
+  flex-shrink:0;
+}
+.btn-filter.active {
+  background-color:var(--primary);
+  border-color:var(--primary);
+  color:#fff;
+  box-shadow:0 2px 4px rgba(52,152,219,0.3);
+}
+.btn-filter:hover:not(.active) {
+  background-color:#f0f3f8;
+  transform:translateY(-1px);
+}
+
+.quick-filter-bar {
+  padding:15px 20px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  border-bottom:1px solid #e1e8f0;
+  background:#f8fafc;
+}
+.btn-quick {
+  padding:8px 16px;
+  border:1px solid #d1d9e6;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+  background-color:#fff;
+  color:#333;
+  transition:var(--transition);
+  margin-bottom:0;
+  font-weight:500;
+}
+.btn-quick.active, .btn-quick:hover {
+  background-color:var(--primary);
+  border-color:var(--primary);
+  color:#fff;
+  box-shadow:0 2px 4px rgba(52,152,219,0.3);
+}
+
+.controls-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:15px;
+  padding:20px;
+  background:#f8fafc;
+}
+.input-group {
+  display:flex;
+  flex-direction:column;
+}
+.input-group label {
+  font-size:13px;
+  color:#555;
+  margin-bottom:6px;
+  font-weight:500;
+}
+.filter-input {
+  padding:10px 12px;
+  border:1px solid #d1d9e6;
+  border-radius:6px;
+  font-size:14px;
+  background-color:#fff;
+  transition:border-color .2s;
+  width:100%; 
+  box-sizing:border-box;
+}
+.filter-input:focus {
+  border-color:var(--primary);
+  outline:none;
+  box-shadow:0 0 0 3px rgba(52,152,219,0.1);
+}
+.action-buttons {
+  display:flex;
+  flex-direction:row;
+  align-items:flex-end; 
+  gap:10px;
+}
+.btn {
+  padding:10px 16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:500;
+  transition:var(--transition);
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+.btn-primary {
+  background:var(--primary);
+  color:#fff;
+  box-shadow:0 2px 4px rgba(52,152,219,0.3);
+}
+.btn-secondary {
+  background:#e9ecef;
+  color:#495057;
+}
+.btn:hover{
+  opacity:0.9;
+  transform:translateY(-1px);
+}
+
+/* CSS cho Summary Metrics */
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:20px;
+  padding:25px 20px;
+  background:#fff;
+}
+.metric-box{
+  background:#fff;
+  padding:20px;
+  border-radius:var(--border-radius);
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  border-left:4px solid var(--primary);
+  transition:var(--transition);
+  display:flex;
+  flex-direction:column;
+}
+.metric-box:hover {
+  transform:translateY(-3px);
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+.metric-box.danger{border-left-color:var(--danger)}
+.metric-box.success{border-left-color:var(--success)}
+.metric-box.warning{border-left-color:var(--warning)}
+.metric-title{
+  font-size:13px;
+  color:#777;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  font-weight:600;
+  letter-spacing:0.5px;
+}
+.metric-value{
+  font-size:22px;
+  font-weight:700;
+  color:#333;
+}
+.metric-value.negative{color:var(--danger)}
+.metric-value.positive{color:var(--success)}
+
+/* CSS cho Bảng Dữ liệu */
+.table-section {
+  padding:0 20px 20px;
+}
+.table-wrapper{
+  overflow-x:auto;
+  border:1px solid #e1e8f0;
+  border-radius:var(--border-radius);
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+  min-width:1400px;
+}
+th,td{
+  border:1px solid #e8edf5;
+  padding:12px 10px;
+  text-align:left;
+  white-space:nowrap;
+}
+th{
+  background:#f0f3fa;
+  position:sticky;
+  top:0;
+  z-index:1;
+  font-weight:600;
+  color:#2c3e50;
+}
+tr:nth-child(even){background:#fafcff}
+tr:hover{background:#f0f5ff}
+.loading{
+  text-align:center;
+  padding:40px;
+  font-size:16px;
+  color:var(--primary);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:15px;
+}
+.loading:after {
+  content:"";
+  width:40px;
+  height:40px;
+  border:4px solid #f3f3f3;
+  border-top:4px solid var(--primary);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* CSS cho Pagination */
+.pagination-controls{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 20px;
+  background:#fff;
+  border-top:1px solid #eee;
+  flex-wrap:wrap;
+  gap:15px;
+}
+.page-size-select{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:14px;
+}
+.pagination-info{
+  font-size:14px;
+  color:#555;
+}
+.pagination-buttons{
+  display:flex;
+  gap:5px;
+}
+.pagination-buttons button{
+  padding:8px 12px;
+  border:1px solid #ddd;
+  border-radius:4px;
+  background:#fff;
+  cursor:pointer;
+  transition:var(--transition);
+  font-size:13px;
+  min-width:40px;
+}
+.pagination-buttons button:hover:not(:disabled){
+  background:#f0f0f0;
+}
+.pagination-buttons button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+.pagination-buttons .active{
+  background:var(--primary);
+  color:#fff;
+  border-color:var(--primary);
+}
+.pagination-buttons span {
+  padding:8px 4px;
+  font-size:13px;
+  color:#777;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .summary-grid{grid-template-columns:1fr 1fr;}
+  .pagination-controls{flex-direction:column;align-items:flex-start;gap:15px;}
+  .controls-grid{grid-template-columns:1fr;}
+  .action-buttons{flex-direction:row;}
+  .filter-section{flex-direction:column;}
+  .header h2{font-size:1.3rem;}
+}
+@media(max-width:480px){
+  .summary-grid{grid-template-columns:1fr;}
+  body{padding:10px;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h2>📋 Báo cáo Chi tiết Đơn Hàng</h2>
+  </div>
+
+  <!-- KHU VỰC LỌC NHANH NGÀY THÁNG -->
+ 
+  
+  <!-- KHU VỰC LỌC NÚT BẤM (TÌNH TRẠNG & TRẠNG THÁI) -->
+  
+
+  <!-- KHU VỰC TÓM TẮT CHỈ SỐ -->
+  <div id="summaryMetrics" class="summary-grid">
+    <div class="metric-box">
+      <div class="metric-title">1. Tổng Đơn Hàng</div>
+      <div class="metric-value" id="totalOrders">...</div>
+    </div>
+    <div class="metric-box success">
+      <div class="metric-title">2. Tổng Doanh Thu (Bán)</div>
+      <div class="metric-value" id="totalRevenue">...</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-title">3. Tổng Giá Vốn (Nhập)</div>
+      <div class="metric-value" id="totalCost">...</div>
+      </div>
+    <div class="metric-box">
+      <div class="metric-title">4. Tổng QC Phân Bổ</div>
+      <div class="metric-value" id="totalAdCost">...</div>
+    </div>
+    <div class="metric-box danger">
+      <div class="metric-title">5. Số Đơn Hoàn/Hủy</div>
+      <div class="metric-value" id="totalCanceledOrders">...</div>
+    </div>
+    <div class="metric-box danger">
+      <div class="metric-title">6. Chi Phí Hoàn Hủy (LN)</div>
+      <div class="metric-value" id="costOfCanceledOrders">...</div>
+    </div>
+    <div class="metric-box success">
+      <div class="metric-title">7. Lợi Nhuận Ròng</div>
+      <div class="metric-value" id="netProfit">...</div>
+    </div>
+  </div>
+  
+
+  <!-- KHU VỰC ĐIỀU KHIỂN LỌC TRUYỀN THỐNG -->
+  <div class="controls-grid" id="filterControls">
+    <!-- Ô Tìm kiếm chung -->
+    <div class="input-group">
+      <label for="globalSearch">Tìm kiếm chung:</label>
+      <input type="text" id="globalSearch" class="filter-input" placeholder="Nhập mã đơn, mã shop, tình trạng..." onkeyup="applyFilters()"/>
+    </div>
+    <div class="input-group">
+      <label for="fromDate">Từ Ngày:</label>
+      <input type="date" id="fromDate" class="filter-input" onchange="applyFilters()"/>
+    </div>
+    <div class="input-group">
+      <label for="toDate">Tới Ngày:</label>
+      <input type="date" id="toDate" class="filter-input" onchange="applyFilters()"/>
+    </div>
+    <!-- Select Box Mã Shop -->
+    <div class="input-group">
+      <label for="shopCodeFilter">Mã Shop:</label>
+      <select id="ma_shopFilter" class="filter-input" onchange="applyFilters()"></select>
+    </div>
+    
+    <div class="input-group action-buttons">
+      <button class="btn btn-primary" onclick="applyFilters()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z" fill="currentColor"/>
+        </svg>
+        Lọc Lại
+      </button>
+      <button class="btn btn-secondary" onclick="clearFilters()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="currentColor"/>
+        </svg>
+        Xóa Lọc
+      </button>
+    </div>
+  </div>
+  <div class="filter-section">
+    <div class="filter-group">
+      <div class="filter-label">Tình Trạng:</div>
+      <div id="tinh_trangButtons" class="filter-buttons-container" data-filter-col="tinh_trang">
+        <!-- Nút bấm được chèn bằng JS -->
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Trạng Thái:</div>
+      <div id="trang_thaiButtons" class="filter-buttons-container" data-filter-col="trang_thai">
+        <!-- Nút bấm được chèn bằng JS -->
+      </div>
+    </div>
+  </div>
+<div class="quick-filter-bar" id="quickFilterBar">
+    <button class="btn-quick" id="btn-today" onclick="setQuickFilter('today')">Hôm Nay</button>
+    <button class="btn-quick" id="btn-yesterday" onclick="setQuickFilter('yesterday')">Hôm Qua</button>
+    <button class="btn-quick" id="btn-this-week" onclick="setQuickFilter('this-week')">Tuần Này</button>
+    <button class="btn-quick" id="btn-last-week" onclick="setQuickFilter('last-week')">Tuần Trước</button>
+    <button class="btn-quick" id="btn-this-month" onclick="setQuickFilter('this-month')">Tháng Này</button>
+  </div>
+  <!-- BẢNG DỮ LIỆU -->
+  <div id="dataSection" class="table-section">
+    <div class="loading" id="loadingIndicator">Đang tải toàn bộ dữ liệu...</div>
+    <div class="table-wrapper" id="tableWrapper" style="display:none;">
+      <table id="data-table">
+        <thead><tr id="header-row"></tr></thead>
+        <tbody id="data-body"></tbody>
+      </table>
+    </div>
+    <!-- KHU VỰC PHÂN TRANG -->
+    <div id="paginationControls" class="pagination-controls" style="display:none;">
+      <div class="page-size-select">
+        Hiển thị:
+        <select id="pageSizeSelect" onchange="changePageSize(this.value)">
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="400">400</option>
+          <option value="500">500</option>
+        </select>
+        dòng
+      </div>
+      <div id="paginationInfo" class="pagination-info"></div>
+      <div id="paginationButtons" class="pagination-buttons"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// URL API - Đảm bảo URL này là URL thực tế của bạn
+const API_URL = "https://script.google.com/macros/s/AKfycbwhIPBU-5nj95IYYWvb5RS1DodSHE709w2d4UupOv6AES0B9dL2lQ8RMOoVKYVBbLU/exec";
+let originalData = []; // Dữ liệu gốc sau khi tải
+let filteredData = []; // Dữ liệu sau khi đã được lọc
+let currentPage = 1;
+let pageSize = 50; 
+
+// Biến lưu trữ giá trị lọc nút bấm
+const activeButtonFilters = {
+  tinh_trang: '', // Giá trị được chọn cho Tình Trạng
+  trang_thai: '' // Giá trị được chọn cho Trạng Thái
+};
+
+// Biến lưu trữ bộ lọc nhanh đang áp dụng
+let currentQuickFilter = null; 
+
+/* Danh sách các cột muốn hiển thị */
+const DISPLAY_COLS = [
+  "STT", "Ngày nhập", "ma_shop", "mvd", "mdh", "all_id_sp", "thanh_tien_nhap", 
+  "thanh_tien_ban", "phan_bo_quang_cao", "loi_nhuan", "tinh_trang", "trang_thai", "udt"
+];
+
+/* Hàm hỗ trợ định dạng tiền tệ */
+function formatCurrency(number) {
+  if (typeof number !== 'number' || isNaN(number)) return '0';
+  return number.toLocaleString('vi-VN');
+}
+
+/* Hàm chuyển đổi định dạng ngày dd/mm/yyyy sang đối tượng Date */
+function parseDateVi(dateString) {
+  if (!dateString) return null;
+  // Xử lý các định dạng ngày phổ biến (dd/mm/yyyy hoặc dd-mm-yyyy, bỏ qua phần giờ nếu có)
+  const parts = dateString.split(/[\/\-| ]/).filter(p => p.trim()).map(p => p.trim());
+  if (parts.length >= 3) {
+    // Cần đảm bảo thứ tự ngày/tháng/năm
+    const [day, month, year] = parts.slice(0, 3).map(Number);
+    // Trả về ngày đầu tiên của ngày (00:00:00)
+    return new Date(year, month - 1, day); 
+  }
+  return null;
+}
+
+/* Hàm chuyển đổi Date sang chuỗi YYYY-MM-DD (cho input type="date") */
+function formatDate(date) {
+  const d = new Date(date);
+  let month = '' + (d.getMonth() + 1);
+  let day = '' + d.getDate();
+  const year = d.getFullYear();
+
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+
+/* Hàm lấy giá trị số từ chuỗi dữ liệu (xử lý dấu phẩy) */
+function getNumericValue(row, key) {
+  const content = row[key] || "";
+  const num = parseFloat(String(content).replace(/,/g, ''));
+  return isNaN(num) ? 0 : num;
+}
+
+
+/* ===== Load dữ liệu ban đầu ===== */
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("loadingIndicator").style.display = "block";
+  document.getElementById("tableWrapper").style.display = "none";
+  document.getElementById("paginationControls").style.display = "none";
+
+  fetch(API_URL)
+    .then(r => r.json())
+    .then(data => {
+      const sheetData = data.find(s => s.sheetName === "ĐƠN_HÀNG");
+      // Lấy dữ liệu và bỏ qua hàng tiêu đề đầu tiên nếu cần
+      originalData = (sheetData && Array.isArray(sheetData.data)) ? sheetData.data : [];
+      
+      // Sắp xếp theo cột 'Ngày nhập' giảm dần (mới nhất lên trên)
+      originalData.sort((a, b) => {
+        const dateA = parseDateVi(a['Ngày nhập']);
+        const dateB = parseDateVi(b['Ngày nhập']);
+        return (dateB ? dateB.getTime() : 0) - (dateA ? dateA.getTime() : 0);
+      });
+
+      // 1. Điền giá trị duy nhất vào bộ lọc
+      populateFilters(originalData);
+
+      // 2. Thiết lập lọc mặc định là Hôm Nay
+      setQuickFilter('today'); 
+      // applyFilters() được gọi bên trong setQuickFilter
+
+      document.getElementById("loadingIndicator").style.display = "none";
+      // tableWrapper hiển thị sau khi applyFilters() hoàn thành
+    })
+    .catch(e => {
+      console.error("Lỗi tải dữ liệu:", e);
+      document.getElementById("loadingIndicator").textContent = "Lỗi: Không thể tải dữ liệu.";
+    });
+});
+
+
+/* ===== Lọc Nhanh Ngày Tháng (Quick Filters) ===== */
+
+function setQuickFilter(period) {
+  const now = new Date();
+  let startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Đặt về 00:00:00
+  let endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); 
+  
+  // Bỏ highlight cũ và highlight nút mới
+  document.querySelectorAll('.btn-quick').forEach(btn => btn.classList.remove('active'));
+  const newActiveBtn = document.getElementById(`btn-${period}`);
+  if (newActiveBtn) newActiveBtn.classList.add('active');
+
+  currentQuickFilter = period;
+
+  switch (period) {
+    case 'today':
+      // startDate và endDate đã là hôm nay
+      break;
+    case 'yesterday':
+      startDate.setDate(now.getDate() - 1);
+      endDate.setDate(now.getDate() - 1);
+      break;
+    case 'this-week':
+      // 0 là Chủ Nhật, 1 là Thứ Hai. Muốn bắt đầu từ Thứ Hai (đặt 1 là ngày đầu tuần)
+      const dayOfWeek = (now.getDay() === 0) ? 6 : now.getDay() - 1; 
+      startDate.setDate(now.getDate() - dayOfWeek);
+      endDate.setDate(startDate.getDate() + 6); 
+      break;
+    case 'last-week':
+      const lastWeekStartDay = now.getDay() === 0 ? 6 : now.getDay() - 1;
+      startDate.setDate(now.getDate() - lastWeekStartDay - 7);
+      endDate.setDate(startDate.getDate() + 6);
+      break;
+    case 'this-month':
+      startDate.setDate(1); 
+      endDate.setMonth(now.getMonth() + 1);
+      endDate.setDate(0);
+      break;
+    default:
+      currentQuickFilter = null; // Vô hiệu hóa quick filter nếu là clearFilters
+      return;
+  }
+
+  const toDateInput = document.getElementById('toDate');
+  const fromDateInput = document.getElementById('fromDate');
+  
+  fromDateInput.value = formatDate(startDate);
+  toDateInput.value = formatDate(endDate);
+  
+  applyFilters();
+}
+
+
+/* ===== Xử lý Bộ lọc Dữ liệu (Bao gồm Tìm kiếm chung) ===== */
+
+// Hàm điền các giá trị duy nhất vào Select Box (Mã Shop) và Button Groups (Tình Trạng, Trạng Thái)
+function populateFilters(data) {
+  // 1. Populate Mã Shop (Select Box)
+  const maShopSelectEl = document.getElementById('ma_shopFilter');
+  const uniqueMaShop = [...new Set(data.map(r => r['ma_shop']).filter(v => v !== null && v !== undefined && v !== ''))].sort();
+  maShopSelectEl.innerHTML = '<option value="">-- Tất cả --</option>';
+  uniqueMaShop.forEach(val => {
+    const option = document.createElement('option');
+    option.value = val;
+    option.textContent = val;
+    maShopSelectEl.appendChild(option);
+  });
+
+  // 2. Populate Tình Trạng & Trạng Thái (Buttons)
+  ['tinh_trang', 'trang_thai'].forEach(col => {
+    const containerEl = document.getElementById(col + 'Buttons'); 
+    if (!containerEl) return;
+    
+    const uniqueValues = [...new Set(data.map(r => r[col]).filter(v => v !== null && v !== undefined && v !== ''))].sort();
+    
+    containerEl.innerHTML = '';
+
+    // Thêm nút 'Tất cả'
+    const allButton = document.createElement('button');
+    allButton.className = 'btn-filter active'; // Mặc định là 'Tất cả' được chọn
+    allButton.textContent = '-- Tất cả --';
+    allButton.setAttribute('data-value', '');
+    allButton.setAttribute('onclick', `setButtonFilter('${col}', '')`);
+    containerEl.appendChild(allButton);
+
+    // Thêm các nút giá trị duy nhất
+    uniqueValues.forEach(val => {
+      const button = document.createElement('button');
+      button.className = 'btn-filter';
+      button.textContent = val;
+      button.setAttribute('data-value', val);
+      button.setAttribute('onclick', `setButtonFilter('${col}', '${val}')`);
+      containerEl.appendChild(button);
+    });
+  });
+}
+
+// Hàm xử lý khi nhấn nút lọc (Tình Trạng/Trạng Thái)
+function setButtonFilter(col, value) {
+  // Cập nhật trạng thái
+  activeButtonFilters[col] = value;
+
+  // Highlight nút
+  const containerEl = document.getElementById(col + 'Buttons');
+  containerEl.querySelectorAll('.btn-filter').forEach(btn => {
+    if (btn.getAttribute('data-value') === value) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
+  // Áp dụng bộ lọc
+  applyFilters();
+}
+
+
+// Hàm áp dụng tất cả các bộ lọc (Date, Selects, Buttons, Search)
+function applyFilters() {
+  document.getElementById("loadingIndicator").style.display = "block";
+  document.getElementById("tableWrapper").style.display = "none";
+  document.getElementById("paginationControls").style.display = "none";
+
+  const fromDateStr = document.getElementById('fromDate').value;
+  const toDateStr = document.getElementById('toDate').value;
+  // Select Box
+  const shopCode = document.getElementById('ma_shopFilter').value;
+  // Button Filters
+  const tinhTrang = activeButtonFilters.tinh_trang;
+  const trangThai = activeButtonFilters.trang_thai;
+  // Tìm kiếm chung 
+  const searchTerm = document.getElementById('globalSearch').value.toLowerCase().trim();
+
+  // Chuyển ngày YYYY-MM-DD từ input sang đối tượng Date để so sánh
+  const fromDate = fromDateStr ? new Date(fromDateStr + "T00:00:00") : null;
+  const toDate = toDateStr ? new Date(toDateStr + "T23:59:59") : null;
+
+  const filtered = originalData.filter(r => {
+    
+    // 1. Lọc theo Ngày nhập
+    let passesDate = true;
+    const dataDate = parseDateVi(r['Ngày nhập']);
+    
+    if (dataDate) {
+      if (fromDate && dataDate.getTime() < fromDate.getTime()) passesDate = false;
+      // So sánh với toDate, đảm bảo toDate bao gồm cả ngày đó (23:59:59)
+      if (toDate && dataDate.getTime() > toDate.getTime()) passesDate = false; 
+    } else if (fromDate || toDate) {
+      passesDate = false; 
+    }
+
+    // 2. Lọc theo Mã Shop (Select Box)
+    const passesShop = !shopCode || (r['ma_shop'] || '').includes(shopCode);
+    
+    // 3. Lọc theo Tình trạng (Button)
+    const passesTinhTrang = !tinhTrang || (r['tinh_trang'] || '') === tinhTrang;
+    
+    // 4. Lọc theo Trạng thái (Button)
+    const passesTrangThai = !trangThai || (r['trang_thai'] || '') === trangThai;
+
+    // 5. Lọc theo Tìm kiếm chung 
+    let passesSearch = true;
+    if (searchTerm) {
+      // Kiểm tra xem giá trị tìm kiếm có tồn tại trong BẤT KỲ cột nào của hàng không
+      passesSearch = Object.values(r).some(val => 
+        String(val || '').toLowerCase().includes(searchTerm)
+      );
+    }
+
+    return passesDate && passesShop && passesTinhTrang && passesTrangThai && passesSearch;
+  });
+
+  filteredData = filtered;
+
+  // Cập nhật Tóm tắt
+  calculateSummary(filteredData);
+
+  // Reset phân trang về trang 1 sau khi lọc
+  currentPage = 1;
+  renderPaginatedTable();
+
+  // Ẩn/hiện Loading và Bảng
+  document.getElementById("loadingIndicator").style.display = "none";
+  document.getElementById("tableWrapper").style.display = "block";
+
+  // Hiển thị/Ẩn điều khiển phân trang
+  if (filteredData.length > pageSize) {
+    document.getElementById("paginationControls").style.display = "flex";
+  } else {
+    document.getElementById("paginationControls").style.display = "none";
+  }
+}
+
+// Hàm xóa tất cả bộ lọc
+function clearFilters() {
+  // Xóa lọc ngày tháng
+  document.getElementById('fromDate').value = '';
+  document.getElementById('toDate').value = '';
+
+  // Xóa lọc select box
+  document.getElementById('ma_shopFilter').value = '';
+
+  // Xóa lọc nút bấm
+  ['tinh_trang', 'trang_thai'].forEach(col => {
+    setButtonFilter(col, ''); // Đặt lại về giá trị rỗng (Tất cả)
+  });
+
+  // Xóa tìm kiếm chung
+  document.getElementById('globalSearch').value = '';
+  
+  // Bỏ highlight trên các nút lọc nhanh ngày tháng
+  document.querySelectorAll('.btn-quick').forEach(btn => btn.classList.remove('active'));
+  currentQuickFilter = null;
+  
+  applyFilters();
+}
+
+
+/* ===== PHÂN TRANG (PAGINATION) FUNCTIONS ===== */
+
+// Thay đổi số lượng dòng hiển thị trên mỗi trang
+function changePageSize(size) {
+  pageSize = parseInt(size);
+  currentPage = 1; // Luôn quay về trang đầu tiên khi đổi kích thước trang
+  renderPaginatedTable();
+}
+
+// Chuyển đến một trang cụ thể
+function goToPage(page) {
+  const totalPages = Math.ceil(filteredData.length / pageSize);
+  if (page >= 1 && page <= totalPages) {
+    currentPage = page;
+    renderPaginatedTable();
+  }
+}
+
+// Hiển thị bảng với dữ liệu đã được phân trang
+function renderPaginatedTable() {
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const dataToDisplay = filteredData.slice(startIndex, endIndex);
+
+  renderTable(dataToDisplay, startIndex); 
+  renderPaginationControls();
+}
+
+// Hiển thị các nút điều khiển phân trang
+function renderPaginationControls() {
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalItems);
+  const info = document.getElementById('paginationInfo');
+  const buttonsContainer = document.getElementById('paginationButtons');
+
+  if (totalItems === 0) {
+    info.textContent = "Không có dữ liệu";
+    buttonsContainer.innerHTML = "";
+    return;
+  }
+  
+  if (totalItems <= pageSize) {
+    info.textContent = `Hiển thị ${totalItems} dòng`;
+    buttonsContainer.innerHTML = "";
+    return;
+  }
+
+  info.textContent = `Đang hiển thị từ ${startItem} đến ${endItem} của ${totalItems} dòng`;
+  
+  buttonsContainer.innerHTML = '';
+
+  // Nút 'Trang trước'
+  buttonsContainer.innerHTML += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&laquo; Trước</button>`;
+
+  // Logic hiển thị tối đa 5 nút trang (hoặc ít hơn)
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, currentPage + 2);
+
+  if (currentPage <= 3) endPage = Math.min(5, totalPages);
+  if (currentPage > totalPages - 2) startPage = Math.max(1, totalPages - 4);
+  
+  // Thêm nút 1 và dấu ... nếu cần
+  if (startPage > 1) {
+    buttonsContainer.innerHTML += `<button onclick="goToPage(1)">1</button>`;
+    if (startPage > 2) buttonsContainer.innerHTML += `<span>...</span>`;
+  }
+
+  // Thêm các nút trang giữa
+  for (let i = startPage; i <= endPage; i++) {
+    buttonsContainer.innerHTML += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+  }
+  
+  // Thêm nút cuối và dấu ... nếu cần
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) buttonsContainer.innerHTML += `<span>...</span>`;
+    buttonsContainer.innerHTML += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+  }
+
+  // Nút 'Trang sau'
+  buttonsContainer.innerHTML += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Sau &raquo;</button>`;
+}
+
+
+/* ===== Tính toán Tóm tắt Chỉ số (Summary) ===== */
+
+function calculateSummary(data) {
+  const summary = {
+    totalOrders: data.length, 
+    totalRevenue: 0, 
+    totalCost: 0, 
+    totalAdCost: 0, 
+    canceledOrders: 0, 
+    costOfCanceledOrders: 0, 
+    netProfit: 0 
+  };
+
+  data.forEach(r => {
+    const revenue = getNumericValue(r, 'thanh_tien_ban');
+    const cost = getNumericValue(r, 'thanh_tien_nhap');
+    const adCost = getNumericValue(r, 'phan_bo_quang_cao');
+    const profit = getNumericValue(r, 'loi_nhuan');
+    // Xác định đơn hoàn/hủy
+    const isCanceled = (r['trang_thai'] || '').toUpperCase().includes('HUY');
+
+    summary.totalRevenue += revenue;
+    summary.totalCost += cost;
+    summary.totalAdCost += adCost;
+    summary.netProfit += profit;
+
+    if (isCanceled) {
+      summary.canceledOrders++;
+      // Chi phí hoàn hủy được tính là Lợi nhuận của đơn đó
+      summary.costOfCanceledOrders += profit; 
+    }
+  });
+
+  displaySummary(summary);
+}
+
+function displaySummary(summary) {
+  const { totalOrders, totalRevenue, totalCost, totalAdCost, canceledOrders, costOfCanceledOrders, netProfit } = summary;
+
+  // 1. Tổng đơn hàng
+  document.getElementById('totalOrders').textContent = totalOrders.toLocaleString('vi-VN');
+
+  // 2. Tổng doanh thu
+  document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+
+  // 3. Tổng giá vốn
+  document.getElementById('totalCost').textContent = formatCurrency(totalCost);
+
+  // 4. Tổng chi phí QC
+  document.getElementById('totalAdCost').textContent = formatCurrency(totalAdCost);
+
+  // 5. Số đơn hoàn/hủy
+  document.getElementById('totalCanceledOrders').textContent = canceledOrders.toLocaleString('vi-VN');
+
+  // 6. Chi phí hoàn
+  const costOfCanceledEl = document.getElementById('costOfCanceledOrders');
+  costOfCanceledEl.textContent = formatCurrency(costOfCanceledOrders);
+  const costBox6 = costOfCanceledEl.closest('.metric-box');
+  costBox6.classList.remove('danger', 'success');
+  costBox6.classList.add(costOfCanceledOrders < 0 ? 'danger' : 'success');
+
+  // 7. Lợi nhuận ròng
+  const netProfitEl = document.getElementById('netProfit');
+  netProfitEl.textContent = formatCurrency(netProfit);
+  const netProfitBox7 = netProfitEl.closest('.metric-box');
+  netProfitBox7.classList.remove('danger', 'success');
+  netProfitBox7.classList.add(netProfit >= 0 ? 'success' : 'danger');
+}
+
+
+/* ===== Bảng dữ liệu: Hàm renderTable được cập nhật để xử lý STT phân trang ===== */
+function renderTable(data, startIndex = 0){
+  const h = document.getElementById("header-row");
+  const b = document.getElementById("data-body");
+  h.innerHTML = "";
+  b.innerHTML = "";
+  
+  // Render Header
+  DISPLAY_COLS.forEach(c => {
+    const th = document.createElement("th");
+    th.textContent = c;
+    h.appendChild(th);
+  });
+
+  // Render Body
+  data.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    DISPLAY_COLS.forEach(c => {
+      const td = document.createElement("td");
+      let content = r[c] || "";
+
+      if (c === "STT") {
+        td.textContent = startIndex + i + 1; // Tính STT dựa trên trang hiện tại
+      } else if (content && (c.includes('tien') || c.includes('loi_nhuan') || c.includes('quang_cao'))) {
+        // Định dạng tiền tệ
+        const num = getNumericValue(r, c);
+        td.textContent = formatCurrency(num);
+        td.style.textAlign = 'right';
+        // Highlight màu đỏ cho số âm (Lợi nhuận lỗ)
+        if (c === 'loi_nhuan' && num < 0) {
+          td.style.color = 'var(--danger)';
+        }
+      } else if (c.includes('Ngày') || c === 'udt') {
+        // Định dạng ngày (chỉ lấy phần ngày/tháng/năm đầu tiên nếu có ký tự '|')
+        td.textContent = content.split('|')[0].trim();
+      } else {
+        td.textContent = content;
+      }
+      
+      tr.appendChild(td);
+    });
+    b.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
