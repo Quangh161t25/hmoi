@@ -1112,7 +1112,7 @@
     <!-- JavaScript Code -->
     <script>
         // Cấu hình API và biến toàn cục
-        const GEMINI_API_KEY = "AIzaSyCoQBuMPg_HuZEvPG6R3dHIrDVBbkavO9g";
+        const GEMINI_API_KEY = "AIzaSyCoQBuMPg_HuZEvPG6R3dHIr";
         const GEMINI_LLM_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
         const GEMINI_TTS_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${GEMINI_API_KEY}`;
         const API_URL = "https://script.google.com/macros/s/AKfycbyL4KLJWSslGe5EHCJ6W8dfsIAwV7SptwYEoqBjV0kdXMoWZ2WljMMj8Moyyp0rbBvKbQ/exec";
@@ -2278,55 +2278,77 @@
                 tbody.appendChild(tr);
             });
         }
-
+        
         function renderMonthlySummary(filteredData) {
-            const monthlyData = {};
-            
-            filteredData.forEach(r => {
-                const monthKey = r.nam_thang ? String(r.nam_thang).trim() : 'Không rõ';
-                if (monthKey === 'Không rõ' || monthKey === ' ') return;
-                
-                const amount = getAbsoluteAmount(r);
+    const monthlyData = {};
+    
+    filteredData.forEach(r => {
+        const monthKey = r.nam_thang ? String(r.nam_thang).trim() : 'Không rõ';
+        if (monthKey === 'Không rõ' || monthKey === ' ') return;
+        
+        const amount = getAbsoluteAmount(r);
 
-                if (!monthlyData[monthKey]) monthlyData[monthKey] = { income: 0, expense: 0, balance: 0 };
-                
-                if (r.thu_chi === 'THU') {
-                    monthlyData[monthKey].income += amount;
-                } else if (r.thu_chi === 'CHI') {
-                    monthlyData[monthKey].expense += amount;
-                }
-            });
-
-            const months = Object.keys(monthlyData).sort().reverse(); 
-            months.forEach(monthKey => {
-                const m = monthlyData[monthKey];
-                m.balance = m.income - m.expense;
-            });
-
-            const tbody = document.getElementById('monthlyTbody');
-            tbody.innerHTML = '';
-
-            if (!months.length) { 
-                tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Không có dữ liệu tháng nào theo bộ lọc</td></tr>`; 
-                return; 
-            }
-
-            months.forEach(monthKey => {
-                const m = monthlyData[monthKey];
-                const isPositive = m.balance >= 0;
-                const balanceClass = isPositive ? 'balance-positive' : 'balance-negative';
-                const displayKey = monthKey.replace(' | ', ' / '); 
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${displayKey}</td>
-                    <td class="thu-color">${formatMoney(m.income)}</td>
-                    <td class="chi-color">${formatMoney(m.expense)}</td>
-                    <td class="money ${balanceClass}">${formatMoney(m.balance)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+        if (!monthlyData[monthKey]) monthlyData[monthKey] = { income: 0, expense: 0, balance: 0 };
+        
+        if (r.thu_chi === 'THU') {
+            monthlyData[monthKey].income += amount;
+        } else if (r.thu_chi === 'CHI') {
+            monthlyData[monthKey].expense += amount;
         }
+    });
+
+    const months = Object.keys(monthlyData).sort().reverse(); 
+    
+    // Tính tổng cộng
+    let totalIncome = 0;
+    let totalExpense = 0;
+    let totalBalance = 0;
+    
+    months.forEach(monthKey => {
+        const m = monthlyData[monthKey];
+        m.balance = m.income - m.expense;
+        totalIncome += m.income;
+        totalExpense += m.expense;
+        totalBalance += m.balance;
+    });
+
+    const tbody = document.getElementById('monthlyTbody');
+    tbody.innerHTML = '';
+
+    if (!months.length) { 
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Không có dữ liệu tháng nào theo bộ lọc</td></tr>`; 
+        return; 
+    }
+
+    // Hiển thị từng tháng
+    months.forEach(monthKey => {
+        const m = monthlyData[monthKey];
+        const isPositive = m.balance >= 0;
+        const balanceClass = isPositive ? 'balance-positive' : 'balance-negative';
+        const displayKey = monthKey.replace(' | ', ' / '); 
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${displayKey}</td>
+            <td class="thu-color">${formatMoney(m.income)}</td>
+            <td class="chi-color">${formatMoney(m.expense)}</td>
+            <td class="money ${balanceClass}">${formatMoney(m.balance)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    // Thêm hàng tổng cộng
+    const totalRow = document.createElement('tr');
+    totalRow.className = 'total-row';
+    totalRow.innerHTML = `
+        <td><strong>TỔNG CỘNG</strong></td>
+        <td class="thu-color"><strong>${formatMoney(totalIncome)}</strong></td>
+        <td class="chi-color"><strong>${formatMoney(totalExpense)}</strong></td>
+        <td class="money"><strong>${formatMoney(totalBalance)}</strong></td>
+    `;
+    tbody.appendChild(totalRow);
+}
+        
 
         function renderCharts(filteredData) {
             // 1. Biểu đồ cơ bản (Thu/Chi theo danh mục)
