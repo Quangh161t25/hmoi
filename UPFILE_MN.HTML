@@ -937,45 +937,115 @@
 
   // Render danh sách đơn hàng bên trái (KHÔNG phân trang)
   function renderTab2LeftPanel() {
-    const groupMap = {};
-    donHangData.forEach(r => {
-      if (!r.id_dh || !r.id_sp) return;
-      const id = r.id_dh.toString();
-      if (!groupMap[id]) groupMap[id] = { id, ngay: [], sl: 0, type: new Set() };
-      groupMap[id].ngay.push(r.ngay);
-      groupMap[id].sl += toNumber(r.so_luong);
-      if (r.trương) groupMap[id].type.add(r.trương);
+  const groupMap = {};
+  donHangData.forEach(r => {
+    if (!r.id_dh || !r.id_sp) return;
+    const id = r.id_dh.toString();
+    if (!groupMap[id]) groupMap[id] = { id, ngay: [], sl: 0, type: new Set() };
+    groupMap[id].ngay.push(r.ngay);
+    groupMap[id].sl += toNumber(r.so_luong);
+    if (r.trương) groupMap[id].type.add(r.trương);
+  });
+
+  const groups = Object.values(groupMap);
+  groups.sort((a,b) => (b.ngay[0]?parseDateVN(b.ngay[0]):new Date(0)) - (a.ngay[0]?parseDateVN(a.ngay[0]):new Date(0)));
+
+  const tbodyL = document.getElementById("tblIdDH").querySelector("tbody");
+  tbodyL.innerHTML = "";
+  const fragL = new DocumentFragment();
+  
+  groups.forEach(g => {
+     const tr = document.createElement("tr");
+     if (selectedIdDH === g.id) tr.classList.add("selected");
+     let cls = ""; 
+     if(g.type.has("XUẤT")) cls="row-xuat"; 
+     else if(g.type.has("NHẬP")) cls="row-nhap";
+     tr.className = cls;
+     
+     // Cột 1: Nút copy
+     const copyCell = document.createElement("td");
+     const displayDate = g.ngay[0] || "";
+     const copyText = `${displayDate} - ${g.id}`;
+     
+     copyCell.innerHTML = `
+       <button class="copy-row-btn" title="Copy: ${displayDate} - ${g.id}" data-copy="${copyText}">
+         📋
+       </button>
+     `;
+     
+     // Cột 2: ID đơn hàng
+     const idCell = document.createElement("td");
+     idCell.innerHTML = `<strong>${g.id}</strong>`;
+     
+     // Cột 3: Ngày
+     const dateCell = document.createElement("td");
+     dateCell.textContent = displayDate;
+     
+     // Cột 4: Số lượng
+     const qtyCell = document.createElement("td");
+     qtyCell.className = "text-right";
+     qtyCell.innerHTML = `<strong>${g.sl}</strong>`;
+     
+     // Thêm các cell vào row
+     tr.appendChild(copyCell);
+     tr.appendChild(idCell);
+     tr.appendChild(dateCell);
+     tr.appendChild(qtyCell);
+     
+     // Sự kiện click vào row
+     tr.onclick = (e) => { 
+       // Không chọn nếu click vào nút copy
+       if (e.target.closest('.copy-row-btn')) {
+         e.stopPropagation();
+         return;
+       }
+       selectedIdDH = g.id; 
+       renderTab2RightPanel();
+     };
+     
+     fragL.appendChild(tr);
+  });
+  tbodyL.appendChild(fragL);
+  
+  // Thêm sự kiện cho các nút copy
+  addCopyButtonEvents();
+}
+
+// Hàm xử lý sự kiện cho nút copy (CHỈ MỘT HÀM DUY NHẤT)
+function addCopyButtonEvents() {
+  document.querySelectorAll('.copy-row-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const copyText = this.getAttribute('data-copy');
+      copyToClipboard(copyText, this);
     });
+  });
+}
 
-    const groups = Object.values(groupMap);
-    groups.sort((a,b) => (b.ngay[0]?parseDateVN(b.ngay[0]):new Date(0)) - (a.ngay[0]?parseDateVN(a.ngay[0]):new Date(0)));
-
-    const tbodyL = document.getElementById("tblIdDH").querySelector("tbody");
-    tbodyL.innerHTML = "";
-    const fragL = new DocumentFragment();
+// Hàm copy vào clipboard (CHỈ MỘT HÀM DUY NHẤT)
+function copyToClipboard(text, buttonElement) {
+  navigator.clipboard.writeText(text).then(() => {
+    // Hiển thị feedback tạm thời
+    const originalHTML = buttonElement.innerHTML;
+    buttonElement.innerHTML = '✓';
+    buttonElement.classList.add('copied');
     
-    groups.forEach(g => {
-       const tr = document.createElement("tr");
-       if (selectedIdDH === g.id) tr.classList.add("selected");
-       let cls = ""; 
-       if(g.type.has("XUẤT")) cls="row-xuat"; 
-       else if(g.type.has("NHẬP")) cls="row-nhap";
-       tr.className = cls;
-       tr.innerHTML = `
-         <td><strong>${g.id}</strong></td>
-         <td>${g.ngay[0]||""}</td>
-         <td class="text-right"><strong>${g.sl}</strong></td>
-       `;
-       tr.onclick = (e) => { 
-         e.stopPropagation(); 
-         selectedIdDH = g.id; 
-         // Khi click vào đơn hàng, render chi tiết với phân trang
-         renderTab2RightPanel();
-       };
-       fragL.appendChild(tr);
-    });
-    tbodyL.appendChild(fragL);
-  }
+    showNotification(`Đã copy: ${text}`, 'success');
+    
+    setTimeout(() => {
+      buttonElement.innerHTML = originalHTML;
+      buttonElement.classList.remove('copied');
+    }, 1500);
+  }).catch(err => {
+    console.error('Copy failed:', err);
+    showNotification('Lỗi khi copy', 'error');
+  });
+}
+// Thêm hàm xử lý sự kiện copy
+// Hàm xử lý sự kiện cho nút copy
+
+
+// Hàm copy vào clipboard
 
   // Render bảng chi tiết đơn hàng bên phải (CÓ phân trang)
   function renderTab2RightPanel(page = currentPageTab2Right) {
