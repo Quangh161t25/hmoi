@@ -1,704 +1,561 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phiếu Yêu Cầu Xuất Hàng</title>
-    <!-- Tải Tailwind CSS để tạo kiểu -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tải thư viện html2pdf.js để tạo PDF -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap&subset=vietnamese"
+        rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#000080',
+                    },
+                    fontFamily: {
+                        sans: ['time new roman', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* Tùy chỉnh font và đảm bảo box sizing */
-        body {
-            font-family: 'Inter', Arial, sans-serif;
-            line-height: 1.4; /* Giảm line height */
-            padding: 8px; /* Giảm padding tổng thể */
-            background-color: #f7f7f7;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            /* ID 'content' dùng cho html2pdf.js */
-            max-width: 780px;
-            width: 100%;
-            margin: 0 auto;
-            background-color: white;
-            padding: 15px; /* Giảm padding bên trong */
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        }
-        
-        /* Định dạng Header */
-        .header h1 {
-            font-size: 14px; /* Giảm font size */
-            font-weight: 700;
-            margin: 0;
-        }
-        .header h2 {
-            font-size: 12px; /* Giảm font size */
-            font-weight: 600;
-            margin: 3px 0 10px 0; /* Giảm margin dưới */
-            color: #333;
-        }
-        .main-title {
-            text-align: center;
-            font-size: 18px; /* Giảm font size */
-            font-weight: bold;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            color: #004d99;
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            @page {
+                size: A5 landscape;
+                margin: 0;
+            }
         }
 
-        /* Định dạng khối thông tin */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px 15px; /* Giảm khoảng cách */
-            margin-bottom: 15px;
-            font-size: 12px; /* Giảm font size */
-            border: 1px solid #e0e0e0;
-            padding: 8px; /* Giảm padding */
-            border-radius: 4px;
-        }
-        .info-grid p {
-            margin: 0;
-            padding: 1px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .info-grid label {
-            font-weight: 600;
-            margin-right: 8px;
-            white-space: nowrap;
-        }
-        /* Style cho input và static span (dùng khi tạo PDF) */
-        .info-grid input[type="text"], .info-grid input[type="date"], .pdf-static-value {
-            border: 1px solid #ccc;
-            padding: 1px 4px; /* Giảm padding input */
-            border-radius: 3px;
-            flex-grow: 1;
-            margin-left: 8px;
-            background-color: #f9f9f9;
-            width: auto;
-        }
-        .info-grid input[type="text"], .info-grid input[type="date"] {
-            background-color: #f9f9f9;
-        }
-        .info-grid input[disabled] {
-            background-color: #eee;
-            cursor: default;
-        }
-
-        /* Định dạng Bảng sản phẩm */
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px; /* Giảm font size bảng */
-            margin-bottom: 30px;
-        }
-        .product-table th, .product-table td {
+        /* Custom table borders for professional look */
+        .print-table th,
+        .print-table td {
             border: 1px solid black;
-            padding: 3px 5px; /* Giảm padding ô */
-            text-align: center;
-            height: 25px; /* Giảm chiều cao dòng */
-        }
-        .product-table th {
-            background-color: #dbe5f1;
-            font-weight: bold;
-            color: #1e40af;
-        }
-        .product-table .content-row td:nth-child(2) {
-            text-align: left;
-        }
-        
-        .product-table input {
-            border: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: transparent;
-            text-align: inherit;
-        }
-        .product-table input[type="number"] {
-            text-align: center;
-        }
-        .product-table .quantity-cell, .product-table .price-cell {
-            padding: 0;
-        }
-        .product-table .total-row td {
-            font-weight: bold;
-            background-color: #eaf1f7;
-            font-size: 13px;
-        }
-
-        /* Định dạng chữ ký */
-        .signature-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            text-align: center;
-            font-size: 12px; /* Giảm font size */
-            font-weight: bold;
-            padding-top: 5px;
-        }
-        .signature-grid .title {
-            margin-bottom: 50px; /* Giảm khoảng trống cho chữ ký */
-            font-size: 13px;
-        }
-        /* Chỉ thị cho html2pdf: không in nút */
-        .no-print {
-            padding: 8px;
-            width: 100%;
-            max-width: 780px;
         }
     </style>
 </head>
-<body onload="initializeForm()">
-    
-    <!-- Nút Tải PDF và Excel -->
-    <div class="no-print mb-3 text-right">
-        <button id="downloadExcel" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-lg transition duration-300 text-sm">
-            Tải về Excel
+
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <!-- Print/Download Buttons -->
+    <div class="fixed top-4 right-4 no-print print:hidden z-50 flex gap-2" data-html2canvas-ignore="true">
+        <button onclick="downloadPDF()"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Tải PDF (A5)
         </button>
-        <button id="downloadPdf" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-lg transition duration-300 text-sm ml-2">
-            Tải về PDF
+
+        <button onclick="downloadExcel()"
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Tải Excel
         </button>
-        <button id="addRow" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-lg transition duration-300 ml-2 text-sm">
-            + Thêm dòng
+
+        <button onclick="window.print()"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            In Phiếu
+        </button>
+        <button onclick="resetData()"
+            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg">
+            Làm mới
         </button>
     </div>
 
-    <!-- Nội dung chính cần chuyển đổi sang PDF -->
-    <div class="container rounded-lg" id="content">
-        <div class="header text-left">
-            <h1>CÔNG TY CỔ PHẦN LIÊN DOANH XNK QUỐC TẾ</h1>
-            <h2>CHI NHÁNH MB</h2>
-        </div>
-        
-        <div class="main-title">
-            PHIẾU YÊU CẦU XUẤT HÀNG
-        </div>
+    <!-- Main Container: Fixed 210mm x 148mm (A5 Landscape) -->
+    <div id="invoice-content"
+        class="w-[210mm] h-[148mm] mx-auto bg-white shadow-xl p-3 pt-2 md:p-4 md:pt-2 relative print:shadow-none print:m-0 overflow-hidden leading-tight">
 
-        <!-- Khối thông tin chi tiết -->
-        <div class="info-grid" id="header-info">
-            <div>
-                <p><label for="requester">Họ và tên người yêu cầu xuất:</label> 
-                    <input type="text" id="requester" value="" class="w-1/2">
-                </p>
-                <p><label for="storeName">Tên gian hàng:</label> 
-                    <input type="text" id="storeName" value="" class="w-1/2">
-                </p>
-                <p><label for="storeCode">Mã gian hàng:</label> 
-                    <input type="text" id="storeCode" value="" class="w-1/2">
-                </p>
+        <!-- Header -->
+        <header class="mb-2">
+            <div class="flex justify-between items-start mb-1">
+                <div class="text-sm font-semibold">
+                    <p class="uppercase">CÔNG TY CỔ PHẦN LIÊN DOANH XNK QUỐC TẾ</p>
+                    <p class="uppercase mt-0.5">CHI NHÁNH MB</p>
+                </div>
+                <div class="text-right text-xs italic text-gray-500">
+                    <!-- Placeholder for logo or other info if needed -->
+                </div>
             </div>
-            <div>
-                <p><label for="customer">Khách hàng:</label> 
-                    <input type="text" id="customer" value="" class="w-1/2">
-                </p>
-                <p><label for="phone">SĐT:</label> 
-                    <input type="text" id="phone" value="" class="w-1/2">
-                </p>
-                <p><label for="currentDate">Ngày lập phiếu:</label> 
-                    <input type="date" id="currentDate" value="" class="w-1/2">
-                </p>
+
+            <h1 class="text-2xl font-bold text-center text-navy uppercase mb-2 tracking-wide">PHIẾU YÊU CẦU XUẤT HÀNG
+            </h1>
+        </header>
+
+        <!-- Form Info -->
+        <div id="form-info" class="grid grid-cols-2 gap-x-4 gap-y-1 mb-2">
+            <!-- Col 1 -->
+            <div class="space-y-1">
+                <div class="flex items-center">
+                    <label class="w-20 font-semibold text-gray-700 whitespace-nowrap">Người YC:</label>
+                    <input type="text" id="requesterName"
+                        class="flex-1 border-b border-gray-300 focus:border-navy outline-none px-1 bg-transparent"
+                        placeholder="...">
+                </div>
+                <div class="flex items-center">
+                    <label class="w-20 font-semibold text-gray-700 whitespace-nowrap">Gian hàng:</label>
+                    <input type="text" id="storeName"
+                        class="flex-1 border-b border-gray-300 focus:border-navy outline-none px-1 bg-transparent"
+                        placeholder="...">
+                </div>
+                <div class="flex items-center">
+                    <label class="w-20 font-semibold text-gray-700 whitespace-nowrap">Mã GH:</label>
+                    <input type="text" id="storeCode"
+                        class="flex-1 border-b border-gray-300 focus:border-navy outline-none px-1 bg-transparent"
+                        placeholder="...">
+                </div>
+            </div>
+
+            <!-- Col 2 -->
+            <div class="space-y-1">
+                <div class="flex items-center">
+                    <label class="w-24 font-semibold text-gray-700 whitespace-nowrap">Khách hàng:</label>
+                    <input type="text" id="customerName"
+                        class="flex-1 border-b border-gray-300 focus:border-navy outline-none px-1 bg-transparent"
+                        placeholder="...">
+                </div>
+                <div class="flex items-center">
+                    <label class="w-24 font-semibold text-gray-700 whitespace-nowrap">SĐT:</label>
+                    <input type="text" id="phone"
+                        class="flex-1 border-b border-gray-300 focus:border-navy outline-none px-1 bg-transparent"
+                        placeholder="...">
+                </div>
+                <div class="flex items-center">
+                    <label class="w-24 font-semibold text-gray-700 whitespace-nowrap">Địa chỉ:</label>
+                    <input type="text" id="address"
+                        class="flex-1 border-b border-gray-300 focus:border-navy outline-none px-1 bg-transparent"
+                        placeholder="...">
+                </div>
+                <div class="flex items-center">
+                    <label class="w-24 font-semibold text-gray-700 whitespace-nowrap">Ngày lập:</label>
+                    <input type="date" id="date"
+                        class="flex-1 border-b border-gray-300 focus:border-navy outline-none px-1 bg-transparent font-sans">
+                </div>
             </div>
         </div>
 
-        <!-- Bảng Sản phẩm -->
-        <table class="product-table">
-            <thead>
-                <tr>
-                    <th style="width: 5%;">STT</th>
-                    <th style="width: 25%;">Tên sản phẩm</th>
-                    <th style="width: 10%;">MSP</th>
-                    <th style="width: 10%;">Số lượng</th>
-                    <th style="width: 12%;">Đơn giá</th> 
-                    <th style="width: 12%;">Thành tiền</th> 
-                    <th style="width: 14%;">Người thu tiền</th> 
-                    <th style="width: 12%;">Ghi chú</th> 
-                </tr>
-            </thead>
-            <tbody id="product-list">
-                <!-- Dữ liệu sẽ được chèn ở đây từ JS hoặc dữ liệu mặc định -->
-            </tbody>
-            <!-- Dòng Cộng -->
-            <tfoot>
-                <tr class="total-row">
-                    <td colspan="3" class="text-left px-4">Cộng</td>
-                    <td id="total-quantity">0</td>
-                    <td colspan="1"></td>
-                    <td id="grand-total" class="text-right px-2">0</td>
-                    <td colspan="2"></td>
-                </tr>
-            </tfoot>
-        </table>
+        <!-- Dynamic Product Table -->
+        <div class="mb-1">
+            <table class="w-full border-collapse print-table text-sm">
+                <thead>
+                    <tr class="bg-gray-100 text-center font-bold">
+                        <th class="border border-gray-400 p-2 w-12">STT</th>
+                        <th class="border border-gray-400 p-2">Tên sản phẩm</th>
+                        <th class="border border-gray-400 p-2 w-24">MSP (SKU)</th>
+                        <th class="border border-gray-400 p-2 w-20">Số lượng</th>
+                        <th class="border border-gray-400 p-2 w-28">Đơn giá</th>
+                        <th class="border border-gray-400 p-2 w-28">Thành tiền</th>
+                        <th class="border border-gray-400 p-2 w-32">Ghi chú</th>
+                        <th class="border border-gray-400 p-2 w-10 no-print" data-html2canvas-ignore="true">Xóa</th>
+                    </tr>
+                </thead>
+                <tbody id="product-list">
+                    <!-- Rows will be added here by JS -->
+                </tbody>
+                <tfoot>
+                    <tr class="font-bold bg-gray-50">
+                        <td colspan="3" class="border border-gray-400 p-2 text-center text-navy">CỘNG</td>
+                        <td id="total-qty" class="border border-gray-400 p-2 text-center">0</td>
+                        <td class="border border-gray-400 p-2"></td>
+                        <td id="total-amount" class="border border-gray-400 p-2 text-right">0</td>
+                        <td class="border border-gray-400 p-2"></td>
+                        <td class="border border-gray-400 p-2 no-print" data-html2canvas-ignore="true"></td>
+                    </tr>
+                </tfoot>
+            </table>
 
-        <!-- Khối Chữ ký -->
-        <div class="signature-grid">
-            <p class="title">Người lập phiếu</p>
-            <p class="title">Người nhận hàng</p>
-            <p class="title">Thủ kho</p>
-            <p class="title">Giám đốc</p>
-            
-            <p>(Ký, ghi rõ họ tên)</p>
-            <p>(Ký, ghi rõ họ tên)</p>
-            <p>(Ký, ghi rõ họ tên)</p>
-            <p>(Ký, ghi rõ họ tên)</p>
+            <div class="mt-4 no-print text-center" data-html2canvas-ignore="true">
+                <button onclick="addRow()"
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow flex items-center gap-2 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Thêm dòng sản phẩm
+                </button>
+            </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="flex justify-between text-center mt-1 text-[10px]">
+            <div class="flex-1">
+                <p class="font-bold uppercase mb-0.5">Người lập phiếu</p>
+                <div class="h-8"></div>
+                <input type="text" id="creatorSignature"
+                    class="text-center w-full bg-transparent outline-none placeholder-gray-300 text-[10px]"
+                    placeholder="Nguyễn Văn A">
+            </div>
+            <div class="flex-1">
+                <p class="font-bold uppercase mb-0.5">Người nhận hàng</p>
+                <div class="h-8"></div>
+                <input type="text"
+                    class="text-center w-full bg-transparent outline-none placeholder-gray-300 text-[10px]"
+                    placeholder="...">
+            </div>
+            <div class="flex-1">
+                <p class="font-bold uppercase mb-0.5">Thủ kho</p>
+                <div class="h-8"></div>
+                <input type="text"
+                    class="text-center w-full bg-transparent outline-none placeholder-gray-300 text-[10px]"
+                    placeholder="...">
+            </div>
+            <div class="flex-1">
+                <p class="font-bold uppercase mb-0.5">Giám đốc</p>
+                <div class="h-8"></div>
+                <input type="text"
+                    class="text-center w-full bg-transparent outline-none placeholder-gray-300 text-[10px]"
+                    placeholder="...">
+            </div>
         </div>
     </div>
 
     <script>
-        // --- Định nghĩa các hằng số phân cách dữ liệu
-        const PRODUCT_DELIMITER = '_b_'; // Phân cách giữa các sản phẩm
-        const FIELD_DELIMITER = '_c_';    // Phân cách giữa các trường trong một sản phẩm
-        const EMPTY_ROW_COUNT = 3; // Số lượng dòng trống mặc định
 
-        // Cần lưu trữ các element gốc để khôi phục sau khi tạo PDF
-        let originalElements = [];
 
-        /**
-         * Chuyển đổi số thành chuỗi định dạng tiền tệ (VD: 150000 -> 150.000)
-         * @param {number} number - Số tiền cần định dạng
-         * @returns {string} Chuỗi tiền tệ đã định dạng
-         */
-        function formatCurrency(number) {
-            if (number === null || isNaN(number)) return '';
-            return Math.round(number).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
+// State to hold table data
+let products = [];
+// Initial row count for auto-filling dummy data if needed, or just for unique IDs
+let nextId = 1;
 
-        /**
-         * Lấy giá trị số từ chuỗi tiền tệ (VD: 150.000 -> 150000)
-         * @param {string} value - Chuỗi tiền tệ
-         * @returns {number} Giá trị số
-         */
-        function parseCurrency(value) {
-            if (!value) return 0;
-            // Chấp nhận cả dấu chấm và dấu phẩy, loại bỏ tất cả và parse
-            const cleanedValue = value.toString().replace(/[\.,]/g, '');
-            // Chỉ trả về số nếu không rỗng
-            return parseInt(cleanedValue, 10) || 0;
-        }
+// Define fields to save/load
+const INPUT_IDS = [
+    'requesterName', 'storeName', 'storeCode',
+    'customerName', 'phone', 'address', 'date',
+    'creatorSignature'
+];
 
-        /**
-         * Định dạng hoặc chuyển đổi input tiền tệ
-         * @param {HTMLElement} input - Trường input
-         * @param {boolean} blurEvent - True nếu là sự kiện blur (rời khỏi input)
-         */
-        function formatCurrencyInput(input, blurEvent = false) {
-            const numericValue = parseCurrency(input.value);
-            if (blurEvent) {
-                // Khi rời khỏi input, hiển thị định dạng tiền tệ
-                input.value = formatCurrency(numericValue);
-            } else {
-                // Khi focus vào input, hiển thị giá trị số để dễ chỉnh sửa (hoặc rỗng nếu là 0)
-                input.value = numericValue === 0 ? '' : numericValue;
-            }
-        }
+// Load data on start
+document.addEventListener('DOMContentLoaded', () => {
+    // loadData(); // Disabled: User wants clean slate on reload
+    loadFromURL(); // Override with URL params if present
 
-        /**
-         * Hàm tính toán tổng số lượng và tổng thành tiền
-         */
-        function calculateTotal() {
-            const productRows = document.querySelectorAll('#product-list .content-row');
-            let totalQuantity = 0;
-            let grandTotal = 0;
+    if (products.length === 0) {
+        // Start with one empty row
+        addRow();
+    } else {
+        renderTable();
+    }
+});
 
-            productRows.forEach(row => {
-                const quantityInput = row.querySelector('.quantity');
-                const priceInput = row.querySelector('.unit-price');
-                const totalPriceCell = row.querySelector('.total-price');
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
 
-                if (!quantityInput || !priceInput || !totalPriceCell) return; // Bảo vệ
+    // Check if URL has ANY of our specific keys or products
+    const hasUrlData = INPUT_IDS.some(id => params.has(id)) || params.has('products');
 
-                // Lấy giá trị số từ input (parse giá trị hiện tại, bất kể đã focus hay chưa)
-                // Lấy giá trị gốc từ input number
-                const quantity = parseInt(quantityInput.value) || 0; 
-                // Parse giá trị đã định dạng từ input text
-                const price = parseCurrency(priceInput.value); 
+    if (hasUrlData) {
+        // "Strict Mode": If URL has data, we overwrite everything.
 
-                const subtotal = quantity * price;
-
-                // Cập nhật thành tiền cho từng dòng
-                totalPriceCell.textContent = formatCurrency(subtotal);
-                
-                // Cập nhật tổng cộng
-                totalQuantity += quantity;
-                grandTotal += subtotal;
-            });
-
-            // Cập nhật hàng "Cộng"
-            document.getElementById('total-quantity').textContent = totalQuantity;
-            document.getElementById('grand-total').textContent = formatCurrency(grandTotal);
-        }
-
-        /**
-         * Thiết lập ngày tháng hiện tại (format YYYY-MM-DD) cho input type="date"
-         */
-        function setDate() {
-            const dateInput = document.getElementById('currentDate');
-            if (!dateInput.value) {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                dateInput.value = `${year}-${month}-${day}`;
-            }
-        }
-
-        /**
-         * Tạo một dòng sản phẩm mới
-         * @param {number} stt - Số thứ tự
-         * @param {Object} data - Dữ liệu cho dòng sản phẩm
-         */
-        function createProductRow(stt, data = {}) {
-            const name = data.name || '';
-            const msp = data.msp || '';
-            const quantity = data.quantity || 0;
-            const unitPrice = data.unitPrice || 0;
-            const collector = data.collector || '';
-            const note = data.note || '';
-
-            const row = document.createElement('tr');
-            row.classList.add('content-row');
-            row.innerHTML = `
-                <td>${stt}</td>
-                <td><input type="text" value="${name}" class="w-full text-left p-0 focus:outline-none" onfocus="this.select()"></td>
-                <td><input type="text" value="${msp}" class="w-full text-center p-0 focus:outline-none" onfocus="this.select()"></td>
-                <td class="quantity-cell"><input type="number" value="${quantity}" min="0" class="quantity w-full text-center p-0 focus:outline-none" oninput="calculateTotal()" onfocus="this.select()"></td>
-                <td class="price-cell"><input type="text" value="${formatCurrency(unitPrice)}" class="unit-price w-full text-right p-0 focus:outline-none" oninput="calculateTotal()" onfocus="formatCurrencyInput(this)" onblur="formatCurrencyInput(this, true)"></td>
-                <td class="total-price text-right font-semibold">0</td>
-                <td><input type="text" value="${collector}" class="w-full text-center p-0 focus:outline-none" onfocus="this.select()"></td>
-                <td><input type="text" value="${note}" class="w-full text-center p-0 focus:outline-none" onfocus="this.select()"></td>
-            `;
-            return row;
-        }
-
-        /**
-         * Thêm một dòng sản phẩm mới vào bảng
-         * @param {Object} data - Dữ liệu sản phẩm (tùy chọn)
-         */
-        function addProductRow(data = {}) {
-            const productList = document.getElementById('product-list');
-            const currentRows = productList.querySelectorAll('.content-row').length;
-            const newRow = createProductRow(currentRows + 1, data);
-            productList.appendChild(newRow);
-
-            // Cập nhật STT cho tất cả các dòng
-            updateStt();
-        }
-
-        /**
-         * Cập nhật STT và gọi tính tổng.
-         */
-        function updateStt() {
-            const productList = document.getElementById('product-list');
-            const rows = productList.querySelectorAll('.content-row');
-            rows.forEach((row, index) => {
-                row.querySelector('td:first-child').textContent = index + 1;
-            });
-            calculateTotal();
-        }
-
-        /**
-         * Lấy các tham số từ URL
-         * @returns {Object} Các tham số đã được giải mã
-         */
-        function getURLParameters() {
-            const params = {};
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            // Lấy các tham số đơn lẻ
-            params.requester = urlParams.get('requester');
-            params.storeName = urlParams.get('storeName');
-            params.storeCode = urlParams.get('storeCode');
-            params.customer = urlParams.get('customer');
-            params.phone = urlParams.get('phone');
-            
-            // Xử lý danh sách sản phẩm
-            const itemsString = urlParams.get('items');
-            params.products = [];
-
-            if (itemsString) {
-                const productStrings = itemsString.split(PRODUCT_DELIMITER);
-                
-                productStrings.forEach(str => {
-                    const fields = str.split(FIELD_DELIMITER);
-                    
-                    if (fields.length >= 6) { 
-                        params.products.push({
-                            name: decodeURIComponent(fields[0].trim()),
-                            msp: decodeURIComponent(fields[1].trim()),
-                            quantity: parseInt(fields[2].trim()) || 0,
-                            unitPrice: parseCurrency(fields[3].trim()),
-                            collector: decodeURIComponent(fields[4].trim()),
-                            note: decodeURIComponent(fields[5].trim())
-                        });
-                    }
-                });
-            }
-
-            return params;
-        }
-
-        /**
-         * Điền dữ liệu từ URL vào Form
-         * @param {Object} params - Dữ liệu từ URL
-         */
-        function populateForm(params) {
-            // 1. Điền thông tin Header
-            if (params.requester) document.getElementById('requester').value = params.requester;
-            if (params.storeName) document.getElementById('storeName').value = params.storeName;
-            if (params.storeCode) document.getElementById('storeCode').value = params.storeCode;
-            if (params.customer) document.getElementById('customer').value = params.customer;
-            if (params.phone) document.getElementById('phone').value = params.phone;
-
-            // 2. Xóa các dòng mặc định và điền Sản phẩm
-            const productList = document.getElementById('product-list');
-            productList.innerHTML = ''; // Xóa hết dòng cũ
-
-            if (params.products && params.products.length > 0) {
-                params.products.forEach(item => {
-                    addProductRow(item);
-                });
-            }
-
-            // 3. Thêm các dòng trống cho việc nhập liệu thủ công
-            const productsCount = params.products ? params.products.length : 0;
-            const rowsToAdd = Math.max(0, EMPTY_ROW_COUNT - productsCount);
-            
-            for (let i = 0; i < rowsToAdd; i++) {
-                addProductRow();
-            }
-        }
-
-        /**
-         * Lấy tất cả dữ liệu từ form
-         * @returns {Object} Dữ liệu form đã được cấu trúc
-         */
-        function getFormData() {
-            // 1. Dữ liệu Header
-            const headerData = {
-                requester: document.getElementById('requester').value,
-                storeName: document.getElementById('storeName').value,
-                storeCode: document.getElementById('storeCode').value,
-                customer: document.getElementById('customer').value,
-                phone: document.getElementById('phone').value,
-                currentDate: document.getElementById('currentDate').value,
-            };
-
-            // 2. Dữ liệu Sản phẩm
-            const productRows = document.querySelectorAll('#product-list .content-row');
-            const products = [];
-
-            productRows.forEach(row => {
-                const inputs = row.querySelectorAll('input');
-                const totalPriceCell = row.querySelector('.total-price');
-
-                // Chỉ lấy các dòng có ít nhất Tên sản phẩm hoặc Số lượng được nhập
-                if (inputs[0].value.trim() || (parseInt(inputs[2].value) || 0) > 0) {
-                    const quantity = parseInt(inputs[2].value) || 0;
-                    const unitPrice = parseCurrency(inputs[3].value);
-                    const subtotal = quantity * unitPrice;
-
-                    products.push({
-                        stt: row.querySelector('td:first-child').textContent,
-                        name: inputs[0].value,
-                        msp: inputs[1].value,
-                        quantity: quantity,
-                        unitPrice: unitPrice,
-                        subtotal: subtotal,
-                        collector: inputs[4].value,
-                        note: inputs[5].value,
-                    });
+        INPUT_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (params.has(id)) {
+                    el.value = params.get(id);
+                } else if (id === 'date') {
+                    // Rule: If date missing in URL, use Today
+                    el.valueAsDate = new Date();
+                } else {
+                    // Other fields: Clear if missing
+                    el.value = '';
                 }
-            });
+            }
+        });
 
-            // 3. Dữ liệu Tổng cộng
-            const totalData = {
-                totalQuantity: document.getElementById('total-quantity').textContent,
-                grandTotal: parseCurrency(document.getElementById('grand-total').textContent),
-            };
-
-            return { headerData, products, totalData };
+        // Special Sync: If requesterName is present but creatorSignature is NOT, auto-fill signature logic
+        if (params.has('requesterName') && !params.has('creatorSignature')) {
+            const sig = document.getElementById('creatorSignature');
+            if (sig) sig.value = params.get('requesterName');
         }
 
-        // --- EXCEL/CSV Logic ---
-   function generateExcel() {
-    document.querySelectorAll('.unit-price').forEach(input => formatCurrencyInput(input, true));
-    calculateTotal();
-    const data = getFormData();
+        // Load products (expects JSON string)
+        if (params.has('products')) {
+            try {
+                const productsParam = JSON.parse(params.get('products'));
+                if (Array.isArray(productsParam) && productsParam.length > 0) {
+                    // Ensure IDs are unique and correct
+                    products = productsParam.map((p, i) => ({
+                        ...p,
+                        id: nextId++ // Assign new IDs to avoid conflicts
+                    }));
+                } else {
+                    products = [];
+                }
+            } catch (e) {
+                console.error("Invalid products JSON in URL", e);
+                products = [];
+            }
+        } else {
+            // URL has data but no products -> clear products
+            products = [];
+        }
 
-    const maShop = (data.headerData.storeCode || "").trim();
+        saveData();
+        renderTable();
+    }
+}
 
-    const baseCode = (data.headerData.phone || "").replace(/\D/g, '') || Date.now().toString();
-    const orderId = baseCode.slice(-12).padStart(12, '0');
+// Add input listeners to save data automatically
+INPUT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('input', (e) => {
+            saveData();
+            // Auto-sync Requester Name to Creator Signature
+            if (id === 'requesterName') {
+                const signatureEl = document.getElementById('creatorSignature');
+                if (signatureEl) {
+                    signatureEl.value = e.target.value;
+                }
+            }
+        });
+    }
+});
 
-    const wb = XLSX.utils.book_new();
-    const rows = [];
-
-    // Header 35 cột
-    const header = ["Mã đơn hàng","Mã Kiện Hàng","Ngày đặt hàng","Mã vận đơn","Đơn Vị Vận Chuyển","Phương thức giao hàng","Loại đơn hàng","Ngày gửi hàng","Tên sản phẩm","Cân nặng sản phẩm","Tổng cân nặng","SKU phân loại hàng","Tên phân loại hàng","Đơn giá","Số lượng","Tổng giá bán (sản phẩm)","Tổng giá trị đơn hàng (VND)","Phí vận chuyển (dự kiến)","Phí vận chuyển mà người mua trả","Phí vận chuyển tài trợ bởi Shopee (dự kiến)","Phí trả hàng","Tổng số tiền người mua thanh toán","Phương thức thanh toán","Phí cố định","Phí Dịch Vụ","Phí thanh toán","Tiền ký quỹ","Người Mua","Tên Người nhận","Số điện thoại","Tỉnh/Thành phố","TP / Quận / Huyện","Quận","Địa chỉ nhận hàng","Ghi chú"];
-    rows.push(header);
-
-    data.products.forEach(item => {
-        if (!item.name.trim() && item.quantity === 0) return;
-
-        const row = Array(35).fill("");
-
-        row[0]  = orderId;
-        row[3]  = orderId;
-        row[8]  = item.name;
-        row[11] = (item.msp || "").trim() + "-" + maShop;   // ← ĐÃ CÓ DẤU GẠCH DƯỚI NHƯ BẠN MUỐN
-        row[14] = item.quantity;
-        row[28] = data.headerData.customer || "KHÁCH LẺ";
-        row[29] = data.headerData.phone || "";
-        row[34] = "KHÁCH QUA KHO";
-
-        rows.push(row);
+function addRow() {
+    products.push({
+        id: nextId++,
+        name: '',
+        sku: '',
+        qty: 0,
+        price: 0,
+        note: ''
     });
+    renderTable();
+    saveData();
+}
 
-    if (rows.length === 1) {
-        const empty = Array(35).fill("");
-        empty[0] = orderId;
-        empty[3] = orderId;
-        empty[11] = "_" + maShop;
-        empty[28] = data.headerData.customer || "KHÁCH LẺ";
-        empty[29] = data.headerData.phone || "";
-        empty[34] = "KHÁCH QUA KHO";
-        rows.push(empty);
+function removeRow(index) {
+    if (products.length > 1) { // Prevent deleting the last remaining row
+        products.splice(index, 1);
+        renderTable();
+        saveData();
+    } else {
+        alert("Không thể xóa dòng cuối cùng!");
+    }
+}
+
+function updateProduct(index, field, value) {
+    products[index][field] = value;
+
+    // If quantity or price changes, update the row total and grand totals
+    if (field === 'qty' || field === 'price') {
+        const rowTotal = products[index].qty * products[index].price;
+        const totalCell = document.getElementById(`prod-${index}-total`);
+        if (totalCell) {
+            totalCell.innerText = rowTotal.toLocaleString('vi-VN');
+        }
+        updateTotals();
     }
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = header.map((_, i) => ({ wch: [12,12,12,15,12,15,12,12,35,10,10,22,20,12,10,15,15,12,12,12,12,15,20,10,10,10,10,20,25,15,20,20,15,30,20][i] || 15 }));
-
-    XLSX.utils.book_append_sheet(wb, ws, "orders");
-
-    const ts = Date.now();
-    const fileName = `n-ngoai_${orderId}-${ts}-1-${ts}_${ts}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+    saveData();
 }
-       
 
-        // --- PDF Logic (Giữ nguyên và tinh chỉnh) ---
+function updateTotals() {
+    let totalQty = 0;
+    let totalAmount = 0;
 
-        /**
-         * Thay thế tất cả input bằng static span để đảm bảo PDF render sạch sẽ.
-         * @param {HTMLElement} element - Phần tử gốc chứa các input.
-         */
-        function replaceInputsWithStaticSpans(element) {
-            originalElements = [];
-            const inputs = element.querySelectorAll('input');
+    products.forEach(prod => {
+        totalQty += Number(prod.qty);
+        totalAmount += (prod.qty * prod.price);
+    });
 
-            inputs.forEach(input => {
-                const span = document.createElement('span');
-                
-                // Sử dụng giá trị đã được định dạng (đảm bảo input tiền tệ đã gọi onblur)
-                if (input.classList.contains('unit-price')) {
-                    // Lấy giá trị sau khi đã formatCurrencyInput(..., true)
-                    span.textContent = input.value; 
-                } else if (input.id === 'currentDate') {
-                    // Định dạng lại ngày tháng từ YYYY-MM-DD sang DD/MM/YYYY cho PDF
-                    const [year, month, day] = input.value.split('-');
-                    span.textContent = `${day}/${month}/${year}`;
-                } else {
-                    span.textContent = input.value;
-                }
-                
-                span.classList.add('pdf-static-value', 'inline-block', 'w-full', 'h-full'); // Thêm class để dễ kiểm soát
+    document.getElementById('total-qty').innerText = totalQty.toLocaleString('vi-VN');
+    document.getElementById('total-amount').innerText = totalAmount.toLocaleString('vi-VN') + ' đ';
+}
 
-                // Copy alignment và style cần thiết
-                const computedStyle = window.getComputedStyle(input);
-                span.style.textAlign = computedStyle.textAlign;
-                span.style.padding = computedStyle.padding;
-                span.style.margin = computedStyle.margin;
-                span.style.border = 'none'; // Đảm bảo không có border
-                span.style.backgroundColor = 'transparent'; // Đảm bảo không có background
-                span.style.lineHeight = computedStyle.lineHeight; // Giữ nguyên line height
+function renderTable() {
+    const tbody = document.getElementById('product-list');
+    tbody.innerHTML = '';
 
-                // Store original input and replace it
-                const parent = input.parentNode;
-                const nextSibling = input.nextSibling;
-                
-                originalElements.push({ parent, input, nextSibling });
-                parent.replaceChild(span, input);
-            });
+    let totalQty = 0;
+    let totalAmount = 0;
+
+    products.forEach((prod, index) => {
+        const rowTotal = prod.qty * prod.price;
+        totalQty += Number(prod.qty);
+        totalAmount += rowTotal;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-gray-50";
+        tr.innerHTML = `
+            <td class="border border-gray-400 p-1 text-center bg-transparent">${index + 1}</td>
+            <td class="border border-gray-400 p-0">
+                <input type="text" id="prod-${index}-name" 
+                    class="w-full h-full p-1 outline-none bg-transparent" 
+                    value="${prod.name}" 
+                    oninput="updateProduct(${index}, 'name', this.value)"
+                >
+            </td>
+            <td class="border border-gray-400 p-0">
+                <input type="text" id="prod-${index}-sku" 
+                    class="w-full h-full p-1 text-center outline-none bg-transparent" 
+                    value="${prod.sku}" 
+                    oninput="updateProduct(${index}, 'sku', this.value)"
+                >
+            </td>
+            <td class="border border-gray-400 p-0">
+                <input type="number" id="prod-${index}-qty" 
+                    class="w-full h-full p-1 text-center outline-none bg-transparent" 
+                    value="${prod.qty}" 
+                    oninput="updateProduct(${index}, 'qty', this.value)"
+                >
+            </td>
+            <td class="border border-gray-400 p-0">
+                <input type="number" id="prod-${index}-price" 
+                    class="w-full h-full p-1 text-right outline-none bg-transparent" 
+                    value="${prod.price}" 
+                    oninput="updateProduct(${index}, 'price', this.value)"
+                >
+            </td>
+            <td id="prod-${index}-total" class="border border-gray-400 p-1 text-right font-medium">
+                ${rowTotal.toLocaleString('vi-VN')}
+            </td>
+            <td class="border border-gray-400 p-0">
+                <input type="text" id="prod-${index}-note" 
+                    class="w-full h-full p-1 outline-none bg-transparent" 
+                    value="${prod.note}" 
+                    oninput="updateProduct(${index}, 'note', this.value)"
+                >
+            </td>
+            <td class="border border-gray-400 p-1 text-center no-print" data-html2canvas-ignore="true">
+                <button onclick="removeRow(${index})" class="text-red-500 hover:text-red-700 font-bold px-1">
+                    &times;
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('total-qty').innerText = totalQty.toLocaleString('vi-VN');
+    document.getElementById('total-amount').innerText = totalAmount.toLocaleString('vi-VN') + ' đ';
+}
+
+function saveData() {
+    const data = {
+        products: products,
+        inputs: {}
+    };
+
+    INPUT_IDS.forEach(id => {
+        data.inputs[id] = document.getElementById(id).value;
+    });
+
+    localStorage.setItem('exportForm_data', JSON.stringify(data));
+}
+
+function loadData() {
+    const saved = localStorage.getItem('exportForm_data');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            if (data.products) products = data.products;
+            if (data.inputs) {
+                INPUT_IDS.forEach(id => {
+                    if (data.inputs[id]) document.getElementById(id).value = data.inputs[id];
+                });
+            }
+        } catch (e) {
+            console.error("Error loading data", e);
         }
+    } else {
+        document.getElementById('date').valueAsDate = new Date();
+    }
+}
 
-        /**
-         * Khôi phục các input gốc sau khi tạo PDF.
-         */
-        function restoreInputs() {
-            originalElements.forEach(item => {
-                const existingSpan = item.parent.querySelector('.pdf-static-value');
-                if (existingSpan) {
-                    item.parent.replaceChild(item.input, existingSpan);
-                } else {
-                    // Fallback nếu không tìm thấy span (ví dụ: đã bị xóa hoặc lỗi)
-                    if (item.nextSibling) {
-                        item.parent.insertBefore(item.input, item.nextSibling);
-                    } else {
-                        item.parent.appendChild(item.input);
-                    }
-                }
-            });
-            originalElements = [];
-            // Sau khi khôi phục, đảm bảo tính toán tổng lại (phòng trường hợp người dùng đang edit)
-            calculateTotal(); 
-        }
+function resetData() {
+    if (confirm("Bạn có chắc chắn muốn xóa hết dữ liệu và làm mới phiếu không?")) {
+        localStorage.removeItem('exportForm_data');
+        location.reload();
+    }
+}
 
-        function generatePdf() {
-            const element = document.getElementById('content');
-            const downloadButton = document.getElementById('downloadPdf');
-            
-            // 1. Chạy tính tổng lần cuối và format currency cho tất cả input
-            document.querySelectorAll('.unit-price').forEach(input => formatCurrencyInput(input, true));
-            calculateTotal(); 
+function downloadPDF() {
+    const element = document.getElementById('invoice-content');
+    const opt = {
+        margin: 0,
+        filename: 'phieu-xuat-kho.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a5', orientation: 'landscape' },
+        pagebreak: { mode: 'avoid-all' }
+    };
+    html2pdf().set(opt).from(element).save();
+}
 
-            // 2. Chuẩn bị nội dung cho PDF (thay thế input bằng text)
-            replaceInputsWithStaticSpans(element);
-            
-            // Vô hiệu hóa nút Tải PDF trong quá trình tạo
-            downloadButton.disabled = true;
-            downloadButton.textContent = 'Đang tạo PDF...';
+function downloadExcel() {
+    // Collect data
+    const phone = document.getElementById('phone').value || '';
+    const storeCode = document.getElementById('storeCode').value || '';
 
-            // 3. Cấu hình và tạo PDF (Đổi sang A4 portrait để hiển thị rõ hơn)
-            html2pdf().from(element).set({
-                margin: 5,
-                filename: 'Phieu_Yeu_Cau_Xuat_Hang.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-            }).save().finally(() => {
-                // 4. Khôi phục lại input và trạng thái nút sau khi tạo PDF xong
-                restoreInputs();
-                downloadButton.disabled = false;
-                downloadButton.textContent = 'Tải về PDF';
-            });
-        }
+    // Create Array of Arrays
+    // A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11, M=12, N=13, O=14, P=15, Q=16
+    // Requirements:
+    // A: Phone
+    // D: Phone
+    // I: Product Name
+    // L: SKU - StoreCode
+    // Q: Quantity
 
-        /**
-         * Hàm khởi tạo Form (chạy khi body load)
-         */
-        function initializeForm() {
-            setDate(); // Đặt ngày mặc định nếu chưa chọn
-            const params = getURLParameters();
-            populateForm(params);
-            updateStt();
-            calculateTotal(); 
+    // Header Row
+    const headers = new Array(17).fill('');
+    headers[0] = "SĐT Khách";
+    headers[3] = "SĐT Khách";
+    headers[8] = "Tên Sản Phẩm";
+    headers[11] = "Mã SP - Mã GH";
+    headers[16] = "Số Lượng";
 
-            // Gắn sự kiện click cho nút Tải về PDF
-            document.getElementById('downloadPdf').addEventListener('click', generatePdf);
-            // Gắn sự kiện click cho nút Tải về Excel
-            document.getElementById('downloadExcel').addEventListener('click', generateExcel);
-            // Gắn sự kiện click cho nút Thêm dòng
-            document.getElementById('addRow').addEventListener('click', () => addProductRow());
-        }
-    </script>
+    const data = [headers];
+
+    products.forEach(p => {
+        const row = new Array(17).fill(''); // Create empty row up to index 16 (Q)
+
+        row[0] = phone; // A: SĐT khách
+        row[3] = phone; // D: SĐT khách
+        row[8] = p.name; // I: Tên sản phẩm
+        row[11] = `${p.sku}-${storeCode}`; // L: Mã SP - Mã GH
+        row[16] = Number(p.qty); // Q: Số lượng
+
+        data.push(row);
+    });
+
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+    // Generate Excel file
+    XLSX.writeFile(wb, "danh-sach-xuat-hang.xlsx");
+}
+</script>
 </body>
+
 </html>
