@@ -537,6 +537,7 @@ function downloadExcel() {
         row[8] = p.name; // I: Tên sản phẩm
         row[11] = `${p.sku}-${storeCode}`; // L: Mã SP - Mã GH
         row[14] = Number(p.qty); // o: Số lượng
+        row[4] = "AHA";
 
         data.push(row);
     });
