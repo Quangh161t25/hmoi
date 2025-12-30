@@ -525,11 +525,7 @@ function downloadExcel() {
 
     // Header Row
     const headers = new Array(17).fill('');
-    headers[0] = "SĐT Khách";
-    headers[3] = "SĐT Khách";
-    headers[8] = "Tên Sản Phẩm";
-    headers[11] = "Mã SP - Mã GH";
-    headers[16] = "Số Lượng";
+    headers[0] = "Mã đơn hàng";	headers[1] = "Mã Kiện Hàng";	headers[2] = "Ngày đặt hàng";	headers[3] = "Mã vận đơn";	headers[4] = "Đơn Vị Vận Chuyển";	headers[5] = "Phương thức giao hàng";	headers[6] = "Loại đơn hàng";	headers[7] = "Ngày gửi hàng";	headers[8] = "Tên sản phẩm";	headers[9] = "Cân nặng sản phẩm";	headers[10] = "Tổng cân nặng";	headers[11] = "SKU phân loại hàng";	headers[12] = "Tên phân loại hàng";	headers[13] = "Đơn giá";	headers[14] = "Số lượng";	headers[15] = "Tổng giá bán (sản phẩm)";	headers[16] = "Tổng giá trị đơn hàng (VND)";	headers[17] = "Phí vận chuyển (dự kiến)";	headers[18] = "Phí vận chuyển mà người mua trả";	headers[19] = "Phí vận chuyển tài trợ bởi Shopee (dự kiến)";	headers[20] = "Phí trả hàng";	headers[21] = "Tổng số tiền người mua thanh toán";	headers[22] = "Phương thức thanh toán";	headers[23] = "Phí cố định";	headers[24] = "Phí Dịch Vụ";	headers[25] = "Phí thanh toán";	headers[26] = "Tiền ký quỹ";	headers[27] = "Người Mua";	headers[28] = "Tên Người nhận";	headers[29] = "Số điện thoại";	headers[30] = "Tỉnh/Thành phố";	headers[31] = "TP / Quận / Huyện";	headers[32] = "Quận";	headers[33] = "Địa chỉ nhận hàng";	headers[34] = "Ghi chú";
 
     const data = [headers];
 
@@ -540,7 +536,7 @@ function downloadExcel() {
         row[3] = phone; // D: SĐT khách
         row[8] = p.name; // I: Tên sản phẩm
         row[11] = `${p.sku}-${storeCode}`; // L: Mã SP - Mã GH
-        row[16] = Number(p.qty); // Q: Số lượng
+        row[14] = Number(p.qty); // o: Số lượng
 
         data.push(row);
     });
