@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple SVG Editor</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f5;
+            --sidebar-bg: #1e1e24;
+            --text-color: #333;
+            --sidebar-text: #e1e1e6;
+            --accent-color: #4a90e2;
+            --border-color: #ddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+            padding: 20px;
+            gap: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            color: #fff;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+        }
+
+        .tool-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            background-color: #444;
+            border-color: #666;
+        }
+
+        button.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .control-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .property-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .property-row label {
+            font-size: 0.85rem;
+            color: #bbb;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="color"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background-color: #2a2a30;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        input[type="color"] {
+            height: 40px;
+            padding: 2px;
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        /* Special style for cell editor input */
+        #cell-editor {
+            background-color: white !important;
+            color: black !important;
+            border: 2px solid var(--accent-color) !important;
+            padding: 0 !important;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-danger {
+            background-color: #d9534f;
+            border-color: #d43f3a;
+        }
+
+        .btn-danger:hover {
+            background-color: #c9302c;
+        }
+
+        .btn-success {
+            background-color: #5cb85c;
+            border-color: #4cae4c;
+        }
+
+        .btn-success:hover {
+            background-color: #449d44;
+        }
+
+        /* Canvas Area */
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            background-color: #fff;
+            background-image:
+                linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        svg {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            cursor: crosshair;
+        }
+
+        svg:focus {
+            outline: none;
+        }
+
+        /* Svg Elements */
+        .svg-object {
+            cursor: move;
+        }
+
+        .svg-object text {
+            pointer-events: none;
+            /* Let clicks pass through to the group/shape */
+        }
+
+        /* Selection Handles */
+        .selection-group {
+            pointer-events: none;
+        }
+
+        .selection-frame {
+            fill: none;
+            stroke: var(--accent-color);
+            stroke-width: 1.5;
+            vector-effect: non-scaling-stroke;
+            pointer-events: none;
+        }
+
+        .resize-handle {
+            fill: #fff;
+            stroke: var(--accent-color);
+            stroke-width: 1.5;
+            r: 5;
+            cursor: pointer;
+            pointer-events: all;
+            transition: r 0.1s;
+        }
+
+        .resize-handle:hover {
+            r: 7;
+            fill: var(--accent-color);
+        }
+
+        /* Cursor styles for handles */
+        .handle-nw {
+            cursor: nw-resize;
+        }
+
+        .handle-n {
+            cursor: n-resize;
+        }
+
+        .handle-ne {
+            cursor: ne-resize;
+        }
+
+        .handle-e {
+            cursor: e-resize;
+        }
+
+        .handle-se {
+            cursor: se-resize;
+        }
+
+        .handle-s {
+            cursor: s-resize;
+        }
+
+        .handle-sw {
+            cursor: sw-resize;
+        }
+
+        .handle-w {
+            cursor: w-resize;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside id="sidebar">
+        <div class="tool-group">
+            <h2>Công cụ</h2>
+            <button id="btn-select" class="active" onclick="setTool('select')">
+                <span>➤</span> Con trỏ (Select)
+            </button>
+            <button id="btn-rect" onclick="setTool('rect')">
+                <span>⬜</span> Hình chữ nhật
+            </button>
+            <button id="btn-circle" onclick="setTool('circle')">
+                <span>〇</span> Hình tròn
+            </button>
+            <button id="btn-text" onclick="setTool('text')">
+                <span>T</span> Văn bản
+            </button>
+            <button id="btn-table" onclick="setTool('table')">
+                <span>▦</span> Bảng dữ liệu
+            </button>
+        </div>
+
+        <div class="control-panel">
+            <h2>Thuộc tính</h2>
+            <div id="properties-content">
+                <p style="color: #666; font-style: italic;">Chọn một đối tượng để chỉnh sửa.</p>
+            </div>
+        </div>
+
+        <div class="tool-group">
+            <h2>Hành động</h2>
+            <div class="action-buttons">
+                <button class="btn-danger" style="flex:1" onclick="deleteAll()">Xóa tất cả</button>
+                <button class="btn-success" style="flex:1" onclick="downloadSVG()">Tải SVG</button>
+            </div>
+        </div>
+    </aside>
+
+    <main id="canvas-container">
+        <svg id="main-svg" width="1024" height="768" xmlns="http://www.w3.org/2000/svg" tabindex="0">
+            <!-- Grid/Background Layer -->
+            <defs>
+                <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="gray" stroke-width="0.5" />
+                </pattern>
+            </defs>
+
+            <!-- Objects Layer -->
+            <g id="layer-objects"></g>
+
+            <!-- Selection Layer (Always on top) -->
+            <g id="layer-selection"></g>
+        </svg>
+    </main>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        const state = {
+            tool: 'select', // select, rect, circle, text, table
+            objects: [],
+            selectedId: null,
+            nextId: 1,
+            // Dragging/Resizing (Outer)
+            isDragging: false,
+            dragStart: { x: 0, y: 0 },
+            initialObjState: null,
+            isResizing: false,
+            resizeHandle: null,
+
+            // Table Internal Resizing
+            isTableResizing: false,
+            tableResizeState: null, // { objId, type: 'row'|'col', index, startVal }
+
+            // Editing
+            editingCell: null, // { objId, r, c }
+
+            // Defaults
+            defaults: {
+                fill: '#4a90e2',
+                stroke: '#000000',
+                strokeWidth: 0,
+                opacity: 1,
+                textColor: '#000000',
+                fontSize: 24
+            }
+        };
+
+        const svg = document.getElementById('main-svg');
+        const objectsLayer = document.getElementById('layer-objects');
+        const selectionLayer = document.getElementById('layer-selection');
+        const propertiesContent = document.getElementById('properties-content');
+        const canvasContainer = document.getElementById('canvas-container');
+
+        // --- HELPER: FORMULA ENGINE ---
+        const FormulaEngine = {
+            // Convert "A1" to {r:0, c:0}
+            parseRef: (ref) => {
+                const colLetter = ref.match(/[A-Z]+/)[0];
+                const rowNum = parseInt(ref.match(/\d+/)[0]);
+
+                let col = 0;
+                for (let i = 0; i < colLetter.length; i++) {
+                    col = col * 26 + (colLetter.charCodeAt(i) - 64);
+                }
+                return { r: rowNum - 1, c: col - 1 };
+            },
+
+            // Evaluate formula
+            evaluate: (formula, cells) => {
+                if (!formula.startsWith('=')) return formula;
+
+                const expression = formula.substring(1).toUpperCase();
+
+                // Replace Cell Refs (e.g., A1) with values
+                // Regex to find refs: [A-Z]+[0-9]+
+                const parsedExpr = expression.replace(/[A-Z]+[0-9]+/g, (match) => {
+                    const coords = FormulaEngine.parseRef(match);
+                    const cellKey = `${coords.r}-${coords.c}`;
+                    const cellVal = cells[cellKey]?.value || 0;
+                    return isNaN(Number(cellVal)) ? 0 : Number(cellVal);
+                });
+
+                try {
+                    // Safe evaluation limit to Math
+                    if (/[^0-9+\-*/().\s]/.test(parsedExpr)) {
+                        return "#ERR";
+                    }
+                    return new Function('return ' + parsedExpr)();
+                } catch (e) {
+                    return "#ERR";
+                }
+            },
+
+            recalculateTable: (obj) => {
+                if (!obj.cells) return;
+                // Simple naive pass
+                for (let pass = 0; pass < 2; pass++) {
+                    Object.keys(obj.cells).forEach(key => {
+                        const cell = obj.cells[key];
+                        if (cell.raw.startsWith('=')) {
+                            cell.value = FormulaEngine.evaluate(cell.raw, obj.cells);
+                        } else {
+                            cell.value = cell.raw;
+                        }
+                    });
+                }
+            }
+        };
+
+        // --- TOOL SWITCHING ---
+        function setTool(toolName) {
+            state.tool = toolName;
+            document.querySelectorAll('.tool-group button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${toolName}`).classList.add('active');
+
+            if (toolName !== 'select') {
+                deselect();
+                svg.style.cursor = 'crosshair';
+            } else {
+                svg.style.cursor = 'default';
+            }
+        }
+
+        // --- OBJECT FACTORY ---
+        function createObject(type, x, y) {
+            const id = state.nextId++;
+            let obj = {
+                id, type, x, y,
+                rotation: 0,
+                fill: state.defaults.fill,
+                opacity: 1
+            };
+
+            if (type === 'rect') {
+                obj.width = 140; obj.height = 80;
+                obj.text = ''; obj.textColor = '#ffffff';
+            } else if (type === 'circle') {
+                obj.r = 50; obj.text = ''; obj.textColor = '#ffffff';
+            } else if (type === 'text') {
+                obj.text = 'Double click to edit';
+                obj.fontSize = 24; obj.fill = '#000000';
+                obj.width = 200; obj.height = 30;
+            } else if (type === 'table') {
+                // User Default: 2 rows, 4 columns
+                // System: +1 row, +1 col for formulas
+                obj.dataRows = 2;
+                obj.dataCols = 4;
+                obj.rows = obj.dataRows + 1;
+                obj.cols = obj.dataCols + 1;
+
+                // Initial Fixed Sizes
+                const defaultColW = 100;
+                const defaultRowH = 50;
+
+                obj.colWidths = new Array(obj.cols).fill(defaultColW);
+                obj.rowHeights = new Array(obj.rows).fill(defaultRowH);
+
+                // Computed total dim (init)
+                obj.width = obj.colWidths.reduce((a, b) => a + b, 0);
+                obj.height = obj.rowHeights.reduce((a, b) => a + b, 0);
+
+                obj.fill = 'none'; obj.stroke = '#000000'; obj.strokeWidth = 1;
+                obj.cells = {};
+            }
+
+            state.objects.push(obj);
+            renderObjects();
+            selectObject(id);
+        }
+
+        // --- RENDERING ---
+        function renderObjects() {
+            objectsLayer.innerHTML = '';
+            state.objects.forEach(obj => {
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                group.setAttribute('transform', `translate(${obj.x}, ${obj.y}) rotate(${obj.rotation})`);
+                group.setAttribute('class', 'svg-object');
+                group.dataset.id = obj.id;
+
+                // Render shapes
+                let shape;
+                if (obj.type === 'rect') {
+                    shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    shape.setAttribute('x', -obj.width / 2); shape.setAttribute('y', -obj.height / 2);
+                    shape.setAttribute('width', obj.width); shape.setAttribute('height', obj.height);
+                    shape.setAttribute('fill', obj.fill); shape.setAttribute('opacity', obj.opacity);
+                }
+                else if (obj.type === 'circle') {
+                    shape = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    shape.setAttribute('r', obj.r);
+                    shape.setAttribute('fill', obj.fill); shape.setAttribute('opacity', obj.opacity);
+                }
+                else if (obj.type === 'text') {
+                    shape = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    shape.setAttribute('text-anchor', 'middle'); shape.setAttribute('dominant-baseline', 'middle');
+                    shape.setAttribute('fill', obj.fill); shape.setAttribute('font-size', obj.fontSize);
+                    shape.textContent = obj.text;
+                }
+                else if (obj.type === 'table') {
+                    shape = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+                    // Recalculate Totals (just in case)
+                    const totalW = obj.colWidths.reduce((a, b) => a + b, 0);
+                    const totalH = obj.rowHeights.reduce((a, b) => a + b, 0);
+                    obj.width = totalW;
+                    obj.height = totalH;
+
+                    const startX = -totalW / 2;
+                    const startY = -totalH / 2;
+
+                    // BG
+                    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    bg.setAttribute('x', startX); bg.setAttribute('y', startY);
+                    bg.setAttribute('width', totalW); bg.setAttribute('height', totalH);
+                    bg.setAttribute('fill', '#ffffff');
+                    bg.setAttribute('stroke', obj.stroke); bg.setAttribute('stroke-width', 2);
+                    shape.appendChild(bg);
+
+                    // Horizontal Lines & Resize Areas
+                    let currentY = startY;
+                    for (let i = 0; i < obj.rowHeights.length; i++) {
+                        currentY += obj.rowHeights[i];
+                        if (i === obj.rowHeights.length - 1) continue;
+
+                        const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        l.setAttribute('x1', startX); l.setAttribute('y1', currentY);
+                        l.setAttribute('x2', startX + totalW); l.setAttribute('y2', currentY);
+
+                        let isSeparator = (i === obj.dataRows - 1);
+                        l.setAttribute('stroke', isSeparator ? '#4a90e2' : '#ccc');
+                        l.setAttribute('stroke-width', isSeparator ? 1.5 : 1);
+                        shape.appendChild(l);
+
+                        // Invisible Resize Hit Area
+                        const hit = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        hit.setAttribute('x1', startX); hit.setAttribute('y1', currentY);
+                        hit.setAttribute('x2', startX + totalW); hit.setAttribute('y2', currentY);
+                        hit.setAttribute('stroke', 'transparent');
+                        hit.setAttribute('stroke-width', 8);
+                        hit.style.cursor = 'row-resize';
+                        hit.addEventListener('mousedown', (e) => {
+                            e.stopPropagation(); // prevent object drag
+                            state.isTableResizing = true;
+                            state.tableResizeState = {
+                                objId: obj.id,
+                                type: 'row',
+                                index: i,
+                                startVal: obj.rowHeights[i],
+                                mouseStart: e.clientY
+                            };
+                        });
+                        shape.appendChild(hit);
+                    }
+
+                    // Vertical Lines & Resize Areas
+                    let currentX = startX;
+                    for (let i = 0; i < obj.colWidths.length; i++) {
+                        currentX += obj.colWidths[i];
+                        if (i === obj.colWidths.length - 1) continue;
+
+                        const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        l.setAttribute('x1', currentX); l.setAttribute('y1', startY);
+                        l.setAttribute('x2', currentX); l.setAttribute('y2', startY + totalH);
+
+                        let isSeparator = (i === obj.dataCols - 1);
+                        l.setAttribute('stroke', isSeparator ? '#4a90e2' : '#ccc');
+                        l.setAttribute('stroke-width', isSeparator ? 1.5 : 1);
+                        shape.appendChild(l);
+
+                        // Invisible Resize Hit Area
+                        const hit = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        hit.setAttribute('x1', currentX); hit.setAttribute('y1', startY);
+                        hit.setAttribute('x2', currentX); hit.setAttribute('y2', startY + totalH);
+                        hit.setAttribute('stroke', 'transparent');
+                        hit.setAttribute('stroke-width', 8);
+                        hit.style.cursor = 'col-resize';
+                        hit.addEventListener('mousedown', (e) => {
+                            e.stopPropagation();
+                            state.isTableResizing = true;
+                            state.tableResizeState = {
+                                objId: obj.id,
+                                type: 'col',
+                                index: i,
+                                startVal: obj.colWidths[i],
+                                mouseStart: e.clientX
+                            };
+                        });
+                        shape.appendChild(hit);
+                    }
+
+                    // Cells
+                    const cellsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    if (obj.cells) {
+                        Object.keys(obj.cells).forEach(key => {
+                            const [r, c] = key.split('-').map(Number);
+                            if (r >= obj.rows || c >= obj.cols) return;
+
+                            const cellData = obj.cells[key];
+
+                            let cellX = startX;
+                            for (let k = 0; k < c; k++) cellX += obj.colWidths[k];
+                            cellX += obj.colWidths[c] / 2;
+
+                            let cellY = startY;
+                            for (let k = 0; k < r; k++) cellY += obj.rowHeights[k];
+                            cellY += obj.rowHeights[r] / 2;
+
+                            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                            text.setAttribute('x', cellX);
+                            text.setAttribute('y', cellY);
+                            text.setAttribute('text-anchor', 'middle');
+                            text.setAttribute('dominant-baseline', 'middle');
+                            text.setAttribute('font-size', '14');
+                            text.setAttribute('fill', '#333');
+                            text.setAttribute('pointer-events', 'none');
+                            text.textContent = cellData.value;
+                            cellsGroup.appendChild(text);
+                        });
+                    }
+                    shape.appendChild(cellsGroup);
+                }
+                if (shape) group.appendChild(shape);
+
+                // Shape Overlay Text
+                if ((obj.type === 'rect' || obj.type === 'circle') && obj.text) {
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'middle');
+                    text.setAttribute('fill', obj.textColor || '#fff');
+                    text.setAttribute('font-size', 14);
+                    text.setAttribute('pointer-events', 'none');
+
+                    const lines = obj.text.split('\n');
+                    const lineHeight = 16;
+                    const startY = -((lines.length - 1) * lineHeight) / 2;
+
+                    lines.forEach((lineStr, index) => {
+                        const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                        tspan.setAttribute('x', 0);
+                        tspan.setAttribute('dy', index === 0 ? startY : lineHeight);
+                        if (index === 0 && lines.length === 1) tspan.setAttribute('dy', 0);
+                        tspan.textContent = lineStr;
+                        text.appendChild(tspan);
+                    });
+                    group.appendChild(text);
+                }
+
+                // Events
+                group.addEventListener('mousedown', (e) => {
+                    // If we hit a resize handle, this won't fire due to stopPropagation.
+                    if (state.tool === 'select') {
+                        e.stopPropagation();
+                        selectObject(obj.id);
+                        state.isDragging = true;
+                        state.dragStart = { x: e.clientX, y: e.clientY };
+                        state.initialObjState = {
+                            ...obj,
+                            colWidths: obj.colWidths ? [...obj.colWidths] : undefined,
+                            rowHeights: obj.rowHeights ? [...obj.rowHeights] : undefined
+                        };
+                    }
+                });
+
+                // Table Double Click
+                if (obj.type === 'table') {
+                    group.addEventListener('dblclick', (e) => {
+                        e.stopPropagation();
+                        const CTM = group.getScreenCTM();
+                        const pt = svg.createSVGPoint();
+                        pt.x = e.clientX;
+                        pt.y = e.clientY;
+                        const relPt = pt.matrixTransform(CTM.inverse());
+
+                        const localX = relPt.x + (obj.width / 2);
+                        const localY = relPt.y + (obj.height / 2);
+
+                        let foundCol = -1;
+                        let accumX = 0;
+                        for (let i = 0; i < obj.colWidths.length; i++) {
+                            if (localX >= accumX && localX < accumX + obj.colWidths[i]) {
+                                foundCol = i; break;
+                            }
+                            accumX += obj.colWidths[i];
+                        }
+
+                        let foundRow = -1;
+                        let accumY = 0;
+                        for (let i = 0; i < obj.rowHeights.length; i++) {
+                            if (localY >= accumY && localY < accumY + obj.rowHeights[i]) {
+                                foundRow = i; break;
+                            }
+                            accumY += obj.rowHeights[i];
+                        }
+
+                        if (foundCol !== -1 && foundRow !== -1) {
+                            startEditingCell(obj, foundRow, foundCol);
+                        }
+                    });
+                }
+
+                objectsLayer.appendChild(group);
+            });
+        }
+
+        function renderSelection() {
+            selectionLayer.innerHTML = '';
+            if (!state.selectedId) return;
+
+            const obj = state.objects.find(o => o.id === state.selectedId);
+            if (!obj) return;
+
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute('transform', `translate(${obj.x}, ${obj.y}) rotate(${obj.rotation})`);
+            group.setAttribute('class', 'selection-group');
+
+            let w, h;
+            if (obj.type === 'circle') { w = obj.r * 2; h = obj.r * 2; }
+            else { w = obj.width; h = obj.height; }
+
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute('x', -w / 2); rect.setAttribute('y', -h / 2);
+            rect.setAttribute('width', w); rect.setAttribute('height', h);
+            rect.setAttribute('class', 'selection-frame');
+            group.appendChild(rect);
+
+            if (obj.type !== 'text') {
+                const handles = [
+                    { x: -w / 2, y: -h / 2, cursor: 'nw' }, { x: 0, y: -h / 2, cursor: 'n' }, { x: w / 2, y: -h / 2, cursor: 'ne' },
+                    { x: w / 2, y: 0, cursor: 'e' }, { x: w / 2, y: h / 2, cursor: 'se' }, { x: 0, y: h / 2, cursor: 's' },
+                    { x: -w / 2, y: h / 2, cursor: 'sw' }, { x: -w / 2, y: 0, cursor: 'w' }
+                ];
+
+                handles.forEach(hData => {
+                    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    c.setAttribute('cx', hData.x); c.setAttribute('cy', hData.y);
+                    c.setAttribute('class', `resize-handle handle-${hData.cursor}`);
+                    c.addEventListener('mousedown', (e) => {
+                        e.stopPropagation(); e.preventDefault();
+                        state.isResizing = true;
+                        state.resizeHandle = hData.cursor;
+                        state.dragStart = { x: e.clientX, y: e.clientY };
+                        state.initialObjState = { // Deep Copy again
+                            ...obj,
+                            colWidths: obj.colWidths ? [...obj.colWidths] : undefined,
+                            rowHeights: obj.rowHeights ? [...obj.rowHeights] : undefined
+                        };
+                    });
+                    group.appendChild(c);
+                });
+            }
+            selectionLayer.appendChild(group);
+            renderPropertiesPanel();
+        }
+
+        // --- CELL EDITING ---
+        function startEditingCell(obj, r, c) {
+            stopEditingCell();
+
+            const cellKey = `${r}-${c}`;
+            const currentVal = obj.cells[cellKey] ? obj.cells[cellKey].raw : '';
+
+            // Calc position based on Variable widths
+            let cellLeft = -obj.width / 2;
+            for (let k = 0; k < c; k++) cellLeft += obj.colWidths[k];
+
+            let cellTop = -obj.height / 2;
+            for (let k = 0; k < r; k++) cellTop += obj.rowHeights[k];
+
+            const cw = obj.colWidths[c];
+            const ch = obj.rowHeights[r];
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentVal;
+            input.id = 'cell-editor';
+            input.style.position = 'absolute';
+
+            const CTM = svg.getScreenCTM();
+            const svgX = obj.x + cellLeft;
+            const svgY = obj.y + cellTop;
+
+            const screenX = (svgX * CTM.a) + CTM.e;
+            const screenY = (svgY * CTM.d) + CTM.f;
+            const screenW = cw * CTM.a;
+            const screenH = ch * CTM.d;
+
+            input.style.left = `${screenX}px`;
+            input.style.top = `${screenY}px`;
+            input.style.width = `${screenW}px`;
+            input.style.height = `${screenH}px`;
+            input.style.zIndex = 1000;
+            input.style.textAlign = 'center';
+
+            // Placeholder guidance
+            const isFormulaCell = (r === obj.rows - 1) || (c === obj.cols - 1);
+            if (isFormulaCell) input.placeholder = '=...';
+            else input.placeholder = 'Data';
+
+            input.onblur = () => confirmEditCell(obj, r, c, input.value);
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+            };
+
+            document.body.appendChild(input);
+            input.focus();
+            state.editingCell = { objId: obj.id, r, c };
+        }
+
+        function stopEditingCell() {
+            const existing = document.getElementById('cell-editor');
+            if (existing) existing.remove();
+            state.editingCell = null;
+        }
+
+        function confirmEditCell(obj, r, c, rawValue) {
+            stopEditingCell();
+            const cellKey = `${r}-${c}`;
+            if (!obj.cells) obj.cells = {};
+
+            // Validation Logic
+            const isFormulaCell = (r === obj.rows - 1) || (c === obj.cols - 1);
+
+            if (!isFormulaCell && rawValue.toString().startsWith('=')) {
+                alert('Bạn chỉ được phép đặt công thức (=...) ở dòng/cột thêm (ngoài cùng). Ở đây chỉ nhập dữ liệu.');
+                return; // Reject update
+            }
+
+            obj.cells[cellKey] = {
+                raw: rawValue,
+                value: rawValue // default
+            };
+
+            FormulaEngine.recalculateTable(obj);
+            renderObjects();
+        }
+
+        // --- INTERACTION ---
+        svg.addEventListener('mousedown', (e) => {
+            if (state.tool !== 'select') {
+                const pt = getMousePosition(e);
+                createObject(state.tool, pt.x, pt.y);
+                setTool('select');
+            } else {
+                if (e.target.tagName === 'svg') deselect();
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            // Table Internal Resizing
+            if (state.isTableResizing && state.tableResizeState) {
+                const { objId, type, index, startVal, mouseStart } = state.tableResizeState;
+                const obj = state.objects.find(o => o.id === objId);
+                if (!obj) return;
+
+                // Calculate Delta Logic needs to account for Scale/Zoom if we had it, but here just CTM
+                // However, mouseStart is clientY, so we need simple delta
+                const delta = (type === 'row') ? (e.clientY - mouseStart) : (e.clientX - mouseStart);
+
+                // Adjust delta by CTM scale (rough approx since we don't have rotation on table resize)
+                const CTM = svg.getScreenCTM();
+                const scale = (type === 'row') ? CTM.d : CTM.a;
+
+                const newVal = Math.max(10, startVal + (delta / scale));
+
+                if (type === 'row') {
+                    obj.rowHeights[index] = newVal;
+                } else {
+                    obj.colWidths[index] = newVal;
+                }
+
+                renderObjects();
+                renderSelection();
+                return;
+            }
+
+            if (state.isDragging && state.selectedId) {
+                const obj = state.objects.find(o => o.id === state.selectedId);
+                const dx = e.clientX - state.dragStart.x;
+                const dy = e.clientY - state.dragStart.y;
+                obj.x = state.initialObjState.x + dx;
+                obj.y = state.initialObjState.y + dy;
+                renderObjects(); renderSelection();
+            } else if (state.isResizing && state.selectedId) {
+                const obj = state.objects.find(o => o.id === state.selectedId);
+                const dx = e.clientX - state.dragStart.x;
+                const dy = e.clientY - state.dragStart.y;
+                handleResize(obj, dx, dy, state.resizeHandle);
+                renderObjects(); renderSelection();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            state.isDragging = false; state.isResizing = false;
+            state.isTableResizing = false; // Reset table resize
+            state.resizeHandle = null; state.initialObjState = null;
+            state.tableResizeState = null;
+        });
+
+        function getMousePosition(evt) {
+            const CTM = svg.getScreenCTM();
+            return { x: (evt.clientX - CTM.e) / CTM.a, y: (evt.clientY - CTM.f) / CTM.d };
+        }
+
+        function handleResize(obj, dx, dy, handle) {
+            let initialW = state.initialObjState.width;
+            let initialH = state.initialObjState.height;
+            let initialR = state.initialObjState.r;
+
+            let newW = initialW;
+            let newH = initialH;
+
+            if (handle.includes('e')) newW = Math.max(10, initialW + dx * 2);
+            if (handle.includes('w')) newW = Math.max(10, initialW - dx * 2);
+            if (handle.includes('s')) newH = Math.max(10, initialH + dy * 2);
+            if (handle.includes('n')) newH = Math.max(10, initialH - dy * 2);
+
+            if (obj.type === 'circle') {
+                let d = 0;
+                if (handle.includes('e') || handle.includes('s')) d = Math.max(dx, dy);
+                if (handle.includes('w') || handle.includes('n')) d = Math.max(-dx, -dy);
+                obj.r = Math.max(5, initialR + d);
+            } else if (obj.type === 'table') {
+                // Scale rows/cols proportionally
+                const scaleX = newW / initialW;
+                const scaleY = newH / initialH;
+
+                // Apply scale to initial arrays
+                obj.colWidths = state.initialObjState.colWidths.map(w => w * scaleX);
+                obj.rowHeights = state.initialObjState.rowHeights.map(h => h * scaleY);
+
+                // Width/Height will be re-summed in render
+            } else {
+                obj.width = newW;
+                obj.height = newH;
+            }
+        }
+
+        // --- SELECTION & PROPERTIES ---
+        function selectObject(id) {
+            state.selectedId = id;
+            renderSelection(); renderPropertiesPanel();
+        }
+        function deselect() {
+            state.selectedId = null;
+            selectionLayer.innerHTML = '';
+            renderPropertiesPanel();
+        }
+        function updateObjectProperty(key, value) {
+            if (!state.selectedId) return;
+            const obj = state.objects.find(o => o.id === state.selectedId);
+
+            let val = value;
+            if (['width', 'height', 'r', 'x', 'y', 'dataRows', 'dataCols', 'fontSize'].includes(key)) val = parseFloat(value);
+
+            // Handle Logic for dataRows/dataCols change
+            if (key === 'dataRows') {
+                const oldRows = obj.rows;
+                obj.dataRows = val;
+                obj.rows = val + 1;
+                // Adjust height array
+                if (obj.rows > oldRows) {
+                    // Add new rows with default height
+                    for (let i = 0; i < obj.rows - oldRows; i++) obj.rowHeights.push(50);
+                } else if (obj.rows < oldRows) {
+                    obj.rowHeights = obj.rowHeights.slice(0, obj.rows);
+                }
+
+            } else if (key === 'dataCols') {
+                const oldCols = obj.cols;
+                obj.dataCols = val;
+                obj.cols = val + 1;
+                if (obj.cols > oldCols) {
+                    for (let i = 0; i < obj.cols - oldCols; i++) obj.colWidths.push(100);
+                } else if (obj.cols < oldCols) {
+                    obj.colWidths = obj.colWidths.slice(0, obj.cols);
+                }
+            } else if (key === 'colWidthsText') {
+                // Parse CSV
+                const arr = value.split(',').map(n => parseFloat(n.trim()) || 10);
+                // Ensure valid length
+                if (arr.length === obj.cols) {
+                    obj.colWidths = arr;
+                }
+            } else if (key === 'rowHeightsText') {
+                const arr = value.split(',').map(n => parseFloat(n.trim()) || 10);
+                if (arr.length === obj.rows) {
+                    obj.rowHeights = arr;
+                }
+            } else {
+                obj[key] = val;
+            }
+
+            renderObjects(); renderSelection();
+        }
+        function deleteObject() {
+            if (!state.selectedId) return;
+            state.objects = state.objects.filter(o => o.id !== state.selectedId);
+            deselect(); renderObjects();
+        }
+        function deleteAll() {
+            if (confirm("Bạn có chắc muốn xóa tất cả?")) {
+                state.objects = []; deselect(); renderObjects();
+            }
+        }
+
+        function renderPropertiesPanel() {
+            if (!state.selectedId) {
+                propertiesContent.innerHTML = '<p style="color: #666; font-style: italic;">Chọn một đối tượng để chỉnh sửa.</p>';
+                return;
+            }
+            const obj = state.objects.find(o => o.id === state.selectedId);
+            let html = '';
+            html += createInputGroup('X', 'x', obj.x, 'number');
+            html += createInputGroup('Y', 'y', obj.y, 'number');
+
+            if (obj.type === 'rect') {
+                html += createInputGroup('Chiều rộng', 'width', obj.width, 'number');
+                html += createInputGroup('Chiều cao', 'height', obj.height, 'number');
+                html += createInputGroup('Màu tô', 'fill', obj.fill, 'color');
+                html += createInputGroup('Độ mờ', 'opacity', obj.opacity || 1, 'number', 0.1);
+                html += createInputGroup('Văn bản', 'text', obj.text, 'textarea');
+                html += createInputGroup('Màu chữ', 'textColor', obj.textColor, 'color');
+            } else if (obj.type === 'circle') {
+                html += createInputGroup('Bán kính', 'r', obj.r, 'number');
+                html += createInputGroup('Màu tô', 'fill', obj.fill, 'color');
+                html += createInputGroup('Độ mờ', 'opacity', obj.opacity || 1, 'number', 0.1);
+                html += createInputGroup('Văn bản', 'text', obj.text, 'textarea');
+                html += createInputGroup('Màu chữ', 'textColor', obj.textColor, 'color');
+            } else if (obj.type === 'text') {
+                html += createInputGroup('Nội dung', 'text', obj.text, 'textarea');
+                html += createInputGroup('Cỡ chữ', 'fontSize', obj.fontSize, 'number');
+                html += createInputGroup('Màu chữ', 'fill', obj.fill, 'color');
+            } else if (obj.type === 'table') {
+                // Display internal 'data rows' not total rows
+                html += createInputGroup('Số dòng dữ liệu', 'dataRows', obj.dataRows || (obj.rows - 1), 'number');
+                html += createInputGroup('Số cột dữ liệu', 'dataCols', obj.dataCols || (obj.cols - 1), 'number');
+
+                // List inputs for variable sizes
+                // We use a text input for CSV as requested
+                html += createInputGroup('Độ rộng các cột (cách nhau bởi phẩy)', 'colWidthsText', obj.colWidths.map(n => Math.round(n)).join(', '), 'text');
+                html += createInputGroup('Độ cao các dòng (cách nhau bởi phẩy)', 'rowHeightsText', obj.rowHeights.map(n => Math.round(n)).join(', '), 'text');
+
+                html += '<p style="font-size: 0.8rem; color: #888;">Ghi chú: Kéo các đường kẻ để thay đổi kích thước thủ công.</p>';
+            }
+
+            html += `
+            <div class="property-row" style="margin-top: 10px;">
+                <button class="btn-danger" style="width:100%; justify-content:center;" onclick="deleteObject()">Xóa đối tượng này</button>
+            </div>
+        `;
+            propertiesContent.innerHTML = html;
+        }
+
+        function createInputGroup(label, key, value, type, step = 1) {
+            let input;
+            if (type === 'textarea') {
+                input = `<textarea oninput="updateObjectProperty('${key}', this.value)">${value}</textarea>`;
+            } else {
+                input = `<input type="${type}" step="${step}" value="${value}" oninput="updateObjectProperty('${key}', this.value)">`;
+            }
+
+            return `
+            <div class="property-row">
+                <label>${label}</label>
+                ${input}
+            </div>
+        `;
+        }
+
+        // --- EXPORT ---
+        function downloadSVG() {
+            // Clone the SVG content
+            const svgClone = svg.cloneNode(true);
+            // Remove helper layers
+            const selLayer = svgClone.getElementById('layer-selection');
+            if (selLayer) selLayer.remove();
+
+            const serializer = new XMLSerializer();
+            let source = serializer.serializeToString(svgClone);
+
+            // Add namespace
+            if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            if (!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+                source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+            }
+
+            source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+            const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = url;
+            downloadLink.download = "my_design.svg";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+    </script>
+</body>
+
+</html>
