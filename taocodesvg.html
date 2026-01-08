@@ -338,7 +338,7 @@
             tableResizeState: null, // { objId, type: 'row'|'col', index, startVal }
 
             // Editing
-            editingCell: null, // { objId, r, c }
+            editingCell: null, // { objId, r, c } or { objId, type: 'text' }
 
             // Defaults
             defaults: {
@@ -400,7 +400,7 @@
             recalculateTable: (obj) => {
                 if (!obj.cells) return;
                 // Simple naive pass
-                for (let pass = 0; pass < 2; pass++) {
+                for (let pass = 2; pass < 2; pass++) {
                     Object.keys(obj.cells).forEach(key => {
                         const cell = obj.cells[key];
                         if (cell.raw.startsWith('=')) {
@@ -410,6 +410,13 @@
                         }
                     });
                 }
+                // Ensure single pass update works for linear dependencies usually
+                Object.keys(obj.cells).forEach(key => {
+                    const cell = obj.cells[key];
+                    if (cell.raw.startsWith('=')) {
+                        cell.value = FormulaEngine.evaluate(cell.raw, obj.cells);
+                    }
+                });
             }
         };
 
@@ -443,9 +450,9 @@
             } else if (type === 'circle') {
                 obj.r = 50; obj.text = ''; obj.textColor = '#ffffff';
             } else if (type === 'text') {
-                obj.text = 'Double click to edit';
+                obj.text = 'Double click loop';
                 obj.fontSize = 24; obj.fill = '#000000';
-                obj.width = 200; obj.height = 30;
+                obj.width = 200; obj.height = 100; // Increased height for multiple lines
             } else if (type === 'table') {
                 // User Default: 2 rows, 4 columns
                 // System: +1 row, +1 col for formulas
@@ -497,10 +504,37 @@
                     shape.setAttribute('fill', obj.fill); shape.setAttribute('opacity', obj.opacity);
                 }
                 else if (obj.type === 'text') {
-                    shape = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    shape.setAttribute('text-anchor', 'middle'); shape.setAttribute('dominant-baseline', 'middle');
-                    shape.setAttribute('fill', obj.fill); shape.setAttribute('font-size', obj.fontSize);
-                    shape.textContent = obj.text;
+                    shape = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+                    // Invisible Hit Rect
+                    const hit = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    hit.setAttribute('x', -obj.width / 2); hit.setAttribute('y', -obj.height / 2);
+                    hit.setAttribute('width', obj.width); hit.setAttribute('height', obj.height);
+                    hit.setAttribute('fill', 'transparent');
+
+                    // ForeignObject for Native Text Wrapping
+                    const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+                    fo.setAttribute('x', -obj.width / 2); fo.setAttribute('y', -obj.height / 2);
+                    fo.setAttribute('width', obj.width); fo.setAttribute('height', obj.height);
+
+                    const div = document.createElement('div');
+                    div.style.width = '100%';
+                    div.style.height = '100%';
+                    div.style.fontSize = `${obj.fontSize}px`;
+                    div.style.color = obj.fill;
+                    div.style.fontFamily = 'inherit';
+                    div.style.wordWrap = 'break-word'; // Auto-wrap
+                    div.style.overflow = 'hidden';
+                    div.style.display = 'flex';
+                    div.style.alignItems = 'center'; // Vertical Center
+                    div.style.justifyContent = 'center'; // Horizontal Center
+                    div.style.textAlign = 'center';
+                    div.style.pointerEvents = 'none'; // Click goes to hit rect
+                    div.innerText = obj.text;
+
+                    fo.appendChild(div);
+                    shape.appendChild(hit);
+                    shape.appendChild(fo);
                 }
                 else if (obj.type === 'table') {
                     shape = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -603,31 +637,44 @@
 
                             const cellData = obj.cells[key];
 
-                            let cellX = startX;
+                            let cellX = startX; // Top-Left of cell
                             for (let k = 0; k < c; k++) cellX += obj.colWidths[k];
-                            cellX += obj.colWidths[c] / 2;
 
-                            let cellY = startY;
+                            let cellY = startY; // Top-Left of cell
                             for (let k = 0; k < r; k++) cellY += obj.rowHeights[k];
-                            cellY += obj.rowHeights[r] / 2;
 
-                            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                            text.setAttribute('x', cellX);
-                            text.setAttribute('y', cellY);
-                            text.setAttribute('text-anchor', 'middle');
-                            text.setAttribute('dominant-baseline', 'middle');
-                            text.setAttribute('font-size', '14');
-                            text.setAttribute('fill', '#333');
-                            text.setAttribute('pointer-events', 'none');
-                            text.textContent = cellData.value;
-                            cellsGroup.appendChild(text);
+                            // ForeignObject for Cell Text Wrapping
+                            const cw = obj.colWidths[c];
+                            const ch = obj.rowHeights[r];
+
+                            const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+                            fo.setAttribute('x', cellX); fo.setAttribute('y', cellY);
+                            fo.setAttribute('width', cw); fo.setAttribute('height', ch);
+
+                            const div = document.createElement('div');
+                            div.style.width = '100%';
+                            div.style.height = '100%';
+                            div.style.fontSize = '14px';
+                            div.style.color = '#333';
+                            div.style.fontFamily = 'inherit';
+                            div.style.wordWrap = 'break-word';
+                            div.style.overflow = 'hidden';
+                            div.style.display = 'flex';
+                            div.style.alignItems = 'center';
+                            div.style.justifyContent = 'center';
+                            div.style.textAlign = 'center';
+                            div.style.pointerEvents = 'none';
+                            div.innerText = cellData.value;
+
+                            fo.appendChild(div);
+                            cellsGroup.appendChild(fo);
                         });
                     }
                     shape.appendChild(cellsGroup);
                 }
                 if (shape) group.appendChild(shape);
 
-                // Shape Overlay Text
+                // Shape Overlay Text (Rect/Circle)
                 if ((obj.type === 'rect' || obj.type === 'circle') && obj.text) {
                     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
                     text.setAttribute('text-anchor', 'middle');
@@ -703,6 +750,13 @@
                         }
                     });
                 }
+                // Text Double Click
+                else if (obj.type === 'text') {
+                    group.addEventListener('dblclick', (e) => {
+                        e.stopPropagation();
+                        startEditingText(obj);
+                    });
+                }
 
                 objectsLayer.appendChild(group);
             });
@@ -721,6 +775,10 @@
 
             let w, h;
             if (obj.type === 'circle') { w = obj.r * 2; h = obj.r * 2; }
+            else if (obj.type === 'text') {
+                w = obj.width || 100;
+                h = obj.height || 30;
+            }
             else { w = obj.width; h = obj.height; }
 
             const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -736,6 +794,8 @@
                     { x: -w / 2, y: h / 2, cursor: 'sw' }, { x: -w / 2, y: 0, cursor: 'w' }
                 ];
 
+                // Special handle behavior for Text - keep only resize handles if we want 'input size' editing
+                // User asked to 'edit format size', so handles are needed.
                 handles.forEach(hData => {
                     const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
                     c.setAttribute('cx', hData.x); c.setAttribute('cy', hData.y);
@@ -754,13 +814,98 @@
                     group.appendChild(c);
                 });
             }
+            /* Enable handles for Text too, so they can resize the container */
+            else {
+                const handles = [
+                    { x: -w / 2, y: -h / 2, cursor: 'nw' }, { x: 0, y: -h / 2, cursor: 'n' }, { x: w / 2, y: -h / 2, cursor: 'ne' },
+                    { x: w / 2, y: 0, cursor: 'e' }, { x: w / 2, y: h / 2, cursor: 'se' }, { x: 0, y: h / 2, cursor: 's' },
+                    { x: -w / 2, y: h / 2, cursor: 'sw' }, { x: -w / 2, y: 0, cursor: 'w' }
+                ];
+                handles.forEach(hData => {
+                    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    c.setAttribute('cx', hData.x); c.setAttribute('cy', hData.y);
+                    c.setAttribute('class', `resize-handle handle-${hData.cursor}`);
+                    c.addEventListener('mousedown', (e) => {
+                        e.stopPropagation(); e.preventDefault();
+                        state.isResizing = true;
+                        state.resizeHandle = hData.cursor;
+                        state.dragStart = { x: e.clientX, y: e.clientY };
+                        state.initialObjState = { ...obj };
+                    });
+                    group.appendChild(c);
+                });
+            }
             selectionLayer.appendChild(group);
-            renderPropertiesPanel();
+            // Removed renderPropertiesPanel() from here to prevent input focus loss during sidebar editing
+        }
+
+        // --- TEXT EDITING ---
+        function startEditingText(obj) {
+            stopEditingCell(); // Clear any other editors
+
+            const input = document.createElement('textarea');
+            input.value = obj.text;
+            input.id = 'text-editor';
+            input.style.position = 'absolute';
+
+            const CTM = svg.getScreenCTM();
+            // Calculate screen position
+            // obj.x, obj.y is center
+            const screenX = (obj.x * CTM.a) + CTM.e;
+            const screenY = (obj.y * CTM.d) + CTM.f;
+
+            // Exact dims from object
+            const screenW = (obj.width) * CTM.a;
+            const screenH = (obj.height) * CTM.d;
+
+            input.style.left = `${screenX - screenW / 2}px`;
+            input.style.top = `${screenY - screenH / 2}px`;
+            input.style.width = `${screenW}px`;
+            input.style.height = `${screenH}px`;
+            input.style.fontSize = `${obj.fontSize * CTM.a}px`;
+            input.style.color = obj.fill;
+            input.style.zIndex = 1000;
+            input.style.textAlign = 'center';
+            // Transparentish bg to see behind but focus on edit
+            input.style.background = 'rgba(255,255,255,0.9)';
+            input.style.border = '1px dashed #4a90e2';
+            input.style.padding = '0';
+            input.style.margin = '0';
+            input.style.outline = 'none';
+            input.style.resize = 'none'; // User resizes via object handles, not text area drag
+            input.style.overflow = 'hidden';
+            input.style.fontFamily = 'Segoe UI, sans-serif'; // Match visual
+
+            // Match vertical alignment somewhat? textarea doesn't vertically center easily without padding calc.
+            // For now, top align is standard for wrapping text blocks.
+
+            input.onblur = () => confirmEditText(obj, input.value);
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    input.blur();
+                }
+            };
+
+            document.body.appendChild(input);
+            input.focus();
+            state.editingCell = { objId: obj.id, type: 'text' };
+        }
+
+        function confirmEditText(obj, val) {
+            const editor = document.getElementById('text-editor');
+            if (editor) editor.remove();
+            state.editingCell = null;
+
+            obj.text = val;
+            renderObjects();
+            renderSelection(); // Updates handles size if text changed size (conceptually)
+            renderPropertiesPanel(); // Sync sidebar
         }
 
         // --- CELL EDITING ---
         function startEditingCell(obj, r, c) {
-            stopEditingCell();
+            stopEditingCell(); // Close text editor
 
             const cellKey = `${r}-${c}`;
             const currentVal = obj.cells[cellKey] ? obj.cells[cellKey].raw : '';
@@ -815,8 +960,10 @@
         }
 
         function stopEditingCell() {
-            const existing = document.getElementById('cell-editor');
-            if (existing) existing.remove();
+            const existingEditor = document.getElementById('cell-editor');
+            if (existingEditor) existingEditor.remove();
+            const existingTextEditor = document.getElementById('text-editor');
+            if (existingTextEditor) existingTextEditor.remove();
             state.editingCell = null;
         }
 
@@ -840,6 +987,7 @@
 
             FormulaEngine.recalculateTable(obj);
             renderObjects();
+            // No need to renderPropertiesPanel here usually, unless table stats changed
         }
 
         // --- INTERACTION ---
@@ -878,6 +1026,7 @@
 
                 renderObjects();
                 renderSelection();
+                renderPropertiesPanel(); // Update sidebar val while resizing
                 return;
             }
 
@@ -887,13 +1036,17 @@
                 const dy = e.clientY - state.dragStart.y;
                 obj.x = state.initialObjState.x + dx;
                 obj.y = state.initialObjState.y + dy;
-                renderObjects(); renderSelection();
+                renderObjects();
+                renderSelection();
+                renderPropertiesPanel(); // Update sidebar val while dragging
             } else if (state.isResizing && state.selectedId) {
                 const obj = state.objects.find(o => o.id === state.selectedId);
                 const dx = e.clientX - state.dragStart.x;
                 const dy = e.clientY - state.dragStart.y;
                 handleResize(obj, dx, dy, state.resizeHandle);
-                renderObjects(); renderSelection();
+                renderObjects();
+                renderSelection();
+                renderPropertiesPanel(); // Update sidebar val while resizing
             }
         });
 
@@ -938,8 +1091,9 @@
 
                 // Width/Height will be re-summed in render
             } else {
-                obj.width = newW;
-                obj.height = newH;
+                // Rect AND Text
+                obj.width = Math.max(10, newW);
+                obj.height = Math.max(10, newH);
             }
         }
 
@@ -998,7 +1152,9 @@
                 obj[key] = val;
             }
 
-            renderObjects(); renderSelection();
+            renderObjects();
+            renderSelection();
+            // Removed renderPropertiesPanel call to avoid loss of focus
         }
         function deleteObject() {
             if (!state.selectedId) return;
@@ -1038,6 +1194,9 @@
                 html += createInputGroup('Nội dung', 'text', obj.text, 'textarea');
                 html += createInputGroup('Cỡ chữ', 'fontSize', obj.fontSize, 'number');
                 html += createInputGroup('Màu chữ', 'fill', obj.fill, 'color');
+                // Added Width/Height for Text
+                html += createInputGroup('Chiều rộng khung', 'width', obj.width, 'number');
+                html += createInputGroup('Chiều cao khung', 'height', obj.height, 'number');
             } else if (obj.type === 'table') {
                 // Display internal 'data rows' not total rows
                 html += createInputGroup('Số dòng dữ liệu', 'dataRows', obj.dataRows || (obj.rows - 1), 'number');
