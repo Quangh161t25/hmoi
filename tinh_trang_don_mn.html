@@ -686,6 +686,9 @@
             <input id="fMvdStatus" class="form-input" placeholder="Nhập mã vận đơn...">
           </div>
           <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+            <button class="btn" onclick="setDatePreset('today', 'Status')">Hôm nay</button>
+            <button class="btn" onclick="setDatePreset('yesterday', 'Status')">Hôm qua</button>
+            <button class="btn" onclick="setDatePreset('week', 'Status')">Tuần này</button>
             <button class="btn btn-primary" onclick="renderStatusTables()">🔍 Lọc</button>
           </div>
         </div>
@@ -737,9 +740,23 @@
     <div id="tab-hoan" class="tab-pane">
       <div class="card">
         <div class="toolbar">
+          <div class="input-group">
+            <label class="label">Từ ngày</label>
+            <input type="date" id="fromDateHoan" class="form-input">
+          </div>
+          <div class="input-group">
+            <label class="label">Đến ngày</label>
+            <input type="date" id="toDateHoan" class="form-input">
+          </div>
           <input id="fShopHoan" class="form-input" placeholder="Lọc shop..." style="flex:1">
           <input id="fMvdHoan" class="form-input" placeholder="Lọc MVD..." style="flex:1">
           <input id="fSkuHoan" class="form-input" placeholder="Lọc SKU..." style="flex:1">
+          <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+            <button class="btn" onclick="setDatePreset('today', 'Hoan')">Hôm nay</button>
+            <button class="btn" onclick="setDatePreset('yesterday', 'Hoan')">Hôm qua</button>
+            <button class="btn" onclick="setDatePreset('week', 'Hoan')">Tuần này</button>
+            <button class="btn btn-primary" onclick="renderHoan()">🔍 Lọc</button>
+          </div>
         </div>
         <div class="table-container">
           <table id="tblHoan">
@@ -794,6 +811,9 @@
             <input id="fMvdChuaIn" class="form-input" placeholder="Nhập mã vận đơn...">
           </div>
           <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+            <button class="btn" onclick="setDatePreset('today', 'ChuaIn')">Hôm nay</button>
+            <button class="btn" onclick="setDatePreset('yesterday', 'ChuaIn')">Hôm qua</button>
+            <button class="btn" onclick="setDatePreset('week', 'ChuaIn')">Tuần này</button>
             <button class="btn btn-primary" onclick="renderChuaIn()">🔍 Lọc</button>
           </div>
         </div>
@@ -848,6 +868,9 @@
             <input id="fMvdHuy" class="form-input" placeholder="Nhập mã vận đơn...">
           </div>
           <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+            <button class="btn" onclick="setDatePreset('today', 'Huy')">Hôm nay</button>
+            <button class="btn" onclick="setDatePreset('yesterday', 'Huy')">Hôm qua</button>
+            <button class="btn" onclick="setDatePreset('week', 'Huy')">Tuần này</button>
             <button class="btn btn-primary" onclick="renderDonHuyHomNay()">🔍 Lọc</button>
           </div>
         </div>
@@ -876,8 +899,24 @@
     <!-- TAB: THÔNG BÁO -->
     <div id="tab-tb" class="tab-pane">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="justify-content: space-between;">
           <h3 class="card-title">🔔 Thông báo hệ thống</h3>
+        </div>
+        <div class="toolbar">
+          <div class="input-group">
+            <label class="label">Từ ngày</label>
+            <input type="date" id="fromDateTB" class="form-input">
+          </div>
+          <div class="input-group">
+            <label class="label">Đến ngày</label>
+            <input type="date" id="toDateTB" class="form-input">
+          </div>
+          <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+            <button class="btn" onclick="setDatePreset('today', 'TB')">Hôm nay</button>
+            <button class="btn" onclick="setDatePreset('yesterday', 'TB')">Hôm qua</button>
+            <button class="btn" onclick="setDatePreset('week', 'TB')">Tuần này</button>
+            <button class="btn btn-primary" onclick="renderTB()">🔍 Lọc</button>
+          </div>
         </div>
         <div class="table-container">
           <table id="tblTB">
@@ -1017,9 +1056,9 @@
     // ========== FILTER UI & LOGIC ==========
     function initFilters() {
       const today = getTodayVN();
-      ['#fromDateDon', '#toDateDon', '#fromDateStatus', '#toDateStatus', '#fromDateChuaIn', '#toDateChuaIn', '#fromDateHuy', '#toDateHuy'].forEach(id => {
+      ['#fromDateDon', '#toDateDon', '#fromDateStatus', '#toDateStatus', '#fromDateChuaIn', '#toDateChuaIn', '#fromDateHuy', '#toDateHuy', '#fromDateHoan', '#toDateHoan', '#fromDateTB', '#toDateTB'].forEach(id => {
         const el = $(id);
-        if (el) el.value = today;
+        if (el && !el.value) el.value = today; // Chỉ đặt mặc định nếu ô đang trống (không có giá trị từ URL)
       });
 
       const khung = ["Tất cả", ...new Set(State.don.map(r => r.khung_h).filter(Boolean))];
@@ -1204,7 +1243,7 @@
       let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); };
     }
 
-    function setDatePreset(type) {
+    function setDatePreset(type, suffix = 'Don') {
       const today = getTodayVN();
       let from = today, to = today;
 
@@ -1219,9 +1258,15 @@
         to = today;
       }
 
-      $('#fromDateDon').value = from;
-      $('#toDateDon').value = to;
-      renderDon();
+      $(`#fromDate${suffix}`).value = from;
+      $(`#toDate${suffix}`).value = to;
+
+      if (suffix === 'Don') renderDon();
+      else if (suffix === 'Status') renderStatusTables();
+      else if (suffix === 'ChuaIn') renderChuaIn();
+      else if (suffix === 'Huy') renderDonHuyHomNay();
+      else if (suffix === 'Hoan') renderHoan();
+      else if (suffix === 'TB') renderTB();
     }
 
     function exportInventoryExcel() {
@@ -1270,15 +1315,21 @@
     }
 
     function renderHoan() {
+      const from = $('#fromDateHoan').value;
+      const to = $('#toDateHoan').value;
       const s = ($("#fShopHoan").value || "").toLowerCase();
       const m = ($("#fMvdHoan").value || "").toLowerCase();
       const sku = ($("#fSkuHoan").value || "").toLowerCase();
 
-      const filtered = State.hoan.filter(r =>
-        (!s || (r.shop || "").toLowerCase().includes(s)) &&
-        (!m || (r.mvd_hoan || "").toLowerCase().includes(m)) &&
-        (!sku || (r.sku_hoan || "").toLowerCase().includes(sku))
-      ).sort((a, b) => {
+      const filtered = State.hoan.filter(r => {
+        const [d, m, y] = (r.ngay || "").split('/');
+        const rDate = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+
+        return (!from || rDate >= from) && (!to || rDate <= to) &&
+          (!s || (r.shop || "").toLowerCase().includes(s)) &&
+          (!m || (r.mvd_hoan || "").toLowerCase().includes(m)) &&
+          (!sku || (r.sku_hoan || "").toLowerCase().includes(sku));
+      }).sort((a, b) => {
         const [da, ma, ya] = a.ngay.split('/');
         const [db, mb, yb] = b.ngay.split('/');
         const sA = `${ya}${ma.padStart(2, '0')}${da.padStart(2, '0')}`;
@@ -1373,7 +1424,14 @@
     }
 
     function renderTB() {
-      const data = [...State.tb].sort((a, b) => {
+      const from = $('#fromDateTB').value;
+      const to = $('#toDateTB').value;
+
+      const data = State.tb.filter(r => {
+        const [d, m, y] = (r.ngay || "").split('/');
+        const rDate = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        return (!from || rDate >= from) && (!to || rDate <= to);
+      }).sort((a, b) => {
         const [da, ma, ya] = (a.ngay || "").split('/');
         const [db, mb, yb] = (b.ngay || "").split('/');
         const sA = `${ya}${ma.padStart(2, '0')}${da.padStart(2, '0')}`;
@@ -1397,9 +1455,66 @@
       }
     }
 
+    // ========== URL PARAMETER HANDLING ==========
+    /**
+     * Hỗ trợ các tham số:
+     * - tab: ID của tab cần mở (tab-don, tab-status, tab-ton, tab-hoan, tab-chuain, tab-huy, tab-tb)
+     * - mvd: Mã vận đơn để lọc trong tab Đơn chi tiết hoặc Trạng thái
+     * - mdh: Mã đơn hàng để lọc trong tab Đơn chi tiết
+     * - gian: Mã gian hàng
+     * - from: Ngày bắt đầu (YYYY-MM-DD)
+     * - to: Ngày kết thúc (YYYY-MM-DD)
+     */
+    function handleUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      const mvd = params.get('mvd');
+      const mdh = params.get('mdh');
+      const gian = params.get('gian');
+      const from = params.get('from');
+      const to = params.get('to');
+
+      // 1. Phân bổ dữ liệu vào các ô input nếu có
+      if (mvd) {
+        if ($('#fMvdDon')) $('#fMvdDon').value = mvd;
+        if ($('#fMvdStatus')) $('#fMvdStatus').value = mvd;
+        if ($('#fMvdChuaIn')) $('#fMvdChuaIn').value = mvd;
+        if ($('#fMvdHuy')) $('#fMvdHuy').value = mvd;
+      }
+      if (mdh) {
+        if ($('#fMvdDon')) $('#fMvdDon').value = mdh; // Dùng chung ô tìm kiếm nhanh
+      }
+      if (gian) {
+        if ($('#fGianDon')) $('#fGianDon').value = gian;
+        if ($('#fGianStatus')) $('#fGianStatus').value = gian;
+        if ($('#fGianChuaIn')) $('#fGianChuaIn').value = gian;
+        if ($('#fGianHuy')) $('#fGianHuy').value = gian;
+      }
+      if (from) {
+        ['#fromDateDon', '#fromDateStatus', '#fromDateChuaIn', '#fromDateHuy'].forEach(id => {
+          if ($(id)) $(id).value = from;
+        });
+      }
+      if (to) {
+        ['#toDateDon', '#toDateStatus', '#toDateChuaIn', '#toDateHuy'].forEach(id => {
+          if ($(id)) $(id).value = to;
+        });
+      }
+
+      // 2. Chuyển Tab nếu có yêu cầu
+      if (tab) {
+        const tabBtn = $(`.tab-btn[data-tab="${tab}"]`);
+        if (tabBtn) {
+          tabBtn.click();
+        }
+      }
+    }
+
     // ========== INITIALIZE ==========
     document.addEventListener('DOMContentLoaded', () => {
       initTabs();
+      // Xử lý URL ngay để chuyển Tab và điền input trước khi load dữ liệu
+      handleUrlParams();
       loadData();
     });
   </script>
