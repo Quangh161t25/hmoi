@@ -88,6 +88,7 @@
       font-weight: 800;
       background: linear-gradient(135deg, var(--primary-dark), #a855f7);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       display: flex;
       align-items: center;
@@ -292,6 +293,21 @@
       overflow: auto;
       max-height: 700px;
       position: relative;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Horizontal scroll indicator for mobile */
+    @media (max-width: 1024px) {
+      .table-container {
+        background: 
+          linear-gradient(to right, white 30%, rgba(255,255,255,0)),
+          linear-gradient(to right, rgba(255,255,255,0), white 70%) 0 100%,
+          radial-gradient(farthest-side at 0 50%, rgba(0,0,0,0.2), rgba(0,0,0,0)),
+          radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,0.2), rgba(0,0,0,0)) 0 100%;
+        background-repeat: no-repeat;
+        background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+        background-attachment: local, local, scroll, scroll;
+      }
     }
 
     table {
@@ -406,10 +422,75 @@
         flex-direction: column;
         gap: 12px;
         align-items: stretch;
+        padding: 12px 16px;
+      }
+
+      .header h1 {
+        font-size: 18px;
+        justify-content: space-between;
+      }
+
+      .sync-status {
+        font-size: 12px;
+        padding: 4px 8px;
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
       .global-search-container {
         width: 100%;
+      }
+
+      .nav-container {
+        top: 135px;
+        /* Adjust based on new header height */
+        padding: 0 12px;
+      }
+
+      .tab-btn {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+
+      .main-content {
+        padding: 16px 12px;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .input-group {
+        width: 100%;
+        flex: none !important;
+      }
+
+      .btn-group-mobile {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .btn-group-mobile .btn {
+        justify-content: center;
+      }
+
+      .btn-primary {
+        grid-column: span 2;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      th,
+      td {
+        padding: 8px 10px;
+        font-size: 12px;
       }
     }
 
@@ -582,7 +663,7 @@
             <label class="label">Tìm nhanh MVD/MDH</label>
             <input id="fMvdDon" class="form-input" placeholder="Nhập mã vận đơn hoặc mã đơn hàng...">
           </div>
-          <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+          <div class="btn-group-mobile" style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
             <button class="btn" onclick="setDatePreset('today')">Hôm nay</button>
             <button class="btn" onclick="setDatePreset('yesterday')">Hôm qua</button>
             <button class="btn" onclick="setDatePreset('week')">Tuần này</button>
@@ -685,7 +766,7 @@
             <label class="label">Tìm MVD/MDH</label>
             <input id="fMvdStatus" class="form-input" placeholder="Nhập mã vận đơn...">
           </div>
-          <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+          <div class="btn-group-mobile" style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
             <button class="btn" onclick="setDatePreset('today', 'Status')">Hôm nay</button>
             <button class="btn" onclick="setDatePreset('yesterday', 'Status')">Hôm qua</button>
             <button class="btn" onclick="setDatePreset('week', 'Status')">Tuần này</button>
@@ -751,7 +832,7 @@
           <input id="fShopHoan" class="form-input" placeholder="Lọc shop..." style="flex:1">
           <input id="fMvdHoan" class="form-input" placeholder="Lọc MVD..." style="flex:1">
           <input id="fSkuHoan" class="form-input" placeholder="Lọc SKU..." style="flex:1">
-          <div style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
+          <div class="btn-group-mobile" style="display:flex; gap:8px; align-self: flex-end; padding-bottom: 2px;">
             <button class="btn" onclick="setDatePreset('today', 'Hoan')">Hôm nay</button>
             <button class="btn" onclick="setDatePreset('yesterday', 'Hoan')">Hôm qua</button>
             <button class="btn" onclick="setDatePreset('week', 'Hoan')">Tuần này</button>
