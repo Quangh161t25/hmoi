@@ -1085,6 +1085,10 @@
         const el = $(id);
         if (el) el.oninput = debounce(() => renderHoan(), 300);
       });
+
+      // Filters for Inventory tab
+      $('#filterIdSp').oninput = debounce(() => renderTonKho(), 300);
+      $('#filterTenSp').oninput = debounce(() => renderTonKho(), 300);
     }
 
     function handleGlobalSearch() {
@@ -1177,6 +1181,7 @@
       const searchName = $('#filterTenSp').value.toLowerCase();
 
       const filtered = State.ton.filter(r =>
+        (r.kho === "KHO") &&
         (!searchId || (r.id_sp || "").toLowerCase().includes(searchId)) &&
         (!searchName || (r.ten_sp || "").toLowerCase().includes(searchName)) &&
         (!State.selectedBrand || r.thuong_hieu === State.selectedBrand)
