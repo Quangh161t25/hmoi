@@ -529,28 +529,22 @@
     <div style="display:flex; align-items:center; gap:15px;">
       <h1><span>📦</span> QUẢN LÝ ĐƠN POS</h1>
       <div class="sync-status">
-        <label class="sync-toggle">
-          <span style="font-weight:500;">Tự động cập nhật</span>
-          <div class="switch">
-            <input type="checkbox" id="autoSyncCheck" onchange="toggleAutoSync()">
-            <span class="slider"></span>
-          </div>
-        </label>
         <span id="lastUpdated">Cập nhật: --:--:--</span>
-        <button class="btn" onclick="loadData()">🔄 Làm mới</button>
+        <button class="btn" onclick="loadData(false)">🔄 Làm mới</button>
       </div>
     </div>
   </header>
 
   <nav class="nav-container">
-    <button class="tab-btn active" data-tab="pos" onclick="showTab('pos')">📄 Danh sách Đơn POS</button>
+    <button class="tab-btn active" data-tab="pos" onclick="showTab('pos')">📄 XẾP HẠNG POS</button>
     <button class="tab-btn" data-tab="codong" onclick="showTab('codong')">📊 CO_DONG</button>
     <button class="tab-btn" data-tab="thuchi" onclick="showTab('thuchi')">💰 THU_CHI</button>
     <button class="tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')">📝 GHI_PHUONG</button>
   </nav>
 
   <nav class="bottom-nav">
-    <button class="bottom-tab-btn active" data-tab="pos" onclick="showTab('pos')"><i>📄</i><span>POS</span></button>
+    <button class="bottom-tab-btn active" data-tab="pos" onclick="showTab('pos')"><i>📄</i><span>XẾP
+        HẠNG</span></button>
     <button class="bottom-tab-btn" data-tab="codong" onclick="showTab('codong')"><i>📊</i><span>Cổ Đông</span></button>
     <button class="bottom-tab-btn" data-tab="thuchi" onclick="showTab('thuchi')"><i>💰</i><span>Thu Chi</span></button>
     <button class="bottom-tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')"><i>📝</i><span>Ghi
@@ -561,28 +555,20 @@
     <!-- POS Tab -->
     <div id="posTab" class="tab-pane active">
       <div class="card">
+        <div class="card-header" style="justify-content: flex-start; gap: 15px;">
+          <select id="cbbPosNamThang" onchange="renderPosTable()"
+            style="padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); min-width: 150px;">
+            <option value="">Tất cả tháng...</option>
+          </select>
+        </div>
         <div class="table-container">
           <table id="tblDonPos">
             <thead>
               <tr>
                 <th>STT</th>
-                <th>Ngày</th>
-                <th>Người bán</th>
-                <th>Quản lý</th>
-                <th>SĐT</th>
-                <th>Địa chỉ</th>
-                <th>Quận Huyện</th>
-                <th>POS</th>
-                <th>Số tiền</th>
-                <th>Gói SD</th>
-                <th>Hạn SD</th>
-                <th>Còn lại</th>
-                <th>HH Bán lẻ</th>
-                <th>HH KPI</th>
-                <th>HH Nỗ lực</th>
-                <th>HH Toàn quốc</th>
-                <th>Tình trạng</th>
-                <th>Trạng thái</th>
+                <th>nam_thang</th>
+                <th>ten_nv</th>
+                <th>tong_tien</th>
               </tr>
             </thead>
             <tbody id="tbodyPos">
@@ -752,7 +738,7 @@
       });
     }
 
-    async function loadData() {
+    async function loadData(isSilent = false) {
       const loader = $('#pageLoader');
       const bar = $('#pageLoaderBar');
       const timeEl = $('#lastUpdated');
@@ -760,43 +746,51 @@
       const tbody = $('#tbodyPos');
 
       try {
-        loader.style.display = 'block';
+        if (!isSilent) {
+          loader.style.display = 'block';
+          bar.style.width = '30%';
+        }
         syncStatus.classList.add('syncing');
-        bar.style.width = '30%';
 
         const response = await fetch(API_URL);
         const result = await response.json();
-        bar.style.width = '80%';
+        if (!isSilent) bar.style.width = '80%';
 
         if (Array.isArray(result)) {
           ALL_SHEETS_DATA = result;
           // Find DON_POS specifically (Case-insensitive)
-          const posSheet = result.find(s => s.sheetName && s.sheetName.trim().toUpperCase() === "DON_POS") || result[0];
+          const posSheet = result.find(s => s.sheetName && s.sheetName.trim().toUpperCase() === "LUONG_SEO_POS") || result[0];
 
           // Lọc bỏ dòng thực sự trống (kiểm tra nếu có ít nhất 1 giá trị khác rỗng)
           STATE_DATA = (posSheet.data || []).filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
 
+          populatePosFilters(); // NEW: Populate filters
           CURRENT_PAGE = 1;
           renderAllTabs();
         } else if (result.data) {
           STATE_DATA = (result.data || []).filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+          populatePosFilters(); // NEW: Populate filters
           renderPosTable();
         }
 
-        bar.style.width = '100%';
+        if (!isSilent) bar.style.width = '100%';
         const now = new Date();
         timeEl.textContent = `Cập nhật: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
         setTimeout(() => {
-          loader.style.display = 'none';
+          if (!isSilent) {
+            loader.style.display = 'none';
+            bar.style.width = '0%';
+          }
           syncStatus.classList.remove('syncing');
-          bar.style.width = '0%';
         }, 500);
       } catch (e) {
         console.error("Lỗi tải dữ liệu:", e);
         syncStatus.classList.remove('syncing');
-        loader.style.display = 'none';
-        tbody.innerHTML = `<tr><td colspan="18" style="text-align:center; padding:40px; color:var(--danger)">Không thể kết nối tới máy chủ: ${e.message}</td></tr>`;
+        if (!isSilent) loader.style.display = 'none';
+        if (!isSilent || tbody.innerHTML.includes("Đang tải")) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:var(--danger)">Không thể kết nối tới máy chủ: ${e.message}</td></tr>`;
+        }
       }
     }
 
@@ -1079,22 +1073,64 @@
       }
     }
 
+    function populatePosFilters() {
+      if (!STATE_DATA || STATE_DATA.length === 0) return;
+      const uniqueDates = [...new Set(STATE_DATA.map(r => r.nam_thang).filter(x => x))].sort().reverse();
+      const select = $('#cbbPosNamThang');
+      if (select) {
+        const current = select.value;
+        select.innerHTML = '<option value="">Tất cả tháng...</option>' +
+          uniqueDates.map(d => `<option value="${d}">${d}</option>`).join('');
+        if (uniqueDates.includes(current)) select.value = current;
+        else if (uniqueDates.length > 0) {
+          // Default to current month: MM/YYYY
+          const now = new Date();
+          const currentMonth = `${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+          if (uniqueDates.includes(currentMonth)) {
+            select.value = currentMonth;
+          } else {
+            // Fallback: If current month not found, maybe select the latest available?
+            // For now, let's select the first one (latest due to sort reverse)
+            select.value = uniqueDates[0];
+          }
+        }
+      }
+    }
+
     function renderPosTable() {
       const tbody = $('#tbodyPos');
       const pageInfo = $('#pageInfo');
+      const filterMonth = $('#cbbPosNamThang') ? $('#cbbPosNamThang').value : "";
 
-      // Sắp xếp dữ liệu theo ngày giảm dần
-      const sortedData = [...STATE_DATA].sort((a, b) => {
-        const parseDate = str => {
-          if (!str || typeof str !== 'string') return '00000000';
-          const p = str.trim().split('/');
-          if (p.length !== 3) return '00000000';
-          return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
-        };
-        return parseDate(b.ngay).localeCompare(parseDate(a.ngay));
+      // 1. Filter
+      let filtered = STATE_DATA.filter(r => {
+        if (filterMonth && r.nam_thang !== filterMonth) return false;
+        return true;
       });
 
-      const totalItems = sortedData.length;
+      // 2. Aggregate by id_nv
+      const aggregator = {};
+      filtered.forEach(r => {
+        const id = r.id_nv || "UNKNOWN";
+        if (!aggregator[id]) {
+          aggregator[id] = {
+            id_nv: id,
+            ten_nv: r.ten_nv || r.id_nv, // Use ten_nv if available, else fallback to ID
+            nam_thang: filterMonth || r.nam_thang || "Tổng hợp",
+            totalMoney: 0
+          };
+        }
+        const money = parseFloat(String(r.tong_tien || 0).replace(/,/g, '')) || 0;
+        aggregator[id].totalMoney += money;
+      });
+
+      // Convert back to array
+      let processedData = Object.values(aggregator);
+
+      // 3. Sort by totalMoney DESC
+      processedData.sort((a, b) => b.totalMoney - a.totalMoney);
+
+      const totalItems = processedData.length;
       const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
 
       if (CURRENT_PAGE > totalPages) CURRENT_PAGE = totalPages;
@@ -1103,33 +1139,19 @@
       pageInfo.textContent = `Trang ${CURRENT_PAGE} / ${totalPages} (${totalItems.toLocaleString('vi-VN')} dòng)`;
 
       const start = (CURRENT_PAGE - 1) * PAGE_SIZE;
-      const displayData = sortedData.slice(start, start + PAGE_SIZE);
+      const displayData = processedData.slice(start, start + PAGE_SIZE);
 
       if (displayData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="18" style="text-align:center; padding:40px; color:var(--text-muted)">Không có dữ liệu hiển thị.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted)">Không có dữ liệu hiển thị.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = displayData.map((r, i) => `
         <tr>
           <td>${start + i + 1}</td>
-          <td>${r.ngay || ""}</td>
-          <td>${r.id_ng_ban || ""}</td>
-          <td>${r.id_quan || ""}</td>
-          <td>${r.sdt || ""}</td>
-          <td title="${r.dia_chi || ""}">${r.dia_chi || ""}</td>
-          <td>${r.id_quan_huyen || ""}</td>
-          <td>${r.pos || ""}</td>
-          <td>${(r.so_tien || 0).toLocaleString('vi-VN')}</td>
-          <td>${r.goi_sd || ""}</td>
-          <td>${r.han_sd || ""}</td>
-          <td>${r.so_ngay_con_lai || 0}</td>
-          <td>${(r.hoa_hồng_bán_lẻ_ng_ban || 0).toLocaleString('vi-VN')}</td>
-          <td>${(r.hoa_hồng_kpi || 0).toLocaleString('vi-VN')}</td>
-          <td>${(r['hoa_hồng nỗ lực'] || r.hoa_hồng_nỗ_lực || 0).toLocaleString('vi-VN')}</td>
-          <td>${(r['hoa_hồng_toàn quốc'] || r.hoa_hồng_toàn_quốc || 0).toLocaleString('vi-VN')}</td>
-          <td>${r.tinh_trang || ""}</td>
-          <td>${r.trang_thai || ""}</td>
+          <td>${r.nam_thang}</td>
+          <td>${r.ten_nv}</td>
+          <td style="font-weight:bold; color:var(--primary-dark)">${r.totalMoney.toLocaleString('vi-VN')}</td>
         </tr>
       `).join("");
     }
@@ -1211,16 +1233,11 @@
       $('.table-container').scrollTop = 0;
     }
 
-    function toggleAutoSync() {
-      const isChecked = $('#autoSyncCheck').checked;
-      if (isChecked) {
-        syncInterval = setInterval(loadData, 60000); // Tự động cập nhật mỗi phút
-      } else {
-        clearInterval(syncInterval);
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', loadData);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData(false); // Initial load (visible)
+      // Auto-update every 3 minutes (180,000 ms) in silent mode
+      setInterval(() => loadData(true), 180000);
+    });
   </script>
 </body>
 
