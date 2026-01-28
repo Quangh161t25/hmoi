@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> QUẢN LÝ ĐƠN POS</title>
+  <!-- Import Font Inter cho hiện đại -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Brand Colors - Modern Indigo/Slate Palette */
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #eef2ff;
+      --secondary: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+
+      /* Neutral Palette */
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-header: rgba(255, 255, 255, 0.8);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+
+      /* Effects */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Header & Glassmorphism */
+    .header {
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-dark), #a855f7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Tabs UI */
+    .nav-container {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 65px;
+      z-index: 900;
+      display: flex;
+      padding: 0 24px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 16px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      color: var(--primary-dark);
+      border-bottom-color: var(--primary-dark);
+    }
+
+    /* Layout Main Content */
+    .main-content {
+      padding: 24px;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Dashboard Cards */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Table Design */
+    .table-container {
+      overflow: auto;
+      max-height: 80vh;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    th {
+      background: #f8fafc;
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      transition: var(--transition);
+    }
+
+    tr:hover td {
+      background: #f1f5f9;
+    }
+
+    /* Sync UI */
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.02);
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+
+    .sync-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--primary);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(14px);
+    }
+
+    @keyframes pulse-sync {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .syncing {
+      animation: pulse-sync 1s infinite;
+    }
+
+    /* Loading Progress Bar */
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 9999;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #8b5cf6, #ec4899);
+      transition: width 0.3s ease;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="progress-container" id="pageLoader">
+    <div class="progress-bar" id="pageLoaderBar"></div>
+  </div>
+
+  <header class="header">
+    <div style="display:flex; align-items:center; gap:15px;">
+      <h1><span>📦</span> QUẢN LÝ ĐƠN POS</h1>
+      <div class="sync-status">
+        <label class="sync-toggle">
+          <span style="font-weight:500;">Tự động cập nhật</span>
+          <div class="switch">
+            <input type="checkbox" id="autoSyncCheck" onchange="toggleAutoSync()">
+            <span class="slider"></span>
+          </div>
+        </label>
+        <span id="lastUpdated">Cập nhật: --:--:--</span>
+        <button class="btn" onclick="loadData()">🔄 Làm mới</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav-container">
+    <button class="tab-btn active" data-tab="pos" onclick="showTab('pos')">📄 Danh sách Đơn POS</button>
+    <button class="tab-btn" data-tab="codong" onclick="showTab('codong')">📊 CO_DONG</button>
+    <button class="tab-btn" data-tab="thuchi" onclick="showTab('thuchi')">💰 THU_CHI</button>
+    <button class="tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')">📝 GHI_PHUONG</button>
+  </nav>
+
+  <main class="main-content">
+    <!-- POS Tab -->
+    <div id="posTab" class="tab-pane active">
+      <div class="card">
+        <div class="table-container">
+          <table id="tblDonPos">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Ngày</th>
+                <th>Người bán</th>
+                <th>Quản lý</th>
+                <th>SĐT</th>
+                <th>Địa chỉ</th>
+                <th>Quận Huyện</th>
+                <th>POS</th>
+                <th>Số tiền</th>
+                <th>Gói SD</th>
+                <th>Hạn SD</th>
+                <th>Còn lại</th>
+                <th>HH Bán lẻ</th>
+                <th>HH KPI</th>
+                <th>HH Nỗ lực</th>
+                <th>HH Toàn quốc</th>
+                <th>Tình trạng</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyPos">
+              <tr>
+                <td colspan="18" style="text-align:center; padding:40px; color:var(--text-muted)">Đang tải dữ liệu...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button class="btn" onclick="changePage(-1)">◀ Trang trước</button>
+          <span class="page-info" id="pageInfo">Trang 1 / 1</span>
+          <button class="btn" onclick="changePage(1)">Trang sau ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CO_DONG Tab -->
+    <div id="codongTab" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📊 Báo cáo CO_DONG</h2>
+        </div>
+        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+          Nội dung CO_DONG (Google Sheets) sẽ hiển thị ở đây.
+        </div>
+      </div>
+    </div>
+
+    <!-- THU_CHI Tab -->
+    <div id="thuchiTab" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">💰 Quản lý THU_CHI</h2>
+        </div>
+        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+          Nội dung THU_CHI (Google Sheets) sẽ hiển thị ở đây.
+        </div>
+      </div>
+    </div>
+
+    <!-- GHI_PHUONG Tab -->
+    <div id="ghiphuongTab" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📝 Ghi chú GHI_PHUONG</h2>
+        </div>
+        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+          Nội dung GHI_PHUONG (Google Sheets) sẽ hiển thị ở đây.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbx9mECBg7_YHiJuLPIGymJQCu_fTtwHn_cpLYaILuhB28PG8sKlh2uVJwUaROc7KqfP/exec";
+    let ALL_SHEETS_DATA = [];
+    let STATE_DATA = [];
+    let CURRENT_PAGE = 1;
+    const PAGE_SIZE = 100;
+    let syncInterval = null;
+
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    function showTab(tabName) {
+      // Switch Buttons
+      $$('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+      });
+
+      // Switch Panes
+      $$('.tab-pane').forEach(pane => {
+        pane.classList.toggle('active', pane.id === tabName + 'Tab');
+      });
+    }
+
+    async function loadData() {
+      const loader = $('#pageLoader');
+      const bar = $('#pageLoaderBar');
+      const timeEl = $('#lastUpdated');
+      const syncStatus = $('.sync-status');
+      const tbody = $('#tbodyPos');
+
+      try {
+        loader.style.display = 'block';
+        syncStatus.classList.add('syncing');
+        bar.style.width = '30%';
+
+        const response = await fetch(API_URL);
+        const result = await response.json();
+        bar.style.width = '80%';
+
+        if (Array.isArray(result)) {
+          ALL_SHEETS_DATA = result;
+          // Find DON_POS specifically (Case-insensitive)
+          const posSheet = result.find(s => s.sheetName && s.sheetName.trim().toUpperCase() === "DON_POS") || result[0];
+
+          // Lọc bỏ dòng thực sự trống (kiểm tra nếu có ít nhất 1 giá trị khác rỗng)
+          STATE_DATA = (posSheet.data || []).filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+
+          CURRENT_PAGE = 1;
+          renderAllTabs();
+        } else if (result.data) {
+          STATE_DATA = (result.data || []).filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+          renderPosTable();
+        }
+
+        bar.style.width = '100%';
+        const now = new Date();
+        timeEl.textContent = `Cập nhật: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+        setTimeout(() => {
+          loader.style.display = 'none';
+          syncStatus.classList.remove('syncing');
+          bar.style.width = '0%';
+        }, 500);
+      } catch (e) {
+        console.error("Lỗi tải dữ liệu:", e);
+        syncStatus.classList.remove('syncing');
+        loader.style.display = 'none';
+        tbody.innerHTML = `<tr><td colspan="18" style="text-align:center; padding:40px; color:var(--danger)">Không thể kết nối tới máy chủ: ${e.message}</td></tr>`;
+      }
+    }
+
+    function renderAllTabs() {
+      renderPosTable();
+      renderGenericSheet("codong");
+      renderGenericSheet("thuchi");
+      renderGenericSheet("ghiphuong");
+    }
+
+    function renderPosTable() {
+      const tbody = $('#tbodyPos');
+      const pageInfo = $('#pageInfo');
+
+      // Sắp xếp dữ liệu theo ngày giảm dần
+      const sortedData = [...STATE_DATA].sort((a, b) => {
+        const parseDate = str => {
+          if (!str || typeof str !== 'string') return '00000000';
+          const p = str.trim().split('/');
+          if (p.length !== 3) return '00000000';
+          return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
+        };
+        return parseDate(b.ngay).localeCompare(parseDate(a.ngay));
+      });
+
+      const totalItems = sortedData.length;
+      const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+
+      if (CURRENT_PAGE > totalPages) CURRENT_PAGE = totalPages;
+      if (CURRENT_PAGE < 1) CURRENT_PAGE = 1;
+
+      pageInfo.textContent = `Trang ${CURRENT_PAGE} / ${totalPages} (${totalItems.toLocaleString('vi-VN')} dòng)`;
+
+      const start = (CURRENT_PAGE - 1) * PAGE_SIZE;
+      const displayData = sortedData.slice(start, start + PAGE_SIZE);
+
+      if (displayData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="18" style="text-align:center; padding:40px; color:var(--text-muted)">Không có dữ liệu hiển thị.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = displayData.map((r, i) => `
+        <tr>
+          <td>${start + i + 1}</td>
+          <td>${r.ngay || ""}</td>
+          <td>${r.id_ng_ban || ""}</td>
+          <td>${r.id_quan || ""}</td>
+          <td>${r.sdt || ""}</td>
+          <td title="${r.dia_chi || ""}">${r.dia_chi || ""}</td>
+          <td>${r.id_quan_huyen || ""}</td>
+          <td>${r.pos || ""}</td>
+          <td>${(r.so_tien || 0).toLocaleString('vi-VN')}</td>
+          <td>${r.goi_sd || ""}</td>
+          <td>${r.han_sd || ""}</td>
+          <td>${r.so_ngay_con_lai || 0}</td>
+          <td>${(r.hoa_hồng_bán_lẻ_ng_ban || 0).toLocaleString('vi-VN')}</td>
+          <td>${(r.hoa_hồng_kpi || 0).toLocaleString('vi-VN')}</td>
+          <td>${(r['hoa_hồng nỗ lực'] || r.hoa_hồng_nỗ_lực || 0).toLocaleString('vi-VN')}</td>
+          <td>${(r['hoa_hồng_toàn quốc'] || r.hoa_hồng_toàn_quốc || 0).toLocaleString('vi-VN')}</td>
+          <td>${r.tinh_trang || ""}</td>
+          <td>${r.trang_thai || ""}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderGenericSheet(tabId) {
+      const pane = $(`#${tabId}Tab`);
+      if (!pane) return;
+
+      const sheetName = tabId.toUpperCase();
+      const normalize = str => str ? str.trim().toUpperCase().replace(/[_\s]/g, '') : '';
+      const targetName = normalize(sheetName);
+
+      const sheet = ALL_SHEETS_DATA.find(s => normalize(s.sheetName) === targetName);
+
+      if (!sheet || !sheet.data || sheet.data.length === 0) {
+        pane.innerHTML = `
+          <div class="card" style="padding: 40px; text-align: center; color: var(--text-muted);">
+            <p>Không tìm thấy dữ liệu trang tính "${sheetName}".</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Lọc dòng rỗng
+      const data = sheet.data.filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+      if (data.length === 0) return;
+
+      const keys = Object.keys(data[0]);
+
+      const formatValue = (key, val) => {
+        if (val === null || val === undefined || val === "") return "";
+        const lowerKey = key.toLowerCase();
+
+        // Xử lý số tiền (giá trị, định giá, số tiền, cổ phiếu...)
+        if (lowerKey.includes("tiền") || lowerKey.includes("giá trị") || lowerKey.includes("định giá") || lowerKey.includes("phiếu")) {
+          const numStr = String(val).replace(/[^-0-9.]/g, '');
+          const num = parseFloat(numStr);
+          return isNaN(num) ? val : num.toLocaleString('vi-VN');
+        }
+
+        // Xử lý phần trăm
+        if (lowerKey.includes("phần trăm") || lowerKey.includes("%")) {
+          const num = parseFloat(val);
+          return isNaN(num) ? val : (num * 100).toFixed(2) + "%";
+        }
+
+        return val;
+      };
+
+      let html = `
+        <div class="card">
+          <div class="card-header"><h2 class="card-title">${sheetName}</h2></div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  ${keys.map(k => `<th>${k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, ' ')}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map((r, i) => `
+                  <tr>
+                    <td>${i + 1}</td>
+                    ${keys.map(k => `<td>${formatValue(k, r[k])}</td>`).join('')}
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      pane.innerHTML = html;
+    }
+
+    function changePage(dir) {
+      CURRENT_PAGE += dir;
+      renderPosTable();
+      $('.table-container').scrollTop = 0;
+    }
+
+    function toggleAutoSync() {
+      const isChecked = $('#autoSyncCheck').checked;
+      if (isChecked) {
+        syncInterval = setInterval(loadData, 60000); // Tự động cập nhật mỗi phút
+      } else {
+        clearInterval(syncInterval);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+
+</html>
