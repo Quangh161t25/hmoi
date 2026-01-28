@@ -664,12 +664,32 @@
     <!-- THU_CHI Tab -->
     <div id="thuchiTab" class="tab-pane">
       <div class="card">
-        <div class="card-header" style="justify-content: space-between;">
-          <h2 class="card-title">💰 Chi tiết Thu Chi</h2>
-          <select id="cbbThuChiMonth" onchange="filterThuChiData()"
-            style="padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-size: 14px; min-width: 150px; cursor: pointer;">
-            <option value="">Chọn tháng...</option>
-          </select>
+        <div class="card-header" style="flex-wrap: wrap; gap: 10px; row-gap: 15px;">
+          <h2 class="card-title" style="flex: 1 1 100%;">💰 Chi tiết Thu Chi</h2>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; flex: 1;">
+            <select id="cbbThuChiMonth" onchange="filterThuChiData()"
+              style="padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); flex:1; min-width: 120px;">
+              <option value="">Chọn tháng...</option>
+            </select>
+
+            <select id="cbbThuChiType" onchange="filterThuChiData()"
+              style="padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); flex:1; min-width: 100px;">
+              <option value="">Thu/Chi...</option>
+            </select>
+
+            <select id="cbbThuChiSchool" onchange="filterThuChiData()"
+              style="padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); flex:1; min-width: 120px;">
+              <option value="">Chọn Trường...</option>
+            </select>
+
+            <select id="cbbThuChiHDDT" onchange="filterThuChiData()"
+              style="padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); flex:1; min-width: 100px;">
+              <option value="">HĐ / ĐT...</option>
+            </select>
+
+            <button class="btn" onclick="resetThuChiFilters()" style="padding: 8px 12px;" title="Xóa bộ lọc">❌</button>
+          </div>
         </div>
         <div class="table-container">
           <table id="tblThuChiDetails">
@@ -920,27 +940,61 @@
 
       const rawData = sheet.data.filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
 
-      // 1. Get Unique Filter (thang_nam) and populate Dropdown
-      const months = [...new Set(rawData.map(r => r["thang_nam"] || r["tháng_năm"] || ""))]
-        .filter(v => v !== "")
-        .sort((a, b) => b.localeCompare(a)); // Mới nhất lên đầu
+      // Populate Dropdowns
 
-      const select = $('#cbbThuChiMonth');
-      if (select && select.options.length <= 1) { // Only populate if empty
-        select.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join('');
-        // Add default option if needed or select first
-        if (months.length > 0) {
-          select.value = months[0];
-          filterThuChiData(); // Initial render
-        }
-      } else if (select && select.value) {
-        filterThuChiData(); // Re-render if switching tabs
+      const populateSelect = (id, values, placeholder) => {
+        const select = $(id);
+        const currentVal = select.value;
+        const opts = values.map(v => `<option value="${v}">${v}</option>`).join('');
+        select.innerHTML = `<option value="">${placeholder}</option>${opts}`;
+        if (values.includes(currentVal)) select.value = currentVal;
+      };
+
+      // 1. Month
+      const months = [...new Set(rawData.map(r => r["thang_nam"] || r["tháng_năm"] || ""))].filter(v => v !== "").sort((a, b) => b.localeCompare(a));
+      const monthSelect = $('#cbbThuChiMonth');
+      if (monthSelect.options.length <= 1) {
+        populateSelect('#cbbThuChiMonth', months, "Chọn tháng...");
+        if (months.length > 0) monthSelect.value = months[0]; // Auto select newest month
       }
+
+      // 2. Thu/Chi
+      const types = [...new Set(rawData.map(r => r.thu_chi || r["thu_chi"] || ""))].filter(v => v !== "").sort();
+      populateSelect('#cbbThuChiType', types, "Mọi loại phiếu");
+
+      // 3. School (Trường)
+      const schools = [...new Set(rawData.map(r => r.truong || r["trường"] || ""))].filter(v => v !== "").sort();
+      populateSelect('#cbbThuChiSchool', schools, "Tất cả trường");
+
+      // 4. HĐ / ĐT (Derived)
+      const hddts = [...new Set(rawData.map(r => {
+        let val = r.hđ_đt || r["hđ_đt"] || "";
+        if (!val) {
+          const hd = r.hđ || r.hd || "";
+          const dt = r.đt || r.dt || "";
+          val = [hd, dt].filter(x => x).join(' / ');
+        }
+        return val;
+      }))].filter(v => v !== "").sort();
+      populateSelect('#cbbThuChiHDDT', hddts, "Tất cả HĐ/ĐT");
+
+      // Initial Filter Trigger
+      filterThuChiData();
+    }
+
+    function resetThuChiFilters() {
+      $('#cbbThuChiType').value = "";
+      $('#cbbThuChiSchool').value = "";
+      $('#cbbThuChiHDDT').value = "";
+      // Reset month to first option if needed, or keep current
+      filterThuChiData();
     }
 
     function filterThuChiData() {
-      const select = $('#cbbThuChiMonth');
-      const month = select.value;
+      const month = $('#cbbThuChiMonth').value;
+      const type = $('#cbbThuChiType').value;
+      const school = $('#cbbThuChiSchool').value;
+      const hddtFilter = $('#cbbThuChiHDDT').value;
 
       const normalize = str => str ? str.trim().toUpperCase().replace(/[_\s]/g, '') : '';
       const sheet = ALL_SHEETS_DATA.find(s => normalize(s.sheetName) === "THUCHI");
@@ -948,9 +1002,29 @@
 
       const allData = sheet.data.filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
 
-      // Filter and Sort by Date Descending
+      // Filter Logic (AND)
       const filteredData = allData
-        .filter(r => (r["thang_nam"] || r["tháng_năm"]) === month)
+        .filter(r => {
+          // Month Filter
+          if (month && (r["thang_nam"] || r["tháng_năm"]) !== month) return false;
+
+          // Type Filter
+          if (type && (r.thu_chi || r["thu_chi"]) !== type) return false;
+
+          // School Filter
+          if (school && (r.truong || r["trường"]) !== school) return false;
+
+          // HD/DT Filter
+          let val = r.hđ_đt || r["hđ_đt"] || "";
+          if (!val) {
+            const hd = r.hđ || r.hd || "";
+            const dt = r.đt || r.dt || "";
+            val = [hd, dt].filter(x => x).join(' / ');
+          }
+          if (hddtFilter && val !== hddtFilter) return false;
+
+          return true;
+        })
         .sort((a, b) => {
           const parseInfo = (d) => {
             if (!d) return 0;
