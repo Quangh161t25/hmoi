@@ -516,10 +516,6 @@
         grid-template-columns: 1fr;
       }
 
-      .dashboard-sidebar {
-        order: 2;
-        /* Move summary below chart/details if needed or keep default */
-      }
     }
   </style>
 </head>
@@ -668,11 +664,35 @@
     <!-- THU_CHI Tab -->
     <div id="thuchiTab" class="tab-pane">
       <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">💰 Quản lý THU_CHI</h2>
+        <div class="card-header" style="justify-content: space-between;">
+          <h2 class="card-title">💰 Chi tiết Thu Chi</h2>
+          <select id="cbbThuChiMonth" onchange="filterThuChiData()"
+            style="padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); font-size: 14px; min-width: 150px; cursor: pointer;">
+            <option value="">Chọn tháng...</option>
+          </select>
         </div>
-        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
-          Nội dung THU_CHI (Google Sheets) sẽ hiển thị ở đây.
+        <div class="table-container">
+          <table id="tblThuChiDetails">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>ID</th>
+                <th>Ngày</th>
+                <th>Diễn giải</th>
+                <th>Thu/Chi</th>
+                <th>Số tiền</th>
+                <th>Tháng Năm</th>
+                <th>Cập nhật</th>
+                <th>Trường</th>
+                <th>HĐ/ĐT</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyThuChiDetails">
+              <tr>
+                <td colspan="10" style="text-align:center; padding:20px;">Đang tải dữ liệu...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -687,7 +707,6 @@
           Nội dung GHI_PHUONG (Google Sheets) sẽ hiển thị ở đây.
         </div>
       </div>
-    </div>
   </main>
 
   <script>
@@ -764,7 +783,7 @@
     function renderAllTabs() {
       renderPosTable();
       renderCoDongDashboard();
-      renderGenericSheet("thuchi");
+      renderThuChiDashboard();
       renderGenericSheet("ghiphuong");
     }
 
@@ -888,6 +907,102 @@
           }
         }
       });
+    }
+
+    function renderThuChiDashboard() {
+      const normalize = str => str ? str.trim().toUpperCase().replace(/[_\s]/g, '') : '';
+      const sheet = ALL_SHEETS_DATA.find(s => normalize(s.sheetName) === "THUCHI");
+
+      if (!sheet || !sheet.data || sheet.data.length === 0) {
+        $('#thuchiTab').innerHTML = '<div class="card" style="padding:40px;text-align:center;color:var(--text-muted)">Chưa có dữ liệu Thu Chi</div>';
+        return;
+      }
+
+      const rawData = sheet.data.filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+
+      // 1. Get Unique Filter (thang_nam) and populate Dropdown
+      const months = [...new Set(rawData.map(r => r["thang_nam"] || r["tháng_năm"] || ""))]
+        .filter(v => v !== "")
+        .sort((a, b) => b.localeCompare(a)); // Mới nhất lên đầu
+
+      const select = $('#cbbThuChiMonth');
+      if (select && select.options.length <= 1) { // Only populate if empty
+        select.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join('');
+        // Add default option if needed or select first
+        if (months.length > 0) {
+          select.value = months[0];
+          filterThuChiData(); // Initial render
+        }
+      } else if (select && select.value) {
+        filterThuChiData(); // Re-render if switching tabs
+      }
+    }
+
+    function filterThuChiData() {
+      const select = $('#cbbThuChiMonth');
+      const month = select.value;
+
+      const normalize = str => str ? str.trim().toUpperCase().replace(/[_\s]/g, '') : '';
+      const sheet = ALL_SHEETS_DATA.find(s => normalize(s.sheetName) === "THUCHI");
+      if (!sheet) return;
+
+      const allData = sheet.data.filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+
+      // Filter and Sort by Date Descending
+      const filteredData = allData
+        .filter(r => (r["thang_nam"] || r["tháng_năm"]) === month)
+        .sort((a, b) => {
+          const parseInfo = (d) => {
+            if (!d) return 0;
+            const parts = String(d).split('/');
+            if (parts.length === 3) return parseInt(parts[2] + parts[1] + parts[0]);
+            return 0;
+          };
+          return parseInfo(b.ngay || b.ngày) - parseInfo(a.ngay || a.ngày);
+        });
+
+      const tbodyDetails = $('#tbodyThuChiDetails');
+      if (tbodyDetails) {
+        if (filteredData.length === 0) {
+          tbodyDetails.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:20px;">Không có dữ liệu cho tháng này.</td></tr>';
+          return;
+        }
+
+        tbodyDetails.innerHTML = filteredData.map((r, i) => {
+          // Mapping keys based on user request: id, ngay, dien_giai, thu_chi, so_tien, thang_nam, cap_nhat, truong, hđ_đt
+          // Auto-handling variations just in case
+          const id = r.id || "";
+          const ngay = r.ngay || r.ngày || "";
+          const dien_giai = r.dien_giai || r["diễn giải"] || r.noi_dung || r["nội dung"] || "";
+          const thu_chi = r.thu_chi || r["thu_chi"] || "";
+          const so_tien = Number(String(r["số tiền"] || r.so_tien || 0).replace(/,/g, '')).toLocaleString('vi-VN');
+          const thang_nam = r.thang_nam || r["tháng_năm"] || "";
+          const cap_nhat = r.cap_nhat || r["cập nhật"] || "";
+          const truong = r.truong || r["trường"] || "";
+
+          // Check for explicit hđ_đt key, otherwise fallback to merge
+          let hd_dt = r.hđ_đt || r["hđ_đt"] || "";
+          if (!hd_dt) {
+            const hd = r.hđ || r.hd || "";
+            const dt = r.đt || r.dt || "";
+            hd_dt = [hd, dt].filter(x => x).join(' / ');
+          }
+
+          return `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${id}</td>
+            <td>${ngay}</td>
+            <td>${dien_giai}</td>
+            <td>${thu_chi}</td>
+            <td>${so_tien}</td>
+            <td>${thang_nam}</td>
+            <td>${cap_nhat}</td>
+            <td>${truong}</td>
+            <td>${hd_dt}</td>
+          </tr>
+        `}).join('');
+      }
     }
 
     function renderPosTable() {
