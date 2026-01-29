@@ -555,7 +555,8 @@
     <!-- POS Tab -->
     <div id="posTab" class="tab-pane active">
       <div class="card">
-        <div class="card-header" style="justify-content: flex-start; gap: 15px;">
+        <div class="card-header" style="flex-wrap: wrap; gap: 15px; align-items: center;">
+          <h2 class="card-title" style="min-width: 200px;">🏆 BẢNG XẾP HẠNG</h2>
           <select id="cbbPosNamThang" onchange="renderPosTable()"
             style="padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); min-width: 150px;">
             <option value="">Tất cả tháng...</option>
@@ -566,9 +567,9 @@
             <thead>
               <tr>
                 <th>STT</th>
-                <th>nam_thang</th>
                 <th>ten_nv</th>
                 <th>tong_tien</th>
+                <th>nam_thang</th>
               </tr>
             </thead>
             <tbody id="tbodyPos">
@@ -1149,9 +1150,9 @@
       tbody.innerHTML = displayData.map((r, i) => `
         <tr>
           <td>${start + i + 1}</td>
-          <td>${r.nam_thang}</td>
           <td>${r.ten_nv}</td>
           <td style="font-weight:bold; color:var(--primary-dark)">${r.totalMoney.toLocaleString('vi-VN')}</td>
+          <td>${r.nam_thang}</td>
         </tr>
       `).join("");
     }
