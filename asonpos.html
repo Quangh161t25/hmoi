@@ -539,7 +539,7 @@
     <button class="tab-btn active" data-tab="pos" onclick="showTab('pos')">📄 XẾP HẠNG POS</button>
     <button class="tab-btn" data-tab="codong" onclick="showTab('codong')">📊 CO_DONG</button>
     <button class="tab-btn" data-tab="thuchi" onclick="showTab('thuchi')">💰 THU_CHI</button>
-    <button class="tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')">📝 GHI_PHUONG</button>
+    <button class="tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')">📝 GHI PHƯỜNG</button>
   </nav>
 
   <nav class="bottom-nav">
@@ -547,8 +547,8 @@
         HẠNG</span></button>
     <button class="bottom-tab-btn" data-tab="codong" onclick="showTab('codong')"><i>📊</i><span>Cổ Đông</span></button>
     <button class="bottom-tab-btn" data-tab="thuchi" onclick="showTab('thuchi')"><i>💰</i><span>Thu Chi</span></button>
-    <button class="bottom-tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')"><i>📝</i><span>Ghi
-        chú</span></button>
+    <button class="bottom-tab-btn" data-tab="ghiphuong"
+      onclick="showTab('ghiphuong')"><i>📝</i><span>Phường</span></button>
   </nav>
 
   <main class="main-content">
@@ -707,13 +707,38 @@
     <!-- GHI_PHUONG Tab -->
     <div id="ghiphuongTab" class="tab-pane">
       <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📝 Ghi chú GHI_PHUONG</h2>
+        <div class="card-header" style="flex-wrap: wrap; gap: 15px; align-items: center;">
+          <h2 class="card-title">📝 THÀNH PHỐ / PHƯỜNG</h2>
+          <div style="display: flex; gap: 10px; flex: 1; min-width: 300px; flex-wrap: wrap;">
+            <select id="cbbIdPhuong" onchange="renderGhiPhuong()"
+              style="padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--border); flex: 1; min-width: 150px;">
+              <option value="">Chọn ID Phường...</option>
+            </select>
+            <input type="text" id="txtSearchTenPhuong" placeholder="Tìm tên phường..." oninput="renderGhiPhuong()"
+              style="padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none; flex: 2; min-width: 200px;">
+          </div>
         </div>
-        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
-          Nội dung GHI_PHUONG (Google Sheets) sẽ hiển thị ở đây.
+        <div class="table-container">
+          <table id="tblGhiPhuong">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>ID Phường</th>
+                <th>ID Quận</th>
+                <th>Địa Chỉ</th>
+                <th>Ngày Còn Lại</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyGhiPhuong">
+              <tr>
+                <td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Đang tải dữ liệu...
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+    </div>
   </main>
 
   <script>
@@ -799,7 +824,7 @@
       renderPosTable();
       renderCoDongDashboard();
       renderThuChiDashboard();
-      renderGenericSheet("ghiphuong");
+      renderGhiPhuong();
     }
 
     let ownershipChartInstance = null;
@@ -1155,6 +1180,88 @@
           <td>${r.nam_thang}</td>
         </tr>
       `).join("");
+    }
+
+    function renderGhiPhuong() {
+      const tbody = $('#tbodyGhiPhuong');
+      if (!tbody) return;
+
+      const normalize = str => str ? str.trim().toUpperCase().replace(/[_\s]/g, '') : '';
+      const sheet = ALL_SHEETS_DATA.find(s => normalize(s.sheetName) === "DONPOS");
+
+      if (!sheet || !sheet.data || sheet.data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Không tìm thấy trang tính "don_pos" hoặc dữ liệu trống.</td></tr>`;
+        return;
+      }
+
+      // 1. Lọc dòng rỗng & Lấy danh sách ID duy nhất cho dropdown
+      const rawData = sheet.data.filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+      const uniqueIds = [...new Set(rawData.map(r => r.id_qly_phuong).filter(x => x))].sort();
+
+      const selectId = $('#cbbIdPhuong');
+      if (selectId && (selectId.options.length <= 1 || uniqueIds.length > selectId.options.length - 1)) {
+        const savedId = localStorage.getItem('last_id_qly_phuong');
+        selectId.innerHTML = '<option value="">-- Chọn ID Phường --</option>' +
+          uniqueIds.map(id => `<option value="${id}">${id}</option>`).join('');
+
+        if (savedId && uniqueIds.includes(savedId)) {
+          selectId.value = savedId;
+        }
+      }
+
+      const selectedId = selectId ? selectId.value : "";
+      const searchTen = ($('#txtSearchTenPhuong')?.value || "").toLowerCase().trim();
+
+      // Lưu lựa chọn vào localStorage
+      if (selectedId) {
+        localStorage.setItem('last_id_qly_phuong', selectedId);
+      }
+
+      // "k có giá trị k hiên thị gì"
+      if (!selectedId) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Vui lòng chọn ID Phường để xem dữ liệu.</td></tr>`;
+        return;
+      }
+
+      // Lọc dữ liệu theo ID Phường (bắt buộc) và theo Tên Phường (nếu có)
+      let filteredData = rawData.filter(r => String(r.id_qly_phuong) === selectedId);
+
+      if (searchTen) {
+        filteredData = filteredData.filter(r => {
+          const ten = String(r.ten_phuong || r.id_qly_phuong || "").toLowerCase();
+          return ten.includes(searchTen);
+        });
+      }
+
+      // Xắp xếp so_ngay_con_lai từ nhỏ tới lớn (ASC)
+      filteredData.sort((a, b) => {
+        const valA = parseInt(String(a.so_ngay_con_lai).replace(/[^-0-9]/g, '')) || 0;
+        const valB = parseInt(String(b.so_ngay_con_lai).replace(/[^-0-9]/g, '')) || 0;
+        return valA - valB;
+      });
+
+      if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Không tìm thấy kết quả phù hợp.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filteredData.map((r, i) => {
+        const conLai = parseInt(String(r.so_ngay_con_lai).replace(/[^-0-9]/g, ''));
+        let statusStyle = "";
+        if (!isNaN(conLai)) {
+          if (conLai <= 3) statusStyle = "color: var(--danger); font-weight: bold;";
+          else if (conLai <= 7) statusStyle = "color: var(--warning); font-weight: bold;";
+        }
+
+        return `
+        <tr>
+          <td>${i + 1}</td>
+          <td style="font-weight: 600; color: var(--primary-dark)">${r.id_qly_phuong || ""}</td>
+          <td>${r.id_quan || ""}</td>
+          <td>${r.dia_chi || ""}</td>
+          <td style="${statusStyle}">${r.so_ngay_con_lai || "0"} ngày</td>
+        </tr>
+      `}).join('');
     }
 
     function renderGenericSheet(tabId) {
