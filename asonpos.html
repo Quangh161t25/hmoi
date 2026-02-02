@@ -4,36 +4,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> QUẢN LÝ ĐƠN POS</title>
-  <!-- Import Font Inter cho hiện đại -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>📦 POS DASHBOARD PRO</title>
+  <!-- Premium Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      /* Brand Colors - Modern Indigo/Slate Palette */
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --primary-light: #eef2ff;
-      --secondary: #64748b;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
+      /* Advanced Color System - Indigo & Violet */
+      --p-50: #eef2ff;
+      --p-100: #e0e7ff;
+      --p-600: #4f46e5;
+      --p-700: #4338ca;
+      --s-500: #10b981;
+      --w-500: #f59e0b;
+      --d-500: #ef4444;
+
+      --primary: var(--p-600);
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
 
       /* Neutral Palette */
-      --bg-body: #f8fafc;
-      --bg-card: #ffffff;
-      --bg-header: rgba(255, 255, 255, 0.8);
-      --text-main: #1e293b;
+      --bg-body: #f1f5f9;
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --bg-header: rgba(255, 255, 255, 0.7);
+      --text-main: #0f172a;
       --text-muted: #64748b;
-      --border: #e2e8f0;
+      --border: rgba(226, 232, 240, 0.8);
 
       /* Effects */
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
       --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      --radius-md: 10px;
-      --radius-lg: 16px;
-      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+      --radius-md: 12px;
+      --radius-lg: 24px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * {
@@ -43,11 +47,14 @@
     }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background-color: var(--bg-body);
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-body);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
       color: var(--text-main);
-      line-height: 1.5;
-      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
     }
 
     /* Scrollbar Styling */
@@ -69,13 +76,13 @@
       background: #94a3b8;
     }
 
-    /* Header & Glassmorphism */
+    /* Glass Header */
     .header {
-      background: var(--bg-header);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
+      padding: 16px 32px;
       position: sticky;
       top: 0;
       z-index: 1000;
@@ -84,27 +91,28 @@
       justify-content: space-between;
     }
 
-    .header h1 {
-      font-size: 20px;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--primary-dark), #a855f7);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .header-logo {
       display: flex;
       align-items: center;
       gap: 12px;
+      font-weight: 800;
+      font-size: 22px;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    /* Tabs UI */
+    /* Modern Navigation */
     .nav-container {
-      background: var(--bg-card);
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
+      padding: 0 32px;
       position: sticky;
-      top: 65px;
+      top: 73px;
       z-index: 900;
       display: flex;
-      padding: 0 24px;
+      gap: 8px;
       overflow-x: auto;
     }
 
@@ -161,9 +169,15 @@
       background: var(--bg-card);
       border-radius: var(--radius-lg);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-      margin-bottom: 24px;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 32px;
       overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
     }
 
     .card-header {
@@ -510,12 +524,49 @@
       }
     }
 
-    /* Dashboard Specific (CO_DONG) */
-    @media (max-width: 1024px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
+    /* Summary Grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
+    .summary-card {
+      background: var(--bg-card);
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .summary-card .label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-card .value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .summary-card.income .value {
+      color: var(--success);
+    }
+
+    .summary-card.expense .value {
+      color: var(--danger);
+    }
+
+    .summary-card.balance .value {
+      color: var(--primary);
     }
   </style>
 </head>
@@ -526,29 +577,28 @@
   </div>
 
   <header class="header">
-    <div style="display:flex; align-items:center; gap:15px;">
-      <h1><span>📦</span> QUẢN LÝ ĐƠN POS</h1>
-      <div class="sync-status">
-        <span id="lastUpdated">Cập nhật: --:--:--</span>
-        <button class="btn" onclick="loadData(false)">🔄 Làm mới</button>
-      </div>
+    <div class="header-logo">
+      <span>📦</span> POS DASHBOARD
+    </div>
+    <div class="sync-status">
+      <span id="lastUpdated">Cập nhật: --:--:--</span>
+      <button class="btn btn-primary" onclick="loadData(false)">🔄 <span>Làm mới</span></button>
     </div>
   </header>
 
   <nav class="nav-container">
-    <button class="tab-btn active" data-tab="pos" onclick="showTab('pos')">📄 XẾP HẠNG POS</button>
-    <button class="tab-btn" data-tab="codong" onclick="showTab('codong')">📊 CO_DONG</button>
-    <button class="tab-btn" data-tab="thuchi" onclick="showTab('thuchi')">💰 THU_CHI</button>
-    <button class="tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')">📝 GHI PHƯỜNG</button>
+    <button class="tab-btn active" data-tab="pos" onclick="showTab('pos')">🏆 Rank</button>
+    <button class="tab-btn" data-tab="codong" onclick="showTab('codong')">📊 Cổ Đông</button>
+    <button class="tab-btn" data-tab="thuchi" onclick="showTab('thuchi')">💰 Thu Chi</button>
+    <button class="tab-btn" data-tab="ghiphuong" onclick="showTab('ghiphuong')">� Phường</button>
   </nav>
 
   <nav class="bottom-nav">
-    <button class="bottom-tab-btn active" data-tab="pos" onclick="showTab('pos')"><i>📄</i><span>XẾP
-        HẠNG</span></button>
+    <button class="bottom-tab-btn active" data-tab="pos" onclick="showTab('pos')"><i>🏆</i><span>Rank</span></button>
     <button class="bottom-tab-btn" data-tab="codong" onclick="showTab('codong')"><i>📊</i><span>Cổ Đông</span></button>
     <button class="bottom-tab-btn" data-tab="thuchi" onclick="showTab('thuchi')"><i>💰</i><span>Thu Chi</span></button>
     <button class="bottom-tab-btn" data-tab="ghiphuong"
-      onclick="showTab('ghiphuong')"><i>📝</i><span>Phường</span></button>
+      onclick="showTab('ghiphuong')"><i>�</i><span>Phường</span></button>
   </nav>
 
   <main class="main-content">
@@ -678,6 +728,28 @@
             <button class="btn" onclick="resetThuChiFilters()" style="padding: 8px 12px;" title="Xóa bộ lọc">❌</button>
           </div>
         </div>
+
+        <div style="padding: 0 32px 32px 32px;">
+          <div class="summary-grid">
+            <div class="summary-card income">
+              <span class="label">📈 Tổng Thu</span>
+              <span class="value" id="valThuChiTotalIncome">0</span>
+            </div>
+            <div class="summary-card expense">
+              <span class="label">📉 Tổng Chi</span>
+              <span class="value" id="valThuChiTotalExpense">0</span>
+            </div>
+            <div class="summary-card balance">
+              <span class="label">⚖️ Còn Lại (Lọc)</span>
+              <span class="value" id="valThuChiBalance">0</span>
+            </div>
+            <div class="summary-card month">
+              <span class="label">�️ Số Dư Tháng</span>
+              <span class="value" id="valThuChiMonthBalance">0</span>
+            </div>
+          </div>
+        </div>
+
         <div class="table-container">
           <table id="tblThuChiDetails">
             <thead>
@@ -742,7 +814,7 @@
   </main>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw0ddyEqaCsdMVyipQmyrogHJFfeVOpvIWdEphQc__AY68yL522llqcLSuTOHqvDTnL/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyfNGsWUQcXXDCfirVpybLyDc-aZoK6IYSzGg6KozhbiQDadcr7B3O7JgWi8MHtS0Pr/exec";
     let ALL_SHEETS_DATA = [];
     let STATE_DATA = [];
     let CURRENT_PAGE = 1;
@@ -1055,6 +1127,34 @@
           return parseInfo(b.ngay || b.ngày) - parseInfo(a.ngay || a.ngày);
         });
 
+      // 1. Calculate Summary for Filtered Data
+      let totalIncome = 0;
+      let totalExpense = 0;
+
+      filteredData.forEach(r => {
+        const val = parseFloat(String(r["số tiền"] || r.so_tien || 0).replace(/,/g, '')) || 0;
+        const typeStr = (r.thu_chi || r["thu_chi"] || "").toUpperCase();
+        if (typeStr.includes("THU")) totalIncome += val;
+        else if (typeStr.includes("CHI")) totalExpense += val;
+      });
+
+      // 2. Calculate Balance for the Selected Month (Ignoring other filters)
+      let monthIncome = 0;
+      let monthExpense = 0;
+      allData.forEach(r => {
+        if (month && (r["thang_nam"] || r["tháng_năm"]) !== month) return;
+        const val = parseFloat(String(r["số tiền"] || r.so_tien || 0).replace(/,/g, '')) || 0;
+        const typeStr = (r.thu_chi || r["thu_chi"] || "").toUpperCase();
+        if (typeStr.includes("THU")) monthIncome += val;
+        else if (typeStr.includes("CHI")) monthExpense += val;
+      });
+
+      // Update UI
+      if ($('#valThuChiTotalIncome')) $('#valThuChiTotalIncome').textContent = totalIncome.toLocaleString('vi-VN');
+      if ($('#valThuChiTotalExpense')) $('#valThuChiTotalExpense').textContent = totalExpense.toLocaleString('vi-VN');
+      if ($('#valThuChiBalance')) $('#valThuChiBalance').textContent = (totalIncome - totalExpense).toLocaleString('vi-VN');
+      if ($('#valThuChiMonthBalance')) $('#valThuChiMonthBalance').textContent = (monthIncome - monthExpense).toLocaleString('vi-VN');
+
       const tbodyDetails = $('#tbodyThuChiDetails');
       if (tbodyDetails) {
         if (filteredData.length === 0) {
@@ -1175,9 +1275,9 @@
       tbody.innerHTML = displayData.map((r, i) => `
         <tr>
           <td>${start + i + 1}</td>
-          <td>${r.ten_nv}</td>
-          <td style="font-weight:bold; color:var(--primary-dark)">${r.totalMoney.toLocaleString('vi-VN')}</td>
-          <td>${r.nam_thang}</td>
+          <td style="font-weight:700; color:#1e1b4b;">${r.ten_nv}</td>
+          <td style="font-weight:800; color:var(--p-700); font-size:16px;">${r.totalMoney.toLocaleString('vi-VN')}</td>
+          <td><span style="padding:4px 10px; background:#eef2ff; color:#4338ca; border-radius:12px; font-weight:700; font-size:12px;">${r.nam_thang}</span></td>
         </tr>
       `).join("");
     }
@@ -1187,22 +1287,37 @@
       if (!tbody) return;
 
       const normalize = str => str ? str.trim().toUpperCase().replace(/[_\s]/g, '') : '';
+
+      // 1. Tìm sheet dữ liệu và sheet nhân viên
       const sheet = ALL_SHEETS_DATA.find(s => normalize(s.sheetName) === "DONPOS");
+      const dsnvSheet = ALL_SHEETS_DATA.find(s => normalize(s.sheetName) === "DSNV");
 
       if (!sheet || !sheet.data || sheet.data.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Không tìm thấy trang tính "don_pos" hoặc dữ liệu trống.</td></tr>`;
         return;
       }
 
-      // 1. Lọc dòng rỗng & Lấy danh sách ID duy nhất cho dropdown
+      // 2. Tạo bản đồ tra cứu MNV -> HOTEN
+      const nameMap = {};
+      if (dsnvSheet && dsnvSheet.data) {
+        dsnvSheet.data.forEach(nv => {
+          const mnv = String(nv.MNV || nv.mnv || "").trim();
+          const hoten = String(nv.HOTEN || nv.hoten || "").trim();
+          if (mnv) nameMap[mnv] = hoten;
+        });
+      }
+
+      const getName = id => nameMap[String(id).trim()] || id;
+
+      // 3. Lọc dòng rỗng & Lấy danh sách ID duy nhất cho dropdown
       const rawData = sheet.data.filter(r => r && Object.values(r).some(v => v !== null && v !== undefined && String(v).trim() !== ""));
-      const uniqueIds = [...new Set(rawData.map(r => r.id_qly_phuong).filter(x => x))].sort();
+      const uniqueIds = [...new Set(rawData.map(r => String(r.id_qly_phuong || "").trim()).filter(x => x))].sort();
 
       const selectId = $('#cbbIdPhuong');
       if (selectId && (selectId.options.length <= 1 || uniqueIds.length > selectId.options.length - 1)) {
         const savedId = localStorage.getItem('last_id_qly_phuong');
-        selectId.innerHTML = '<option value="">-- Chọn ID Phường --</option>' +
-          uniqueIds.map(id => `<option value="${id}">${id}</option>`).join('');
+        selectId.innerHTML = '<option value="">-- Chọn Quản Lý --</option>' +
+          uniqueIds.map(id => `<option value="${id}">${getName(id)} (${id})</option>`).join('');
 
         if (savedId && uniqueIds.includes(savedId)) {
           selectId.value = savedId;
@@ -1219,12 +1334,12 @@
 
       // "k có giá trị k hiên thị gì"
       if (!selectedId) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Vui lòng chọn ID Phường để xem dữ liệu.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Vui lòng chọn Quản Lý để xem dữ liệu.</td></tr>`;
         return;
       }
 
       // Lọc dữ liệu theo ID Phường (bắt buộc) và theo Tên Phường (nếu có)
-      let filteredData = rawData.filter(r => String(r.id_qly_phuong) === selectedId);
+      let filteredData = rawData.filter(r => String(r.id_qly_phuong || "").trim() === selectedId);
 
       if (searchTen) {
         filteredData = filteredData.filter(r => {
@@ -1247,21 +1362,23 @@
 
       tbody.innerHTML = filteredData.map((r, i) => {
         const conLai = parseInt(String(r.so_ngay_con_lai).replace(/[^-0-9]/g, ''));
-        let statusStyle = "";
+        let bg = "#dcfce7", co = "#166534";
         if (!isNaN(conLai)) {
-          if (conLai <= 3) statusStyle = "color: var(--danger); font-weight: bold;";
-          else if (conLai <= 7) statusStyle = "color: var(--warning); font-weight: bold;";
+          if (conLai <= 3) { bg = "#fee2e2"; co = "#991b1b"; }
+          else if (conLai <= 7) { bg = "#fef3c7"; co = "#92400e"; }
         }
 
         return `
         <tr>
           <td>${i + 1}</td>
-          <td style="font-weight: 600; color: var(--primary-dark)">${r.id_qly_phuong || ""}</td>
-          <td>${r.id_quan || ""}</td>
-          <td>${r.dia_chi || ""}</td>
-          <td style="${statusStyle}">${r.so_ngay_con_lai || "0"} ngày</td>
+          <td style="font-weight: 700; color: var(--p-700)">${getName(r.id_qly_phuong)}</td>
+          <td><span style="padding:4px 10px; background:#f1f5f9; border-radius:8px; font-size:12px; font-weight:700;">${r.id_quan || ""}</span></td>
+          <td style="color:var(--text-muted); font-size:13px;">${r.dia_chi || ""}</td>
+          <td><span style="padding:6px 12px; border-radius:20px; font-size:12px; font-weight:800; background:${bg}; color:${co}">${r.so_ngay_con_lai || "0"} ngày</span></td>
         </tr>
       `}).join('');
+
+
     }
 
     function renderGenericSheet(tabId) {
