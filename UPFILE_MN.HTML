@@ -585,6 +585,24 @@
     </div>
 
     <div id="tab2" class="tab-content">
+      <div class="controls" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <label for="filterDateTab2" style="font-weight: 600; font-size: 13px;">Lọc Ngày:</label>
+          <input type="date" id="filterDateTab2" class="search-box" style="max-width: 140px; padding: 6px;">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
+          <label for="filterNccTab2" style="font-weight: 600; font-size: 13px;">Lọc NCC:</label>
+          <select id="filterNccTab2" class="search-box" style="max-width: 200px; padding: 6px;">
+            <option value="">-- Tất cả NCC --</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" id="btnRefreshTab2" style="padding: 6px 12px; margin-left: auto;">
+          <span>🔄</span> Làm mới
+        </button>
+      </div>
+
       <div class="panel-container">
         <div class="panel panel-left">
           <div class="panel-header"><span>Danh sách đơn hàng (ID)</span></div>
@@ -901,6 +919,9 @@
           const localDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
           document.getElementById('dateFilter').value = localDate;
 
+          // Populate NCC Dropdown for Tab 2
+          populateNccDropdown();
+
           // Render All Tabs
           processFilterAndRender(1); // Tab 1
           renderTab2();             // Tab 2
@@ -1108,10 +1129,49 @@
 
     // Render danh sách đơn hàng bên trái (Nhóm theo Ngày)
     function renderTab2LeftPanel() {
+      const filterDate = document.getElementById('filterDateTab2').value;
+      const filterNcc = document.getElementById('filterNccTab2').value;
+
       const groupMap = {};
+
+      // 1. First pass: Identify valid Orders based on filters
+      // Nếu có lọc NCC, ta cần biết những Đơn hàng nào có chứa SP của NCC đó
+      let validOrderIds = null;
+      if (filterNcc) {
+        validOrderIds = new Set();
+        donHangData.forEach(r => {
+          if (r.ncc === filterNcc && r.id_dh) {
+            validOrderIds.add(r.id_dh.toString());
+          }
+        });
+      }
+
       donHangData.forEach(r => {
         if (!r.id_dh || !r.id_sp) return;
         const id = r.id_dh.toString();
+
+        // Filter Logic
+        // a. Filter by Date (Exact match on Order Date)
+        if (filterDate) {
+          // Giả sử r.ngay là dd/mm/yyyy. Cần convert filterDate (yyyy-mm-dd) sang dd/mm/yyyy hoặc ngược lại để so sánh
+          // convert r.ngay to yyyy-mm-dd
+          const parts = (r.ngay || "").split('/');
+          if (parts.length === 3) {
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            const year = parts[2];
+            const rDateISO = `${year}-${month}-${day}`;
+            if (rDateISO !== filterDate) return;
+          } else {
+            return; // Invalid date in data, skip if filtering
+          }
+        }
+
+        // b. Filter by NCC (Order must contain at least one item from this NCC)
+        if (validOrderIds !== null && !validOrderIds.has(id)) {
+          return;
+        }
+
         if (!groupMap[id]) groupMap[id] = { id, ngay: [], sl: 0, type: new Set() };
         groupMap[id].ngay.push(r.ngay);
         groupMap[id].sl += toNumber(r.so_luong);
@@ -1252,12 +1312,36 @@
 
     // Render bảng chi tiết đơn hàng bên phải (CÓ phân trang)
     function renderTab2RightPanel(page = currentPageTab2Right) {
+      const filterDate = document.getElementById('filterDateTab2').value;
+      const filterNcc = document.getElementById('filterNccTab2').value;
+
       let allDetails = donHangData.filter(r => r.id_sp);
 
       // Lọc theo đơn hàng được chọn
       if (selectedIdDH) {
         allDetails = allDetails.filter(r => r.id_dh && r.id_dh.toString() === selectedIdDH);
       }
+
+      // Apply Filters to Right Panel
+      allDetails = allDetails.filter(r => {
+        // Filter by NCC
+        if (filterNcc && r.ncc !== filterNcc) return false;
+
+        // Filter by Date
+        if (filterDate) {
+          const parts = (r.ngay || "").split('/');
+          if (parts.length === 3) {
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            const year = parts[2];
+            const rDateISO = `${year}-${month}-${day}`;
+            if (rDateISO !== filterDate) return false;
+          } else {
+            return false;
+          }
+        }
+        return true;
+      });
 
       // Sắp xếp theo ngày (mới nhất trước)
       allDetails.sort((a, b) => (b.ngay ? parseDateVN(b.ngay) : new Date(0)) - (a.ngay ? parseDateVN(a.ngay) : new Date(0)));
@@ -1285,7 +1369,7 @@
       const fragR = new DocumentFragment();
 
       if (!paginatedDetails.length) {
-        tbodyR.innerHTML = `<tr><td colspan="7" class="empty-state">${selectedIdDH ? "Không có chi tiết" : "Chọn đơn hàng"}</td></tr>`;
+        tbodyR.innerHTML = `<tr><td colspan="7" class="empty-state">${selectedIdDH ? "Không có chi tiết phù hợp" : "Chọn đơn hàng"}</td></tr>`;
         document.getElementById("btnExport").style.display = "none";
       } else {
         paginatedDetails.forEach(r => {
@@ -1351,8 +1435,12 @@
         return;
       }
 
+      // Sử dụng currentDonHangDetails để đảm bảo xuất đúng những gì đang lọc
+      // Tuy nhiên currentDonHangDetails chứa tất cả detail của đơn hàng ĐÃ LỌC
+      // Nếu user muốn xuất những dòng này thì dùng currentDonHangDetails là chuẩn.
+
       const sum = {};
-      donHangData.filter(r => r.id_dh == selectedIdDH && r.id_sp).forEach(r => {
+      currentDonHangDetails.forEach(r => {
         sum[r.id_sp] = (sum[r.id_sp] || 0) + toNumber(r.so_luong);
       });
 
@@ -1369,6 +1457,33 @@
       XLSX.writeFile(wb, `${selectedIdDH}_SP.xlsx`);
 
       showNotification('Xuất Excel đơn hàng thành công', 'success');
+    }
+
+    // Populate NCC Dropdown
+    function populateNccDropdown() {
+      const nccSet = new Set();
+      donHangData.forEach(r => {
+        if (r.ncc) nccSet.add(r.ncc);
+      });
+
+      const sortedNcc = Array.from(nccSet).sort();
+      const select = document.getElementById('filterNccTab2');
+      // Keep the first option (-- Tất cả NCC --)
+      select.innerHTML = '<option value="">-- Tất cả NCC --</option>';
+
+      sortedNcc.forEach(ncc => {
+        const opt = document.createElement('option');
+        opt.value = ncc;
+        opt.textContent = ncc;
+        select.appendChild(opt);
+      });
+    }
+
+    function refreshTab2Filters() {
+      document.getElementById('filterDateTab2').value = "";
+      document.getElementById('filterNccTab2').value = "";
+      renderTab2LeftPanel();
+      renderTab2RightPanel(1);
     }
 
     /* ======================= RENDER TAB 3 (HÀNG HOÀN) ======================= */
@@ -1583,6 +1698,16 @@
       document.getElementById("prevPageBtnTab2Right").addEventListener("click", () => changePageTab2Right(-1));
       document.getElementById("nextPageBtnTab2Right").addEventListener("click", () => changePageTab2Right(1));
       document.getElementById("btnExport").addEventListener("click", exportDonHangExcel);
+
+      // Event listeners for Tab 2 Filters
+      function handleTab2FilterChange() {
+        renderTab2LeftPanel();
+        renderTab2RightPanel(1); // Reset to page 1 of right panel
+      }
+
+      document.getElementById('filterDateTab2').addEventListener('change', handleTab2FilterChange);
+      document.getElementById('filterNccTab2').addEventListener('change', handleTab2FilterChange);
+      document.getElementById('btnRefreshTab2').addEventListener('click', refreshTab2Filters);
 
       // Tab 3 Event Listeners
       document.getElementById("btnExportHoan").addEventListener("click", exportTab3Excel);
