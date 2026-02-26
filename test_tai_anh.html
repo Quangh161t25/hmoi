@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Google Sheets - Premium Edition</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- JSRSAsign for JWT -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-slate: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-slate);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* Animated Background Blobs */
+        .blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(80px);
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: move 20s infinite alternate;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(99, 102, 241, 0.3);
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(168, 85, 247, 0.2);
+            bottom: -50px;
+            right: -50px;
+            animation-duration: 25s;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(45, 212, 191, 0.2);
+            top: 40%;
+            left: 50%;
+            animation-duration: 30s;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(100px, 50px) scale(1.1);
+            }
+        }
+
+        /* Container & Glassmorphism */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--glass-border);
+            font-size: 0.95rem;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn-edit {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .btn-edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .text-input-inline {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .page-info {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Sorting */
+        th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 1.5rem !important;
+        }
+
+        th:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .sort-icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            opacity: 0.3;
+        }
+
+        th.sorted-asc .sort-icon::after {
+            content: "▲";
+            opacity: 1;
+        }
+
+        th.sorted-desc .sort-icon::after {
+            content: "▼";
+            opacity: 1;
+        }
+
+        th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after {
+            content: "↕";
+        }
+
+        /* Auto-save status */
+        .save-status {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.8rem 1.5rem;
+            background: #10b981;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 1rem;
+        }
+
+        .modal {
+            background: #1e293b;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-dim);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Settings Icon */
+        .icon {
+            width: 20px;
+            height: 200px;
+        }
+
+        /* Upload Button in Table */
+        .btn-upload-inline {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 4px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .btn-upload-inline:hover {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Image Preview Styles */
+        .img-preview {
+            max-width: 60px;
+            max-height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            object-fit: cover;
+            border: 1px solid var(--glass-border);
+        }
+
+        .img-preview:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        /* Fullscreen Image Overlay */
+        .image-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            cursor: zoom-out;
+        }
+
+        .image-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.3s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Google Sheets Manager</h1>
+            <button class="btn-outline" onclick="openSettings()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                Cài đặt
+            </button>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm nhanh..." oninput="handleSearchInput()">
+            </div>
+            <button class="btn-primary" onclick="addRow()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Thêm dòng
+            </button>
+            <button class="btn-primary" onclick="fetchData()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Làm mới
+            </button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Đang tải dữ liệu...</p>
+        </div>
+
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHead">
+                        <!-- Headers injected here -->
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data rows injected here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination">
+            <button class="btn-outline" id="prevPage" onclick="changePage(-1)">Trước</button>
+            <span class="page-info" id="pageInfo">Trang 1 / 1</span>
+            <button class="btn-outline" id="nextPage" onclick="changePage(1)">Tiếp</button>
+        </div>
+    </div>
+
+    <!-- No more Edit Modal, using Inline Editing -->
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Cấu hình hệ thống</h2>
+                <button class="btn-outline" style="padding: 0.5rem;" onclick="closeModal('settingsModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Spreadsheet ID</label>
+                <input type="text" id="inputSpreadsheetId">
+            </div>
+            <div class="form-group">
+                <label>Tên Sheet</label>
+                <input type="text" id="inputSheetName">
+            </div>
+            <div class="form-group">
+                <label>Danh sách cột (cách nhau bằng dấu phẩy)</label>
+                <input type="text" id="inputDisplayColumns" placeholder="ví dụ: tk, trường, tg, anh">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="resetSettings()">Cài đặt lại</button>
+                <button class="btn-primary" onclick="applySettings()">Áp dụng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Status Indicator -->
+    <div id="saveStatus" class="save-status">Đang lưu thay đổi...</div>
+
+    <!-- Image Fullscreen Overlay -->
+    <div id="imageOverlay" class="image-overlay" onclick="closeImageOverlay()">
+        <img id="overlayImage" src="" alt="Full view">
+    </div>
+
+    <script>
+        // --- CẤU HÌNH MẶC ĐỊNH ---
+        const CONFIG = {
+            spreadsheetId: "1yGpJjbWRkdJOrqTYSlkSg8wheUcLyoeUA2N2r-D67bA",
+            sheetName: "aaa",
+            serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
+            privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NN84hLTkQPZd\nLj7niXZTICq7nHsuTn3J6r2Paq12m70/lYSmrwh1i0EStr9bO19QM8cevGlslwGr\nWSVOLJlc6+w1HGPKvRXtA41kYV9MYIvpzIPQtkFE7Hxq71QyBARcv39Lfzze6Ioj\n3G8VBvAKFLAnCUr97GHRv+KbCTFxPZupd3PEB+xS5ZUlzdBCEZvDid3iXaaEJJ+l\nTd1apAGQHjtnDTLOkiTa8zf7X5ebALwnI9MziOdN8VyprHXGhkachPbKyrG0QwEs\n2jtiI6Y5ULsBPjNefoavH8MKU5DEAT9h0fZ7KfsKYVMDuXqmEKBs0D3B4Z6aDZQW\nwT2dDRZDAgMBAAECggEAEIuVoSzZVuFhaz1GI9ji0IacjvO50cIq7M8Zrj4/F756\nEw6PIhKENafAb7U4INm2AnzUMO8CqL9Jpxs85qUM3W4JysSByqLUiRW2184amIyb\nj7jCXfLBTQn8AbHgrUepl5d/vBmFYMgon/mqjbNiGDb4FZgEQSkie5o6fi/dWp5d\nNahbZl+WTOB/znhAfKh/zferHNxldR/ERmwOubZUerkqysWiBigc3ovpLSUof9ur\nz3hNPPp0CKQjF40xuQc6FYTHUHMLuMvp78PXuc/mYqQmZ8VOGhU+faGtZ4m+QJly\ndF5dS8U5cwKEF+ptuAUiWSahn6INb9yKn3+FcsW0UQKBgQDb8N4eWFvbgpRo/vxo\nwBN2u2TWubj6clcrq/1a+VR0njC28Can0ogJHhrFhPxVs5D/rugs3HlbyAXJFptY\nV0DZPCwBxGU5P5RbGjXWWEUXjp4ISKQD8WKfVlXNr79TqLdOg2NZBYQAi06Cpo/T\nPV9l7LSG2Tj/9WdvD7W2wvrpaQKBgQDVPjpJN6xh7+sHtSU0mjKvrqigpHbuSQ/o\nXpUaWSIpJffm5QpFPAOcTT5mHZCyllicJQIrfPSY+sH8n+sF03CUqVkV4Q2UqfOf\npFaLDB4P6SQ8iesZyF4VKFrj/cAvRJmp0e5W/DRnFkoEp+8c+nrru2+Dzm9kb7Uq\n0CiltqYAywKBgBtcfrV1to+7Ue0x84KwintV2rifyDRX7yI+tjkQFYKgf1zyyUxN\nc6D2vsvdvGqI+TvlrXqPPwW8/4NBrbeyux2LT8o0fYc+sp0WyKXOu2Gv21caelUH\nPYam/eultn6Y2Z0J2V0kw4Qx0GWOhQv5cZnDdb3k3iNxixmU8b03ynEpAoGBAKEA\n7O0fNe50QRZ+tOq0ihSPYQ55XrqnO3WNBDLynZJH8pbI1CpWF7vJrpVXOUs9rQWo\nA61mGR/wJMtiywaJEHWOL48PbzuR3jno0NcHfSMyOoPi9jlvSWncIFQH4TVPLF5F\n/Rh8L+ytrZE6YpWUoX6e9KGmGgDRPw5mQGpuL4RlAoGADe9n080SXlsUk4nHVjUz\nEfv7EBoBkgOpqb9T1foRfJl46NxmmTOYV3iGIhjwcDskEg284k4iq/gH6EEFyEBc\nVz13jzB1nBgjfezFesVQz7bA/+Wik6HZtxAxVg38BKMt+Q1tYw9wOjbGPqOn++VC\nsR2Sh8e3h3Knd6j1tceRIFU=\n-----END PRIVATE KEY-----\n",
+            tokenUrl: "https://oauth2.googleapis.com/token",
+            scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+            // Tên các cột bạn muốn hiển thị (Để trống [] nếu muốn hiển thị tất cả)
+            displayColumns: ["tk", "trường", "tg", "anh"],
+            // API Key cho ImgBB
+            imgbbApiKey: "1bad1429a242d7040fda3f2cfddb3a25"
+
+        };
+
+        let currentData = []; // [headers, row1, row2, ...]
+        let displayData = []; // Dữ liệu đã filter và sort
+        let accessToken = null;
+        let tokenExpiry = 0;
+        let editingRowIndex = null;
+        let isAddingNewRow = false;
+        let searchTimeout = null;
+        let isUploading = false; // Cờ theo dõi trạng thái upload ảnh
+        let isSaving = false; // Cờ ngăn lưu chồng chéo
+
+        // Phân trang & Sắp xếp
+        let currentPage = 1;
+        const rowsPerPage = 20;
+        let sortConfig = { col: null, dir: 'asc' };
+
+        // --- AUTHENTICATION ---
+        async function getAccessToken() {
+            // Kiểm tra token cũ còn hạn không (trừ hao 5 phút)
+            if (accessToken && Date.now() < tokenExpiry - 300000) {
+                return accessToken;
+            }
+
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const payload = {
+                iss: CONFIG.serviceAccountEmail,
+                scope: CONFIG.scopes.join(" "),
+                aud: CONFIG.tokenUrl,
+                exp: now + 3600,
+                iat: now
+            };
+
+            const sHeader = JSON.stringify(header);
+            const sPayload = JSON.stringify(payload);
+            const sJWT = KJUR.jws.JWS.sign("RS256", sHeader, sPayload, CONFIG.privateKey);
+
+            try {
+                const response = await fetch(CONFIG.tokenUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWT}`
+                });
+                const data = await response.json();
+                accessToken = data.access_token;
+                tokenExpiry = Date.now() + (data.expires_in * 1000);
+                return accessToken;
+            } catch (err) {
+                console.error("Lỗi lấy token:", err);
+                alert("Không thể xác thực với Google API");
+            }
+        }
+
+        // --- DATA OPERATIONS ---
+        async function fetchData() {
+            // Đừng refresh bảng khi đang có dòng sửa/thêm
+            if (editingRowIndex !== null) return;
+
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+
+            try {
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:Z`;
+                const response = await fetch(url, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const result = await response.json();
+
+                if (result.values) {
+                    currentData = result.values;
+                    try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                    currentPage = 1;
+                    sortConfig = { col: null, dir: 'asc' };
+                    filterAndSortData();
+                } else {
+                    alert("Sheet không có dữ liệu hoặc lỗi cấu hình.");
+                }
+            } catch (err) {
+                console.error("Fetch error:", err);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function filterAndSortData() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const rawHeaders = currentData[0];
+            let data = currentData.slice(1);
+
+            // Xác định danh sách cột đang được hiển thị
+            let visibleIndices = [];
+            if (CONFIG.displayColumns && CONFIG.displayColumns.length > 0) {
+                CONFIG.displayColumns.forEach(colName => {
+                    const idx = rawHeaders.indexOf(colName);
+                    if (idx !== -1) visibleIndices.push(idx);
+                });
+            } else {
+                visibleIndices = rawHeaders.map((_, i) => i);
+            }
+
+            // 1. Chỉ hiển thị dòng mà các cột "đang hiển thị" có dữ liệu (Ngoại trừ dòng đang sửa)
+            data = data.filter((row, index) => {
+                const absIdx = currentData.indexOf(row);
+                if (absIdx === editingRowIndex) return true;
+                return visibleIndices.some(idx => row[idx] && row[idx].toString().trim() !== "");
+            });
+
+            // 2. Filter theo từ khóa tìm kiếm (Ngoại trừ dòng đang sửa)
+            if (term) {
+                data = data.filter(row => {
+                    const absIdx = currentData.indexOf(row);
+                    if (absIdx === editingRowIndex) return true;
+                    return visibleIndices.some(idx => row[idx] && row[idx].toString().toLowerCase().includes(term));
+                });
+            }
+
+            // 3. Sort
+            if (sortConfig.col !== null) {
+                data.sort((a, b) => {
+                    // Đưa dòng đang sửa lên đầu nếu là dòng mới thêm
+                    if (isAddingNewRow) {
+                        if (currentData.indexOf(a) === editingRowIndex) return -1;
+                        if (currentData.indexOf(b) === editingRowIndex) return 1;
+                    }
+
+                    let valA = a[sortConfig.col] || "";
+                    let valB = b[sortConfig.col] || "";
+
+                    const numA = parseFloat(valA);
+                    const numB = parseFloat(valB);
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        valA = numA;
+                        valB = numB;
+                    }
+
+                    if (valA < valB) return sortConfig.dir === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortConfig.dir === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            displayData = [rawHeaders, ...data];
+            renderTable();
+        }
+
+        function renderTable() {
+            const head = document.getElementById('tableHead');
+            const body = document.getElementById('tableBody');
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (displayData.length === 0) return;
+
+            const headFragment = document.createDocumentFragment();
+            const bodyFragment = document.createDocumentFragment();
+
+            const rawHeaders = displayData[0];
+
+            // Xác định danh sách cột cần hiển thị
+            let visibleIndices = [];
+            const sheetHeaders = displayData[0].map(h => h.toString().trim().toLowerCase());
+
+            if (CONFIG.displayColumns && CONFIG.displayColumns.length > 0) {
+                CONFIG.displayColumns.forEach(target => {
+                    const targetClean = target.toString().trim().toLowerCase();
+                    const idx = sheetHeaders.indexOf(targetClean);
+                    if (idx !== -1) visibleIndices.push(idx);
+                });
+            } else {
+                visibleIndices = rawHeaders.map((_, i) => i);
+            }
+
+            // Render Header
+            const thStt = document.createElement('th');
+            thStt.textContent = "#";
+            thStt.style.width = "50px";
+            headFragment.appendChild(thStt);
+
+            visibleIndices.forEach(idx => {
+                const h = rawHeaders[idx];
+                const th = document.createElement('th');
+                th.innerHTML = `${h} <span class="sort-icon"></span>`;
+                th.onclick = () => handleSort(idx);
+                if (sortConfig.col === idx) {
+                    th.className = sortConfig.dir === 'asc' ? 'sorted-asc' : 'sorted-desc';
+                }
+                headFragment.appendChild(th);
+            });
+            const thAction = document.createElement('th');
+            thAction.textContent = "Thao tác";
+            headFragment.appendChild(thAction);
+
+            // Render Body
+            const totalRows = displayData.length - 1;
+            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIdx = (currentPage - 1) * rowsPerPage + 1;
+            const endIdx = Math.min(startIdx + rowsPerPage, displayData.length);
+            const pageData = displayData.slice(startIdx, endIdx);
+
+            pageData.forEach((row, pIdx) => {
+                const absoluteIndex = currentData.indexOf(row);
+                const tr = document.createElement('tr');
+                const isEditing = (editingRowIndex === absoluteIndex);
+
+                const tdStt = document.createElement('td');
+                tdStt.textContent = startIdx + pIdx;
+                tdStt.style.color = "var(--text-dim)";
+                tr.appendChild(tdStt);
+
+                visibleIndices.forEach((colIndex, vIdx) => {
+                    const td = document.createElement('td');
+                    if (isEditing) {
+                        const isFirst = (vIdx === 0);
+                        const columnName = rawHeaders[colIndex] ? rawHeaders[colIndex].toString().trim().toLowerCase() : "";
+                        const isAnhColumn = (columnName === 'anh' || columnName === 'ảnh');
+
+                        td.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <input type="text" class="text-input-inline edit-inline-input" 
+                                    data-col="${colIndex}" value="${row[colIndex] || ''}" 
+                                    ${isFirst ? 'id="firstEditInput"' : ''} 
+                                    onblur="handleRowBlur()">
+                                ${isAnhColumn ? `
+                                <label class="btn-upload-inline" title="Tải ảnh lên" onmousedown="isUploading=true">
+                                    <input type="file" style="display: none;" onchange="handleImageUpload(this, ${colIndex})">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                </label>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        const cellValue = row[colIndex] || "";
+                        if (isImageUrl(cellValue)) {
+                            td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
+                        } else {
+                            td.textContent = cellValue;
+                        }
+                    }
+                    tr.appendChild(td);
+                });
+
+                const tdBtn = document.createElement('td');
+                if (isEditing) {
+                    tdBtn.innerHTML = `
+                        <div class="action-cell">
+                            <span style="color: var(--primary); font-size: 0.8rem; font-style: italic;">Đang sửa...</span>
+                            <button class="btn-edit" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;" onclick="cancelInlineEdit()">Hủy</button>
+                        </div>
+                    `;
+                } else {
+                    tdBtn.innerHTML = `
+                        <div class="action-cell">
+                            <button class="btn-edit" onclick="startInlineEdit(${absoluteIndex})">Sửa</button>
+                            <button class="btn-delete" onclick="clearRowData(${absoluteIndex})">Xóa</button>
+                        </div>
+                    `;
+                }
+                tr.appendChild(tdBtn);
+                bodyFragment.appendChild(tr);
+            });
+
+            head.appendChild(headFragment);
+            body.appendChild(bodyFragment);
+
+            // Tự động focus vào ô đầu tiên khi mở chế độ sửa
+            const firstInput = document.getElementById('firstEditInput');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 50);
+            }
+
+            document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        function handleSort(colIndex) {
+            if (sortConfig.col === colIndex) {
+                sortConfig.dir = sortConfig.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortConfig.col = colIndex;
+                sortConfig.dir = 'asc';
+            }
+            filterAndSortData();
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderTable();
+        }
+
+        function filterData() {
+            currentPage = 1;
+            filterAndSortData();
+        }
+
+        function handleSearchInput() {
+            if (searchTimeout) clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterData();
+            }, 300); // 300ms debounce
+        }
+
+        // --- INLINE EDIT & SAVE ---
+        function startInlineEdit(rowIndex) {
+            if (isAddingNewRow) return alert("Vui lòng hoàn tất hoặc hủy dòng đang thêm.");
+            editingRowIndex = rowIndex;
+            renderTable();
+        }
+
+        function cancelInlineEdit() {
+            if (isAddingNewRow) {
+                currentData.splice(editingRowIndex, 1);
+                isAddingNewRow = false;
+            }
+            editingRowIndex = null;
+            filterAndSortData();
+        }
+
+        // Tự động lưu khi rời khỏi dòng
+        function handleRowBlur() {
+            // Đợi một chút để activeElement cập nhật
+            setTimeout(() => {
+                if (isUploading || isSaving) return; // Nếu đang upload hoặc đang lưu thì không tự động lưu/đóng mode sửa
+
+                const active = document.activeElement;
+                // Nếu item mới focus không nằm trong class 'edit-inline-input', nghĩa là đã rời khỏi dòng
+                if (!active || !active.classList.contains('edit-inline-input')) {
+                    if (editingRowIndex !== null) {
+                        saveData();
+                    }
+                }
+            }, 150);
+        }
+
+        async function saveData() {
+            if (isSaving) return;
+            isSaving = true;
+            const statusLabel = document.getElementById('saveStatus');
+            try {
+                const inputs = document.querySelectorAll('.edit-inline-input');
+
+                // Nếu không có input và không phải đang add mới, có thể là do re-render
+                if (inputs.length === 0 && !isAddingNewRow) return;
+
+                const rawHeaders = currentData[0];
+                const newData = new Array(rawHeaders.length).fill("");
+
+                // Điền dữ liệu cũ vào newData trước
+                currentData[editingRowIndex].forEach((val, idx) => {
+                    if (idx < newData.length) newData[idx] = val;
+                });
+
+                let hasChange = false;
+
+                if (inputs.length > 0) {
+                    inputs.forEach(input => {
+                        const col = parseInt(input.getAttribute('data-col'));
+                        const val = input.value || "";
+                        if (newData[col] !== val) {
+                            newData[col] = val;
+                            hasChange = true;
+                        }
+                    });
+                } else if (isAddingNewRow) {
+                    hasChange = true;
+                }
+
+                // Nếu không có gì thay đổi, chỉ cần đóng chế độ sửa
+                if (!hasChange && !isAddingNewRow) {
+                    editingRowIndex = null;
+                    renderTable();
+                    return;
+                }
+
+                statusLabel.style.display = 'block';
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+
+                let url, method;
+                if (isAddingNewRow) {
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:A:append?valueInputOption=USER_ENTERED`;
+                    method = "POST";
+                } else {
+                    // Xác định cột cuối cùng dựa trên số lượng header
+                    const colLetter = getColLetter(rawHeaders.length);
+                    const range = `${sname}!A${editingRowIndex + 1}:${colLetter}${editingRowIndex + 1}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`;
+                    method = "PUT";
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        values: [newData]
+                    })
+                });
+
+                if (response.ok) {
+                    if (isAddingNewRow) {
+                        isAddingNewRow = false;
+                        editingRowIndex = null;
+                        await fetchData();
+                    } else {
+                        currentData[editingRowIndex] = newData;
+                        try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                        editingRowIndex = null;
+                        filterAndSortData();
+                    }
+                } else {
+                    const err = await response.json();
+                    alert("Lỗi khi lưu: " + err.error.message);
+                }
+            } catch (err) {
+                console.error("Save error:", err);
+            } finally {
+                setTimeout(() => { if (statusLabel) statusLabel.style.display = 'none'; }, 1000);
+                isSaving = false;
+            }
+        }
+
+        // --- ADD & DELETE ---
+        function addRow() {
+            if (isAddingNewRow || editingRowIndex !== null) {
+                return alert("Vui lòng hoàn tất dòng đang sửa trước khi thêm dòng mới.");
+            }
+
+            const emptyRow = currentData[0].map(() => "");
+            currentData.splice(1, 0, emptyRow);
+
+            editingRowIndex = 1;
+            isAddingNewRow = true;
+            currentPage = 1;
+            filterAndSortData();
+        }
+
+        async function clearRowData(absoluteIndex) {
+            if (isAddingNewRow) return alert("Vui lòng hoàn tất hoặc hủy dòng đang thêm.");
+            if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu của dòng này không?")) return;
+
+            const statusLabel = document.getElementById('saveStatus');
+            try {
+                statusLabel.textContent = "Đang xóa dữ liệu...";
+                statusLabel.style.display = 'block';
+
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+
+                const range = `${sname}!A${absoluteIndex + 1}:Z${absoluteIndex + 1}`;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}:clear`;
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    // Cập nhật dữ liệu cục bộ thành mảng rỗng (giữ nguyên số cột)
+                    currentData[absoluteIndex] = currentData[0].map(() => "");
+                    try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                    filterAndSortData();
+                } else {
+                    const err = await response.json();
+                    alert("Lỗi khi xóa dữ liệu: " + err.error.message);
+                }
+            } catch (err) {
+                console.error("Clear error:", err);
+            } finally {
+                statusLabel.textContent = "Đang lưu thay đổi...";
+                setTimeout(() => statusLabel.style.display = 'none', 1000);
+            }
+        }
+
+        // --- SETTINGS ---
+        function openSettings() {
+            document.getElementById('inputSpreadsheetId').value = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+            document.getElementById('inputSheetName').value = localStorage.getItem('gs_name') || CONFIG.sheetName;
+            document.getElementById('inputDisplayColumns').value = (localStorage.getItem('gs_cols') || CONFIG.displayColumns.join(', '));
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function applySettings() {
+            const id = document.getElementById('inputSpreadsheetId').value;
+            const name = document.getElementById('inputSheetName').value;
+            const colsRaw = document.getElementById('inputDisplayColumns').value;
+
+            localStorage.setItem('gs_id', id);
+            localStorage.setItem('gs_name', name);
+            localStorage.setItem('gs_cols', colsRaw);
+
+            // Cập nhật CONFIG động
+            CONFIG.displayColumns = colsRaw.split(',').map(s => s.trim()).filter(s => s !== "");
+
+            closeModal('settingsModal');
+            fetchData();
+        }
+
+        function resetSettings() {
+            if (confirm("Bạn có chắc muốn xóa cài đặt và dùng cấu hình mặc định?")) {
+                localStorage.removeItem('gs_id');
+                localStorage.removeItem('gs_name');
+                localStorage.removeItem('gs_cols');
+                location.reload(); // Reload để nhận lại CONFIG mặc định
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // --- UTILS ---
+        function isImageUrl(url) {
+            if (typeof url !== 'string') return false;
+            const cleanUrl = url.trim().toLowerCase();
+            return (cleanUrl.startsWith('http') &&
+                (cleanUrl.match(/\.(jpeg|jpg|gif|png|webp|svg|avif)(\?.*)?$/) || cleanUrl.includes('googleusercontent.com')));
+        }
+
+        function zoomImage(url) {
+            const overlay = document.getElementById('imageOverlay');
+            const img = document.getElementById('overlayImage');
+            img.src = url;
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageOverlay() {
+            const overlay = document.getElementById('imageOverlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Chuyển số cột thành chữ cái (1 -> A, 27 -> AA)
+        function getColLetter(n) {
+            let letter = "";
+            while (n > 0) {
+                let temp = (n - 1) % 26;
+                letter = String.fromCharCode(temp + 65) + letter;
+                n = (n - temp - 1) / 26;
+            }
+            return letter || "A";
+        }
+
+        async function handleImageUpload(input, colIndex) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const apiKey = CONFIG.imgbbApiKey;
+            if (!apiKey) {
+                alert("Bạn chưa cấu hình imgbbApiKey trong code. Hãy đăng ký tài khoản tại imgbb.com để lấy API key.");
+                return;
+            }
+
+            if (editingRowIndex === null) {
+                isUploading = false;
+                return;
+            }
+            isUploading = true; // Chặn saveData từ sự kiện blur
+
+            const statusLabel = document.getElementById('saveStatus');
+            statusLabel.textContent = "Đang tải ảnh lên ImgBB...";
+            statusLabel.style.display = 'block';
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    const directUrl = result.data.url;
+
+                    // Cập nhật giá trị vào DOM và dữ liệu cục bộ ngay lập tức
+                    const targetInput = input.closest('div').querySelector('input[type="text"]');
+                    if (targetInput) {
+                        targetInput.value = directUrl;
+                    }
+                    // KHÔNG cập nhật currentData ở đây để saveData() thấy sự thay đổi so với cache
+
+                    isUploading = false; // Mở khóa để saveData có thể chạy
+                    await saveData(); // Gọi lưu ngay lập tức
+                } else {
+                    alert("Lỗi tải ảnh: " + (result.error ? result.error.message : "Thất bại"));
+                    isUploading = false;
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                alert("Lỗi kết nối khi tải ảnh. Kiểm tra Internet và API Key.");
+                isUploading = false;
+            } finally {
+                statusLabel.style.display = 'none';
+                input.value = "";
+            }
+        }
+
+        // Khởi tạo
+        window.onload = () => {
+            // Load cột từ localStorage nếu có
+            const savedCols = localStorage.getItem('gs_cols');
+            if (savedCols) {
+                CONFIG.displayColumns = savedCols.split(',').map(s => s.trim()).filter(s => s !== "");
+            }
+
+            const cachedData = localStorage.getItem('gs_cached_data');
+            if (cachedData) {
+                try {
+                    currentData = JSON.parse(cachedData);
+                    filterAndSortData();
+                } catch (e) { console.error("Cache parse error", e); }
+            }
+            fetchData();
+        };
+    </script>
+</body>
+
+</html>
