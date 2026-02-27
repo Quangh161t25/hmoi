@@ -1760,6 +1760,13 @@
         // --- INLINE EDIT & SAVE ---
         function startInlineEdit(rowIndex) {
             if (isAddingNewRow) return alert("Vui lòng hoàn tất hoặc hủy dòng đang thêm.");
+
+            if (window.innerWidth <= 768) {
+                // Trên Mobile, mở Modal thay vì sửa trực tiếp trên thẻ để tránh nhảy Scroll
+                openAddModal(rowIndex);
+                return;
+            }
+
             editingRowIndex = rowIndex;
             renderTable();
         }
@@ -1881,12 +1888,22 @@
         }
 
         // --- ADD & DELETE ---
-        function openAddModal() {
-            if (isAddingNewRow || editingRowIndex !== null) {
-                return alert("Vui lòng hoàn tất dòng đang sửa trước.");
+        function openAddModal(editIndex = null) {
+            const rawHeaders = currentData[0];
+            const isEditing = editIndex !== null;
+
+            if (isEditing) {
+                editingRowIndex = editIndex;
+            } else {
+                if (isAddingNewRow || editingRowIndex !== null) {
+                    return alert("Vui lòng hoàn tất dòng đang sửa trước.");
+                }
             }
 
-            const rawHeaders = currentData[0];
+            // Cập nhật tiêu đề và nút
+            document.querySelector('#addModal h2').textContent = isEditing ? 'CHỈNH SỬA ĐƠN HÀNG' : 'THÊM MỚI ĐƠN HÀNG';
+            document.querySelector('#addModal .btn-save').textContent = isEditing ? 'Cập nhật' : 'Lưu dữ liệu';
+
             const grid = document.getElementById('addFormGrid');
             grid.innerHTML = "";
 
@@ -1898,11 +1915,15 @@
                 formItem.className = 'form-item';
 
                 let defaultValue = "";
-                if (columnName === 'ngay_nhan') {
-                    const now = new Date();
-                    defaultValue = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-                } else if (columnName === 'slg') {
-                    defaultValue = "1";
+                if (isEditing && colIndex !== -1) {
+                    defaultValue = currentData[editIndex][colIndex] || "";
+                } else {
+                    if (columnName === 'ngay_nhan') {
+                        const now = new Date();
+                        defaultValue = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+                    } else if (columnName === 'slg') {
+                        defaultValue = "1";
+                    }
                 }
 
                 const isMvd = (columnName === 'mvd');
@@ -1957,7 +1978,7 @@
 
             document.getElementById('addModal').style.display = 'flex';
 
-            // Khởi tạo Flatpickr cho form mới
+            // Khởi tạo Flatpickr cho form
             document.querySelectorAll('.wrap-add-datepicker').forEach(el => {
                 const input = el.closest('div').querySelector('input');
                 flatpickr(el, {
@@ -1998,21 +2019,27 @@
             if (isSaving) return;
             const inputs = document.querySelectorAll('.add-input');
             const rawHeaders = currentData[0];
-            const newData = new Array(rawHeaders.length).fill("");
+            const isEditing = (editingRowIndex !== null);
+
+            // Nếu đang sửa, lấy dữ liệu cũ làm gốc để bảo toàn các cột không hiện trên form
+            const newData = isEditing ? [...currentData[editingRowIndex]] : new Array(rawHeaders.length).fill("");
 
             inputs.forEach(input => {
                 const col = parseInt(input.getAttribute('data-col'));
-                if (col !== -1) newData[col] = input.value || "";
+                if (col !== -1 && col < newData.length) {
+                    newData[col] = input.value || "";
+                }
             });
 
-            // Nếu côt id trống, gán tạm (Sheet API sẽ tự handle nếu bạn config)
+            // Nếu côt id trống, gán tạm
             const idIdx = rawHeaders.indexOf("id");
             if (idIdx !== -1 && !newData[idIdx]) {
                 newData[idIdx] = Date.now().toString();
             }
 
             isSaving = true;
-            isAddingNewRow = true; // Để fetchData biết re-render
+            if (!isEditing) isAddingNewRow = true; // Chỉ đánh dấu add mới nếu không phải đang sửa
+
             const statusLabel = document.getElementById('saveStatus');
             statusLabel.style.display = 'block';
 
@@ -2021,9 +2048,19 @@
                 const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
                 const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
 
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:A:append?valueInputOption=USER_ENTERED`;
+                let url, method;
+                if (isEditing) {
+                    const colLetter = getColLetter(rawHeaders.length);
+                    const range = `${sname}!A${editingRowIndex + 1}:${colLetter}${editingRowIndex + 1}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`;
+                    method = "PUT";
+                } else {
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:A:append?valueInputOption=USER_ENTERED`;
+                    method = "POST";
+                }
+
                 const response = await fetch(url, {
-                    method: "POST",
+                    method: method,
                     headers: {
                         "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json"
@@ -2033,14 +2070,22 @@
 
                 if (response.ok) {
                     closeModal('addModal');
-                    isAddingNewRow = false;
-                    await fetchData();
+                    if (isEditing) {
+                        currentData[editingRowIndex] = newData;
+                        try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                        editingRowIndex = null;
+                        filterAndSortData(); // Re-render table/cards
+                    } else {
+                        isAddingNewRow = false;
+                        await fetchData();
+                    }
                 } else {
                     const err = await response.json();
-                    alert("Lỗi khi thêm dòng: " + err.error.message);
+                    alert("Lỗi khi lưu dữ liệu: " + err.error.message);
                 }
             } catch (err) {
-                console.error("Add error:", err);
+                console.error("Save error:", err);
+                alert("Lỗi kết nối. Vui lòng thử lại.");
             } finally {
                 statusLabel.style.display = 'none';
                 isSaving = false;
@@ -2356,6 +2401,11 @@
 
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
+            if (id === 'addModal') {
+                editingRowIndex = null;
+                isAddingNewRow = false;
+                filterAndSortData();
+            }
         }
 
         // --- UTILS ---
@@ -2524,6 +2574,7 @@
         }
 
         // Khởi tạo
+        let lastWidth = window.innerWidth;
         window.onload = () => {
             // Load cột từ localStorage nếu có
             const savedCols = localStorage.getItem('gs_cols');
@@ -2541,7 +2592,12 @@
 
             // Tự động render lại khi xoay màn hình hoặc resize
             window.addEventListener('resize', () => {
-                renderTable();
+                // Trên Mobile, việc ẩn hiện address bar khi cuộn sẽ kích hoạt resize.
+                // Chỉ render lại nếu chiều rộng (width) thực sự thay đổi để tránh nhảy Scroll.
+                if (window.innerWidth !== lastWidth) {
+                    lastWidth = window.innerWidth;
+                    renderTable();
+                }
             });
 
             fetchData();
