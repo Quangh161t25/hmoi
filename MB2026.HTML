@@ -898,16 +898,19 @@
     <div class="container">
         <header>
             <h1>Google Sheets Manager</h1>
-            <button class="btn-outline" onclick="openSettings()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path
-                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                    </path>
-                </svg>
-                Cài đặt
-            </button>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span id="roleIndicator" style="font-size: 0.9rem; font-weight: 600;"></span>
+                <button class="btn-outline" onclick="openSettings()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                    Cài đặt
+                </button>
+            </div>
         </header>
 
         <div class="controls">
@@ -932,7 +935,8 @@
             <div id="saveStatus" class="save-status"
                 style="display: none; margin-right: 10px; color: var(--primary); font-weight: bold;">Đang lưu thay
                 đổi...</div>
-            <button class="btn-primary" onclick="exportToExcel()" style="background: #10b981;">
+            <button class="btn-primary admin-only" onclick="exportToExcel()"
+                style="background: #10b981; display: none;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -941,24 +945,22 @@
                 </svg>
                 Xuất Excel
             </button>
-            <button class="btn-primary" onclick="exportToMisa()" style="background: #f59e0b;">
+            <button class="btn-primary admin-only" onclick="exportToMisa()" style="background: #f59e0b; display: none;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
                     <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
                 Xuất Misa
             </button>
-            <button class="btn-primary" onclick="addRow()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
+            <button class="btn-primary admin-only" onclick="addRow()" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                Thêm dòng
+                Thêm đơn hàng
             </button>
             <button class="btn-primary" onclick="fetchData()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -968,7 +970,8 @@
                 </svg>
                 Làm mới
             </button>
-            <button id="btnBulkDelete" class="btn-bulk-delete" onclick="deleteSelectedRows()">
+            <button id="btnBulkDelete" class="btn-bulk-delete admin-only" onclick="deleteSelectedRows()"
+                style="display: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -1049,6 +1052,14 @@
                 <label>Danh sách cột (cách nhau bằng dấu phẩy)</label>
                 <input type="text" id="inputDisplayColumns" placeholder="ví dụ: tk, trường, tg, anh">
             </div>
+            <div id="adminAuthSection" class="form-group"
+                style="padding: 10px; background: rgba(255,193,7,0.1); border-radius: 8px; margin-top: 10px; border: 1px dashed #f59e0b;">
+                <label style="color: #f59e0b;">🔐 Xác thực Quản trị (Dành cho Chủ shop)</label>
+                <div id="adminUrlWarning" style="font-size: 0.8rem; color: #ef4444; margin-bottom: 5px; display: none;">
+                    ⚠️ Bạn cần truy cập đúng đường dẫn quản trị (?user=admin) để nhập mật khẩu.
+                </div>
+                <input type="password" id="inputAdminPassword" placeholder="Nhập mật khẩu" style="margin-top: 5px;">
+            </div>
             <div class="modal-footer">
                 <button class="btn-outline" onclick="resetSettings()">Cài đặt lại</button>
                 <button class="btn-primary" onclick="applySettings()">Áp dụng</button>
@@ -1094,6 +1105,10 @@
 
         };
 
+        let isUrlAdmin = false;
+        let isAdminUnlocked = false;
+        let isAdmin = false;
+
         let currentData = []; // [headers, row1, row2, ...]
         let displayData = []; // Dữ liệu đã filter và sort
         let selectedRows = new Set(); // Lưu index của các dòng được chọn
@@ -1113,6 +1128,39 @@
         let currentPage = 1;
         const rowsPerPage = 20;
         let sortConfig = { col: null, dir: 'asc' };
+
+        // --- PHÂN QUYỀN (ADMIN) ---
+        function updateAdminPermissions() {
+            const urlParams = new URLSearchParams(window.location.search);
+            isUrlAdmin = urlParams.get('user') === 'admin';
+
+            // Lấy trạng thái unlock từ sessionStorage để giữ phiên đăng nhập trong tab
+            isAdminUnlocked = sessionStorage.getItem('admin_unlocked') === 'true';
+
+            // Quyền Admin: Cần cả URL admin VÀ đã nhập đúng mật khẩu
+            isAdmin = isUrlAdmin && isAdminUnlocked;
+
+            const roleIndicator = document.getElementById('roleIndicator');
+            if (roleIndicator) {
+                if (isAdmin) {
+                    roleIndicator.textContent = "Cấp quyền: QUẢN TRỊ";
+                    roleIndicator.style.color = "#10b981";
+                } else {
+                    roleIndicator.textContent = "Cấp quyền: NHÂN VIÊN";
+                    roleIndicator.style.color = "#fbbf24";
+                }
+            }
+
+            // Ẩn/Hiện các nút có class admin-only
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = isAdmin ? 'flex' : 'none';
+            });
+
+            // Nếu không phải admin, đảm bảo tắt chế độ chọn
+            if (!isAdmin && isSelectionMode) {
+                toggleSelectionMode(false);
+            }
+        }
 
         // --- AUTHENTICATION ---
         async function getAccessToken() {
@@ -1393,16 +1441,18 @@
             }
 
             // Render Header
-            const thCheck = document.createElement('th');
-            thCheck.style.width = "40px";
-            const masterCheckbox = document.createElement('input');
-            masterCheckbox.type = "checkbox";
-            masterCheckbox.className = "custom-checkbox";
-            masterCheckbox.checked = isSelectionMode;
-            masterCheckbox.title = isSelectionMode ? "Đóng chế độ chọn" : "Mở chế độ chọn";
-            masterCheckbox.onchange = (e) => toggleSelectionMode(e.target.checked);
-            thCheck.appendChild(masterCheckbox);
-            headFragment.appendChild(thCheck);
+            if (isAdmin) {
+                const thCheck = document.createElement('th');
+                thCheck.style.width = "40px";
+                const masterCheckbox = document.createElement('input');
+                masterCheckbox.type = "checkbox";
+                masterCheckbox.className = "custom-checkbox";
+                masterCheckbox.checked = isSelectionMode;
+                masterCheckbox.title = isSelectionMode ? "Đóng chế độ chọn" : "Mở chế độ chọn";
+                masterCheckbox.onchange = (e) => toggleSelectionMode(e.target.checked);
+                thCheck.appendChild(masterCheckbox);
+                headFragment.appendChild(thCheck);
+            }
 
             const thStt = document.createElement('th');
             thStt.textContent = "#";
@@ -1423,9 +1473,11 @@
                 }
                 headFragment.appendChild(th);
             });
-            const thAction = document.createElement('th');
-            thAction.textContent = "Thao tác";
-            headFragment.appendChild(thAction);
+            if (isAdmin) {
+                const thAction = document.createElement('th');
+                thAction.textContent = "Thao tác";
+                headFragment.appendChild(thAction);
+            }
 
             // Render Body
             const totalRows = displayData.length - 1;
@@ -1552,23 +1604,25 @@
                     tr.appendChild(td);
                 });
 
-                const tdBtn = document.createElement('td');
-                if (isEditing) {
-                    tdBtn.innerHTML = `
-                        <div class="action-cell">
-                            <span style="color: var(--primary); font-size: 0.8rem; font-style: italic;">Đang sửa...</span>
-                            <button class="btn-edit" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;" onclick="cancelInlineEdit()">Hủy</button>
-                        </div>
-                    `;
-                } else {
-                    tdBtn.innerHTML = `
-                        <div class="action-cell">
-                            <button class="btn-edit" onclick="startInlineEdit(${absoluteIndex})">Sửa</button>
-                            <button class="btn-copy-inline" onclick="duplicateRow(${absoluteIndex})" title="Nhân bản đơn hàng này">Nhân bản</button>
-                        </div>
-                    `;
+                if (isAdmin) {
+                    const tdBtn = document.createElement('td');
+                    if (isEditing) {
+                        tdBtn.innerHTML = `
+                            <div class="action-cell">
+                                <span style="color: var(--primary); font-size: 0.8rem; font-style: italic;">Đang sửa...</span>
+                                <button class="btn-edit" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;" onclick="cancelInlineEdit()">Hủy</button>
+                            </div>
+                        `;
+                    } else {
+                        tdBtn.innerHTML = `
+                            <div class="action-cell">
+                                <button class="btn-edit" onclick="startInlineEdit(${absoluteIndex})">Sửa</button>
+                                <button class="btn-copy-inline" onclick="duplicateRow(${absoluteIndex})" title="Nhân bản đơn hàng này">Nhân bản</button>
+                            </div>
+                        `;
+                    }
+                    tr.appendChild(tdBtn);
                 }
-                tr.appendChild(tdBtn);
                 bodyFragment.appendChild(tr);
             });
 
@@ -1692,9 +1746,9 @@
                     <div class="card-header">
                         <div class="card-mvd">${mvdText}</div>
                         <div class="card-date">${dateText}</div>
-                        ${isSelectionMode ? `<input type="checkbox" class="card-checkbox custom-checkbox" ${selectedRows.has(absoluteIndex) ? 'checked' : ''} onclick="event.stopPropagation(); toggleSelect(${absoluteIndex}, ${startIdx + pIdx}, event)">` : ''}
+                        ${(isAdmin && isSelectionMode) ? `<input type="checkbox" class="card-checkbox custom-checkbox" ${selectedRows.has(absoluteIndex) ? 'checked' : ''} onclick="event.stopPropagation(); toggleSelect(${absoluteIndex}, ${startIdx + pIdx}, event)">` : ''}
                     </div>
-                    <div class="card-body" onclick="startInlineEdit(${absoluteIndex})">
+                    <div class="card-body" onclick="${isAdmin ? `startInlineEdit(${absoluteIndex})` : ''}">
                         <div class="card-image">
                             <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80?text=Error'">
                         </div>
@@ -1705,11 +1759,13 @@
                             ${summaryText ? `<div class="info-item" style="color: #fbbf24; font-size: 0.8rem; margin-top: 5px;">📦 ${summaryText}</div>` : ''}
                         </div>
                     </div>
+                    ${isAdmin ? `
                     <div class="card-actions">
                         <button class="btn-edit" onclick="startInlineEdit(${absoluteIndex})">Sửa</button>
                         <button class="btn-copy-inline" onclick="duplicateRow(${absoluteIndex})">Nhân bản</button>
                         <button class="btn-edit" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);" onclick="clearRowData(${absoluteIndex})">Xóa</button>
                     </div>
+                    ` : ''}
                 `;
 
                 container.appendChild(card);
@@ -2312,9 +2368,10 @@
                     if (statusLabel && !statusLabel.textContent.includes("Nhân bản")) statusLabel.style.display = 'none';
                 }, 1000);
             }
+        } async function clearRowData(absoluteIndex) {
+            if (!confirm("Bạn có chắc muốn xóa sạch dữ liệu của dòng này?")) return;
+            await deleteRowsFromSheet([absoluteIndex]);
         }
-
-
 
 
         async function deleteSelectedRows() {
@@ -2371,6 +2428,13 @@
             document.getElementById('inputSpreadsheetId').value = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
             document.getElementById('inputSheetName').value = localStorage.getItem('gs_name') || CONFIG.sheetName;
             document.getElementById('inputDisplayColumns').value = (localStorage.getItem('gs_cols') || CONFIG.displayColumns.join(', '));
+
+            // Hiển thị cảnh báo URL nếu không có ?user=admin
+            const urlParams = new URLSearchParams(window.location.search);
+            const isUrl = urlParams.get('user') === 'admin';
+            document.getElementById('adminUrlWarning').style.display = isUrl ? 'none' : 'block';
+            document.getElementById('inputAdminPassword').value = ""; // Không hiện lại mk cũ
+
             document.getElementById('settingsModal').style.display = 'flex';
         }
 
@@ -2378,6 +2442,7 @@
             const id = document.getElementById('inputSpreadsheetId').value;
             const name = document.getElementById('inputSheetName').value;
             const colsRaw = document.getElementById('inputDisplayColumns').value;
+            const passInput = document.getElementById('inputAdminPassword').value;
 
             localStorage.setItem('gs_id', id);
             localStorage.setItem('gs_name', name);
@@ -2386,6 +2451,20 @@
             // Cập nhật CONFIG động
             CONFIG.displayColumns = colsRaw.split(',').map(s => s.trim()).filter(s => s !== "");
 
+            // Kiểm tra mật khẩu quản trị (Chỉ khi link là ?user=admin)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('user') === 'admin') {
+                if (passInput === '2026') {
+                    sessionStorage.setItem('admin_unlocked', 'true');
+                    alert("Đã mở khóa toàn quyền Quản trị!");
+                } else if (passInput !== "") {
+                    alert("Mật khẩu quản trị không đúng!");
+                }
+            } else if (passInput !== "") {
+                alert("Bạn cần phải vào đúng đường dẫn quản trị (?user=admin) mới có thể sử dụng mật khẩu.");
+            }
+
+            updateAdminPermissions();
             closeModal('settingsModal');
             fetchData();
         }
@@ -2600,6 +2679,7 @@
                 }
             });
 
+            updateAdminPermissions();
             fetchData();
         };
     </script>
