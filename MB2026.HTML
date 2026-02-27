@@ -20,6 +20,7 @@
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+    <link rel="manifest" href="manifest.json">
     <style>
         :root {
             --primary: #6366f1;
@@ -452,6 +453,29 @@
             text-align: center;
             padding: 3rem;
             color: var(--text-dim);
+        }
+
+        /* Offline Banner */
+        #offlineBanner {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 99px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 3000;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        #offlineBanner.online {
+            background: #10b981;
         }
 
         .spinner {
@@ -895,6 +919,11 @@
         <div class="blob blob-3"></div>
     </div>
 
+    <div id="offlineBanner">
+        <span id="offlineIcon">📡</span>
+        <span id="offlineText">Đang ngoại tuyến (Dữ liệu sẽ được lưu tạm)</span>
+    </div>
+
     <div class="container">
         <header>
             <h1>Google Sheets Manager</h1>
@@ -1127,7 +1156,73 @@
         // Phân trang & Sắp xếp
         let currentPage = 1;
         const rowsPerPage = 20;
-        let sortConfig = { col: null, dir: 'asc' };
+        // --- NGOẠI TUYẾN & CHỜ ĐỒNG BỘ ---
+        let offlineQueue = JSON.parse(localStorage.getItem('gs_offline_queue') || '[]');
+        let isOnline = navigator.onLine;
+
+        function updateOnlineStatus() {
+            isOnline = navigator.onLine;
+            const banner = document.getElementById('offlineBanner');
+            const icon = document.getElementById('offlineIcon');
+            const text = document.getElementById('offlineText');
+
+            if (isOnline) {
+                if (offlineQueue.length > 0) {
+                    banner.style.display = 'flex';
+                    banner.classList.add('online');
+                    icon.textContent = "🔄";
+                    text.textContent = `Đang đồng bộ ${offlineQueue.length} dữ liệu...`;
+                    syncOfflineQueue();
+                } else {
+                    banner.style.display = 'none';
+                }
+            } else {
+                banner.style.display = 'flex';
+                banner.classList.remove('online');
+                icon.textContent = "📡";
+                text.textContent = offlineQueue.length > 0
+                    ? `Ngoại tuyến - Đã lưu tạm ${offlineQueue.length} bản ghi`
+                    : "Đang ngoại tuyến";
+            }
+        }
+
+        function addToOfflineQueue(operation) {
+            offlineQueue.push({
+                ...operation,
+                id: Date.now(),
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('gs_offline_queue', JSON.stringify(offlineQueue));
+            updateOnlineStatus();
+        }
+
+        async function syncOfflineQueue() {
+            if (!isOnline || offlineQueue.length === 0) return;
+
+            const batch = [...offlineQueue];
+            for (const item of batch) {
+                try {
+                    let success = false;
+                    if (item.type === 'SAVE') {
+                        success = await performSaveRequest(item.data, item.rowIndex);
+                    } else if (item.type === 'DELETE') {
+                        success = await performDeleteRequest(item.indices);
+                    }
+
+                    if (success) {
+                        offlineQueue = offlineQueue.filter(q => q.id !== item.id);
+                        localStorage.setItem('gs_offline_queue', JSON.stringify(offlineQueue));
+                    }
+                } catch (err) {
+                    console.error("Sync failed for item:", item, err);
+                }
+            }
+            updateOnlineStatus();
+            if (offlineQueue.length === 0) {
+                setTimeout(() => { if (isOnline) document.getElementById('offlineBanner').style.display = 'none'; }, 3000);
+                fetchData();
+            }
+        }
 
         // --- PHÂN QUYỀN (ADMIN) ---
         function updateAdminPermissions() {
@@ -1750,7 +1845,10 @@
                     </div>
                     <div class="card-body" onclick="${isAdmin ? `startInlineEdit(${absoluteIndex})` : ''}">
                         <div class="card-image">
-                            <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80?text=Error'">
+                            <img src="${imgSrc}" 
+                                 onclick="event.stopPropagation(); zoomImage('${imgSrc}')" 
+                                 style="cursor: pointer;"
+                                 onerror="this.src='https://via.placeholder.com/80?text=Error'">
                         </div>
                         <div class="card-info">
                             <div class="info-item"><span class="info-label">SKU:</span> <strong>${skuText}</strong></div>
@@ -2015,13 +2113,21 @@
                         </div>
                     `;
                 } else if (isAnh) {
+                    const previewSrc = defaultValue && isImageUrl(defaultValue) ? defaultValue : "https://via.placeholder.com/40?text=?";
                     inputHtml = `
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <input type="text" class="text-input-inline add-input" data-col="${colIndex}" value="${defaultValue}" style="flex: 1;">
-                            <label class="btn-upload-inline" title="Tải ảnh lên" onmousedown="isUploading=true">
-                                <input type="file" style="display: none;" onchange="handleImageUpload(this, ${colIndex})">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            </label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${previewSrc}" class="modal-img-preview" id="preview_${colIndex}" 
+                                 onclick="zoomImage(this.src)"
+                                 style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; cursor: pointer; border: 1px solid var(--glass-border);">
+                            <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                                <input type="text" class="text-input-inline add-input" data-col="${colIndex}" 
+                                       value="${defaultValue}" style="flex: 1;"
+                                       oninput="document.getElementById('preview_${colIndex}').src = this.value || 'https://via.placeholder.com/40?text=?'">
+                                <label class="btn-upload-inline" title="Tải ảnh lên" onmousedown="isUploading=true">
+                                    <input type="file" style="display: none;" onchange="handleImageUpload(this, ${colIndex})">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                </label>
+                            </div>
                         </div>
                     `;
                 } else {
@@ -2071,13 +2177,41 @@
             });
         }
 
+        async function performSaveRequest(newData, rowIndex) {
+            const isEditing = (rowIndex !== null);
+            const token = await getAccessToken();
+            const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+            const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+            const rawHeaders = currentData[0];
+
+            let url, method;
+            if (isEditing) {
+                const colLetter = getColLetter(rawHeaders.length);
+                const range = `${sname}!A${rowIndex + 1}:${colLetter}${rowIndex + 1}`;
+                url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`;
+                method = "PUT";
+            } else {
+                url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:A:append?valueInputOption=USER_ENTERED`;
+                method = "POST";
+            }
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ values: [newData] })
+            });
+
+            return response.ok;
+        }
+
         async function saveNewRow() {
             if (isSaving) return;
             const inputs = document.querySelectorAll('.add-input');
             const rawHeaders = currentData[0];
             const isEditing = (editingRowIndex !== null);
-
-            // Nếu đang sửa, lấy dữ liệu cũ làm gốc để bảo toàn các cột không hiện trên form
             const newData = isEditing ? [...currentData[editingRowIndex]] : new Array(rawHeaders.length).fill("");
 
             inputs.forEach(input => {
@@ -2087,61 +2221,55 @@
                 }
             });
 
-            // Nếu côt id trống, gán tạm
             const idIdx = rawHeaders.indexOf("id");
             if (idIdx !== -1 && !newData[idIdx]) {
                 newData[idIdx] = Date.now().toString();
             }
 
             isSaving = true;
-            if (!isEditing) isAddingNewRow = true; // Chỉ đánh dấu add mới nếu không phải đang sửa
-
             const statusLabel = document.getElementById('saveStatus');
             statusLabel.style.display = 'block';
 
-            try {
-                const token = await getAccessToken();
-                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
-                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
-
-                let url, method;
+            if (!isOnline) {
+                // Lưu vào hàng chờ offline
+                addToOfflineQueue({ type: 'SAVE', data: newData, rowIndex: editingRowIndex });
+                closeModal('addModal');
                 if (isEditing) {
-                    const colLetter = getColLetter(rawHeaders.length);
-                    const range = `${sname}!A${editingRowIndex + 1}:${colLetter}${editingRowIndex + 1}`;
-                    url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`;
-                    method = "PUT";
+                    currentData[editingRowIndex] = newData;
+                    try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                    editingRowIndex = null;
+                    filterAndSortData();
                 } else {
-                    url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:A:append?valueInputOption=USER_ENTERED`;
-                    method = "POST";
+                    currentData.push(newData);
+                    try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                    filterAndSortData();
                 }
+                statusLabel.style.display = 'none';
+                isSaving = false;
+                return;
+            }
 
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ values: [newData] })
-                });
-
-                if (response.ok) {
+            try {
+                const ok = await performSaveRequest(newData, editingRowIndex);
+                if (ok) {
                     closeModal('addModal');
                     if (isEditing) {
                         currentData[editingRowIndex] = newData;
                         try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
                         editingRowIndex = null;
-                        filterAndSortData(); // Re-render table/cards
+                        filterAndSortData();
                     } else {
-                        isAddingNewRow = false;
                         await fetchData();
                     }
                 } else {
-                    const err = await response.json();
-                    alert("Lỗi khi lưu dữ liệu: " + err.error.message);
+                    alert("Lỗi khi lưu dữ liệu lên server.");
                 }
             } catch (err) {
                 console.error("Save error:", err);
-                alert("Lỗi kết nối. Vui lòng thử lại.");
+                // Nếu thực sự là lỗi mạng khi đang gửi, đẩy vào hàng chờ
+                addToOfflineQueue({ type: 'SAVE', data: newData, rowIndex: editingRowIndex });
+                closeModal('addModal');
+                alert("Mất kết nối. Đơn hàng đã được lưu tạm và sẽ đồng bộ sau.");
             } finally {
                 statusLabel.style.display = 'none';
                 isSaving = false;
@@ -2324,7 +2452,6 @@
             const sourceRow = currentData[absoluteIndex];
             const newRowData = new Array(rawHeaders.length).fill("");
 
-            // Các cột cần nhân bản
             const colsToCopy = ['ngay_nhan', 'mvd', 'ma_gian', 'anh_1'];
 
             rawHeaders.forEach((h, idx) => {
@@ -2332,29 +2459,26 @@
                 if (colsToCopy.includes(headerName)) {
                     newRowData[idx] = sourceRow[idx] || "";
                 }
-                // Luôn tạo ID mới nếu có cột id
                 if (headerName === "id") {
                     newRowData[idx] = Date.now().toString();
                 }
             });
+
+            if (!isOnline) {
+                addToOfflineQueue({ type: 'SAVE', data: newRowData, rowIndex: null });
+                currentData.push(newRowData);
+                try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                filterAndSortData();
+                return;
+            }
 
             const statusLabel = document.getElementById('saveStatus');
             statusLabel.textContent = "Đang nhân bản đơn hàng...";
             statusLabel.style.display = 'block';
 
             try {
-                const token = await getAccessToken();
-                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
-                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
-
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:A:append?valueInputOption=USER_ENTERED`;
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ values: [newRowData] })
-                });
-
-                if (response.ok) {
+                const ok = await performSaveRequest(newRowData, null);
+                if (ok) {
                     statusLabel.textContent = "Nhân bản thành công!";
                     setTimeout(() => statusLabel.style.display = 'none', 2000);
                     fetchData();
@@ -2363,12 +2487,14 @@
                 }
             } catch (err) {
                 console.error("Duplicate error:", err);
+                addToOfflineQueue({ type: 'SAVE', data: newRowData, rowIndex: null });
             } finally {
                 setTimeout(() => {
                     if (statusLabel && !statusLabel.textContent.includes("Nhân bản")) statusLabel.style.display = 'none';
                 }, 1000);
             }
-        } async function clearRowData(absoluteIndex) {
+        }
+        async function clearRowData(absoluteIndex) {
             if (!confirm("Bạn có chắc muốn xóa sạch dữ liệu của dòng này?")) return;
             await deleteRowsFromSheet([absoluteIndex]);
         }
@@ -2384,28 +2510,46 @@
             updateBulkActionsUI();
         }
 
-        async function deleteRowsFromSheet(indices) {
-            const statusLabel = document.getElementById('saveStatus');
+        async function performDeleteRequest(indices) {
             try {
-                statusLabel.textContent = "Đang xóa dữ liệu...";
-                statusLabel.style.display = 'block';
-
                 const token = await getAccessToken();
                 const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
                 const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
 
-                // Để xóa hàng loạt hiệu quả, chúng ta có thể dùng batchUpdate hoặc gọi clear cho từng dòng
-                // Hiện tại code đang dùng clear cho đẹp (giữ nguyên cấu trúc dòng)
                 const promises = indices.map(idx => {
                     const range = `${sname}!A${idx + 1}:Z${idx + 1}`;
-                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}:clear`;
-                    return fetch(url, { method: "POST", headers: { "Authorization": `Bearer ${token}` } });
+                    return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}:clear`, {
+                        method: 'POST',
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
                 });
 
                 const results = await Promise.all(promises);
-                const allOk = results.every(res => res.ok);
+                return results.every(res => res.ok);
+            } catch (err) {
+                console.error("Delete request error:", err);
+                return false;
+            }
+        }
 
-                if (allOk) {
+        async function deleteRowsFromSheet(indices) {
+            if (!isOnline) {
+                addToOfflineQueue({ type: 'DELETE', indices: indices });
+                indices.sort((a, b) => b - a).forEach(idx => {
+                    currentData[idx] = currentData[0].map(() => "");
+                });
+                try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                filterAndSortData();
+                return;
+            }
+
+            const statusLabel = document.getElementById('saveStatus');
+            statusLabel.textContent = "Đang xóa dữ liệu...";
+            statusLabel.style.display = 'block';
+
+            try {
+                const ok = await performDeleteRequest(indices);
+                if (ok) {
                     indices.forEach(idx => {
                         currentData[idx] = currentData[0].map(() => "");
                     });
@@ -2413,7 +2557,7 @@
                     filterAndSortData();
                 } else {
                     alert("Có lỗi xảy ra khi xóa một số dòng.");
-                    fetchData(); // Tải lại để đồng bộ
+                    fetchData();
                 }
             } catch (err) {
                 console.error("Delete error:", err);
@@ -2632,6 +2776,11 @@
                     if (targetInput) {
                         targetInput.value = directUrl;
                     }
+                    // Cập nhật preview nếu đang ở trong Modal
+                    const previewImg = document.getElementById(`preview_${colIndex}`);
+                    if (previewImg) {
+                        previewImg.src = directUrl;
+                    }
                     // KHÔNG cập nhật currentData ở đây để saveData() thấy sự thay đổi so với cache
 
                     isUploading = false; // Mở khóa để saveData có thể chạy
@@ -2681,6 +2830,18 @@
 
             updateAdminPermissions();
             fetchData();
+
+            // Đăng ký Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered', reg))
+                    .catch(err => console.log('SW Error', err));
+            }
+
+            // Lắng nghe trạng thái mạng
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus(); // Kiểm tra ngay lúc đầu
         };
     </script>
 </body>
