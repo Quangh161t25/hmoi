@@ -635,14 +635,37 @@
         .btn-bulk-delete {
             background: rgba(239, 68, 68, 0.1);
             color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
             display: none;
             /* Hiện khi có dòng được chọn */
             align-items: center;
             gap: 8px;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
         }
 
         .btn-bulk-delete:hover {
             background: #ef4444;
+            color: white;
+        }
+
+        .btn-copy-inline {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-copy-inline:hover {
+            background: #6366f1;
             color: white;
         }
 
@@ -1263,7 +1286,7 @@
                     tdBtn.innerHTML = `
                         <div class="action-cell">
                             <button class="btn-edit" onclick="startInlineEdit(${absoluteIndex})">Sửa</button>
-                            <button class="btn-delete" onclick="clearRowData(${absoluteIndex})">Xóa</button>
+                            <button class="btn-copy-inline" onclick="duplicateRow(${absoluteIndex})" title="Nhân bản đơn hàng này">Nhân bản</button>
                         </div>
                     `;
                 }
@@ -1734,15 +1757,68 @@
         function updateBulkActionsUI() {
             const btnDelete = document.getElementById('btnBulkDelete');
             const countText = document.getElementById('selectedCountText');
-            if (btnDelete && countText) {
-                if (selectedRows.size > 0) {
-                    btnDelete.style.display = 'flex';
-                    countText.textContent = selectedRows.size;
-                } else {
-                    btnDelete.style.display = 'none';
-                }
+
+            if (selectedRows.size > 0) {
+                if (btnDelete) btnDelete.style.display = 'flex';
+                if (countText) countText.textContent = selectedRows.size;
+            } else {
+                if (btnDelete) btnDelete.style.display = 'none';
             }
         }
+
+        async function duplicateRow(absoluteIndex) {
+            const rawHeaders = currentData[0];
+            const sourceRow = currentData[absoluteIndex];
+            const newRowData = new Array(rawHeaders.length).fill("");
+
+            // Các cột cần nhân bản
+            const colsToCopy = ['ngay_nhan', 'mvd', 'ma_gian', 'anh_1'];
+
+            rawHeaders.forEach((h, idx) => {
+                const headerName = h.toString().trim().toLowerCase();
+                if (colsToCopy.includes(headerName)) {
+                    newRowData[idx] = sourceRow[idx] || "";
+                }
+                // Luôn tạo ID mới nếu có cột id
+                if (headerName === "id") {
+                    newRowData[idx] = Date.now().toString();
+                }
+            });
+
+            const statusLabel = document.getElementById('saveStatus');
+            statusLabel.textContent = "Đang nhân bản đơn hàng...";
+            statusLabel.style.display = 'block';
+
+            try {
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:A:append?valueInputOption=USER_ENTERED`;
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: [newRowData] })
+                });
+
+                if (response.ok) {
+                    statusLabel.textContent = "Nhân bản thành công!";
+                    setTimeout(() => statusLabel.style.display = 'none', 2000);
+                    fetchData();
+                } else {
+                    alert("Lỗi khi nhân bản dòng.");
+                }
+            } catch (err) {
+                console.error("Duplicate error:", err);
+            } finally {
+                setTimeout(() => {
+                    if (statusLabel && !statusLabel.textContent.includes("Nhân bản")) statusLabel.style.display = 'none';
+                }, 1000);
+            }
+        }
+
+
+
 
         async function deleteSelectedRows() {
             if (selectedRows.size === 0) return;
