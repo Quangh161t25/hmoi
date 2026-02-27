@@ -193,6 +193,12 @@
             color: var(--text-main);
         }
 
+        .btn-outline.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
         .btn-outline:hover {
             background: rgba(255, 255, 255, 0.1);
         }
@@ -756,6 +762,21 @@
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm nhanh..." oninput="handleSearchInput()">
             </div>
+            <div class="sort-buttons" style="display: flex; gap: 8px; margin-right: 10px;">
+                <button id="btnSortMVD" class="btn-outline" onclick="sortByMVD()" title="Sắp xếp theo Mã vận đơn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 5L6 9l5 4M6 9h12"></path>
+                    </svg>
+                    Theo MVD
+                </button>
+                <button id="btnSortRow" class="btn-outline active" onclick="sortByRowOrder()"
+                    title="Sắp xếp theo dòng mới nhất">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"></path>
+                    </svg>
+                    Dòng mới nhất
+                </button>
+            </div>
             <div id="saveStatus" class="save-status"
                 style="display: none; margin-right: 10px; color: var(--primary); font-weight: bold;">Đang lưu thay
                 đổi...</div>
@@ -767,6 +788,17 @@
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
                 Xuất Excel
+            </button>
+            <button class="btn-primary" onclick="exportToMisa()" style="background: #f59e0b;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Xuất Misa
             </button>
             <button class="btn-primary" onclick="addRow()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -901,7 +933,7 @@
             tokenUrl: "https://oauth2.googleapis.com/token",
             scopes: ["https://www.googleapis.com/auth/spreadsheets"],
             // Tên các cột bạn muốn hiển thị (Để trống [] nếu muốn hiển thị tất cả)
-            displayColumns: ["ngay_nhan", "mvd", "ma_gian", "anh_1", "sku", "slg", "ghi_chu", "tinh_trang", "trang_thai"],
+            displayColumns: ["ngay_nhan", "mvd", "ma_gian", "sku", "slg", "ghi_chu", "tinh_trang", "trang_thai", "anh_1", "_virtual_summary"],
             // API Key cho ImgBB
             imgbbApiKey: "1bad1429a242d7040fda3f2cfddb3a25"
 
@@ -1020,10 +1052,38 @@
         function filterAndSortData() {
             const term = document.getElementById('searchInput').value.toLowerCase();
             const rawHeaders = currentData[0];
-            let data = currentData.slice(1);
+            const sheetHeaders = rawHeaders.map(h => h.toString().trim().toLowerCase());
+            const mvdIdx = sheetHeaders.indexOf("mvd");
+            const skuIdx = sheetHeaders.indexOf("sku");
+            const slgIdx = sheetHeaders.indexOf("slg");
+            const ngayNhanIdx = sheetHeaders.indexOf("ngay_nhan");
 
-            // Xác định index của cột ngay_nhan
-            const ngayNhanIdx = rawHeaders.indexOf("ngay_nhan");
+            // Lưu mvdIdx global để renderTable dùng được
+            window.mvdIdx = mvdIdx;
+
+            // Tính toán cột ảo: Gộp SKU | SLG theo MVD
+            window.mvdSummaries = new Map();
+            if (mvdIdx !== -1 && skuIdx !== -1 && slgIdx !== -1) {
+                const tempMap = new Map();
+                currentData.slice(1).forEach(row => {
+                    const mvd = (row[mvdIdx] || "").toString().trim();
+                    if (!mvd) return;
+                    const sku = row[skuIdx] || "";
+                    const slg = row[slgIdx] || "";
+                    const part = `${sku} | ${slg}`;
+                    if (!tempMap.has(mvd)) tempMap.set(mvd, []);
+                    tempMap.get(mvd).push(part);
+                });
+                tempMap.forEach((parts, mvd) => {
+                    window.mvdSummaries.set(mvd, parts.join(" + "));
+                });
+            }
+
+            // Ghi nhớ index gốc để hỗ trợ sắp xếp "dưới lên trên"
+            let data = currentData.slice(1).map((row, idx) => ({
+                row: row,
+                originalIndex: idx + 1
+            }));
 
             // Mặc định sắp xếp theo ngay_nhan giảm dần nếu chưa có sortConfig
             if (sortConfig.col === null && ngayNhanIdx !== -1) {
@@ -1042,59 +1102,96 @@
                 visibleIndices = rawHeaders.map((_, i) => i);
             }
 
-            // 1. Chỉ hiển thị dòng mà các cột "đang hiển thị" có dữ liệu (Ngoại trừ dòng đang sửa)
-            data = data.filter((row, index) => {
+            // 1. Lọc dữ liệu
+            data = data.filter(item => {
+                const row = item.row;
                 const absIdx = currentData.indexOf(row);
                 if (absIdx === editingRowIndex) return true;
-                return visibleIndices.some(idx => row[idx] && row[idx].toString().trim() !== "");
+
+                // Lọc trống
+                const hasData = visibleIndices.some(idx => row[idx] && row[idx].toString().trim() !== "");
+                if (!hasData) return false;
+
+                // Lọc tìm kiếm
+                if (term) {
+                    return visibleIndices.some(idx => row[idx] && row[idx].toString().toLowerCase().includes(term));
+                }
+                return true;
             });
 
-            // 2. Filter theo từ khóa tìm kiếm (Ngoại trừ dòng đang sửa)
-            if (term) {
-                data = data.filter(row => {
-                    const absIdx = currentData.indexOf(row);
-                    if (absIdx === editingRowIndex) return true;
-                    return visibleIndices.some(idx => row[idx] && row[idx].toString().toLowerCase().includes(term));
-                });
-            }
+            // 2. Sắp xếp Đa tầng
+            data.sort((aItem, bItem) => {
+                const a = aItem.row;
+                const b = bItem.row;
 
-            // 3. Sort
-            if (sortConfig.col !== null) {
-                data.sort((a, b) => {
-                    // Đưa dòng đang sửa lên đầu nếu là dòng mới thêm
-                    if (isAddingNewRow) {
-                        if (currentData.indexOf(a) === editingRowIndex) return -1;
-                        if (currentData.indexOf(b) === editingRowIndex) return 1;
-                    }
+                // Ưu tiên dòng đang sửa
+                if (isAddingNewRow) {
+                    const absA = currentData.indexOf(a);
+                    const absB = currentData.indexOf(b);
+                    if (absA === editingRowIndex) return -1;
+                    if (absB === editingRowIndex) return 1;
+                }
 
+                // Tiêu chí 1: Luôn ưu tiên Ngày nhận (Lớn tới Bé) - Của ngày nào hiển thị ngày đó
+                if (ngayNhanIdx !== -1) {
+                    const dateA = parseDate(a[ngayNhanIdx] || "");
+                    const dateB = parseDate(b[ngayNhanIdx] || "");
+                    if (dateA > dateB) return -1;
+                    if (dateA < dateB) return 1;
+                }
+
+                // Tiêu chí 2: Theo cột người dùng chọn (Nếu không phải cột Ngày nhận)
+                if (sortConfig.col !== null && sortConfig.col !== ngayNhanIdx) {
                     let valA = a[sortConfig.col] || "";
                     let valB = b[sortConfig.col] || "";
 
-                    const isDateCol = rawHeaders[sortConfig.col] === "ngay_nhan" || rawHeaders[sortConfig.col] === "ngay_xly" || rawHeaders[sortConfig.col] === "ngay_hoan";
+                    const colName = rawHeaders[sortConfig.col];
+                    const isDateCol = colName === "ngay_nhan" || colName === "ngay_xly" || colName === "ngay_hoan";
 
+                    let cmp = 0;
                     if (isDateCol) {
-                        const dateA = parseDate(valA);
-                        const dateB = parseDate(valB);
-                        if (dateA < dateB) return sortConfig.dir === 'asc' ? -1 : 1;
-                        if (dateA > dateB) return sortConfig.dir === 'asc' ? 1 : -1;
-                        return 0;
+                        const dateA2 = parseDate(valA);
+                        const dateB2 = parseDate(valB);
+                        cmp = dateA2 - dateB2;
+                    } else {
+                        const numA = parseFloat(valA);
+                        const numB = parseFloat(valB);
+                        if (!isNaN(numA) && !isNaN(numB)) {
+                            cmp = numA - numB;
+                        } else {
+                            cmp = valA.toString().localeCompare(valB.toString());
+                        }
                     }
 
-                    const numA = parseFloat(valA);
-                    const numB = parseFloat(valB);
-                    if (!isNaN(numA) && !isNaN(numB)) {
-                        valA = numA;
-                        valB = numB;
-                    }
+                    if (cmp !== 0) return sortConfig.dir === 'asc' ? cmp : -cmp;
+                }
 
-                    if (valA < valB) return sortConfig.dir === 'asc' ? -1 : 1;
-                    if (valA > valB) return sortConfig.dir === 'asc' ? 1 : -1;
-                    return 0;
-                });
-            }
+                // Tiêu chí 3: Thứ tự Sheet (Dưới lên Trên) - Dùng khi các giá trị trên bằng nhau
+                return bItem.originalIndex - aItem.originalIndex;
+            });
 
-            displayData = [rawHeaders, ...data];
+            displayData = [rawHeaders, ...data.map(item => item.row)];
+            updateSortButtonsUI();
             renderTable();
+        }
+
+        function updateSortButtonsUI() {
+            const btnMVD = document.getElementById('btnSortMVD');
+            const btnRow = document.getElementById('btnSortRow');
+            if (!btnMVD || !btnRow || !currentData[0]) return;
+
+            const sheetHeaders = currentData[0].map(h => h.toString().trim().toLowerCase());
+            const mvdIdx = sheetHeaders.indexOf("mvd");
+
+            // Reset
+            btnMVD.classList.remove('active');
+            btnRow.classList.remove('active');
+
+            if (sortConfig.col === mvdIdx && mvdIdx !== -1) {
+                btnMVD.classList.add('active');
+            } else if (sortConfig.col === null) {
+                btnRow.classList.add('active');
+            }
         }
 
         function renderTable() {
@@ -1118,7 +1215,11 @@
                 CONFIG.displayColumns.forEach(target => {
                     const targetClean = target.toString().trim().toLowerCase();
                     const idx = sheetHeaders.indexOf(targetClean);
-                    if (idx !== -1) visibleIndices.push(idx);
+                    if (idx !== -1) {
+                        visibleIndices.push(idx);
+                    } else if (targetClean === '_virtual_summary') {
+                        visibleIndices.push('_virtual_summary');
+                    }
                 });
             } else {
                 visibleIndices = rawHeaders.map((_, i) => i);
@@ -1142,12 +1243,16 @@
             headFragment.appendChild(thStt);
 
             visibleIndices.forEach(idx => {
-                const h = rawHeaders[idx];
                 const th = document.createElement('th');
-                th.innerHTML = `${h} <span class="sort-icon"></span>`;
-                th.onclick = () => handleSort(idx);
-                if (sortConfig.col === idx) {
-                    th.className = sortConfig.dir === 'asc' ? 'sorted-asc' : 'sorted-desc';
+                if (idx === '_virtual_summary') {
+                    th.textContent = "Tổng hợp SKU/SLG";
+                } else {
+                    const h = rawHeaders[idx];
+                    th.innerHTML = `${h} <span class="sort-icon"></span>`;
+                    th.onclick = () => handleSort(idx);
+                    if (sortConfig.col === idx) {
+                        th.className = sortConfig.dir === 'asc' ? 'sorted-asc' : 'sorted-desc';
+                    }
                 }
                 headFragment.appendChild(th);
             });
@@ -1210,7 +1315,13 @@
 
                 visibleIndices.forEach((colIndex, vIdx) => {
                     const td = document.createElement('td');
-                    if (isEditing) {
+                    if (colIndex === '_virtual_summary') {
+                        const mvd = (window.mvdIdx !== -1 && row[window.mvdIdx]) ? row[window.mvdIdx].toString().trim() : "";
+                        td.textContent = mvd ? (window.mvdSummaries.get(mvd) || "") : "";
+                        td.style.fontSize = "0.8rem";
+                        td.style.fontWeight = "600";
+                        td.style.color = "var(--primary)";
+                    } else if (isEditing) {
                         const isFirst = (vIdx === 0);
                         const columnName = rawHeaders[colIndex] ? rawHeaders[colIndex].toString().trim().toLowerCase() : "";
                         const isAnhColumn = (columnName === 'anh' || columnName.startsWith('anh_'));
@@ -1348,6 +1459,20 @@
             document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages}`;
             document.getElementById('prevPage').disabled = currentPage === 1;
             document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        function sortByMVD() {
+            const rawHeaders = currentData[0].map(h => h.toString().trim().toLowerCase());
+            const mvdIdx = rawHeaders.indexOf("mvd");
+            if (mvdIdx !== -1) {
+                handleSort(mvdIdx);
+            }
+        }
+
+        function sortByRowOrder() {
+            sortConfig.col = null;
+            sortConfig.dir = 'desc';
+            filterAndSortData();
         }
 
         function handleSort(colIndex) {
@@ -1675,15 +1800,11 @@
 
             let rowsToExport = [];
             if (selectedRows.size > 0) {
-                // Xuất theo các dòng được chọn (duy trì thứ tự theo currentData hoặc theo lựa chọn?)
-                // Ta sẽ lấy theo danh sách đã chọn
                 rowsToExport = Array.from(selectedRows).sort((a, b) => a - b).map(idx => currentData[idx]);
             } else {
-                // Xuất toàn bộ dữ liệu đang hiển thị (đã qua filter và sort)
                 rowsToExport = displayData.slice(1);
             }
 
-            // Gộp header và dữ liệu
             const exportData = [rawHeaders, ...rowsToExport].map(row => {
                 return visibleIndices.map(idx => row[idx]);
             });
@@ -1693,6 +1814,82 @@
             XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
 
             const fileName = `Dữ_liệu_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+        function exportToMisa() {
+            if (currentData.length < 2) return alert("Không có dữ liệu để xuất.");
+
+            const rawHeaders = currentData[0].map(h => h.toString().trim().toLowerCase());
+            const mvdIdx = rawHeaders.indexOf("mvd");
+            const ngayNhanIdx = rawHeaders.indexOf("ngay_nhan");
+            const skuIdx = rawHeaders.indexOf("sku");
+            const slgIdx = rawHeaders.indexOf("slg");
+            const maGianIdx = rawHeaders.indexOf("ma_gian");
+
+            const misaHeaders = [
+                "Hiển thị trên sổ", "Hình thức bán hàng", "Phương thức thanh toán", "Kiêm phiếu nhập kho",
+                "Ngày hạch toán (*)", "Ngày chứng từ (*)", "Số chứng từ (*)", "Ngày phiếu nhập", "Số phiếu nhập",
+                "Mẫu số HĐ", "Ký hiệu HĐ", "Số hóa đơn", "Ngày hóa đơn", "Mã khách hàng", "Tên khách hàng",
+                "Địa chỉ", "Mã số thuế", "Diễn giải/Lý do chi", "NV bán hàng", "Người giao hàng",
+                "Diễn giải phiếu nhập", "Kèm theo chứng từ gốc (Phiếu nhập)", "Cách lấy đơn giá nhập",
+                "Mã hàng (*)", "Tên hàng", "Hàng khuyến mại", "TK trả lại/TK nợ (*)", "TK công nợ/TK tiền/TK có (*)",
+                "ĐVT", "Số lượng", "Đơn giá sau thuế", "Đơn giá", "Thành tiền", "Tỷ lệ CK (%)",
+                "Tiền chiết khấu", "TK chiết khấu", "% thuế GTGT", "Tiền thuế GTGT", "TK thuế GTGT",
+                "HH không TH trên tờ khai thuế GTGT", "Kho", "TK Kho", "TK giá vốn", "Đơn giá vốn",
+                "Tiền vốn", "Hàng hoá giữ hộ/bán hộ", "Mã đơn hàng", "Mã thống kê"
+            ];
+
+            let rowsToExport = [];
+            if (selectedRows.size > 0) {
+                rowsToExport = Array.from(selectedRows).sort((a, b) => a - b).map(idx => currentData[idx]);
+            } else {
+                rowsToExport = displayData.slice(1);
+            }
+
+            const exportData = rowsToExport.map(row => {
+                const ngayVal = ngayNhanIdx !== -1 ? (row[ngayNhanIdx] || "") : "";
+                const mvdVal = mvdIdx !== -1 ? (row[mvdIdx] || "") : "";
+                const maGianVal = maGianIdx !== -1 ? (row[maGianIdx] || "") : "";
+                const skuVal = skuIdx !== -1 ? (row[skuIdx] || "") : "";
+                const slgVal = slgIdx !== -1 ? (row[slgIdx] || "") : "";
+
+                // Mảng 48 phần tử (0-indexed)
+                let misaRow = new Array(48).fill("");
+
+                misaRow[0] = "0"; // Hiển thị trên sổ
+                misaRow[1] = "0"; // Hình thức bán hàng
+                misaRow[2] = "0"; // Phương thức thanh toán
+                misaRow[3] = "1"; // Kiêm phiếu nhập kho
+                misaRow[4] = ngayVal; // Ngày hạch toán
+                misaRow[5] = ngayVal; // Ngày chứng từ
+                misaRow[6] = mvdVal;  // Số chứng từ
+                misaRow[8] = mvdVal;  // Số phiếu nhập
+                // 9->12 để trống
+                misaRow[13] = maGianVal; // Mã khách hàng
+                // 14->22 để trống
+                misaRow[23] = skuVal; // Mã hàng (*)
+                // 24->25 để trống
+                misaRow[26] = "5212"; // TK trả lại/TK nợ
+                misaRow[27] = "131";  // TK công nợ/TK tiền/TK có
+                // 28 để trống
+                misaRow[29] = slgVal; // Số lượng
+                misaRow[30] = "";     // Đơn giá sau thuế
+                misaRow[31] = "0";    // Đơn giá
+                misaRow[32] = "0";    // Thành tiền
+                // 33->39 để trống
+                misaRow[40] = "KMB";  // Kho
+                misaRow[41] = "1561"; // TK Kho
+                misaRow[42] = "632";  // TK giá vốn
+
+                return misaRow;
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([misaHeaders, ...exportData]);
+            XLSX.utils.book_append_sheet(wb, ws, "Misa");
+
+            const fileName = `Export_Misa_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
             XLSX.writeFile(wb, fileName);
         }
 
