@@ -557,6 +557,158 @@
             margin-bottom: 1rem;
         }
 
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+                margin-bottom: 1rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px !important;
+                margin-bottom: 1.5rem;
+            }
+
+            .search-box {
+                max-width: none;
+                width: 100%;
+            }
+
+            .sort-buttons {
+                margin-right: 0 !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .btn-primary,
+            .btn-outline {
+                width: 100%;
+                justify-content: center;
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+
+            /* Ẩn bảng HTML trên mobile */
+            .table-container {
+                display: none;
+            }
+
+            /* Container cho Card View */
+            #mobileCardsContainer {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 1.5rem;
+            }
+
+            .mobile-card {
+                background: var(--glass-bg);
+                border: 1px solid var(--glass-border);
+                border-radius: 16px;
+                padding: 15px;
+                position: relative;
+                transition: transform 0.2s;
+            }
+
+            .mobile-card.selected {
+                border-color: var(--primary);
+                background: rgba(99, 102, 241, 0.05);
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 10px;
+                border-bottom: 1px solid var(--glass-border);
+                padding-bottom: 8px;
+            }
+
+            .card-mvd {
+                font-weight: 700;
+                color: var(--primary);
+                font-size: 1.1rem;
+            }
+
+            .card-date {
+                font-size: 0.85rem;
+                color: var(--text-dim);
+            }
+
+            .card-body {
+                display: grid;
+                grid-template-columns: 80px 1fr;
+                gap: 15px;
+            }
+
+            .card-image img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 12px;
+                border: 1px solid var(--glass-border);
+            }
+
+            .card-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .info-item {
+                font-size: 0.9rem;
+            }
+
+            .info-label {
+                color: var(--text-dim);
+                margin-right: 4px;
+            }
+
+            .card-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+                margin-top: 10px;
+                padding-top: 8px;
+                border-top: 1px solid var(--glass-border);
+            }
+
+            .card-checkbox {
+                position: absolute;
+                top: 10px;
+                left: -10px;
+                width: 24px;
+                height: 24px;
+                z-index: 5;
+            }
+
+            .modal {
+                padding: 1.5rem;
+                border-radius: 0;
+                height: 100%;
+                max-height: 100%;
+                top: 0;
+                transform: none;
+                margin: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .blob {
+                display: none;
+            }
+        }
+
         .btn-qr-helper {
             background: rgba(99, 102, 241, 0.1);
             color: var(--primary);
@@ -845,6 +997,9 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Container cho Card-View trên Mobile -->
+        <div id="mobileCardsContainer"></div>
 
         <div class="pagination" id="pagination">
             <button class="btn-outline" id="prevPage" onclick="changePage(-1)">Trước</button>
@@ -1197,10 +1352,22 @@
         function renderTable() {
             const head = document.getElementById('tableHead');
             const body = document.getElementById('tableBody');
+            const mobileContainer = document.getElementById('mobileCardsContainer');
+
             head.innerHTML = '';
             body.innerHTML = '';
+            if (mobileContainer) mobileContainer.innerHTML = '';
 
             if (displayData.length === 0) return;
+
+            // Kiểm tra mobile
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                renderMobileCards();
+                updatePaginationUI();
+                return;
+            }
 
             const headFragment = document.createDocumentFragment();
             const bodyFragment = document.createDocumentFragment();
@@ -1456,9 +1623,97 @@
                 setTimeout(() => firstInput.focus(), 50);
             }
 
+            updatePaginationUI();
+        }
+
+        function updatePaginationUI() {
+            const totalRows = displayData.length - 1;
+            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
             document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages}`;
             document.getElementById('prevPage').disabled = currentPage === 1;
             document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        function renderMobileCards() {
+            const container = document.getElementById('mobileCardsContainer');
+            if (!container) return;
+
+            const rawHeaders = displayData[0];
+            const sheetHeaders = rawHeaders.map(h => h.toString().trim().toLowerCase());
+
+            const mvdIdx = sheetHeaders.indexOf("mvd");
+            const ngayNhanIdx = sheetHeaders.indexOf("ngay_nhan");
+            const skuIdx = sheetHeaders.indexOf("sku");
+            const slgIdx = sheetHeaders.indexOf("slg");
+            const maGianIdx = sheetHeaders.indexOf("ma_gian");
+            const anhIdx = sheetHeaders.find(h => h.startsWith("anh_")) ? sheetHeaders.indexOf(sheetHeaders.find(h => h.startsWith("anh_"))) : sheetHeaders.indexOf("anh");
+
+            const totalRows = displayData.length - 1;
+            const startIdx = (currentPage - 1) * rowsPerPage + 1;
+            const endIdx = Math.min(startIdx + rowsPerPage, displayData.length);
+            const pageData = displayData.slice(startIdx, endIdx);
+
+            let lastGroupDate = null;
+
+            pageData.forEach((row, pIdx) => {
+                const absoluteIndex = currentData.indexOf(row);
+
+                // Grouping Date
+                if (ngayNhanIdx !== -1) {
+                    const currentDate = row[ngayNhanIdx] || "Chưa có ngày";
+                    if (currentDate !== lastGroupDate) {
+                        const dateBadge = document.createElement('div');
+                        dateBadge.style.margin = "10px 0 5px 0";
+                        dateBadge.style.fontSize = "0.9rem";
+                        dateBadge.style.fontWeight = "bold";
+                        dateBadge.style.color = "var(--primary)";
+                        dateBadge.innerHTML = `📅 Ngày nhận: ${currentDate}`;
+                        container.appendChild(dateBadge);
+                        lastGroupDate = currentDate;
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = `mobile-card ${selectedRows.has(absoluteIndex) ? 'selected' : ''}`;
+
+                const mvdText = mvdIdx !== -1 ? row[mvdIdx] : "N/A";
+                const dateText = ngayNhanIdx !== -1 ? row[ngayNhanIdx] : "";
+                const skuText = skuIdx !== -1 ? row[skuIdx] : "";
+                const slgText = slgIdx !== -1 ? row[slgIdx] : "";
+                const maGianText = maGianIdx !== -1 ? row[maGianIdx] : "";
+                const imgSrc = (anhIdx !== -1 && row[anhIdx]) ? row[anhIdx] : "https://via.placeholder.com/80?text=No+Img";
+
+                let summaryText = "";
+                if (mvdText && window.mvdSummaries && window.mvdSummaries.has(mvdText)) {
+                    summaryText = window.mvdSummaries.get(mvdText);
+                }
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-mvd">${mvdText}</div>
+                        <div class="card-date">${dateText}</div>
+                        ${isSelectionMode ? `<input type="checkbox" class="card-checkbox custom-checkbox" ${selectedRows.has(absoluteIndex) ? 'checked' : ''} onclick="event.stopPropagation(); toggleSelect(${absoluteIndex}, ${startIdx + pIdx}, event)">` : ''}
+                    </div>
+                    <div class="card-body" onclick="startInlineEdit(${absoluteIndex})">
+                        <div class="card-image">
+                            <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80?text=Error'">
+                        </div>
+                        <div class="card-info">
+                            <div class="info-item"><span class="info-label">SKU:</span> <strong>${skuText}</strong></div>
+                            <div class="info-item"><span class="info-label">SLG:</span> <strong>${slgText}</strong></div>
+                            <div class="info-item"><span class="info-label">Gian:</span> ${maGianText}</div>
+                            ${summaryText ? `<div class="info-item" style="color: #fbbf24; font-size: 0.8rem; margin-top: 5px;">📦 ${summaryText}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="startInlineEdit(${absoluteIndex})">Sửa</button>
+                        <button class="btn-copy-inline" onclick="duplicateRow(${absoluteIndex})">Nhân bản</button>
+                        <button class="btn-edit" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);" onclick="clearRowData(${absoluteIndex})">Xóa</button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
         }
 
         function sortByMVD() {
@@ -2283,6 +2538,12 @@
                     filterAndSortData();
                 } catch (e) { console.error("Cache parse error", e); }
             }
+
+            // Tự động render lại khi xoay màn hình hoặc resize
+            window.addEventListener('resize', () => {
+                renderTable();
+            });
+
             fetchData();
         };
     </script>
