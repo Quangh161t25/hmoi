@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In Mã Vạch - Minimal with Date</title>
+    <!-- JsBarcode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        :root {
+            --bc-width: 75mm;
+            --bc-height: 15mm;
+            --columns: 3;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #barcode-container {
+            display: grid;
+            grid-template-columns: repeat(var(--columns), 1fr);
+            width: var(--bc-width);
+            height: auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .barcode-item {
+            width: 100%;
+            height: var(--bc-height);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px dotted #ccc;
+            box-sizing: border-box;
+            background-color: white;
+            overflow: hidden;
+            padding: 1mm;
+        }
+
+        .barcode-item svg {
+            max-width: 95%;
+            max-height: 65%;
+        }
+
+        .barcode-date {
+            font-size: 8px;
+            color: #333;
+            margin-top: 0.5mm;
+            font-family: Arial, sans-serif;
+            font-weight: 500;
+        }
+
+        /* Float Print Button */
+        .btn-print {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        @media print {
+            @page {
+                size: 75mm 15mm;
+                margin: 0;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            #barcode-container {
+                box-shadow: none;
+                grid-template-columns: repeat(var(--columns), 1fr);
+                width: 75mm;
+                height: 15mm;
+            }
+
+            .barcode-item {
+                border: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="barcode-container">
+        <!-- Chỉ hiển thị mã vạch và ngày ở đây -->
+    </div>
+
+    <button class="btn-print no-print" onclick="window.print()">In (75x15mm)</button>
+
+    <script>
+        function formatDate(date) {
+            const d = date.getDate().toString().padStart(2, '0');
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            const y = date.getFullYear();
+            const h = date.getHours().toString().padStart(2, '0');
+            const min = date.getMinutes().toString().padStart(2, '0');
+            return `${d}/${m}/${y} ${h}:${min}`;
+        }
+
+        function generateBarcodes() {
+            const container = document.getElementById('barcode-container');
+            const urlParams = new URLSearchParams(window.location.search);
+            const qrData = urlParams.get('qr');
+            const now = new Date();
+            const dateStr = formatDate(now);
+
+            if (!qrData) {
+                container.innerHTML = '<p style="padding: 20px; font-size: 12px;">Thêm ?qr=... để hiển thị</p>';
+                return;
+            }
+
+            const items = qrData.split(',');
+
+            items.forEach(data => {
+                const trimmedData = data.trim();
+                if (!trimmedData) return;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'barcode-item';
+
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                wrapper.appendChild(svg);
+
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'barcode-date';
+                dateDiv.innerText = dateStr;
+                wrapper.appendChild(dateDiv);
+
+                container.appendChild(wrapper);
+
+                try {
+                    JsBarcode(svg, trimmedData, {
+                        format: "CODE128",
+                        lineColor: "#000",
+                        width: 1,
+                        height: 35, // Adjusted for date space
+                        displayValue: false,
+                        margin: 0,
+                        background: "transparent"
+                    });
+                } catch (e) {
+                    console.error("Error:", e);
+                }
+            });
+        }
+
+        window.onload = generateBarcodes;
+    </script>
+</body>
+
+</html>
