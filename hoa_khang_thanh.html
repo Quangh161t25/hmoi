@@ -90,7 +90,6 @@
         </div>
         <!-- Info Section -->
         <div class="mb-6 leading-relaxed" id="info-section">
-            <p><span class="font-bold">Mã đơn:</span> ĐH-20260307-042</p> <!-- Default, có thể thay đổi nếu cần -->
             <p><span class="font-bold">Ngày:</span> </p>
             <p><span class="font-bold">Khách hàng:</span> </p>
         </div>
@@ -187,7 +186,6 @@
             // Điền info section
             const infoSection = document.getElementById('info-section');
             infoSection.innerHTML = `
-                <p><span class="font-bold">Mã đơn:</span> ĐH-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 1000)}</p>
                 <p><span class="font-bold">Ngày:</span> ${ngay}</p>
                 <p><span class="font-bold">Khách hàng:</span> ${khachHang}</p>
             `;
@@ -210,9 +208,6 @@
                 <p>Tổng cộng tiền hàng: <span class="font-bold">${formatVND(tongSanPham)}</span></p>
                 <p>Cước xe: <span class="font-bold">${formatVND(cuocXe)}</span></p>
                 <p class="text-xl font-bold">Tổng tiền: ${formatVND(tongTien)}</p>
-                <p>Đã trả: ${formatVND(daTra)}</p>
-                <hr class="my-2 border-black">
-                <p class="text-lg font-bold">Còn nợ: ${formatVND(conNo)}</p>
             `;
         }
     </script>
