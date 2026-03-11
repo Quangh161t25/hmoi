@@ -166,42 +166,48 @@
     </div>
 
     <script>
-        // Hàm giải mã an toàn để tránh lỗi font (URL Decode)
-        function safeDecode(str) {
+        // Hàm giải mã và làm sạch dữ liệu
+        function cleanData(str) {
             try {
-                // Giải mã dữ liệu và loại bỏ các ký tự % còn sót lại nếu có
-                return decodeURIComponent(str.replace(/\+/g, ' '));
+                if (!str) return "";
+                // Giải mã URL và loại bỏ khoảng trắng thừa ở hai đầu
+                return decodeURIComponent(str.replace(/\+/g, ' ')).trim();
             } catch (e) {
-                return str;
+                return str ? str.trim() : "";
             }
         }
 
-        // Hàm format số tiền với dấu chấm (ví dụ: 1000000 -> 1.000.000 đ)
+        // Hàm format số tiền với dấu chấm
         function formatVND(amount) {
             return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ";
         }
 
-        // Lấy dữ liệu từ URL
-        const rawQuery = window.location.search.substring(1);
+        // Lấy và giải mã toàn bộ Query String
+        let rawQuery = window.location.search.substring(1);
 
-        if (!rawQuery) {
+        // Giải mã sơ bộ để xử lý các ký tự %7C (|) hoặc %3D (=)
+        let decodedQuery = cleanData(rawQuery);
+
+        if (!decodedQuery) {
             document.body.innerHTML = "<div class='flex items-center justify-center h-screen font-bold'>Dữ liệu hóa đơn trống</div>";
         } else {
-            const segments = rawQuery.split(/[|?]/);
+            // Tách các đoạn dữ liệu dựa trên dấu | hoặc ?
+            const segments = decodedQuery.split(/[|?]/);
             let ngay = "";
             let khachHang = "";
             let cuocXe = 0;
             let productsRaw = "";
 
             segments.forEach(seg => {
-                if (seg.startsWith("ngay=")) {
-                    ngay = safeDecode(seg.replace("ngay=", ""));
-                } else if (seg.startsWith("khach_hang=")) {
-                    khachHang = safeDecode(seg.replace("khach_hang=", ""));
-                } else if (seg.startsWith("cuoc=")) {
-                    cuocXe = parseInt(seg.replace("cuoc=", "")) || 0;
-                } else if (seg.includes("_a_")) {
-                    productsRaw = seg;
+                const s = seg.trim();
+                if (s.startsWith("ngay=")) {
+                    ngay = s.replace("ngay=", "");
+                } else if (s.startsWith("khach_hang=")) {
+                    khachHang = s.replace("khach_hang=", "");
+                } else if (s.startsWith("cuoc=")) {
+                    cuocXe = parseInt(s.replace("cuoc=", "").replace(/\./g, '')) || 0;
+                } else if (s.includes("_a_")) {
+                    productsRaw = s;
                 }
             });
 
@@ -210,16 +216,26 @@
             document.getElementById('khach-hang-text').innerText = khachHang;
 
             // Tách danh sách sản phẩm
-            const products = productsRaw ? productsRaw.split('_b_').map((p, index) => {
-                const fields = p.split('_a_');
-                return {
-                    stt: index + 1,
-                    ten: safeDecode(fields[0]),
-                    gia: parseInt(fields[1]) || 0,
-                    sl: parseInt(fields[2]) || 0,
-                    thanhTien: (parseInt(fields[1]) || 0) * (parseInt(fields[2]) || 0)
-                };
-            }) : [];
+            const products = [];
+            if (productsRaw) {
+                // Tách các sản phẩm bằng _b_, sau đó loại bỏ khoảng trắng thừa
+                const pList = productsRaw.split('_b_');
+                pList.forEach((pStr, index) => {
+                    const fields = pStr.trim().split('_a_');
+                    if (fields.length >= 3) {
+                        const ten = fields[0].trim();
+                        const gia = parseInt(fields[1].trim()) || 0;
+                        const sl = parseInt(fields[2].trim()) || 0;
+                        products.push({
+                            stt: products.length + 1,
+                            ten: ten,
+                            gia: gia,
+                            sl: sl,
+                            thanhTien: gia * sl
+                        });
+                    }
+                });
+            }
 
             // Tính tổng
             let tongSanPham = products.reduce((sum, p) => sum + p.thanhTien, 0);
@@ -245,7 +261,7 @@
                     <span class="font-bold">${formatVND(tongSanPham)}</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-300 pb-1">
-                    <span>Cước xe:</span>
+                    <span>Cước vận chuyển:</span>
                     <span class="font-bold">${formatVND(cuocXe)}</span>
                 </div>
                 <div class="flex justify-between text-xl font-bold text-blue-900 mt-2">
