@@ -149,18 +149,19 @@
             </table>
         </div>
         <!-- Footer Summary -->
-        <div class="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-4 gap-8">
-            <div id="qr-container" class="text-center w-full sm:w-auto order-2 sm:order-1">
-                <p class="text-xs text-gray-500 mb-2 uppercase tracking-widest font-bold">Quét mã thanh toán</p>
-                <!-- QR Code will be injected here -->
-            </div>
-            <div class="w-full sm:w-1/2 text-right leading-loose order-1 sm:order-2 bg-gray-50 p-4 rounded-lg"
-                id="summary-section">
+        <div class="flex justify-end mt-4">
+            <div class="w-full sm:w-1/2 text-right leading-loose bg-gray-50 p-4 rounded-lg" id="summary-section">
                 <!-- Nội dung tổng cộng sẽ được JavaScript điền vào -->
             </div>
         </div>
+
         <div class="text-center mt-12 pt-8 border-t border-dashed">
             <p class="italic text-gray-600">Cảm ơn quý khách!</p>
+        </div>
+
+        <div id="qr-container" class="text-center w-full mt-8">
+            <p class="text-xs text-gray-500 mb-2 uppercase tracking-widest font-bold">Quét mã thanh toán</p>
+            <!-- QR Code sẽ được JavaScript chèn vào đây -->
         </div>
     </div>
 
