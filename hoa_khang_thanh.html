@@ -19,6 +19,8 @@
             .invoice-container {
                 box-shadow: none;
                 border: none;
+                margin: 0;
+                padding: 20px;
             }
         }
 
@@ -29,22 +31,44 @@
 
         .invoice-container {
             max-width: 800px;
-            margin: 20px auto;
+            margin: 0 auto;
             background: white;
-            padding: 40px;
+            padding: 15px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (min-width: 640px) {
+            .invoice-container {
+                margin: 20px auto;
+                padding: 40px;
+            }
         }
 
         table {
             border-collapse: collapse;
             width: 100%;
+            font-size: 14px;
+        }
+
+        @media (min-width: 640px) {
+            table {
+                font-size: 16px;
+            }
         }
 
         th,
         td {
             border: 1px solid black;
-            padding: 8px;
+            padding: 6px 4px;
             text-align: left;
+        }
+
+        @media (min-width: 640px) {
+
+            th,
+            td {
+                padding: 8px;
+            }
         }
 
         .text-right {
@@ -61,8 +85,15 @@
 
         .header-title {
             color: #1e3a8a;
-            font-size: 24px;
-            letter-spacing: 2px;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        @media (min-width: 640px) {
+            .header-title {
+                font-size: 24px;
+                letter-spacing: 2px;
+            }
         }
     </style>
 </head>
@@ -76,13 +107,13 @@
     </div>
     <div class="invoice-container">
         <!-- Header Section -->
-        <div class="flex items-start mb-6 relative">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start mb-6 gap-4">
             <img src="https://i.ibb.co/X1vVPZn/65-A0-B8-B5-1-EA7-43-D4-87-EC-DB2-C237-B4-EC6.png"
-                alt="Khang Thành Flower Logo" class="w-32 h-auto absolute top-0 left-0">
-            <div class="text-center w-full">
-                <h1 class="text-2xl font-bold text-yellow-600 italic">Khang Thành Flower</h1>
-                <p class="text-sm">338 Xô Viết Nghệ Tĩnh - Phường Lang Biang - Đà Lạt - Tỉnh Lâm Đồng</p>
-                <p class="text-sm">SĐT: 0902.422.102</p>
+                alt="Khang Thành Flower Logo" class="w-24 sm:w-32 h-auto">
+            <div class="text-center sm:text-left flex-1">
+                <h1 class="text-xl sm:text-2xl font-bold text-yellow-600 italic">Khang Thành Flower</h1>
+                <p class="text-xs sm:text-sm">338 Xô Viết Nghệ Tĩnh - Phường Lang Biang - Đà Lạt</p>
+                <p class="text-xs sm:text-sm">SĐT: 0902.422.102</p>
             </div>
         </div>
         <div class="text-center mb-8">
@@ -94,26 +125,30 @@
             <p><span class="font-bold">Khách hàng:</span> </p>
         </div>
         <!-- Table Section -->
-        <table class="mb-2">
-            <thead class="bg-gray-50">
-                <tr class="text-center">
-                    <th style="width: 50px;">STT</th>
-                    <th>Tên hoa</th>
-                    <th style="width: 50px;">SL</th>
-                    <th>Đơn giá</th>
-                    <th>Thành tiền</th>
-                </tr>
-            </thead>
-            <tbody id="product-table-body">
-                <!-- Sản phẩm sẽ được thêm động ở đây -->
-            </tbody>
-        </table>
+        <div class="overflow-x-auto -mx-4 sm:mx-0">
+            <div class="inline-block min-w-full align-middle p-4 sm:p-0">
+                <table class="mb-2">
+                    <thead class="bg-gray-50">
+                        <tr class="text-center">
+                            <th style="width: 40px;">STT</th>
+                            <th>Tên hoa</th>
+                            <th style="width: 40px;">SL</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-table-body">
+                        <!-- Sản phẩm sẽ được thêm động ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <!-- Footer Summary -->
-        <div class="flex justify-between items-start mt-1">
-            <div id="qr-container" class="text-center">
+        <div class="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-4 gap-6">
+            <div id="qr-container" class="text-center w-full sm:w-auto">
                 <!-- QR Code will be injected here -->
             </div>
-            <div class="w-1/2 text-right leading-loose" id="summary-section">
+            <div class="w-full sm:w-1/2 text-right leading-loose" id="summary-section">
                 <!-- Nội dung tổng cộng sẽ được JavaScript điền vào -->
             </div>
         </div>
@@ -202,7 +237,7 @@
             // Điền ảnh thay thế
             const qrContainer = document.getElementById('qr-container');
             qrContainer.innerHTML = `
-                <img src="https://i.ibb.co/bRvnfF47/3d1e3624-8cf9-48da-83d8-e42236e09e0d.jpg" alt="Thanh Toán" class="w-40 h-auto mx-auto mt-2">
+                <img src="https://i.ibb.co/bRvnfF47/3d1e3624-8cf9-48da-83d8-e42236e09e0d.jpg" alt="Thanh Toán" class="w-64 h-auto mx-auto mt-2">
             `;
         }
     </script>
