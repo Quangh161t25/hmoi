@@ -49,7 +49,7 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            font-size: 13px;
+            font-size: 11px;
         }
 
         @media (min-width: 640px) {
@@ -61,8 +61,9 @@
         th,
         td {
             border: 1px solid #000;
-            padding: 8px 4px;
+            padding: 6px 2px;
             text-align: left;
+            line-height: 1.2;
         }
 
         @media (min-width: 640px) {
@@ -70,6 +71,7 @@
             th,
             td {
                 padding: 10px 8px;
+                line-height: 1.5;
             }
         }
 
@@ -98,6 +100,17 @@
             .header-title {
                 font-size: 26px;
                 letter-spacing: 2px;
+            }
+        }
+
+        /* Tối ưu dãn cách dòng cho Summary trên điện thoại */
+        #summary-section>div {
+            margin-bottom: 4px;
+        }
+
+        @media (min-width: 640px) {
+            #summary-section>div {
+                margin-bottom: 8px;
             }
         }
     </style>
@@ -136,11 +149,11 @@
             <table class="w-full">
                 <thead class="bg-gray-100">
                     <tr class="text-center">
-                        <th style="width: 40px;">STT</th>
+                        <th class="w-[35px] sm:w-[40px]">STT</th>
                         <th>Tên hàng hóa / Dịch vụ</th>
-                        <th style="width: 50px;">SL</th>
-                        <th style="width: 100px;">Đơn giá</th>
-                        <th style="width: 120px;">Thành tiền</th>
+                        <th class="w-[35px] sm:w-[50px]">SL</th>
+                        <th class="w-[85px] sm:w-[100px]">Đơn giá</th>
+                        <th class="w-[100px] sm:w-[120px]">Thành tiền</th>
                     </tr>
                 </thead>
                 <tbody id="product-table-body">
