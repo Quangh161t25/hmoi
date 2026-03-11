@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hóa Đơn Bán Hàng - Khang Thành Flower</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         @media print {
             .no-print {
@@ -20,21 +21,22 @@
                 box-shadow: none;
                 border: none;
                 margin: 0;
-                padding: 20px;
+                padding: 10px;
             }
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
+            color: #1f2937;
         }
 
         .invoice-container {
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         @media (min-width: 640px) {
@@ -47,19 +49,19 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         @media (min-width: 640px) {
             table {
-                font-size: 16px;
+                font-size: 15px;
             }
         }
 
         th,
         td {
-            border: 1px solid black;
-            padding: 6px 4px;
+            border: 1px solid #000;
+            padding: 8px 4px;
             text-align: left;
         }
 
@@ -67,7 +69,7 @@
 
             th,
             td {
-                padding: 8px;
+                padding: 10px 8px;
             }
         }
 
@@ -87,11 +89,14 @@
             color: #1e3a8a;
             font-size: 20px;
             letter-spacing: 1px;
+            border-bottom: 2px solid #1e3a8a;
+            display: inline-block;
+            padding-bottom: 4px;
         }
 
         @media (min-width: 640px) {
             .header-title {
-                font-size: 24px;
+                font-size: 26px;
                 letter-spacing: 2px;
             }
         }
@@ -99,92 +104,99 @@
 </head>
 
 <body>
-    <div class="no-print flex justify-center mt-5">
+    <div class="no-print flex justify-center py-4 bg-gray-800">
         <button onclick="window.print()"
-            class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition">
+            class="bg-blue-600 text-white px-8 py-2 rounded-full font-bold shadow-lg hover:bg-blue-700 transition transform hover:scale-105">
             In Hóa Đơn
         </button>
     </div>
     <div class="invoice-container">
         <!-- Header Section -->
-        <div class="flex flex-col sm:flex-row items-center sm:items-start mb-6 gap-4">
-            <img src="https://i.ibb.co/X1vVPZn/65-A0-B8-B5-1-EA7-43-D4-87-EC-DB2-C237-B4-EC6.png"
-                alt="Khang Thành Flower Logo" class="w-24 sm:w-32 h-auto">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start mb-8 gap-4 border-b pb-6">
+            <div class="bg-white p-2 rounded-lg shadow-sm">
+                <img src="https://i.ibb.co/X1vVPZn/65-A0-B8-B5-1-EA7-43-D4-87-EC-DB2-C237-B4-EC6.png"
+                    alt="Khang Thành Flower Logo" class="w-24 sm:w-28 h-auto">
+            </div>
             <div class="text-center sm:text-left flex-1">
-                <h1 class="text-xl sm:text-2xl font-bold text-yellow-600 italic">Khang Thành Flower</h1>
-                <p class="text-xs sm:text-sm">338 Xô Viết Nghệ Tĩnh - Phường Lang Biang - Đà Lạt</p>
-                <p class="text-xs sm:text-sm">SĐT: 0902.422.102</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-yellow-600 italic leading-tight">Khang Thành Flower</h1>
+                <p class="text-sm mt-1">338 Xô Viết Nghệ Tĩnh - P. Lang Biang - Đà Lạt</p>
+                <p class="text-sm font-bold text-blue-800">SĐT: 0902.422.102</p>
             </div>
         </div>
-        <div class="text-center mb-8">
+        <div class="text-center mb-10">
             <h2 class="header-title font-bold uppercase">Hóa Đơn Bán Hàng</h2>
         </div>
         <!-- Info Section -->
-        <div class="mb-6 leading-relaxed" id="info-section">
-            <p><span class="font-bold">Ngày:</span> </p>
-            <p><span class="font-bold">Khách hàng:</span> </p>
+        <div class="mb-8 text-sm sm:text-base border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50" id="info-section">
+            <p><span class="text-gray-600">Ngày:</span> <span class="font-bold" id="ngay-text"></span></p>
+            <p><span class="text-gray-600">Khách hàng:</span> <span class="font-bold" id="khach-hang-text"></span></p>
         </div>
         <!-- Table Section -->
-        <div class="overflow-x-auto -mx-4 sm:mx-0">
-            <div class="inline-block min-w-full align-middle p-4 sm:p-0">
-                <table class="mb-2">
-                    <thead class="bg-gray-50">
-                        <tr class="text-center">
-                            <th style="width: 40px;">STT</th>
-                            <th>Tên hoa</th>
-                            <th style="width: 40px;">SL</th>
-                            <th>Đơn giá</th>
-                            <th>Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody id="product-table-body">
-                        <!-- Sản phẩm sẽ được thêm động ở đây -->
-                    </tbody>
-                </table>
-            </div>
+        <div class="overflow-x-auto mb-8">
+            <table class="w-full">
+                <thead class="bg-gray-100">
+                    <tr class="text-center">
+                        <th style="width: 40px;">STT</th>
+                        <th>Tên hàng hóa / Dịch vụ</th>
+                        <th style="width: 50px;">SL</th>
+                        <th style="width: 100px;">Đơn giá</th>
+                        <th style="width: 120px;">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body">
+                    <!-- Sản phẩm sẽ được thêm động ở đây -->
+                </tbody>
+            </table>
         </div>
         <!-- Footer Summary -->
-        <div class="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-4 gap-6">
-            <div id="qr-container" class="text-center w-full sm:w-auto">
+        <div class="flex flex-col sm:flex-row justify-between items-center sm:items-start mt-4 gap-8">
+            <div id="qr-container" class="text-center w-full sm:w-auto order-2 sm:order-1">
+                <p class="text-xs text-gray-500 mb-2 uppercase tracking-widest font-bold">Quét mã thanh toán</p>
                 <!-- QR Code will be injected here -->
             </div>
-            <div class="w-full sm:w-1/2 text-right leading-loose" id="summary-section">
+            <div class="w-full sm:w-1/2 text-right leading-loose order-1 sm:order-2 bg-gray-50 p-4 rounded-lg"
+                id="summary-section">
                 <!-- Nội dung tổng cộng sẽ được JavaScript điền vào -->
             </div>
         </div>
-        <div class="text-center mt-12 italic">
-            <p>Cảm ơn quý khách!</p>
+        <div class="text-center mt-12 pt-8 border-t border-dashed">
+            <p class="italic text-gray-600">Cảm ơn quý khách!</p>
         </div>
     </div>
 
     <script>
+        // Hàm giải mã an toàn để tránh lỗi font (URL Decode)
+        function safeDecode(str) {
+            try {
+                // Giải mã dữ liệu và loại bỏ các ký tự % còn sót lại nếu có
+                return decodeURIComponent(str.replace(/\+/g, ' '));
+            } catch (e) {
+                return str;
+            }
+        }
+
         // Hàm format số tiền với dấu chấm (ví dụ: 1000000 -> 1.000.000 đ)
         function formatVND(amount) {
             return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ";
         }
 
-        // Lấy toàn bộ query string (giải mã ký tự đặc biệt)
-        const queryString = decodeURIComponent(window.location.search.substring(1));
+        // Lấy dữ liệu từ URL
+        const rawQuery = window.location.search.substring(1);
 
-        // Nếu không có dữ liệu URL, ẩn toàn bộ nội dung và dừng script
-        if (!queryString) {
-            document.body.innerHTML = "";
-            console.log("No data provided");
+        if (!rawQuery) {
+            document.body.innerHTML = "<div class='flex items-center justify-center h-screen font-bold'>Dữ liệu hóa đơn trống</div>";
         } else {
-            // Tách các đoạn dữ liệu dựa trên dấu | hoặc ?
-            const segments = queryString.split(/[|?]/);
-
+            const segments = rawQuery.split(/[|?]/);
             let ngay = "";
             let khachHang = "";
             let cuocXe = 0;
             let productsRaw = "";
-            let daTra = 0;
 
             segments.forEach(seg => {
                 if (seg.startsWith("ngay=")) {
-                    ngay = seg.replace("ngay=", "");
+                    ngay = safeDecode(seg.replace("ngay=", ""));
                 } else if (seg.startsWith("khach_hang=")) {
-                    khachHang = seg.replace("khach_hang=", "");
+                    khachHang = safeDecode(seg.replace("khach_hang=", ""));
                 } else if (seg.startsWith("cuoc=")) {
                     cuocXe = parseInt(seg.replace("cuoc=", "")) || 0;
                 } else if (seg.includes("_a_")) {
@@ -192,53 +204,60 @@
                 }
             });
 
-            // Tách danh sách sản phẩm (_b_ ngăn cách các sp, _a_ ngăn cách chi tiết)
+            // Hiển thị thông tin cơ bản
+            document.getElementById('ngay-text').innerText = ngay;
+            document.getElementById('khach-hang-text').innerText = khachHang;
+
+            // Tách danh sách sản phẩm
             const products = productsRaw ? productsRaw.split('_b_').map((p, index) => {
                 const fields = p.split('_a_');
-                const ten = fields[0];
-                const gia = parseInt(fields[1]) || 0;
-                const sl = parseInt(fields[2]) || 0;
-                const thanhTien = gia * sl;
-                return { stt: index + 1, ten, sl, gia, thanhTien };
+                return {
+                    stt: index + 1,
+                    ten: safeDecode(fields[0]),
+                    gia: parseInt(fields[1]) || 0,
+                    sl: parseInt(fields[2]) || 0,
+                    thanhTien: (parseInt(fields[1]) || 0) * (parseInt(fields[2]) || 0)
+                };
             }) : [];
 
             // Tính tổng
             let tongSanPham = products.reduce((sum, p) => sum + p.thanhTien, 0);
             let tongTien = tongSanPham + cuocXe;
-            let conNo = tongTien - daTra;
-
-            // Điền info section
-            const infoSection = document.getElementById('info-section');
-            infoSection.innerHTML = `
-                <p><span class="font-bold">Ngày:</span> ${ngay}</p>
-                <p><span class="font-bold">Khách hàng:</span> ${khachHang}</p>
-            `;
 
             // Điền bảng sản phẩm
             const tableBody = document.getElementById('product-table-body');
             tableBody.innerHTML = products.map(p => `
                 <tr>
                     <td class="text-center">${p.stt}</td>
-                    <td>${p.ten}</td>
+                    <td class="font-bold">${p.ten}</td>
                     <td class="text-center">${p.sl}</td>
                     <td class="text-right">${formatVND(p.gia)}</td>
-                    <td class="text-right">${formatVND(p.thanhTien)}</td>
+                    <td class="text-right font-bold">${formatVND(p.thanhTien)}</td>
                 </tr>
             `).join('');
 
             // Điền summary
             const summarySection = document.getElementById('summary-section');
             summarySection.innerHTML = `
-                <p>Tổng cộng tiền hàng: <span class="font-bold">${formatVND(tongSanPham)}</span></p>
-                <p>Cước xe: <span class="font-bold">${formatVND(cuocXe)}</span></p>
-                <p class="text-xl font-bold">Tổng tiền: ${formatVND(tongTien)}</p>
+                <div class="flex justify-between border-b border-gray-300 pb-1">
+                    <span>Tổng tiền hàng:</span>
+                    <span class="font-bold">${formatVND(tongSanPham)}</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-300 pb-1">
+                    <span>Cước xe:</span>
+                    <span class="font-bold">${formatVND(cuocXe)}</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold text-blue-900 mt-2">
+                    <span>TỔNG CỘNG:</span>
+                    <span>${formatVND(tongTien)}</span>
+                </div>
             `;
 
-            // Điền ảnh thay thế
+            // Điền ảnh QR
             const qrContainer = document.getElementById('qr-container');
-            qrContainer.innerHTML = `
-                <img src="https://i.ibb.co/bRvnfF47/3d1e3624-8cf9-48da-83d8-e42236e09e0d.jpg" alt="Thanh Toán" class="w-64 h-auto mx-auto mt-2">
-            `;
+            qrContainer.insertAdjacentHTML('beforeend', `
+                <img src="https://i.ibb.co/bRvnfF47/3d1e3624-8cf9-48da-83d8-e42236e09e0d.jpg" alt="Thanh Toán" class="w-64 h-auto mx-auto mt-2 rounded shadow-md border-4 border-white">
+            `);
         }
     </script>
 </body>
