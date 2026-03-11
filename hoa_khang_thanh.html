@@ -196,6 +196,7 @@
             let ngay = "";
             let khachHang = "";
             let cuocXe = 0;
+            let congNo = 0;
             let productsRaw = "";
 
             segments.forEach(seg => {
@@ -206,6 +207,8 @@
                     khachHang = s.replace("khach_hang=", "");
                 } else if (s.startsWith("cuoc=")) {
                     cuocXe = parseInt(s.replace("cuoc=", "").replace(/\./g, '')) || 0;
+                } else if (s.startsWith("cong_no=")) {
+                    congNo = parseInt(s.replace("cong_no=", "").replace(/\./g, '')) || 0;
                 } else if (s.includes("_a_")) {
                     productsRaw = s;
                 }
@@ -240,6 +243,7 @@
             // Tính tổng
             let tongSanPham = products.reduce((sum, p) => sum + p.thanhTien, 0);
             let tongTien = tongSanPham + cuocXe;
+            let tongThanhToan = tongTien + congNo;
 
             // Điền bảng sản phẩm
             const tableBody = document.getElementById('product-table-body');
@@ -264,9 +268,13 @@
                     <span>Cước vận chuyển:</span>
                     <span class="font-bold">${formatVND(cuocXe)}</span>
                 </div>
+                <div class="flex justify-between border-b border-gray-300 pb-1">
+                    <span>Nợ cũ:</span>
+                    <span class="font-bold">${formatVND(congNo)}</span>
+                </div>
                 <div class="flex justify-between text-xl font-bold text-blue-900 mt-2">
-                    <span>TỔNG CỘNG:</span>
-                    <span>${formatVND(tongTien)}</span>
+                    <span>TỔNG THANH TOÁN:</span>
+                    <span>${formatVND(tongThanhToan)}</span>
                 </div>
             `;
 
