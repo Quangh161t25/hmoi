@@ -302,11 +302,26 @@
     <!-- 📋 DỮ LIỆU -->
     <div id="dataSection">
       <div class="controls">
-        <input type="date" id="fromData" class="search-box" />
-        <input type="date" id="toData" class="search-box" />
+        <input type="date" id="fromData" class="search-box" onchange="filterDataTable()" />
+        <input type="date" id="toData" class="search-box" onchange="filterDataTable()" />
+        <select id="sanData" class="search-box" onchange="filterDataTable()">
+          <option value="ALL">Sàn: Tất cả</option>
+          <option value="Shopee">Shopee</option>
+          <option value="Tiktok">Tiktok</option>
+          <option value="Best">Best</option>
+        </select>
+        <select id="khungHData" class="search-box" onchange="filterDataTable()">
+          <option value="ALL">Khung giờ: Tất cả</option>
+        </select>
+        <input type="text" id="maGianData" class="search-box" placeholder="Mã gian..." style="width:120px"
+          oninput="filterDataTable()" />
+        <input type="text" id="idSpData" class="search-box" placeholder="ID SP..." style="width:120px"
+          oninput="filterDataTable()" />
         <button class="btn btn-preset" onclick="applyPreset('data','today')">Hôm nay</button>
         <button class="btn btn-preset" onclick="applyPreset('data','yesterday')">Hôm qua</button>
         <button class="btn btn-primary" onclick="filterDataTable()">📅 Lọc</button>
+        <button class="btn btn-preset" onclick="clearDataFilters()"
+          style="background:#fcebea;color:#d93025;border:1px solid #fad2cf">🗑️ Xóa lọc</button>
       </div>
       <div class="summary-bar">
         <div class="summary-card">
@@ -394,40 +409,54 @@
     }
 
     /* ===== Date Helpers ===== */
-    const fmt = d => d.toISOString().slice(0, 10);
+    const fmt = d => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
     const addDays = (date, n) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + n);
 
     /* ===== Load dữ liệu và xử lý URL ===== */
     document.addEventListener("DOMContentLoaded", () => {
+      loadData(true); // Load lần đầu và thiết lập ngày mặc định
+      setInterval(() => loadData(false), 300000); // Tự động load lại sau mỗi 5 phút
+    });
+
+    function loadData(isInitial) {
+      console.log("Đang tải dữ liệu...");
       fetch(API_URL).then(r => r.json()).then(d => {
         originalData = Array.isArray(d) ? d : [];
         originalData.sort((a, b) => new Date(b.ngay) - new Date(a.ngay));
-        initDefaultDates();
+        populateKhungH();
 
-        // ✅ Kiểm tra URL có tham số ?ngay=
-        const params = new URLSearchParams(window.location.search);
-        const ngay = params.get("ngay");
-        if (ngay) {
-          try {
-            const parts = ngay.split("/");
-            const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-            document.getElementById("fromData").value = isoDate;
-            document.getElementById("toData").value = isoDate;
-          } catch (e) {
-            console.error("Lỗi parse ngày URL:", e);
+        if (isInitial) {
+          initDefaultDates();
+          // ✅ Kiểm tra URL có tham số ?ngay=
+          const params = new URLSearchParams(window.location.search);
+          const ngay = params.get("ngay");
+          if (ngay) {
+            try {
+              const parts = ngay.split("/");
+              const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+              document.getElementById("fromData").value = isoDate;
+              document.getElementById("toData").value = isoDate;
+            } catch (e) {
+              console.error("Lỗi parse ngày URL:", e);
+            }
+          } else {
+            // ✅ Nếu không có parameter, mặc định lọc ngày hôm nay
+            const todayVN = new Date(nowVN().getFullYear(), nowVN().getMonth(), nowVN().getDate());
+            const s = fmt(todayVN);
+            document.getElementById("fromData").value = s;
+            document.getElementById("toData").value = s;
           }
-        } else {
-          // ✅ Nếu không có parameter, mặc định lọc ngày hôm nay
-          const todayVN = new Date(nowVN().getFullYear(), nowVN().getMonth(), nowVN().getDate());
-          const s = fmt(todayVN);
-          document.getElementById("fromData").value = s;
-          document.getElementById("toData").value = s;
+          switchTab("data");
         }
 
-        switchTab("data");
         filterDataTable();
-      });
-    });
+      }).catch(err => console.error("Lỗi tải dữ liệu:", err));
+    }
 
     /* ===== Tabs ===== */
     function switchTab(tab) {
@@ -494,6 +523,20 @@
     /* ===== Bảng dữ liệu ===== */
     const displayCols = ["STT", "ngay", "san", "khung_h", "ma_gian", "mvd", "mdh", "id_sp", "sku_cha", "slg_xuat", "ten_sp", "tinh_trang", "trang_thai"];
 
+    function populateKhungH() {
+      const select = document.getElementById("khungHData");
+      const currentVal = select.value;
+      select.innerHTML = '<option value="ALL">Khung giờ: Tất cả</option>';
+      const uniqueKh = [...new Set(originalData.map(r => r.khung_h).filter(v => v))].sort();
+      uniqueKh.forEach(kh => {
+        const opt = document.createElement("option");
+        opt.value = kh;
+        opt.textContent = kh;
+        if (kh === currentVal) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
     function renderTable(data) {
       filteredData = data;
       const h = document.getElementById("header-row"),
@@ -549,18 +592,46 @@
     function filterDataTable() {
       currentPage = 1;
       const f = fromData.value,
-        t = toData.value;
+        t = toData.value,
+        s = sanData.value,
+        kh = khungHData.value,
+        mg = maGianData.value.trim().toUpperCase(),
+        isp = idSpData.value.trim().toUpperCase();
+
       if (!f || !t) return renderTable(originalData);
+
       let from = new Date(f + "T00:00:00"),
         to = new Date(t + "T23:59:59");
-      if (from > to)
-        [from, to] = [to, from];
+      if (from > to) [from, to] = [to, from];
+
       const rows = originalData.filter(r => {
         const d = new Date(r.ngay);
-        return d >= from && d <= to;
+        if (d < from || d > to) return false;
+
+        // Lọc theo Sàn
+        if (s !== "ALL" && (r.san || "").toUpperCase() !== s.toUpperCase()) return false;
+
+        // Lọc theo Khung giờ
+        if (kh !== "ALL" && r.khung_h !== kh) return false;
+
+        // Lọc theo Mã gian (chứa chuỗi)
+        if (mg && !(r.ma_gian || "").toUpperCase().includes(mg)) return false;
+
+        // Lọc theo ID SP (chứa chuỗi)
+        if (isp && !(r.id_sp || "").toString().toUpperCase().includes(isp)) return false;
+
+        return true;
       });
       rows.sort((a, b) => new Date(b.ngay) - new Date(a.ngay));
       renderTable(rows);
+    }
+
+    function clearDataFilters() {
+      document.getElementById("sanData").value = "ALL";
+      document.getElementById("khungHData").value = "ALL";
+      document.getElementById("maGianData").value = "";
+      document.getElementById("idSpData").value = "";
+      filterDataTable();
     }
 
     /* ===== Biểu đồ & Thống kê giữ nguyên ===== */
