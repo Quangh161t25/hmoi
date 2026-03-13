@@ -438,14 +438,18 @@
             color: white;
         }
 
-        .text-input-inline {
+        .text-input-inline,
+        .edit-inline-input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.1);
+            background: #ffffff;
+            /* Nền trắng để chữ đen nổi bật */
             border: 1px solid var(--primary);
             border-radius: 6px;
             padding: 0.4rem 0.6rem;
-            color: white;
+            color: #000000 !important;
+            /* Chữ đen gắt cho dễ nhìn */
             font-size: 0.9rem;
+            font-weight: 600;
         }
 
         .action-cell {
@@ -918,6 +922,7 @@
         let searchTimeout = null;
         let isUploading = false;
         let isSaving = false;
+        let canEdit = false; // Biến kiểm tra quyền sửa qua URL
 
         let currentPage = 1;
         const rowsPerPage = 200;
@@ -1297,6 +1302,13 @@
             thStt.style.width = "50px";
             headFragment.appendChild(thStt);
 
+            if (canEdit) {
+                const thAction = document.createElement('th');
+                thAction.textContent = "Thao tác";
+                thAction.style.width = "80px";
+                headFragment.appendChild(thAction);
+            }
+
             visibleIndices.forEach(idx => {
                 const h = rawHeaders[idx];
                 const th = document.createElement('th');
@@ -1338,6 +1350,16 @@
                 tdStt.style.color = "var(--text-dim)";
                 tr.appendChild(tdStt);
 
+                if (canEdit) {
+                    const tdAction = document.createElement('td');
+                    const btn = document.createElement('button');
+                    btn.className = isEditing ? 'btn-save' : 'btn-edit';
+                    btn.textContent = isEditing ? 'Lưu' : 'Sửa';
+                    btn.onclick = () => toggleRowEdit(absoluteIndex);
+                    tdAction.appendChild(btn);
+                    tr.appendChild(tdAction);
+                }
+
                 visibleIndices.forEach((colIndex, vIdx) => {
                     const td = document.createElement('td');
                     const cellValue = row[colIndex] || "";
@@ -1359,7 +1381,17 @@
                         td.style.maxWidth = headerName === "Sản phẩm" ? "200px" : "100px"; // Giới hạn độ rộng
                     }
 
-                    if (isImageUrl(cellValue)) {
+                    if (isEditing) {
+                        const input = document.createElement('input');
+                        input.type = "text";
+                        input.value = cellValue;
+                        input.className = "edit-inline-input";
+                        input.dataset.col = colIndex;
+                        // Thêm sự kiện Enter để lưu
+                        input.onkeydown = (e) => { if (e.key === 'Enter') saveData(); };
+                        td.innerHTML = "";
+                        td.appendChild(input);
+                    } else if (isImageUrl(cellValue)) {
                         td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
                     } else {
                         td.textContent = cellValue;
@@ -1401,6 +1433,22 @@
         function filterData() {
             currentPage = 1;
             filterAndSortData();
+        }
+
+        // --- EDIT LOGIC ---
+        async function toggleRowEdit(rowIndex) {
+            if (editingRowIndex === rowIndex) {
+                // Đang sửa -> Nhấn là Lưu
+                await saveData();
+            } else {
+                // Chưa sửa -> Nhấn là Bật mode sửa
+                if (editingRowIndex !== null && !isAddingNewRow) {
+                    // Nếu đang sửa dòng khác, tự động lưu dòng đó trước
+                    await saveData();
+                }
+                editingRowIndex = rowIndex;
+                renderTable();
+            }
         }
 
         function handleSearchInput() {
@@ -1807,6 +1855,12 @@
         }
 
         window.onload = async () => {
+            // Kiểm tra quyền sửa qua URL ?tk=atuyen
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tk') === 'atuyen') {
+                canEdit = true;
+            }
+
             // Khôi phục theme
             if (localStorage.getItem('theme') === 'light') {
                 document.body.classList.add('light-mode');
