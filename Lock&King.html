@@ -778,6 +778,11 @@
                     <option value="">Tất cả Nhóm</option>
                 </select>
             </div>
+            <div class="filter-box" style="flex: 1; min-width: 140px;">
+                <select id="nccFilter" onchange="filterData()">
+                    <option value="">Tất cả NCC</option>
+                </select>
+            </div>
             <div class="filter-box" id="typeFilterContainer" style="flex: 1; min-width: 140px; display: none;">
                 <select id="typeFilter" onchange="filterData()">
                     <option value="">Phân loại</option>
@@ -861,11 +866,11 @@
             tabs: {
                 "Toan_bo_gia": {
                     sheetName: "Toan_bo_gia",
-                    displayColumns: ["Nhóm", "Sản phẩm", "Mã SP", "Giá nhập", "% LN Locknking", "Giá NPP\t", "% LN NPP\t", "Giá siêu thị", "\t% LN Siêu thị\t", "Giá bán NTD\t", "Giá web"]
+                    displayColumns: ["Nhóm", "Sản phẩm", "Mã SP", "Giá nhập", "% LN Locknking", "Giá NPP\t", "% LN NPP\t", "Giá siêu thị", "\t% LN Siêu thị\t", "Giá bán NTD\t", "Giá web", "NCC"]
                 },
                 "Kenh_NPP_TMĐT": {
                     sheetName: "Kenh_NPP_TMĐT",
-                    displayColumns: ["Nhóm", "Sản phẩm", "Mã SP", "Giá NPP", "Giá bán NTD", "Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Tổng chi phí sàn", "LN NPP TMĐT", "Biên LN TMĐT", "Phân loại"]
+                    displayColumns: ["Nhóm", "Sản phẩm", "Mã SP", "Giá NPP", "Giá bán NTD", "Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Tổng chi phí sàn", "LN NPP TMĐT", "Biên LN TMĐT", "Phân loại", "NCC"]
                 }
             }
         };
@@ -968,6 +973,7 @@
             currentTab = tabId;
             document.getElementById('searchInput').value = '';
             document.getElementById('groupFilter').value = '';
+            document.getElementById('nccFilter').value = '';
             document.getElementById('typeFilter').value = '';
 
             await fetchData();
@@ -1021,6 +1027,15 @@
                 const groupColIdx = rawHeaders.indexOf("Nhóm");
                 if (groupColIdx !== -1) {
                     data = data.filter(row => row[groupColIdx] === groupTerm);
+                }
+            }
+
+            // 2bb. Filter theo NCC
+            const nccTerm = document.getElementById('nccFilter').value;
+            if (nccTerm) {
+                const nccColIdx = rawHeaders.indexOf("NCC");
+                if (nccColIdx !== -1) {
+                    data = data.filter(row => row[nccColIdx] === nccTerm);
                 }
             }
 
@@ -1650,6 +1665,7 @@
         // --- FILTER HELPERS ---
         function populateFilters() {
             populateGroupFilter();
+            populateNccFilter();
 
             // Toggle Visibility của bộ lọc Phân loại dựa trên tab
             const typeFilterContainer = document.getElementById('typeFilterContainer');
@@ -1687,6 +1703,37 @@
                 const opt = document.createElement('option');
                 opt.value = group;
                 opt.textContent = group;
+                select.appendChild(opt);
+            });
+        }
+
+        function populateNccFilter() {
+            const select = document.getElementById('nccFilter');
+            const headers = currentData[0];
+            const nccColIdx = headers.indexOf("NCC");
+
+            if (nccColIdx === -1) {
+                select.parentElement.style.display = 'none';
+                return;
+            }
+            select.parentElement.style.display = 'block';
+
+            const nccs = new Set();
+            for (let i = 1; i < currentData.length; i++) {
+                const val = currentData[i][nccColIdx];
+                if (val && val.toString().trim() !== "") {
+                    nccs.add(val.toString().trim());
+                }
+            }
+
+            const sortedNccs = Array.from(nccs).sort();
+
+            // Giữ lại option đầu tiên "Tất cả NCC"
+            select.innerHTML = '<option value="">Tất cả NCC</option>';
+            sortedNccs.forEach(ncc => {
+                const opt = document.createElement('option');
+                opt.value = ncc;
+                opt.textContent = ncc;
                 select.appendChild(opt);
             });
         }
