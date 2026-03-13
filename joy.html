@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Google Sheets - Premium Edition</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- JSRSAsign for JWT -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-slate: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-slate);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* Animated Background Blobs */
+        .blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(80px);
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: move 20s infinite alternate;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(99, 102, 241, 0.3);
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(168, 85, 247, 0.2);
+            bottom: -50px;
+            right: -50px;
+            animation-duration: 25s;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(45, 212, 191, 0.2);
+            top: 40%;
+            left: 50%;
+            animation-duration: 30s;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(100px, 50px) scale(1.1);
+            }
+        }
+
+        /* Container & Glassmorphism */
+        .container {
+            width: 100%;
+            max-width: 98%;
+            /* Tăng từ 1200px lên full màn hình */
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            /* Đảm bảo thanh cuộn ngang mượt mà */
+            scrollbar-width: thin;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            /* Yêu cầu các ô giữ kích thước nội dung hợp lý, bám theo độ rộng nội dung nhưng không vỡ */
+            table-layout: auto;
+            white-space: nowrap;
+            /* Mặc định không xuống dòng để các ô thẳng hàng gọn gàng */
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem 1.5rem;
+            /* Tăng padding để rộng rãi hơn */
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            position: sticky;
+            /* Giữ header khi cuộn dọc */
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            font-size: 0.95rem;
+            vertical-align: middle;
+            max-width: 350px;
+            /* Giới hạn để ô không trải quá dài trên màn hình */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* Cắt chữ bằng dấu ... nếu quá dài */
+        }
+
+        td:hover {
+            white-space: normal;
+            /* Khi di chuột vào ô sẽ hiển thị toàn bộ nội dung (xuống dòng tự do) */
+            background: rgba(255, 255, 255, 0.05);
+            word-break: break-all;
+            position: relative;
+            z-index: 5;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .page-info {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Sorting */
+        th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 1.5rem !important;
+        }
+
+        th:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .sort-icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            opacity: 0.3;
+        }
+
+        th.sorted-asc .sort-icon::after {
+            content: "▲";
+            opacity: 1;
+        }
+
+        th.sorted-desc .sort-icon::after {
+            content: "▼";
+            opacity: 1;
+        }
+
+        th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after {
+            content: "↕";
+        }
+
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 1rem;
+        }
+
+        .modal {
+            background: #1e293b;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-dim);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Settings Icon */
+        .icon {
+            width: 20px;
+            height: 200px;
+        }
+
+        /* Upload Button in Table */
+        /* Image Gallery in Table */
+        .img-gallery {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0;
+            scrollbar-width: none;
+            /* Hide scrollbar Firefox */
+        }
+
+        .img-gallery::-webkit-scrollbar {
+            display: none;
+            /* Hide scrollbar Chrome/Safari */
+        }
+
+        .img-item {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .img-item:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        .btn-upload-inline {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 4px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .btn-upload-inline:hover {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Image Preview Styles */
+        .img-preview {
+            max-width: 60px;
+            max-height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            object-fit: cover;
+            border: 1px solid var(--glass-border);
+        }
+
+        .img-preview:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        /* Fullscreen Image Overlay */
+        .image-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            cursor: zoom-out;
+        }
+
+        .image-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.3s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Chat UI */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .message.bot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .chat-input-wrapper input {
+            flex: 1;
+        }
+
+        /* Floating Chatbot UI (Option 2) */
+        .chat-bubble {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.5);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .chat-bubble:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 45vw;
+            /* Chiếm gần 1 nửa màn hình */
+            max-width: 800px;
+            height: calc(100vh - 40px);
+            /* Cao kịch màn hình (trừ lề) */
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            transform-origin: bottom right;
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            opacity: 0;
+            transform: translateX(100px) scale(0.95);
+            pointer-events: none;
+        }
+
+        .chat-window.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: all;
+        }
+
+        .chat-header {
+            padding: 1.2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .close-chat {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 0.2rem;
+        }
+
+        .close-chat:hover {
+            color: white;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #dataContainer {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Google Sheets Manager</h1>
+            <button class="btn-outline" onclick="openSettings()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                Cài đặt
+            </button>
+        </header>
+
+        <div id="dataContainer">
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm nhanh..." oninput="handleSearchInput()">
+                </div>
+                <button class="btn-primary" onclick="fetchData()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Làm mới
+                </button>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr id="tableHead">
+                            <!-- Headers injected here -->
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination">
+                <button class="btn-outline" id="prevPage" onclick="changePage(-1)">Trước</button>
+                <span class="page-info" id="pageInfo">Trang 1 / 1</span>
+                <button class="btn-outline" id="nextPage" onclick="changePage(1)">Tiếp</button>
+            </div>
+        </div> <!-- End dataContainer -->
+
+    </div>
+
+    <!-- Floating Chatbot UI -->
+    <div class="chat-bubble" onclick="toggleChat()">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </div>
+
+    <div id="chatWindow" class="chat-window">
+        <div class="chat-header">
+            <h3>✨ Trợ lý Tư vấn AI</h3>
+            <button class="close-chat" onclick="toggleChat()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">Xin chào! Em có thể giúp gì cho anh/chị về sản phẩm ạ?</div>
+            </div>
+            <div class="chat-input-wrapper">
+                <input type="text" id="chatInput" placeholder="Hỏi em về sản phẩm..."
+                    onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button class="btn-primary" onclick="sendChatMessage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- No more Edit Modal, using Inline Editing -->
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Cấu hình hệ thống</h2>
+                <button class="btn-outline" style="padding: 0.5rem;" onclick="closeModal('settingsModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Spreadsheet ID</label>
+                <input type="text" id="inputSpreadsheetId">
+            </div>
+            <div class="form-group">
+                <label>Tên Sheet</label>
+                <input type="text" id="inputSheetName">
+            </div>
+            <div class="form-group">
+                <label>Danh sách cột (cách nhau bằng dấu phẩy)</label>
+                <input type="text" id="inputDisplayColumns" placeholder="ví dụ: tk, trường, tg, anh">
+            </div>
+            <div class="form-group">
+                <label>Gemini API Key (Dùng cho Hỏi đáp AI, tuỳ chọn)</label>
+                <input type="password" id="inputGeminiApiKey" class="text-input-inline"
+                    style="background: white; color: black; border: 1px solid #ccc; width: 100%; border-radius: 6px; padding: 0.8rem 1rem;"
+                    placeholder="Nhập API Key của Google Gemini">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="resetSettings()">Cài đặt lại</button>
+                <button class="btn-primary" onclick="applySettings()">Áp dụng</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Image Fullscreen Overlay -->
+    <div id="imageOverlay" class="image-overlay" onclick="closeImageOverlay()">
+        <img id="overlayImage" src="" alt="Full view">
+    </div>
+
+    <script>
+        function toggleChat() {
+            const win = document.getElementById('chatWindow');
+            win.classList.toggle('active');
+            if (win.classList.contains('active')) {
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        async function callGemini(prompt) {
+            const apiKey = localStorage.getItem('gs_gemini_api') || CONFIG.geminiApiKey;
+            if (!apiKey) {
+                return "Vui lòng thêm Gemini API Key trong phần Cài đặt trước khi dùng tính năng Hỏi đáp AI.";
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: {
+                    parts: [{
+                        text: `Bạn là một nhân viên tư vấn bán hàng chuyên nghiệp.
+                        Dữ liệu sản phẩm (Tên, Thương hiệu, Mô tả, Giá, Giá KM, Ảnh) được cung cấp trong prompt.
+                        
+                        QUY TẮC:
+                        1. Tư vấn nhiệt tình, xưng hô 'dạ, em / anh chị'.
+                        2. Khi giới thiệu sản phẩm, hãy LUÔN CHÈN ẢNH nếu có dữ liệu link ảnh trong cột 'all_anh' hoặc tương tự.
+                        3. Sử dụng cú pháp Markdown để chèn ảnh: ![tên](link_url).
+                        4. Nhấn mạnh vào giá khuyến mãi (gia_km).
+                        5. Chỉ tư vấn sản phẩm có trong dữ liệu.`
+                    }]
+                }
+            };
+
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.error) {
+                        return "Lỗi API: " + data.error.message;
+                    }
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Không có phản hồi từ AI.";
+                } catch (e) {
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+            }
+            return "Lỗi kết nối AI.";
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user';
+            userDiv.textContent = msg;
+            chatMessages.appendChild(userDiv);
+
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Loading indicator
+            const botDiv = document.createElement('div');
+            botDiv.className = 'message bot';
+            botDiv.innerHTML = '<span style="opacity: 0.6; font-style: italic;">Đang suy nghĩ...</span>';
+            chatMessages.appendChild(botDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Xây dựng dữ liệu context gửi cho AI (Lấy toàn bộ dữ liệu gốc của các cột hiển thị)
+            let contextDataStr = "Dữ liệu trống.";
+            if (currentData && currentData.length > 0) {
+                const rawHeaders = currentData[0] || [];
+                const sheetHeadersClean = rawHeaders.map(h => (h || "").toString().trim().toLowerCase());
+
+                let visibleIndices = [];
+                // Lọc cột theo cấu hình displayColumns giống bảng hiển thị
+                if (CONFIG.displayColumns && CONFIG.displayColumns.length > 0) {
+                    CONFIG.displayColumns.forEach(target => {
+                        const targetClean = target.toString().trim().toLowerCase();
+                        let idx = sheetHeadersClean.indexOf(targetClean);
+
+                        if (idx === -1) {
+                            idx = sheetHeadersClean.findIndex(h => h === targetClean || (h !== "" && h.includes(targetClean)));
+                        }
+
+                        if (idx !== -1 && !visibleIndices.includes(idx)) {
+                            visibleIndices.push(idx);
+                        }
+                    });
+                } else {
+                    visibleIndices = rawHeaders.map((_, i) => i);
+                }
+
+                // Lọc và ánh xạ toàn bộ array currentData sang các cột được chọn
+                const filteredData = currentData.map(row =>
+                    visibleIndices.map(colIdx => row[colIdx] || "")
+                );
+
+                // Gửi toàn bộ dữ liệu (không giới hạn dòng)
+                contextDataStr = JSON.stringify(filteredData);
+            }
+
+            const prompt = `Dữ liệu hiện tại trong Sheet (JSON ma trận 2 chiều, dòng đầu là tiêu đề mỗi cột): ${contextDataStr}\n\nCâu hỏi: ${msg}`;
+
+            // Lấy phản hồi từ AI
+            const responseText = await callGemini(prompt);
+
+            // Chuyển đổi Markdown Image ![alt](url) thành thẻ img HTML
+            const htmlResponse = responseText.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+                return `<img src="${src}" alt="${alt}" class="img-preview" style="width: 100%; max-width: 300px; height: auto; border-radius: 12px; margin-top: 10px; cursor: pointer; display: block;" onclick="zoomImage('${src}')">`;
+            });
+
+            botDiv.innerHTML = htmlResponse.replace(/\n/g, '<br>');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+
+
+
+
+
+        // --- CẤU HÌNH MẶC ĐỊNH ---
+        const CONFIG = {
+            spreadsheetId: "1lgi-pyf2Luzl8sm0sKiC9NDCH5RB3POgPGGy7qzxmI4",
+            sheetName: "SP_LADING",
+            serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
+            privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NN84hLTkQPZd\nLj7niXZTICq7nHsuTn3J6r2Paq12m70/lYSmrwh1i0EStr9bO19QM8cevGlslwGr\nWSVOLJlc6+w1HGPKvRXtA41kYV9MYIvpzIPQtkFE7Hxq71QyBARcv39Lfzze6Ioj\n3G8VBvAKFLAnCUr97GHRv+KbCTFxPZupd3PEB+xS5ZUlzdBCEZvDid3iXaaEJJ+l\nTd1apAGQHjtnDTLOkiTa8zf7X5ebALwnI9MziOdN8VyprHXGhkachPbKyrG0QwEs\n2jtiI6Y5ULsBPjNefoavH8MKU5DEAT9h0fZ7KfsKYVMDuXqmEKBs0D3B4Z6aDZQW\nwT2dDRZDAgMBAAECggEAEIuVoSzZVuFhaz1GI9ji0IacjvO50cIq7M8Zrj4/F756\nEw6PIhKENafAb7U4INm2AnzUMO8CqL9Jpxs85qUM3W4JysSByqLUiRW2184amIyb\nj7jCXfLBTQn8AbHgrUepl5d/vBmFYMgon/mqjbNiGDb4FZgEQSkie5o6fi/dWp5d\nNahbZl+WTOB/znhAfKh/zferHNxldR/ERmwOubZUerkqysWiBigc3ovpLSUof9ur\nz3hNPPp0CKQjF40xuQc6FYTHUHMLuMvp78PXuc/mYqQmZ8VOGhU+faGtZ4m+QJly\ndF5dS8U5cwKEF+ptuAUiWSahn6INb9yKn3+FcsW0UQKBgQDb8N4eWFvbgpRo/vxo\nwBN2u2TWubj6clcrq/1a+VR0njC28Can0ogJHhrFhPxVs5D/rugs3HlbyAXJFptY\nV0DZPCwBxGU5P5RbGjXWWEUXjp4ISKQD8WKfVlXNr79TqLdOg2NZBYQAi06Cpo/T\nPV9l7LSG2Tj/9WdvD7W2wvrpaQKBgQDVPjpJN6xh7+sHtSU0mjKvrqigpHbuSQ/o\nXpUaWSIpJffm5QpFPAOcTT5mHZCyllicJQIrfPSY+sH8n+sF03CUqVkV4Q2UqfOf\npFaLDB4P6SQ8iesZyF4VKFrj/cAvRJmp0e5W/DRnFkoEp+8c+nrru2+Dzm9kb7Uq\n0CiltqYAywKBgBtcfrV1to+7Ue0x84KwintV2rifyDRX7yI+tjkQFYKgf1zyyUxN\nc6D2vsvdvGqI+TvlrXqPPwW8/4NBrbeyux2LT8o0fYc+sp0WyKXOu2Gv21caelUH\nPYam/eultn6Y2Z0J2V0kw4Qx0GWOhQv5cZnDdb3k3iNxixmU8b03ynEpAoGBAKEA\n7O0fNe50QRZ+tOq0ihSPYQ55XrqnO3WNBDLynZJH8pbI1CpWF7vJrpVXOUs9rQWo\nA61mGR/wJMtiywaJEHWOL48PbzuR3jno0NcHfSMyOoPi9jlvSWncIFQH4TVPLF5F\n/Rh8L+ytrZE6YpWUoX6e9KGmGgDRPw5mQGpuL4RlAoGADe9n080SXlsUk4nHVjUz\nEfv7EBoBkgOpqb9T1foRfJl46NxmmTOYV3iGIhjwcDskEg284k4iq/gH6EEFyEBc\nVz13jzB1nBgjfezFesVQz7bA/+Wik6HZtxAxVg38BKMt+Q1tYw9wOjbGPqOn++VC\nsR2Sh8e3h3Knd6j1tceRIFU=\n-----END PRIVATE KEY-----\n",
+            tokenUrl: "https://oauth2.googleapis.com/token",
+            scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+            // Tên các cột bạn muốn hiển thị (Để trống [] nếu muốn hiển thị tất cả)
+            displayColumns: ["ten_sp", "thuong_hieu", "gia_1", "gia_km", "mo_ta", "all_anh"],
+            // API Key cho ImgBB
+            imgbbApiKey: "1bad1429a242d7040fda3f2cfddb3a25",
+            // Gemini API Key
+            geminiApiKey: "AIzaSyCT0snKzDlcwtc1wxmm2meoyGQd5Ld5MDg"
+
+        };
+
+        let currentData = []; // [headers, row1, row2, ...]
+        let displayData = []; // Dữ liệu đã filter và sort
+        let accessToken = null;
+        let tokenExpiry = 0;
+        let editingRowIndex = null; // Cần giữ lại để tránh lỗi tham chiếu nếu còn sót, nhưng gán null cố định
+        let searchTimeout = null;
+
+        // Phân trang & Sắp xếp
+        let currentPage = 1;
+        const rowsPerPage = 20;
+        let sortConfig = { col: null, dir: 'asc' };
+
+        // --- AUTHENTICATION ---
+        async function getAccessToken() {
+            // Kiểm tra token cũ còn hạn không (trừ hao 5 phút)
+            if (accessToken && Date.now() < tokenExpiry - 300000) {
+                return accessToken;
+            }
+
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const payload = {
+                iss: CONFIG.serviceAccountEmail,
+                scope: CONFIG.scopes.join(" "),
+                aud: CONFIG.tokenUrl,
+                exp: now + 3600,
+                iat: now
+            };
+
+            const sHeader = JSON.stringify(header);
+            const sPayload = JSON.stringify(payload);
+            const sJWT = KJUR.jws.JWS.sign("RS256", sHeader, sPayload, CONFIG.privateKey);
+
+            try {
+                const response = await fetch(CONFIG.tokenUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWT}`
+                });
+                const data = await response.json();
+                accessToken = data.access_token;
+                tokenExpiry = Date.now() + (data.expires_in * 1000);
+                return accessToken;
+            } catch (err) {
+                console.error("Lỗi lấy token:", err);
+                alert("Không thể xác thực với Google API");
+            }
+        }
+
+        async function fetchData() {
+
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+
+            try {
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:ZZZ`;
+                const response = await fetch(url, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const result = await response.json();
+
+                if (result.values) {
+                    currentData = result.values;
+                    try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+                    currentPage = 1;
+                    sortConfig = { col: null, dir: 'asc' };
+                    filterAndSortData();
+                } else {
+                    alert("Sheet không có dữ liệu hoặc lỗi cấu hình.");
+                }
+            } catch (err) {
+                console.error("Fetch error:", err);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function filterAndSortData() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const rawHeaders = currentData[0] || [];
+            let data = currentData.slice(1);
+
+            // Xác định danh sách cột đang được hiển thị bằng helper nội bộ
+            let visibleIndices = [];
+            const sheetHeadersClean = rawHeaders.map(h => (h || "").toString().trim().toLowerCase());
+
+            if (CONFIG.displayColumns && CONFIG.displayColumns.length > 0) {
+                CONFIG.displayColumns.forEach(colName => {
+                    const targetClean = colName.toString().trim().toLowerCase();
+                    let idx = sheetHeadersClean.indexOf(targetClean);
+
+                    if (idx === -1) {
+                        idx = sheetHeadersClean.findIndex(h => h === targetClean || (h !== "" && h.includes(targetClean)));
+                    }
+                    if (idx !== -1 && !visibleIndices.includes(idx)) {
+                        visibleIndices.push(idx);
+                    }
+                });
+            } else {
+                visibleIndices = rawHeaders.map((_, i) => i);
+            }
+
+            // 1. Chỉ hiển thị dòng mà các cột "đang hiển thị" có dữ liệu
+            data = data.filter((row, index) => {
+                return visibleIndices.some(idx => row[idx] && row[idx].toString().trim() !== "");
+            });
+
+            // 2. Filter theo từ khóa tìm kiếm
+            if (term) {
+                data = data.filter(row => {
+                    return visibleIndices.some(idx => row[idx] && row[idx].toString().toLowerCase().includes(term));
+                });
+            }
+
+            // 3. Sort
+            if (sortConfig.col !== null) {
+                data.sort((a, b) => {
+
+                    let valA = a[sortConfig.col] || "";
+                    let valB = b[sortConfig.col] || "";
+
+                    const numA = parseFloat(valA);
+                    const numB = parseFloat(valB);
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        valA = numA;
+                        valB = numB;
+                    }
+
+                    if (valA < valB) return sortConfig.dir === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortConfig.dir === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            displayData = [rawHeaders, ...data];
+            renderTable();
+        }
+
+        function renderTable() {
+            const head = document.getElementById('tableHead');
+            const body = document.getElementById('tableBody');
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (displayData.length === 0) return;
+
+            const headFragment = document.createDocumentFragment();
+            const bodyFragment = document.createDocumentFragment();
+
+            const rawHeaders = displayData[0];
+
+            // Xác định danh sách cột cần hiển thị
+            let visibleIndices = [];
+            let notFoundCols = [];
+            const sheetHeadersClean = rawHeaders.map(h => (h || "").toString().trim().toLowerCase());
+
+            if (CONFIG.displayColumns && CONFIG.displayColumns.length > 0) {
+                CONFIG.displayColumns.forEach(target => {
+                    const targetClean = target.toString().trim().toLowerCase();
+                    let idx = sheetHeadersClean.indexOf(targetClean);
+
+                    if (idx === -1) {
+                        idx = sheetHeadersClean.findIndex(h => h === targetClean || (h !== "" && h.includes(targetClean)));
+                    }
+
+                    if (idx !== -1 && !visibleIndices.includes(idx)) {
+                        visibleIndices.push(idx);
+                    } else if (idx === -1) {
+                        notFoundCols.push(target);
+                    }
+                });
+            } else {
+                visibleIndices = rawHeaders.map((_, i) => i);
+            }
+
+            // Hiển thị cảnh báo nếu có cột không tìm thấy
+            const existingWarning = document.getElementById('columnWarning');
+            if (notFoundCols.length > 0) {
+                const warningMsg = `⚠️ <b>Cảnh báo:</b> Không tìm thấy các cột: <b style="color: #fca5a5;">${notFoundCols.join(', ')}</b>. <br>
+                <i style="font-size: 0.85rem; color: #cbd5e1;">(Các cột hiện có trong Sheet: ${rawHeaders.filter(h => h).join(' | ')})</i>`;
+
+                if (existingWarning) {
+                    existingWarning.innerHTML = warningMsg;
+                } else {
+                    const warningDiv = document.createElement('div');
+                    warningDiv.id = 'columnWarning';
+                    warningDiv.style = "background: rgba(239, 68, 68, 0.2); color: #f8fafc; padding: 12px 16px; margin-bottom: 16px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.95rem; line-height: 1.5;";
+                    warningDiv.innerHTML = warningMsg;
+                    const controls = document.querySelector('.controls');
+                    if (controls && controls.parentElement) {
+                        controls.parentElement.insertBefore(warningDiv, controls);
+                    }
+                }
+            } else if (existingWarning) {
+                existingWarning.remove();
+            }
+
+            // Render Header
+            const thStt = document.createElement('th');
+            thStt.textContent = "#";
+            thStt.style.width = "50px";
+            headFragment.appendChild(thStt);
+
+            visibleIndices.forEach(idx => {
+                const h = rawHeaders[idx];
+                const th = document.createElement('th');
+                th.innerHTML = `${h} <span class="sort-icon"></span>`;
+                th.onclick = () => handleSort(idx);
+                if (sortConfig.col === idx) {
+                    th.className = sortConfig.dir === 'asc' ? 'sorted-asc' : 'sorted-desc';
+                }
+                headFragment.appendChild(th);
+            });
+
+            // Render Body
+            const totalRows = displayData.length - 1;
+            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIdx = (currentPage - 1) * rowsPerPage + 1;
+            const endIdx = Math.min(startIdx + rowsPerPage, displayData.length);
+            const pageData = displayData.slice(startIdx, endIdx);
+
+            pageData.forEach((row, pIdx) => {
+                const tr = document.createElement('tr');
+
+                const tdStt = document.createElement('td');
+                tdStt.textContent = startIdx + pIdx;
+                tdStt.style.color = "var(--text-dim)";
+                tr.appendChild(tdStt);
+
+                visibleIndices.forEach((colIndex, vIdx) => {
+                    const td = document.createElement('td');
+                    const cellValue = (row[colIndex] || "").toString().trim();
+                    const columnName = rawHeaders[colIndex] ? rawHeaders[colIndex].toString().trim().toLowerCase() : "";
+
+                    if (columnName === 'all_anh' || columnName === 'tất cả ảnh' || columnName === 'anh_sp') {
+                        const images = cellValue.split(',').map(img => img.trim()).filter(img => img !== "");
+                        if (images.length > 0) {
+                            let galleryHtml = '<div class="img-gallery">';
+                            images.forEach(imgUrl => {
+                                galleryHtml += `<img src="${imgUrl}" class="img-item" onclick="zoomImage('${imgUrl.replace(/'/g, "\\'")}')" onerror="this.style.display='none'">`;
+                            });
+                            galleryHtml += '</div>';
+                            td.innerHTML = galleryHtml;
+                        } else {
+                            td.textContent = "";
+                        }
+                    } else if (isImageUrl(cellValue)) {
+                        td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
+                    } else {
+                        td.textContent = cellValue;
+                    }
+                    tr.appendChild(td);
+                });
+
+                bodyFragment.appendChild(tr);
+            });
+
+            head.appendChild(headFragment);
+            body.appendChild(bodyFragment);
+
+
+            document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        function handleSort(colIndex) {
+            if (sortConfig.col === colIndex) {
+                sortConfig.dir = sortConfig.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortConfig.col = colIndex;
+                sortConfig.dir = 'asc';
+            }
+            filterAndSortData();
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderTable();
+        }
+
+        function filterData() {
+            currentPage = 1;
+            filterAndSortData();
+        }
+
+        function handleSearchInput() {
+            if (searchTimeout) clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterData();
+            }, 300); // 300ms debounce
+        }
+
+
+
+        // --- SETTINGS ---
+        function openSettings() {
+            document.getElementById('inputSpreadsheetId').value = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+            document.getElementById('inputSheetName').value = localStorage.getItem('gs_name') || CONFIG.sheetName;
+            document.getElementById('inputDisplayColumns').value = (localStorage.getItem('gs_cols') || CONFIG.displayColumns.join(', '));
+            document.getElementById('inputGeminiApiKey').value = (localStorage.getItem('gs_gemini_api') || CONFIG.geminiApiKey);
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function applySettings() {
+            const id = document.getElementById('inputSpreadsheetId').value;
+            const name = document.getElementById('inputSheetName').value;
+            const colsRaw = document.getElementById('inputDisplayColumns').value;
+            const geminiApi = document.getElementById('inputGeminiApiKey').value;
+
+            localStorage.setItem('gs_id', id);
+            localStorage.setItem('gs_name', name);
+            localStorage.setItem('gs_cols', colsRaw);
+            localStorage.setItem('gs_gemini_api', geminiApi);
+
+            // Cập nhật CONFIG động
+            CONFIG.displayColumns = colsRaw.split(',').map(s => s.trim()).filter(s => s !== "");
+            CONFIG.geminiApiKey = geminiApi;
+
+            closeModal('settingsModal');
+            fetchData();
+        }
+
+        function resetSettings() {
+            if (confirm("Bạn có chắc muốn xóa cài đặt và dùng cấu hình mặc định?")) {
+                localStorage.removeItem('gs_id');
+                localStorage.removeItem('gs_name');
+                localStorage.removeItem('gs_cols');
+                localStorage.removeItem('gs_gemini_api');
+                location.reload(); // Reload để nhận lại CONFIG mặc định
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // --- UTILS ---
+        function isImageUrl(url) {
+            if (typeof url !== 'string') return false;
+            const cleanUrl = url.trim().toLowerCase();
+            return (cleanUrl.startsWith('http') &&
+                (cleanUrl.match(/\.(jpeg|jpg|gif|png|webp|svg|avif)(\?.*)?$/) || cleanUrl.includes('googleusercontent.com')));
+        }
+
+        function zoomImage(url) {
+            const overlay = document.getElementById('imageOverlay');
+            const img = document.getElementById('overlayImage');
+            img.src = url;
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageOverlay() {
+            const overlay = document.getElementById('imageOverlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Chuyển số cột thành chữ cái (1 -> A, 27 -> AA)
+        function getColLetter(n) {
+            let letter = "";
+            while (n > 0) {
+                let temp = (n - 1) % 26;
+                letter = String.fromCharCode(temp + 65) + letter;
+                n = (n - temp - 1) / 26;
+            }
+            return letter || "A";
+        }
+
+
+
+        // Khởi tạo
+        window.onload = () => {
+            // Load cột từ localStorage nếu có
+            const savedCols = localStorage.getItem('gs_cols');
+            if (savedCols) {
+                CONFIG.displayColumns = savedCols.split(',').map(s => s.trim()).filter(s => s !== "");
+            }
+
+            const cachedData = localStorage.getItem('gs_cached_data');
+            if (cachedData) {
+                try {
+                    currentData = JSON.parse(cachedData);
+                    filterAndSortData();
+                } catch (e) { console.error("Cache parse error", e); }
+            }
+            fetchData();
+        };
+    </script>
+</body>
+
+</html>
