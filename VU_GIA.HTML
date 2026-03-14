@@ -614,6 +614,119 @@
                 opacity: 1;
             }
         }
+
+        /* Auth UI & Modals */
+        .auth-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .user-menu:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #1e293b;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            width: 200px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            padding: 0.8rem 1.2rem;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .btn-auth {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            background: #1e293b;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translate(-50%, -20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
     </style>
 </head>
 
@@ -627,25 +740,52 @@
     <div class="container">
         <header>
             <h1>VŨ GIA Bảng Giá & Phân Tích (Lock&King & Takin)</h1>
-            <button class="btn-outline" onclick="toggleTheme()" id="themeToggle">
-                <svg id="moonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-                <svg id="sunIcon" style="display:none" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-                <span id="themeText">Chế độ tối</span>
-            </button>
+
+            <div class="auth-container">
+                <button class="btn-outline" onclick="toggleTheme()" id="themeToggle" style="margin-right: 1.5rem;">
+                    <svg id="moonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sunIcon" style="display:none" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <span id="themeText">Chế độ tối</span>
+                </button>
+
+                <div id="loggedOutUI" style="display: flex; gap: 0.5rem;">
+                    <button class="btn-outline btn-auth" onclick="openAuthModal('login')">Đăng nhập</button>
+                    <button class="btn-primary btn-auth" onclick="openAuthModal('register')">Đăng ký</button>
+                </div>
+
+                <div id="loggedInUI" style="display: none;">
+                    <div class="user-menu" onclick="toggleUserDropdown(event)">
+                        <span style="font-size: 1.2rem;">👤</span>
+                        <span id="displayUserName" style="font-weight: 600;">Nguyễn Văn A</span>
+                        <span style="font-size: 0.8rem; opacity: 0.6;">▼</span>
+
+                        <div id="userDropdown" class="dropdown-menu">
+                            <div class="dropdown-item" style="pointer-events: none; opacity: 0.8;">
+                                <span id="dropdownUserName">Nguyễn Văn A</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item" onclick="handleLogout()">
+                                <span>🚪</span>
+                                <strong>Đăng xuất</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <div class="tabs">
@@ -702,6 +842,43 @@
         </div>
     </div>
 
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="authTitle">Cơ chế đăng nhập</h2>
+                <button class="btn-outline" style="padding: 0.5rem;" onclick="closeModal('authModal')">✕</button>
+            </div>
+
+            <div id="registerFields" style="display: none;">
+                <div class="form-group">
+                    <label>Họ tên</label>
+                    <input type="text" id="regFullName" placeholder="Nhập họ tên đầy đủ">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tên đăng nhập</label>
+                <input type="text" id="authUsername" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="authPassword" placeholder="Minimum 6 characters">
+            </div>
+
+            <div class="modal-footer">
+                <p id="authSwitch" style="font-size: 0.85rem; color: var(--text-dim); flex: 1; cursor: pointer;"
+                    onclick="switchAuthMode()">
+                    Chưa có tài khoản? Đăng ký
+                </p>
+                <button class="btn-primary" id="btnAuthSubmit" onclick="submitAuth()">Đăng nhập</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
     <!-- No more Edit Modal, using Inline Editing -->
 
     <!-- Settings Modal -->
@@ -747,10 +924,11 @@
             tokenUrl: "https://oauth2.googleapis.com/token",
             scopes: ["https://www.googleapis.com/auth/spreadsheets"],
             imgbbApiKey: "1bad1429a242d7040fda3f2cfddb3a25",
+            usersSheetName: "DS_NV",
             tabs: {
                 "Toan_bo_gia": {
                     sheetName: "Toan_bo_gia",
-                    displayColumns: ["Ảnh","Model", "Sản phẩm", "Mô tả","Thông số kĩ thuật", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"]
+                    displayColumns: ["Ảnh", "Sản phẩm", "Model", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"]
                 },
                 "Kenh_NPP_TMĐT": {
                     sheetName: "Kenh_NPP_TMĐT",
@@ -770,6 +948,8 @@
         let isUploading = false;
         let isSaving = false;
         let canEdit = false; // Biến kiểm tra quyền sửa qua URL
+        let currentUser = null;
+        let authMode = 'login'; // 'login' or 'register'
 
         let currentPage = 1;
         const rowsPerPage = 200;
@@ -1003,7 +1183,7 @@
             thStt.style.width = "50px";
             headFragment.appendChild(thStt);
 
-            if (canEdit) {
+            if (canEdit || (currentUser && currentUser.quyen === 'ADMIN')) {
                 const thAction = document.createElement('th');
                 thAction.textContent = "Thao tác";
                 thAction.style.width = "80px";
@@ -1068,7 +1248,7 @@
                 tdStt.style.color = "var(--text-dim)";
                 tr.appendChild(tdStt);
 
-                if (canEdit) {
+                if (canEdit || (currentUser && currentUser.quyen === 'ADMIN')) {
                     const tdAction = document.createElement('td');
                     const btn = document.createElement('button');
                     btn.className = isEditing ? 'btn-save' : 'btn-edit';
@@ -1115,7 +1295,7 @@
                     }
 
                     if (isEditing) {
-                        const isImageCol = hNameLower.includes("ảnh"); // Cả "Ảnh" và "Link ảnh" đều cho phép tải lên
+                        const isImageCol = hNameLower.includes("ảnh") || hNameLower === "truyền thông"; // Cho phép tải lên cho các cột ảnh và truyền thông
 
                         if (isImageCol) {
                             td.innerHTML = `
@@ -1141,8 +1321,8 @@
                             td.innerHTML = "";
                             td.appendChild(input);
                         }
-                    } else if (hNameLower === "link ảnh" && cellValue.trim() !== "") {
-                        // Cột Link ảnh luôn là link nếu có dữ liệu
+                    } else if ((hNameLower === "link ảnh" || hNameLower === "truyền thông") && cellValue.trim() !== "") {
+                        // Cột Truyền thông (hoặc Link ảnh cũ) luôn là link nếu có dữ liệu
                         const url = cellValue.trim();
                         const fullUrl = url.startsWith('http') ? url : 'http://' + url;
                         // Rút gọn text hiển thị nếu quá dài
@@ -1351,6 +1531,9 @@
 
         // --- ADD & DELETE ---
         function addRow() {
+            if (!(canEdit || (currentUser && currentUser.quyen === 'ADMIN'))) {
+                return showToast("Bạn không có quyền thực hiện thao tác này.", "error");
+            }
             if (isAddingNewRow || editingRowIndex !== null) {
                 return alert("Vui lòng hoàn tất dòng đang sửa trước khi thêm dòng mới.");
             }
@@ -1365,6 +1548,9 @@
         }
 
         async function clearRowData(absoluteIndex) {
+            if (!(canEdit || (currentUser && currentUser.quyen === 'ADMIN'))) {
+                return showToast("Bạn không có quyền thực hiện thao tác này.", "error");
+            }
             if (isAddingNewRow) return alert("Vui lòng hoàn tất hoặc hủy dòng đang thêm.");
             if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu của dòng này không?")) return;
 
@@ -1597,11 +1783,194 @@
             document.getElementById('themeText').textContent = isLight ? 'Chế độ sáng' : 'Chế độ tối';
         }
 
+        // --- ACCOUNT & AUTH ---
+        function openAuthModal(mode) {
+            authMode = mode;
+            document.getElementById('authModal').style.display = 'flex';
+            const title = document.getElementById('authTitle');
+            const btn = document.getElementById('btnAuthSubmit');
+            const switcher = document.getElementById('authSwitch');
+            const regFields = document.getElementById('registerFields');
+
+            if (mode === 'register') {
+                title.textContent = 'ĐĂNG KÝ TÀI KHOẢN';
+                btn.textContent = 'Đăng ký';
+                switcher.textContent = 'Đã có tài khoản? Đăng nhập';
+                regFields.style.display = 'block';
+            } else {
+                title.textContent = 'ĐĂNG NHẬP';
+                btn.textContent = 'Đăng nhập';
+                switcher.textContent = 'Chưa có tài khoản? Đăng ký';
+                regFields.style.display = 'none';
+            }
+        }
+
+        function switchAuthMode() {
+            openAuthModal(authMode === 'login' ? 'register' : 'login');
+        }
+
+        async function submitAuth() {
+            if (authMode === 'register') {
+                await handleRegister();
+            } else {
+                await handleLogin();
+            }
+        }
+
+        async function handleRegister() {
+            const fullName = document.getElementById('regFullName').value.trim();
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            if (!fullName || !username || !password) {
+                return showToast("Vui lòng điền đủ thông tin", "error");
+            }
+            if (password.length < 6) {
+                return showToast("Mật khẩu tối thiểu 6 ký tự", "error");
+            }
+
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const sname = CONFIG.usersSheetName;
+
+                // 1. Kiểm tra username tồn tại
+                const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!C:C`;
+                const getResp = await fetch(getUrl, { headers: { "Authorization": `Bearer ${token}` } });
+                const getResult = await getResp.json();
+
+                if (getResult.values) {
+                    const existingUser = getResult.values.find(v => v[0] === username);
+                    if (existingUser) {
+                        return showToast("Tên đăng nhập đã tồn tại", "error");
+                    }
+                }
+
+                // 2. Tạo ID ngẫu nhiên
+                const id = Math.random().toString(36).substring(2, 10);
+                const newUser = [id, fullName, username, password];
+
+                // 3. Lưu vào sheet
+                const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:D:append?valueInputOption=USER_ENTERED`;
+                const appendResp = await fetch(appendUrl, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: [newUser] })
+                });
+
+                if (appendResp.ok) {
+                    showToast("✔ Đăng ký thành công", "success");
+                    openAuthModal('login');
+                } else {
+                    showToast("Lỗi khi đăng ký", "error");
+                }
+            } catch (err) {
+                console.error("Register Error:", err);
+                showToast("Lỗi hệ thống", "error");
+            }
+        }
+
+        async function handleLogin() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            if (!username || !password) {
+                return showToast("Vui lòng nhập Username và Mật khẩu", "error");
+            }
+
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const sname = CONFIG.usersSheetName;
+
+                const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A:E`;
+                const getResp = await fetch(getUrl, { headers: { "Authorization": `Bearer ${token}` } });
+                const getResult = await getResp.json();
+
+                if (!getResult.values) {
+                    return showToast("Hệ thống chưa có người dùng", "error");
+                }
+
+                const user = getResult.values.find(v => v[2] === username && v[3] === password);
+
+                if (user) {
+                    currentUser = {
+                        id: user[0],
+                        ho_ten: user[1],
+                        ten_dang_nhap: user[2],
+                        quyen: (user[4] || "").toString().trim().toUpperCase() // Cột E (index 4)
+                    };
+                    localStorage.setItem('vugia_user', JSON.stringify(currentUser));
+                    updateAuthUI();
+                    closeModal('authModal');
+                    showToast("Đăng nhập thành công", "success");
+                    renderTable(); // Re-render để hiện/ẩn nút sửa
+                } else {
+                    showToast("❌ Sai tên đăng nhập hoặc mật khẩu", "error");
+                }
+            } catch (err) {
+                console.error("Login Error:", err);
+                showToast("Lỗi hệ thống", "error");
+            }
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('vugia_user');
+            updateAuthUI();
+            showToast("Đã đăng xuất", "success");
+            renderTable(); // Re-render to hide edit buttons
+        }
+
+        function updateAuthUI() {
+            const loggedOutUI = document.getElementById('loggedOutUI');
+            const loggedInUI = document.getElementById('loggedInUI');
+            const displayUserName = document.getElementById('displayUserName');
+            const dropdownUserName = document.getElementById('dropdownUserName');
+
+            if (currentUser) {
+                loggedOutUI.style.display = 'none';
+                loggedInUI.style.display = 'block';
+                displayUserName.textContent = currentUser.ho_ten;
+                dropdownUserName.textContent = '👤 ' + currentUser.ho_ten;
+            } else {
+                loggedOutUI.style.display = 'flex';
+                loggedInUI.style.display = 'none';
+            }
+        }
+
+        function toggleUserDropdown(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('userDropdown');
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast ' + type;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', () => {
+            const menu = document.getElementById('userDropdown');
+            if (menu) menu.style.display = 'none';
+        });
+
         window.onload = async () => {
             // Kiểm tra quyền sửa qua URL ?tk=atuyen
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('tk') === 'atuyen') {
                 canEdit = true;
+            }
+
+            // Tự động đăng nhập
+            const savedUser = localStorage.getItem('vugia_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateAuthUI();
             }
 
             // Khôi phục theme
