@@ -615,6 +615,50 @@
             }
         }
 
+        /* Company Header Info */
+        .company-info {
+            text-align: left;
+            flex: 1;
+        }
+
+        .company-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--primary);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .company-detail {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .header-title-main {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .header-title-main h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .effective-date {
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
         /* Auth UI & Modals */
         .auth-container {
             display: flex;
@@ -738,53 +782,65 @@
     </div>
 
     <div class="container">
-        <header>
-            <h1>VŨ GIA Bảng Giá & Phân Tích (Lock&King & Takin)</h1>
-
-            <div class="auth-container">
-                <button class="btn-outline" onclick="toggleTheme()" id="themeToggle" style="margin-right: 1.5rem;">
-                    <svg id="moonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sunIcon" style="display:none" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                    <span id="themeText">Chế độ tối</span>
-                </button>
-
-                <div id="loggedOutUI" style="display: flex; gap: 0.5rem;">
-                    <button class="btn-outline btn-auth" onclick="openAuthModal('login')">Đăng nhập</button>
-                    <button class="btn-primary btn-auth" onclick="openAuthModal('register')">Đăng ký</button>
+        <header style="flex-direction: column; align-items: stretch; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="company-info">
+                    <div class="company-name">VU GIA COOPERATIVE COMPANY LIMITED</div>
+                    <div class="company-detail">230 Lacasta, Van Phu Urban Area, Kien Hung Ward, Ha Noi</div>
+                    <div class="company-detail" style="color: var(--primary); opacity: 0.9; font-weight: 500;">
+                        Locknking.com - Locknking.vn - Locknking.kr</div>
                 </div>
 
-                <div id="loggedInUI" style="display: none;">
-                    <div class="user-menu" onclick="toggleUserDropdown(event)">
-                        <span style="font-size: 1.2rem;">👤</span>
-                        <span id="displayUserName" style="font-weight: 600;">Nguyễn Văn A</span>
-                        <span style="font-size: 0.8rem; opacity: 0.6;">▼</span>
+                <div class="auth-container">
+                    <button class="btn-outline" onclick="toggleTheme()" id="themeToggle" style="margin-right: 1rem;">
+                        <svg id="moonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <svg id="sunIcon" style="display:none" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <span id="themeText">Chế độ tối</span>
+                    </button>
 
-                        <div id="userDropdown" class="dropdown-menu">
-                            <div class="dropdown-item" style="pointer-events: none; opacity: 0.8;">
-                                <span id="dropdownUserName">Nguyễn Văn A</span>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item" onclick="handleLogout()">
-                                <span>🚪</span>
-                                <strong>Đăng xuất</strong>
+                    <div id="loggedOutUI" style="display: flex; gap: 0.5rem;">
+                        <button class="btn-outline btn-auth" onclick="openAuthModal('login')">Đăng nhập</button>
+                        <button class="btn-primary btn-auth" onclick="openAuthModal('register')">Đăng ký</button>
+                    </div>
+
+                    <div id="loggedInUI" style="display: none;">
+                        <div class="user-menu" onclick="toggleUserDropdown(event)">
+                            <span style="font-size: 1.2rem;">👤</span>
+                            <span id="displayUserName" style="font-weight: 600;">Nguyễn Văn A</span>
+                            <span style="font-size: 0.8rem; opacity: 0.6;">▼</span>
+
+                            <div id="userDropdown" class="dropdown-menu">
+                                <div class="dropdown-item" style="pointer-events: none; opacity: 0.8;">
+                                    <span id="dropdownUserName">Nguyễn Văn A</span>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item" onclick="handleLogout()">
+                                    <span>🚪</span>
+                                    <strong>Đăng xuất</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="header-title-main">
+                <h1>BẢNG GIÁ SẢN PHẨM LOCK&KING - TAKIN</h1>
+                <div class="effective-date">(Áp dụng từ ngày 24/03/2026)</div>
             </div>
         </header>
 
