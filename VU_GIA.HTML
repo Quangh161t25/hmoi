@@ -116,7 +116,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0;
+        }
+
+        body.ready {
             transition: background-color 0.4s ease, color 0.4s ease;
         }
 
@@ -855,6 +857,14 @@
 </head>
 
 <body>
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+            }
+        })();
+    </script>
     <div class="blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -936,7 +946,8 @@
 
         <div class="controls">
             <div class="search-box" style="flex: 2; min-width: 200px;">
-                <input type="text" id="searchInput" placeholder="Tìm kiếm nhanh..." oninput="handleSearchInput()">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm nhanh..." oninput="handleSearchInput()"
+                    autocomplete="off">
             </div>
 
             <div class="filter-box" style="flex: 1; min-width: 140px;">
@@ -1007,11 +1018,12 @@
 
             <div class="form-group">
                 <label>Tên đăng nhập</label>
-                <input type="text" id="authUsername" placeholder="Username">
+                <input type="text" id="authUsername" placeholder="Username" autocomplete="username">
             </div>
             <div class="form-group">
                 <label>Mật khẩu</label>
-                <input type="password" id="authPassword" placeholder="Minimum 6 characters">
+                <input type="password" id="authPassword" placeholder="Minimum 6 characters"
+                    autocomplete="current-password">
             </div>
 
             <div class="modal-footer">
@@ -2332,10 +2344,13 @@
             }
             updateAuthUI(); // Luôn chạy để ẩn/hiện đúng theo quyền (hoặc chưa đăng nhập)
 
-            // Khôi phục theme
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light-mode');
-            }
+            // Đảm bảo ô tìm kiếm trống khi load lại
+            document.getElementById('searchInput').value = '';
+
+            // Kích hoạt transition sau khi đã set xong theme ban đầu
+            requestAnimationFrame(() => {
+                document.body.classList.add('ready');
+            });
             updateThemeUI();
 
             // Load cột từ localStorage nếu có
