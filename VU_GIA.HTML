@@ -928,7 +928,7 @@
             tabs: {
                 "Toan_bo_gia": {
                     sheetName: "Toan_bo_gia",
-                    displayColumns: ["Ảnh", "Model", "Mô tả", "Thông số kĩ thuật", "Sản phẩm", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"]
+                    displayColumns: ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"]
                 },
                 "Kenh_NPP_TMĐT": {
                     sheetName: "Kenh_NPP_TMĐT",
@@ -1027,6 +1027,10 @@
         }
 
         async function switchTab(tabId) {
+            const q = (currentUser ? currentUser.quyen : "").toUpperCase();
+            if (tabId === 'Kenh_NPP_TMĐT' && q !== 'ADMIN') {
+                return; // Chặn truy cập tab TMĐT nếu không phải ADMIN
+            }
             if (currentTab === tabId) return;
 
             // UI Update
@@ -1047,12 +1051,12 @@
             const rawHeaders = currentData[0];
             let data = currentData.slice(1);
 
-            // Xác định danh sách cột đang được hiển thị theo Tab hiện tại
+            // Xác định danh sách cột đang được hiển thị
             let visibleIndices = [];
-            const tabConfig = CONFIG.tabs[currentTab];
+            const activeCols = getActiveDisplayColumns();
 
-            if (tabConfig.displayColumns && tabConfig.displayColumns.length > 0) {
-                tabConfig.displayColumns.forEach(colName => {
+            if (activeCols && activeCols.length > 0) {
+                activeCols.forEach(colName => {
                     const idx = rawHeaders.indexOf(colName.trim());
                     if (idx !== -1) visibleIndices.push(idx);
                 });
@@ -1162,13 +1166,13 @@
 
             const rawHeaders = displayData[0];
 
-            // Xác định danh sách cột cần hiển thị theo Tab hiện tại
+            // Xác định danh sách cột cần hiển thị theo Tab và Quyền
             let visibleIndices = [];
             const sheetHeaders = displayData[0].map(h => h.toString().trim().toLowerCase());
-            const tabConfig = CONFIG.tabs[currentTab];
+            const activeCols = getActiveDisplayColumns();
 
-            if (tabConfig.displayColumns && tabConfig.displayColumns.length > 0) {
-                tabConfig.displayColumns.forEach(target => {
+            if (activeCols && activeCols.length > 0) {
+                activeCols.forEach(target => {
                     const targetClean = target.toString().trim().toLowerCase();
                     const idx = sheetHeaders.indexOf(targetClean);
                     if (idx !== -1) visibleIndices.push(idx);
@@ -1921,7 +1925,12 @@
             localStorage.removeItem('vugia_user');
             updateAuthUI();
             showToast("Đã đăng xuất", "success");
-            renderTable(); // Re-render to hide edit buttons
+            // Sau khi đăng xuất, quay về tab mặc định nếu tab hiện tại bị cấm
+            if (currentTab === 'Kenh_NPP_TMĐT') {
+                switchTab('Toan_bo_gia');
+            } else {
+                renderTable();
+            }
         }
 
         function updateAuthUI() {
@@ -1939,6 +1948,48 @@
                 loggedOutUI.style.display = 'flex';
                 loggedInUI.style.display = 'none';
             }
+
+            // --- PHÂN QUYỀN TAB ---
+            const nppTabBtn = document.getElementById('tab-Kenh_NPP_TMĐT');
+            if (nppTabBtn) {
+                const q = (currentUser ? currentUser.quyen : "").toUpperCase();
+                if (q === 'ADMIN') {
+                    nppTabBtn.style.display = 'inline-block';
+                } else {
+                    nppTabBtn.style.display = 'none';
+                    // Nếu đang ở tab bị cấm thì chuyển về tab Public
+                    if (currentTab === 'Kenh_NPP_TMĐT') {
+                        switchTab('Toan_bo_gia');
+                    }
+                }
+            }
+        }
+
+        // Hàm lấy danh sách cột hiển thị dựa trên quyền hạn
+        function getActiveDisplayColumns() {
+            const q = (currentUser ? currentUser.quyen : "").toUpperCase();
+
+            // Nếu tab là TMĐT thì chỉ ADMIN mới có cột, các quyền khác rỗng (đã chặn ở Tab UI)
+            if (currentTab === 'Kenh_NPP_TMĐT') {
+                return q === 'ADMIN' ? CONFIG.tabs['Kenh_NPP_TMĐT'].displayColumns : [];
+            }
+
+            if (currentTab === 'Toan_bo_gia') {
+                if (q === 'ADMIN') return CONFIG.tabs['Toan_bo_gia'].displayColumns;
+
+                if (q === 'NPP') {
+                    return ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"];
+                }
+
+                if (q === 'ĐẠI LÝ') {
+                    return ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá nhập", "%LN Locknking", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"];
+                }
+
+                // Mặc định cho người dùng chưa đăng nhập hoặc quyền khác
+                return ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá niêm yết", "Ghi chú", "NCC"];
+            }
+
+            return CONFIG.tabs[currentTab].displayColumns;
         }
 
         function toggleUserDropdown(e) {
