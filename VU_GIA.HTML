@@ -69,93 +69,9 @@
             color: var(--text-main);
         }
 
-        /* Dashboard Styles */
-        .dashboard {
-            display: none;
-            /* Hidden by default, shown for TMĐT tab */
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            width: 100%;
-        }
 
-        .stat-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            padding: 1.2rem;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: transform 0.3s;
-        }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
 
-        .stat-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .stat-info .stat-label {
-            font-size: 0.725rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-dim);
-            margin-bottom: 0.2rem;
-        }
-
-        .stat-info .stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .charts-row {
-            display: none;
-            grid-template-columns: 1fr 1.8fr;
-            gap: 1.2rem;
-            margin-bottom: 1.5rem;
-            width: 100%;
-        }
-
-        @media (max-width: 1024px) {
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .chart-container {
-            background: transparent;
-            padding: 0.5rem;
-            height: 280px;
-            position: relative;
-            margin-bottom: 0.5rem;
-        }
-
-        .chart-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        body.light-mode .stat-card,
-        body.light-mode .chart-container {
-            background: rgba(255, 255, 255, 0.7);
-        }
 
         * {
             margin: 0;
@@ -737,84 +653,15 @@
             <button class="tab" onclick="switchTab('Kenh_NPP_TMĐT')" id="tab-Kenh_NPP_TMĐT">Kênh NPP TMĐT</button>
         </div>
 
-        <!-- Dashboard Section -->
-        <div id="tmdtDashboard" class="dashboard">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-label">Tổng SKU Lọc</div>
-                    <div class="stat-value" id="stat-total-sku">0</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                        <polyline points="17 6 23 6 23 12"></polyline>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-label">Lãi Cao</div>
-                    <div class="stat-value" id="stat-high-profit">0</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-label">Lãi Trung Bình</div>
-                    <div class="stat-value" id="stat-avg-profit-count">0</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-label">Lãi Thấp</div>
-                    <div class="stat-value" id="stat-low-profit">0</div>
-                </div>
-            </div>
-        </div>
 
-        <div id="tmdtCharts" class="charts-row">
-            <div class="chart-container">
-                <div class="chart-title">Phân bổ lợi nhuận</div>
-                <canvas id="profitDistChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">LN Trung Bình theo Nhóm (VND)</div>
-                <canvas id="groupProfitChart"></canvas>
-            </div>
-        </div>
+
+
 
         <div class="controls">
             <div class="search-box" style="flex: 2; min-width: 200px;">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm nhanh..." oninput="handleSearchInput()">
             </div>
-            <div class="filter-box" style="flex: 1; min-width: 140px;">
-                <select id="groupFilter" onchange="filterData()">
-                    <option value="">Tất cả Nhóm</option>
-                </select>
-            </div>
+
             <div class="filter-box" style="flex: 1; min-width: 140px;">
                 <select id="nccFilter" onchange="filterData()">
                     <option value="">Tất cả NCC</option>
@@ -903,11 +750,11 @@
             tabs: {
                 "Toan_bo_gia": {
                     sheetName: "Toan_bo_gia",
-                    displayColumns: ["Nhóm", "Sản phẩm", "Mã SP", "Giá nhập", "% LN Locknking", "Giá NPP\t", "% LN NPP\t", "Giá siêu thị", "\t% LN Siêu thị\t", "Giá bán NTD\t", "Giá web", "NCC"]
+                    displayColumns: ["Ảnh", "Sản phẩm", "Model", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Link ảnh"]
                 },
                 "Kenh_NPP_TMĐT": {
                     sheetName: "Kenh_NPP_TMĐT",
-                    displayColumns: ["Nhóm", "Sản phẩm", "Mã SP", "Giá NPP", "Giá bán NTD", "Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Tổng chi phí sàn", "LN NPP TMĐT", "Biên LN TMĐT", "Phân loại", "NCC"]
+                    displayColumns: ["Sản phẩm", "Model", "Giá NPP", "Giá bán lẻ", "Phí thanh toán", "Phí cố định sàn", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Tổng chi phí sàn", "LN NPP TMĐT", "Biên LN TMĐT", "Phân loại", "NCC"]
                 }
             }
         };
@@ -928,9 +775,7 @@
         const rowsPerPage = 200;
         let sortConfig = { col: null, dir: 'asc' };
 
-        // Charts Instances
-        let profitDistChart = null;
-        let groupProfitChart = null;
+
 
         // --- AUTHENTICATION ---
         async function getAccessToken() {
@@ -1010,7 +855,7 @@
 
             currentTab = tabId;
             document.getElementById('searchInput').value = '';
-            document.getElementById('groupFilter').value = '';
+
             document.getElementById('nccFilter').value = '';
             document.getElementById('typeFilter').value = '';
 
@@ -1059,14 +904,7 @@
                 });
             }
 
-            // 2b. Filter theo Nhóm
-            const groupTerm = document.getElementById('groupFilter').value;
-            if (groupTerm) {
-                const groupColIdx = rawHeaders.indexOf("Nhóm");
-                if (groupColIdx !== -1) {
-                    data = data.filter(row => row[groupColIdx] === groupTerm);
-                }
-            }
+
 
             // 2bb. Filter theo NCC
             const nccTerm = document.getElementById('nccFilter').value;
@@ -1118,155 +956,18 @@
             }
 
             displayData = [rawHeaders, ...data];
-            updateDashboard();
             renderTable();
         }
 
         function updateDashboard() {
-            const dashboard = document.getElementById('tmdtDashboard');
-            const chartsRow = document.getElementById('tmdtCharts');
-
             if (currentTab !== 'Kenh_NPP_TMĐT') {
-                dashboard.style.display = 'none';
-                chartsRow.style.display = 'none';
                 document.getElementById('typeFilterContainer').style.display = 'none';
                 return;
             }
-
-            dashboard.style.display = 'grid';
-            chartsRow.style.display = 'grid';
             document.getElementById('typeFilterContainer').style.display = 'block';
-
-            const headers = displayData[0];
-            const rows = displayData.slice(1);
-
-            const lnIdx = headers.indexOf("LN NPP TMĐT");
-            const marginIdx = headers.indexOf("Biên LN TMĐT");
-            const groupIdx = headers.indexOf("Nhóm");
-            const typeIdx = headers.indexOf("Phân loại");
-
-            // Stats
-            const totalSku = rows.length;
-            let totalMargin = 0;
-            let lowProfitCount = 0;
-            const groups = {};
-            const profitTypes = { "Lãi cao": 0, "Lãi trung bình": 0, "Lãi thấp": 0 };
-
-            rows.forEach(row => {
-                // Profit Type Distribution from "Phân loại" column (Case-insensitive)
-                let type = row[typeIdx] ? row[typeIdx].toString().trim().toLowerCase() : "lãi thấp";
-
-                if (type.includes("cao")) {
-                    profitTypes["Lãi cao"]++;
-                } else if (type.includes("trung bình")) {
-                    profitTypes["Lãi trung bình"]++;
-                } else {
-                    profitTypes["Lãi thấp"]++;
-                }
-
-                // Group profit logic for Bar Chart
-                let group = row[groupIdx] || "Khác";
-                let lnStr = row[lnIdx] || "0";
-                let ln = parseFloat(lnStr.toString().replace(/[^\d.-]/g, ''));
-                if (!isNaN(ln)) {
-                    if (!groups[group]) groups[group] = { total: 0, count: 0 };
-                    groups[group].total += ln;
-                    groups[group].count++;
-                }
-            });
-
-            document.getElementById('stat-total-sku').textContent = totalSku;
-            document.getElementById('stat-high-profit').textContent = profitTypes["Lãi cao"];
-            document.getElementById('stat-avg-profit-count').textContent = profitTypes["Lãi trung bình"];
-            document.getElementById('stat-low-profit').textContent = profitTypes["Lãi thấp"];
-
-            // Render Charts
-            renderProfitDistChart(profitTypes);
-            renderGroupProfitChart(groups);
         }
 
-        function renderProfitDistChart(data) {
-            const ctx = document.getElementById('profitDistChart').getContext('2d');
-            const isLight = document.body.classList.contains('light-mode');
-            const textColor = isLight ? '#0f172a' : '#f8fafc';
 
-            if (profitDistChart) profitDistChart.destroy();
-
-            profitDistChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(data),
-                    datasets: [{
-                        data: Object.values(data),
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: textColor, padding: 20, font: { size: 12, weight: '600' } }
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-        }
-
-        function renderGroupProfitChart(groupData) {
-            const ctx = document.getElementById('groupProfitChart').getContext('2d');
-            const isLight = document.body.classList.contains('light-mode');
-            const textColor = isLight ? '#0f172a' : '#f8fafc';
-            const gridColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
-
-            if (groupProfitChart) groupProfitChart.destroy();
-
-            const labels = Object.keys(groupData);
-            const values = labels.map(l => Math.round(groupData[l].total / groupData[l].count));
-
-            // Sort by value descending
-            const combined = labels.map((l, i) => ({ label: l, value: values[i] }));
-            combined.sort((a, b) => b.value - a.value);
-
-            groupProfitChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: combined.map(c => c.label.toUpperCase()), // Nhãn in hoa
-                    datasets: [{
-                        label: 'LN TB (VND)',
-                        data: combined.map(c => c.value),
-                        backgroundColor: '#6366f1', // Màu tím chuẩn
-                        borderRadius: 4,
-                        barThickness: 20 // Thanh mảnh hơn
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: { top: 10, bottom: 0 }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: gridColor, drawBorder: false },
-                            ticks: { color: textColor, font: { size: 10 } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: textColor, font: { size: 9, weight: '600' } }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
 
         function renderTable() {
             const head = document.getElementById('tableHead');
@@ -1315,9 +1016,26 @@
                 th.innerHTML = `${h} <span class="sort-icon"></span>`;
                 th.onclick = () => handleSort(idx);
 
-                // Thu nhỏ độ rộng các cột phí để co bảng lại theo ảnh
+                // Tự động căn phải cho các cột số và %
                 const hClean = h.trim();
-                const smallCols = ["Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Mã SP"];
+                const isNumericHeader = hClean.includes('%') ||
+                    hClean.includes('Giá') ||
+                    hClean.includes('Phí') ||
+                    hClean.includes('LN') ||
+                    hClean.includes('Voucher') ||
+                    hClean.includes('Thuế') ||
+                    hClean.includes('Ads') ||
+                    hClean.includes('Piship') ||
+                    hClean.includes('Hạ tầng') ||
+                    hClean.includes('Tổng chi phí');
+
+                if (isNumericHeader) {
+                    th.style.textAlign = "right";
+                    th.style.paddingRight = "1rem";
+                }
+
+                // Thu nhỏ độ rộng các cột phí để co bảng lại theo ảnh
+                const smallCols = ["Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Mã SP", "Model"];
                 if (smallCols.includes(hClean)) {
                     th.style.width = "70px";
                     th.style.maxWidth = "70px";
@@ -1365,34 +1083,79 @@
                     const cellValue = row[colIndex] || "";
                     const headerName = rawHeaders[colIndex].trim();
 
-                    // Danh sách các cột phí cần bôi đỏ
-                    const redCols = ["Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng"];
+                    // Danh sách các cột phí cần bôi đỏ (không phân biệt hoa thường)
+                    const redCols = ["phí thanh toán", "phí cố định", "phí cố định sàn", "voucher xtra", "đồng tài trợ", "tiếp thị lk", "thuế", "ads", "piship", "hạ tầng", "tổng chi phí sàn"];
+                    const hNameLower = headerName.toLowerCase();
 
-                    if (redCols.includes(headerName)) {
+                    const isNumericHeader = hNameLower.includes('%') ||
+                        hNameLower.includes('giá') ||
+                        hNameLower.includes('phí') ||
+                        hNameLower.includes('ln') ||
+                        hNameLower.includes('voucher') ||
+                        hNameLower.includes('thuế') ||
+                        hNameLower.includes('ads') ||
+                        hNameLower.includes('piship') ||
+                        hNameLower.includes('hạ tầng') ||
+                        hNameLower.includes('tổng chi phí');
+
+                    if (isNumericHeader) {
+                        td.style.textAlign = "right";
+                    }
+
+                    if (redCols.includes(hNameLower)) {
                         td.style.color = "#ef4444"; // Màu đỏ
-                    } else if (headerName === "Tổng chi phí sàn") {
-                        td.style.color = "#ef4444";
-                        td.style.fontWeight = "700";
-                        td.style.fontSize = "1.1rem"; // Cỡ chữ to hơn một chút
-                    } else if (headerName === "Nhóm" || headerName === "Sản phẩm") {
+                        if (hNameLower === "tổng chi phí sàn") {
+                            td.style.fontWeight = "700"; // Chỉ cho đậm, không cho to
+                        }
+                    } else if (hNameLower === "nhóm" || hNameLower === "sản phẩm") {
                         td.style.fontSize = "0.75rem"; // Chữ nhỏ lại
                         td.style.whiteSpace = "normal"; // Cho phép xuống dòng
                         td.style.lineHeight = "1.2";
-                        td.style.maxWidth = headerName === "Sản phẩm" ? "200px" : "100px"; // Giới hạn độ rộng
+                        td.style.maxWidth = hNameLower === "sản phẩm" ? "200px" : "100px"; // Giới hạn độ rộng
                     }
 
                     if (isEditing) {
-                        const input = document.createElement('input');
-                        input.type = "text";
-                        input.value = cellValue;
-                        input.className = "edit-inline-input";
-                        input.dataset.col = colIndex;
-                        // Thêm sự kiện Enter để lưu
-                        input.onkeydown = (e) => { if (e.key === 'Enter') saveData(); };
-                        td.innerHTML = "";
-                        td.appendChild(input);
+                        const isImageCol = hNameLower.includes("ảnh"); // Cả "Ảnh" và "Link ảnh" đều cho phép tải lên
+
+                        if (isImageCol) {
+                            td.innerHTML = `
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <input type="text" value="${cellValue}" class="edit-inline-input" data-col="${colIndex}" onkeydown="if(e.key==='Enter') saveData()">
+                                    <label class="btn-upload-inline" title="Tải ảnh lên">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        <input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(this, ${colIndex})">
+                                    </label>
+                                </div>
+                            `;
+                        } else {
+                            const input = document.createElement('input');
+                            input.type = "text";
+                            input.value = cellValue;
+                            input.className = "edit-inline-input";
+                            input.dataset.col = colIndex;
+                            input.onkeydown = (e) => { if (e.key === 'Enter') saveData(); };
+                            td.innerHTML = "";
+                            td.appendChild(input);
+                        }
+                    } else if (hNameLower === "link ảnh" && cellValue.trim() !== "") {
+                        // Cột Link ảnh luôn là link nếu có dữ liệu
+                        const url = cellValue.trim();
+                        const fullUrl = url.startsWith('http') ? url : 'http://' + url;
+                        // Rút gọn text hiển thị nếu quá dài
+                        const displayUrl = url.length > 25 ? url.substring(0, 22) + "..." : url;
+                        td.innerHTML = `<a href="${fullUrl}" target="_blank" style="color: var(--primary); font-size: 0.8rem; text-decoration: underline;" title="${url}">${displayUrl} ↗</a>`;
                     } else if (isImageUrl(cellValue)) {
+                        // Nếu là link ảnh ở các cột khác (VD cột "Ảnh"), hiển thị thumbnail
                         td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
+                    } else if (cellValue.trim().startsWith('http')) {
+                        // Mọi link http khác trong bảng cũng cho phép click
+                        const url = cellValue.trim();
+                        const displayUrl = url.length > 25 ? url.substring(0, 22) + "..." : url;
+                        td.innerHTML = `<a href="${url}" target="_blank" style="color: var(--primary); text-decoration: underline;" title="${url}">${displayUrl} ↗</a>`;
                     } else {
                         td.textContent = cellValue;
                     }
@@ -1533,7 +1296,12 @@
                 statusLabel.style.display = 'block';
                 const token = await getAccessToken();
                 const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
-                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+                const sname = localStorage.getItem('gs_name') || (CONFIG.tabs[currentTab] ? CONFIG.tabs[currentTab].sheetName : null);
+
+                if (!sname) {
+                    alert("Không xác định được tên sheet để lưu.");
+                    return;
+                }
 
                 let url, method;
                 if (isAddingNewRow) {
@@ -1607,7 +1375,12 @@
 
                 const token = await getAccessToken();
                 const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
-                const sname = localStorage.getItem('gs_name') || CONFIG.sheetName;
+                const sname = localStorage.getItem('gs_name') || (CONFIG.tabs[currentTab] ? CONFIG.tabs[currentTab].sheetName : null);
+
+                if (!sname) {
+                    alert("Không xác định được tên sheet để xóa.");
+                    return;
+                }
 
                 const range = `${sname}!A${absoluteIndex + 1}:Z${absoluteIndex + 1}`;
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}:clear`;
@@ -1764,7 +1537,6 @@
 
         // --- FILTER HELPERS ---
         function populateFilters() {
-            populateGroupFilter();
             populateNccFilter();
 
             // Toggle Visibility của bộ lọc Phân loại dựa trên tab
@@ -1776,36 +1548,7 @@
             }
         }
 
-        function populateGroupFilter() {
-            const select = document.getElementById('groupFilter');
-            const headers = currentData[0];
-            const groupColIdx = headers.indexOf("Nhóm");
 
-            if (groupColIdx === -1) {
-                select.parentElement.style.display = 'none';
-                return;
-            }
-            select.parentElement.style.display = 'block';
-
-            const groups = new Set();
-            for (let i = 1; i < currentData.length; i++) {
-                const val = currentData[i][groupColIdx];
-                if (val && val.toString().trim() !== "") {
-                    groups.add(val.toString().trim());
-                }
-            }
-
-            const sortedGroups = Array.from(groups).sort();
-
-            // Giữ lại option đầu tiên "Tất cả Nhóm"
-            select.innerHTML = '<option value="">Tất cả Nhóm</option>';
-            sortedGroups.forEach(group => {
-                const opt = document.createElement('option');
-                opt.value = group;
-                opt.textContent = group;
-                select.appendChild(opt);
-            });
-        }
 
         function populateNccFilter() {
             const select = document.getElementById('nccFilter');
