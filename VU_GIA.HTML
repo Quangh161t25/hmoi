@@ -928,7 +928,7 @@
             tabs: {
                 "Toan_bo_gia": {
                     sheetName: "Toan_bo_gia",
-                    displayColumns: ["Ảnh", "Sản phẩm", "Model", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"]
+                    displayColumns: ["Ảnh", "Model", "Mô tả", "Thông số kĩ thuật", "Sản phẩm", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"]
                 },
                 "Kenh_NPP_TMĐT": {
                     sheetName: "Kenh_NPP_TMĐT",
@@ -1287,11 +1287,13 @@
                         if (hNameLower === "tổng chi phí sàn") {
                             td.style.fontWeight = "700"; // Chỉ cho đậm, không cho to
                         }
-                    } else if (hNameLower === "nhóm" || hNameLower === "sản phẩm") {
+                    } else if (hNameLower === "nhóm" || hNameLower === "sản phẩm" || hNameLower === "mô tả" || hNameLower === "thông số kĩ thuật") {
                         td.style.fontSize = "0.75rem"; // Chữ nhỏ lại
                         td.style.whiteSpace = "normal"; // Cho phép xuống dòng
-                        td.style.lineHeight = "1.2";
-                        td.style.maxWidth = hNameLower === "sản phẩm" ? "200px" : "100px"; // Giới hạn độ rộng
+                        td.style.lineHeight = "1.4"; // Tăng line-height cho dễ đọc
+                        td.style.minWidth = (hNameLower === "sản phẩm" || hNameLower === "thông số kĩ thuật") ? "250px" : "150px";
+                        td.style.maxWidth = "400px";
+                        td.style.wordBreak = "break-word";
                     }
 
                     if (isEditing) {
