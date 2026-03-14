@@ -926,7 +926,8 @@
 
         <div class="tabs">
             <button class="tab active" onclick="switchTab('Toan_bo_gia')" id="tab-Toan_bo_gia">Toàn bộ giá</button>
-            <button class="tab" onclick="switchTab('Kenh_NPP_TMĐT')" id="tab-Kenh_NPP_TMĐT">Kênh NPP TMĐT</button>
+            <button class="tab" onclick="switchTab('Kenh_NPP_TMĐT')" id="tab-Kenh_NPP_TMĐT" style="display: none;">Kênh
+                NPP TMĐT</button>
         </div>
 
 
@@ -2324,12 +2325,12 @@
                 canEdit = true;
             }
 
-            // Tự động đăng nhập
+            // Tự động đăng nhập & Cập nhật UI phân quyền
             const savedUser = localStorage.getItem('vugia_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                updateAuthUI();
             }
+            updateAuthUI(); // Luôn chạy để ẩn/hiện đúng theo quyền (hoặc chưa đăng nhập)
 
             // Khôi phục theme
             if (localStorage.getItem('theme') === 'light') {
