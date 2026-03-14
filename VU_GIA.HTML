@@ -4,15 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Google Sheets - Premium Edition</title>
+    <title>VŨ GIA - Bảng Giá Sản Phẩm</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <!-- JSRSAsign for JWT -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -78,6 +83,9 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
+            font-feature-settings: 'cv11', 'ss01';
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
@@ -871,6 +879,17 @@
                     <option value="Lãi thấp">Lãi thấp</option>
                 </select>
             </div>
+
+            <button class="btn-primary" id="btnExportPDF" onclick="exportToPDF()"
+                style="background: #10b981; gap: 8px; display: flex; align-items: center; justify-content: center; min-width: 130px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Xuất PDF
+            </button>
         </div>
 
         <div id="loading" class="loading">
@@ -1275,8 +1294,15 @@
                 }
 
                 // Thu nhỏ độ rộng các cột phí để co bảng lại theo ảnh
-                const smallCols = ["Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Mã SP", "Model"];
-                if (smallCols.includes(hClean)) {
+                const smallCols = ["Phí thanh toán", "Phí cố định", "Voucher Xtra", "Đồng tài trợ", "Tiếp thị LK", "Thuế", "Ads", "Piship", "Hạ tầng", "Mã SP"];
+                // Độ rộng cố định cho STT, Model, Sản phẩm
+                if (hClean === "STT") {
+                    th.style.width = "20px";
+                } else if (hClean === "Model") {
+                    th.style.width = "40px";
+                } else if (hClean === "Sản phẩm") {
+                    th.style.width = "100px";
+                } else if (smallCols.includes(hClean)) {
                     th.style.width = "70px";
                     th.style.maxWidth = "70px";
                 } else if (hClean === "LN NPP TMĐT" || hClean === "Biên LN TMĐT" || hClean === "Phân loại") {
@@ -1347,12 +1373,21 @@
                         if (hNameLower === "tổng chi phí sàn") {
                             td.style.fontWeight = "700"; // Chỉ cho đậm, không cho to
                         }
-                    } else if (hNameLower === "nhóm" || hNameLower === "sản phẩm" || hNameLower === "mô tả" || hNameLower === "thông số kĩ thuật") {
+                    } else if (hNameLower === "nhóm" || hNameLower === "sản phẩm" || hNameLower === "mô tả" || hNameLower === "thông số kĩ thuật" || hNameLower === "model") {
                         td.style.fontSize = "0.75rem"; // Chữ nhỏ lại
                         td.style.whiteSpace = "normal"; // Cho phép xuống dòng
                         td.style.lineHeight = "1.4"; // Tăng line-height cho dễ đọc
-                        td.style.minWidth = (hNameLower === "sản phẩm" || hNameLower === "thông số kĩ thuật") ? "250px" : "150px";
-                        td.style.maxWidth = "400px";
+
+                        if (hNameLower === "model") {
+                            td.style.width = "100px";
+                            td.style.maxWidth = "100px";
+                        } else if (hNameLower === "sản phẩm") {
+                            td.style.width = "100px";
+                            td.style.maxWidth = "100px";
+                        } else {
+                            td.style.minWidth = (hNameLower === "thông số kĩ thuật") ? "250px" : "150px";
+                            td.style.maxWidth = "400px";
+                        }
                         td.style.wordBreak = "break-word";
                     }
 
@@ -2067,6 +2102,148 @@
             const menu = document.getElementById('userDropdown');
             if (menu) menu.style.display = 'none';
         });
+
+        async function exportToPDF() {
+            const btn = document.getElementById('btnExportPDF');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = "Đang xử lý...";
+            btn.disabled = true;
+
+            try {
+                // Tạo một container tạm thời để chứa nội dung xuất PDF
+                const element = document.createElement('div');
+                element.className = 'pdf-export-content';
+                element.style.padding = '40px';
+                element.style.background = '#fff';
+                element.style.color = '#000';
+                element.style.fontFamily = "'Inter', sans-serif";
+
+                // Nội dung Header căn giữa
+                const headerHtml = `
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="font-size: 16px; font-weight: 800; color: #4f46e5; margin-bottom: 5px;">VU GIA COOPERATIVE COMPANY LIMITED</div>
+                        <div style="font-size: 11px; margin-bottom: 3px;">230 Lacasta, Van Phu Urban Area, Kien Hung Ward, Ha Noi</div>
+                        <div style="font-size: 11px; font-weight: 600; color: #4f46e5; margin-bottom: 25px;">Locknking.com - Locknking.vn - Locknking.kr</div>
+                        <div style="font-size: 22px; font-weight: 900; margin-bottom: 10px;">BẢNG GIÁ SẢN PHẨM LOCK&KING - TAKIN</div>
+                        <div style="font-size: 12px; font-style: italic; opacity: 0.8;">(Áp dụng từ ngày 24/03/2026)</div>
+                    </div>
+                `;
+                element.innerHTML = headerHtml;
+
+                // Clone bảng hiện tại
+                const tableClone = document.getElementById('dataTable').cloneNode(true);
+
+                // Loại bỏ cột "Thao tác" nếu có
+                const thActions = tableClone.querySelectorAll('th');
+                let actionIdx = -1;
+                thActions.forEach((th, i) => {
+                    if (th.textContent.includes('Thao tác')) actionIdx = i;
+                });
+
+                if (actionIdx !== -1) {
+                    tableClone.querySelectorAll('tr').forEach(tr => {
+                        if (tr.cells[actionIdx]) tr.deleteCell(actionIdx);
+                    });
+                }
+
+                // Xử lý CSS cho bảng trong PDF
+                tableClone.style.width = '100%';
+                tableClone.style.borderCollapse = 'collapse';
+                tableClone.style.fontSize = '10.5px'; // Tăng size chữ chung cho PDF
+
+                // Lấy lại header để xác định index cột Model và Sản phẩm
+                const headers = Array.from(tableClone.querySelectorAll('th')).map(th => th.textContent.trim().toLowerCase());
+                const modelIdx = headers.indexOf('model');
+                const spIdx = headers.indexOf('sản phẩm');
+
+                tableClone.querySelectorAll('tr').forEach(tr => {
+                    Array.from(tr.cells).forEach((cell, i) => {
+                        cell.style.border = '1px solid #ddd';
+                        cell.style.padding = '8px 5px'; // Tăng padding
+                        cell.style.color = '#000';
+                        cell.style.wordBreak = 'break-word';
+
+                        // Độ rộng cho PDF cần rộng hơn để không bị bó chữ
+                        if (i === modelIdx) {
+                            cell.style.width = '80px';
+                            cell.style.minWidth = '80px';
+                        } else if (i === spIdx) {
+                            cell.style.width = '180px';
+                            cell.style.minWidth = '180px';
+                        }
+
+                        // Đảm bảo ảnh hiển thị tốt và có thể click để mở rộng
+                        const img = cell.querySelector('img');
+                        if (img) {
+                            const imgSrc = img.getAttribute('src');
+                            if (imgSrc && imgSrc.startsWith('http')) {
+                                // Bọc ảnh trong thẻ <a> để có thể click trong PDF
+                                const a = document.createElement('a');
+                                a.href = imgSrc;
+                                a.target = "_blank";
+                                cell.innerHTML = "";
+                                cell.appendChild(a);
+                                a.appendChild(img);
+                            }
+                            img.style.maxWidth = '65px';
+                            img.style.height = 'auto';
+                            img.style.display = 'block';
+                            img.style.margin = '0 auto';
+                        }
+                        // Giữ căn lề phải cho cột số
+                        if (cell.style.textAlign === 'right') {
+                            cell.style.textAlign = 'right';
+                        }
+                    });
+                });
+
+                // Style cho header của bảng
+                tableClone.querySelectorAll('th').forEach(th => {
+                    th.style.background = '#f3f4f6';
+                    th.style.fontWeight = '700';
+                    th.style.fontSize = '10.5px';
+                    th.style.textAlign = 'center';
+                    const icon = th.querySelector('.sort-icon');
+                    if (icon) icon.remove();
+                });
+
+                element.appendChild(tableClone);
+
+                // Cấu hình PDF
+                const now = new Date();
+                const d = now.getDate().toString().padStart(2, '0');
+                const m = (now.getMonth() + 1).toString().padStart(2, '0');
+                const y = now.getFullYear();
+                const h = now.getHours().toString().padStart(2, '0');
+                const min = now.getMinutes().toString().padStart(2, '0');
+
+                const filename = `bảng giá ${d}${m}_${h}${min}.pdf`;
+
+                const opt = {
+                    margin: [10, 5, 10, 5], // Thu hẹp margin trái phải
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        letterRendering: true
+                    },
+                    jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                // Xuất file
+                await html2pdf().set(opt).from(element).save();
+                showToast("Đã xuất file PDF thành công", "success");
+
+            } catch (err) {
+                console.error("PDF Export Error:", err);
+                showToast("Lỗi khi xuất PDF", "error");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
 
         window.onload = async () => {
             // Kiểm tra quyền sửa qua URL ?tk=atuyen
