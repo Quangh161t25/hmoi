@@ -855,6 +855,12 @@
         .toast.error {
             border-left: 4px solid #ef4444;
         }
+
+        .dropdown-item.active-view {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -1124,6 +1130,7 @@
         let canEdit = false; // Biến kiểm tra quyền sửa qua URL
         let currentUser = null;
         let authMode = 'login'; // 'login' or 'register'
+        let adminViewMode = 'ADMIN'; // 'ADMIN', 'NPP', 'ĐẠI LÝ'
 
         let currentPage = 1;
         const rowsPerPage = 200;
@@ -2133,7 +2140,45 @@
                 loggedOutUI.style.display = 'none';
                 loggedInUI.style.display = 'block';
                 displayUserName.textContent = currentUser.ho_ten;
-                dropdownUserName.textContent = '👤 ' + currentUser.ho_ten;
+
+                const q = (currentUser.quyen || "").toUpperCase();
+
+                // Build Dropdown Content
+                const dropdownMenu = document.getElementById('userDropdown');
+                let dropdownHtml = `
+                    <div class="dropdown-item" style="pointer-events: none; cursor: default;">
+                        <div style="display: flex; flex-direction: column;">
+                            <strong style="font-size: 1rem; color: var(--primary);">${currentUser.ho_ten}</strong>
+                            <span style="font-size: 0.7rem; opacity: 0.6; text-transform: uppercase;">${q}</span>
+                        </div>
+                    </div>
+                `;
+
+                if (q === 'ADMIN') {
+                    dropdownHtml += `
+                        <div class="dropdown-divider"></div>
+                        <div style="padding: 10px 15px; font-size: 0.75rem; font-weight: 800; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px;">👁 Chế độ xem</div>
+                        <div class="dropdown-item ${adminViewMode === 'ADMIN' ? 'active-view' : ''}" onclick="setAdminViewMode('ADMIN')" style="padding-left: 25px;">
+                            ${adminViewMode === 'ADMIN' ? '●' : '○'} <span style="margin-left: 10px;">Admin (Full)</span>
+                        </div>
+                        <div class="dropdown-item ${adminViewMode === 'NPP' ? 'active-view' : ''}" onclick="setAdminViewMode('NPP')" style="padding-left: 25px;">
+                            ${adminViewMode === 'NPP' ? '●' : '○'} <span style="margin-left: 10px;">Xem như NPP</span>
+                        </div>
+                        <div class="dropdown-item ${adminViewMode === 'ĐẠI LÝ' ? 'active-view' : ''}" onclick="setAdminViewMode('ĐẠI LÝ')" style="padding-left: 25px;">
+                            ${adminViewMode === 'ĐẠI LÝ' ? '●' : '○'} <span style="margin-left: 10px;">Xem như Đại lý</span>
+                        </div>
+                    `;
+                }
+
+                dropdownHtml += `
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="handleLogout()" style="color: #ef4444;">
+                        <span>🚪</span>
+                        <strong>Đăng xuất</strong>
+                    </div>
+                `;
+                dropdownMenu.innerHTML = dropdownHtml;
+
             } else {
                 loggedOutUI.style.display = 'flex';
                 loggedInUI.style.display = 'none';
@@ -2157,7 +2202,12 @@
 
         // Hàm lấy danh sách cột hiển thị dựa trên quyền hạn
         function getActiveDisplayColumns() {
-            const q = (currentUser ? currentUser.quyen : "").toUpperCase();
+            let q = (currentUser ? currentUser.quyen : "").toUpperCase();
+
+            // Nếu là ADMIN, prioritze chế độ xem đang chọn
+            if (q === 'ADMIN' && adminViewMode) {
+                q = adminViewMode;
+            }
 
             // Nếu tab là TMĐT thì chỉ ADMIN mới có cột, các quyền khác rỗng (đã chặn ở Tab UI)
             if (currentTab === 'Kenh_NPP_TMĐT') {
@@ -2180,6 +2230,13 @@
             }
 
             return CONFIG.tabs[currentTab].displayColumns;
+        }
+
+        async function setAdminViewMode(mode) {
+            adminViewMode = mode;
+            updateAuthUI();
+            renderTable();
+            showToast(`Đã chuyển sang chế độ xem: ${mode}`, "success");
         }
 
         function toggleUserDropdown(e) {
@@ -2250,33 +2307,50 @@
                 tableClone.style.borderCollapse = 'collapse';
                 tableClone.style.fontSize = '10.5px'; // Tăng size chữ chung cho PDF
 
-                // Lấy lại header để xác định index cột Model và Sản phẩm
-                const headers = Array.from(tableClone.querySelectorAll('th')).map(th => th.textContent.trim().toLowerCase());
-                const modelIdx = headers.indexOf('model');
-                const spIdx = headers.indexOf('sản phẩm');
+                // ==========================================
+                // BẢN TEST ĐIỀU CHỈNH ĐỘ RỘNG (DỄ DÀNG SỬA)
+                // ==========================================
+                const pdfWidthConfigs = {
+                    "#": "8px",
+                    "Ảnh": "70px",
+                    "Model": "70px",
+                    "Sản phẩm": "120px",
+                    "Mô tả": "130px",
+                    "Thông số kĩ thuật": "230px",
+                    "Giá nhập": "65px",
+                    "Giá NPP": "70px",
+                    "Giá đại lý": "70px",
+                    "Giá bán lẻ": "70px",
+                    "Giá niêm yết": "70px",
+                    "%LN Locknking": "60px",
+                    "%LN NPP": "55px",
+                    "%LN Đại lý": "55px",
+                    "NCC": "80px",
+                    "Ghi chú": "60px",
+                    "Truyền thông": "150px",
+                    "Mặc định": "80px"
+                };
+
+                const headers = Array.from(tableClone.querySelectorAll('th')).map(th => th.textContent.trim());
 
                 tableClone.querySelectorAll('tr').forEach(tr => {
                     Array.from(tr.cells).forEach((cell, i) => {
+                        const hName = headers[i];
                         cell.style.border = '1px solid #ddd';
-                        cell.style.padding = '8px 5px'; // Tăng padding
+                        cell.style.padding = (hName === "#") ? '8px 2px' : '8px 5px'; // Giảm padding cho cột STT
                         cell.style.color = '#000';
                         cell.style.wordBreak = 'break-word';
 
-                        // Độ rộng cho PDF cần rộng hơn để không bị bó chữ
-                        if (i === modelIdx) {
-                            cell.style.width = '80px';
-                            cell.style.minWidth = '80px';
-                        } else if (i === spIdx) {
-                            cell.style.width = '180px';
-                            cell.style.minWidth = '180px';
-                        }
+                        // Áp dụng độ rộng từ bảng cấu hình ở trên
+                        const customWidth = pdfWidthConfigs[hName] || pdfWidthConfigs["Mặc định"];
+                        cell.style.width = customWidth;
+                        cell.style.minWidth = customWidth;
 
-                        // Đảm bảo ảnh hiển thị tốt và có thể click để mở rộng
+                        // Định dạng đặc biệt cho cột Ảnh
                         const img = cell.querySelector('img');
                         if (img) {
                             const imgSrc = img.getAttribute('src');
                             if (imgSrc && imgSrc.startsWith('http')) {
-                                // Bọc ảnh trong thẻ <a> để có thể click trong PDF
                                 const a = document.createElement('a');
                                 a.href = imgSrc;
                                 a.target = "_blank";
@@ -2284,13 +2358,28 @@
                                 cell.appendChild(a);
                                 a.appendChild(img);
                             }
-                            img.style.maxWidth = '65px';
+                            img.style.maxWidth = '60px';
                             img.style.height = 'auto';
                             img.style.display = 'block';
                             img.style.margin = '0 auto';
                         }
-                        // Giữ căn lề phải cho cột số
-                        if (cell.style.textAlign === 'right') {
+
+                        // Định dạng cho các cột % LN: bỏ phần thập phân và căn giữa
+                        const lnColsNames = ['%LN Locknking', '%LN NPP', '%LN Đại lý'];
+                        if (lnColsNames.includes(hName)) {
+                            cell.style.textAlign = 'center';
+                            let text = cell.textContent.trim();
+                            if (text) {
+                                let numStr = text.replace('%', '').replace(',', '.').trim();
+                                let num = parseFloat(numStr);
+                                if (!isNaN(num)) {
+                                    cell.textContent = Math.round(num) + '%';
+                                }
+                            }
+                        }
+
+                        // Giữ căn lề phải cho cột số (Giá)
+                        if (hName.includes('Giá') || hName.includes('Phí')) {
                             cell.style.textAlign = 'right';
                         }
                     });
@@ -2319,7 +2408,7 @@
                 const filename = `bảng giá ${d}${m}_${h}${min}.pdf`;
 
                 const opt = {
-                    margin: [10, 5, 10, 5], // Thu hẹp margin trái phải
+                    margin: [10, 2, 10, 2], // Sát lề hơn (2mm)
                     filename: filename,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: {
