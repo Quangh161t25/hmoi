@@ -2260,6 +2260,16 @@
         });
 
         async function exportToPDF() {
+            // ==========================================
+            // BẢN TEST ĐIỀU CHỈNH LỀ (Đơn vị: mm)
+            // ==========================================
+            const pdfMarginTop = 10;
+            const pdfMarginLeft = 2;   // <--- CHỈNH LỀ TRÁI TẠI ĐÂY
+            const pdfMarginBottom = 10;
+            const pdfMarginRight = 2;  // <--- CHỈNH LỀ PHẢI TẠI ĐÂY
+
+            const contentPadding = '0px'; // Khoảng cách nội dung bên trong tờ giấy (px)
+
             const btn = document.getElementById('btnExportPDF');
             const originalContent = btn.innerHTML;
             btn.innerHTML = "Đang xử lý...";
@@ -2269,7 +2279,7 @@
                 // Tạo một container tạm thời để chứa nội dung xuất PDF
                 const element = document.createElement('div');
                 element.className = 'pdf-export-content';
-                element.style.padding = '40px';
+                element.style.padding = contentPadding;
                 element.style.background = '#fff';
                 element.style.color = '#000';
                 element.style.fontFamily = "'Inter', sans-serif";
@@ -2311,7 +2321,7 @@
                 // BẢN TEST ĐIỀU CHỈNH ĐỘ RỘNG (DỄ DÀNG SỬA)
                 // ==========================================
                 const pdfWidthConfigs = {
-                    "#": "8px",
+                    "#": "5px",
                     "Ảnh": "70px",
                     "Model": "70px",
                     "Sản phẩm": "120px",
@@ -2408,7 +2418,7 @@
                 const filename = `bảng giá ${d}${m}_${h}${min}.pdf`;
 
                 const opt = {
-                    margin: [10, 2, 10, 2], // Sát lề hơn (2mm)
+                    margin: [pdfMarginTop, pdfMarginLeft, pdfMarginBottom, pdfMarginRight],
                     filename: filename,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: {
