@@ -18,6 +18,8 @@
     <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- SheetJS -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -973,6 +975,18 @@
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
                 Xuất PDF
+            </button>
+            <button class="btn-primary" id="btnExportExcel" onclick="exportToExcel()"
+                style="background: #2563eb; gap: 8px; display: flex; align-items: center; justify-content: center; min-width: 130px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Xuất Excel
             </button>
         </div>
 
@@ -2154,11 +2168,11 @@
                 if (q === 'ADMIN') return CONFIG.tabs['Toan_bo_gia'].displayColumns;
 
                 if (q === 'NPP') {
-                    return ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá nhập", "%LN Locknking", "Giá NPP", "%LN NPP", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"];
+                    return ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá NPP", "%LN NPP", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"];
                 }
 
                 if (q === 'ĐẠI LÝ') {
-                    return ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá nhập", "%LN Locknking", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"];
+                    return ["Ảnh", "Model", "Sản phẩm", "Mô tả", "Thông số kĩ thuật", "Giá NPP", "%LN NPP", "Giá đại lý", "%LN Đại lý", "Giá bán lẻ", "Giá niêm yết", "Ghi chú", "NCC", "Truyền thông"];
                 }
 
                 // Mặc định cho người dùng chưa đăng nhập hoặc quyền khác
@@ -2324,6 +2338,71 @@
             } catch (err) {
                 console.error("PDF Export Error:", err);
                 showToast("Lỗi khi xuất PDF", "error");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+
+        async function exportToExcel() {
+            const btn = document.getElementById('btnExportExcel');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = "Đang xử lý...";
+            btn.disabled = true;
+
+            try {
+                // Xác định dữ liệu cần xuất
+                const rawHeaders = displayData[0];
+                const activeCols = getActiveDisplayColumns();
+                let visibleIndices = [];
+
+                if (activeCols && activeCols.length > 0) {
+                    activeCols.forEach(target => {
+                        const targetClean = target.toString().trim().toLowerCase();
+                        const idx = rawHeaders.map(h => h.toString().trim().toLowerCase()).indexOf(targetClean);
+                        if (idx !== -1) visibleIndices.push(idx);
+                    });
+                } else {
+                    visibleIndices = rawHeaders.map((_, i) => i);
+                }
+
+                // Loại bỏ cột "Thao tác" nếu có (Thực tế data trong displayData không có cột Thao tác)
+                // displayData chỉ chứa dữ liệu từ Sheet
+
+                const exportData = [];
+                // Thêm header row
+                const headerRow = ["STT", ...visibleIndices.map(idx => rawHeaders[idx])];
+                exportData.push(headerRow);
+
+                // Thêm data rows (Chỉ lấy các dòng đang hiển thị theo phân trang hiện tại hoặc toàn bộ?)
+                // Thường xuất Excel là xuất toàn bộ kết quả đã filter
+                const filteredDataRows = displayData.slice(1);
+                filteredDataRows.forEach((row, index) => {
+                    const rowData = [index + 1];
+                    visibleIndices.forEach(idx => {
+                        rowData.push(row[idx] || "");
+                    });
+                    exportData.push(rowData);
+                });
+
+                // Tạo Workbook
+                const ws = XLSX.utils.aoa_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Bảng giá");
+
+                // Định dạng ngày tháng cho tên file
+                const now = new Date();
+                const d = now.getDate().toString().padStart(2, '0');
+                const m = (now.getMonth() + 1).toString().padStart(2, '0');
+                const filename = `Bang_gia_${d}${m}.xlsx`;
+
+                // Tải file
+                XLSX.writeFile(wb, filename);
+                showToast("Đã xuất file Excel thành công", "success");
+
+            } catch (err) {
+                console.error("Excel Export Error:", err);
+                showToast("Lỗi khi xuất Excel", "error");
             } finally {
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
