@@ -65,6 +65,12 @@
                 /* Tăng kích thước chữ khi in danh sách */
                 padding: 10px;
             }
+
+            /* Hiện cột tích và ghi chú khi in tối giản */
+            body.print-mode-simple .col-tick,
+            body.print-mode-simple .col-note {
+                display: table-cell !important;
+            }
         }
 
         /* Layout */
@@ -314,9 +320,10 @@
             font-weight: 700;
         }
 
-        /* Widths */
-        .col-tick {
-            width: 30px;
+        /* Widths - Hidden by default, only shown in simplified print */
+        .col-tick,
+        .col-note {
+            display: none;
         }
 
         .col-stt {
