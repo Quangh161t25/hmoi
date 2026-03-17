@@ -21,8 +21,13 @@
         }
 
         @media print {
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
             .no-print {
-                display: none;
+                display: none !important;
             }
 
             body {
@@ -35,6 +40,30 @@
                 margin: 0;
                 padding: 10px;
                 max-width: 100%;
+            }
+
+            /* Chế độ in tối giản: Chỉ in STT, tên hoa và số lượng */
+            body.print-mode-simple .col-gia,
+            body.print-mode-simple .col-tien,
+            body.print-mode-simple .summary-container,
+            body.print-mode-simple .qr-box,
+            body.print-mode-simple .logo-box,
+            body.print-mode-simple .shop-info,
+            body.print-mode-simple .footer-msg,
+            body.print-mode-simple .title-section {
+                display: none !important;
+            }
+
+            body.print-mode-simple .invoice-header {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+
+            body.print-mode-simple th,
+            body.print-mode-simple td {
+                font-size: 18px;
+                /* Tăng kích thước chữ khi in danh sách */
+                padding: 10px;
             }
         }
 
@@ -286,6 +315,10 @@
         }
 
         /* Widths */
+        .col-tick {
+            width: 30px;
+        }
+
         .col-stt {
             width: 25px;
         }
@@ -306,7 +339,38 @@
             width: 90px;
         }
 
+        .col-note {
+            width: 80px;
+        }
+
+        /* Checkbox styling */
+        .check-box {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Note input styling */
+        .note-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        @media print {
+            .note-input {
+                border-bottom: none;
+            }
+        }
+
         @media (min-width: 640px) {
+            .col-tick {
+                width: 40px;
+            }
+
             .col-stt {
                 width: 35px;
             }
@@ -321,6 +385,10 @@
 
             .col-tien {
                 width: 110px;
+            }
+
+            .col-note {
+                width: 120px;
             }
         }
 
@@ -394,14 +462,23 @@
 </head>
 
 <body>
-    <div class="no-print no-print-header">
+    <div class="no-print no-print-header" style="gap: 10px;">
         <button id="copy-btn" onclick="copyInvoiceLink()">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
             </svg>
-            <span>Sao chép Link Hóa đơn</span>
+            <span>Sao chép Link</span>
+        </button>
+        <button id="print-btn" onclick="printSimple()"
+            style="background-color: #3b82f6; color: white; padding: 0.5rem 2rem; border-radius: 9999px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>In PDF (Tên + SL)</span>
         </button>
     </div>
 
@@ -442,11 +519,13 @@
             <table>
                 <thead>
                     <tr>
+                        <th class="col-tick">V</th>
                         <th class="col-stt">STT</th>
                         <th class="col-ten">Tên hoa</th>
                         <th class="col-sl">SL</th>
                         <th class="col-gia">Đơn giá</th>
                         <th class="col-tien">Thành tiền</th>
+                        <th class="col-note">Ghi chú</th>
                     </tr>
                 </thead>
                 <tbody id="product-table-body">
@@ -468,6 +547,16 @@
     </div>
 
     <script>
+        // Hàm in tối giản (chỉ tên và SL)
+        function printSimple() {
+            document.body.classList.add('print-mode-simple');
+            window.print();
+            // Đợi một chút sau khi hiện hộp thoại in rồi mới xóa class để không bị lỗi hiển thị
+            setTimeout(() => {
+                document.body.classList.remove('print-mode-simple');
+            }, 500);
+        }
+
         // Hàm sao chép link hóa đơn
         function copyInvoiceLink() {
             const url = window.location.href;
@@ -561,11 +650,13 @@
             const tableBody = document.getElementById('product-table-body');
             tableBody.innerHTML = products.map(p => `
                 <tr>
-                    <td class="text-center">${p.stt}</td>
-                    <td class="font-bold">${p.ten}</td>
-                    <td class="text-center">${p.sl}</td>
-                    <td class="text-right">${formatNumber(p.gia)}</td>
-                    <td class="text-right font-bold">${formatNumber(p.thanhTien)}</td>
+                    <td class="text-center col-tick"><input type="checkbox" class="check-box"></td>
+                    <td class="text-center col-stt">${p.stt}</td>
+                    <td class="font-bold col-ten">${p.ten}</td>
+                    <td class="text-center col-sl">${p.sl}</td>
+                    <td class="text-right col-gia">${formatNumber(p.gia)}</td>
+                    <td class="text-right font-bold col-tien">${formatNumber(p.thanhTien)}</td>
+                    <td class="col-note"><input type="text" class="note-input" placeholder="..."></td>
                 </tr>
             `).join('');
 
