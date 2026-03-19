@@ -698,41 +698,102 @@
 
                 <!-- View: Home -->
                 <div id="view-home" class="block">
-                    <!-- ... existing home logic ... -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div class="bg-card p-6 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
-                            onclick="switchTab('DS_SP')">
-                            <div>
-                                <h3 class="text-sm font-medium text-muted-foreground mb-1">Sản Phẩm</h3>
-                                <div class="text-2xl font-bold text-foreground">DS_SP</div>
-                            </div>
-                            <div
-                                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
-                            </div>
+                    <!-- Welcome Banner -->
+                    <div
+                        class="mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-xl p-5 border border-primary/20">
+                        <h2 class="text-lg font-bold text-foreground mb-1">Hệ thống Quản lý ERP v2.0</h2>
+                        <p class="text-muted-foreground text-sm">Chào mừng bạn quay trở lại. Dữ liệu được cập nhật tự
+                            động từ Google Sheets.</p>
+                    </div>
+
+                    <!-- Dashboard Bảo hành -->
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">📊 Dashboard Bảo
+                        hành</h3>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Tổng
+                                đơn</div>
+                            <div id="home-stat-total" class="text-2xl font-bold text-foreground">--</div>
                         </div>
-                        <div class="bg-card p-6 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Đang
+                                sửa</div>
+                            <div id="home-stat-repairing" class="text-2xl font-bold text-amber-500">--</div>
+                        </div>
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Hoàn
+                                thành</div>
+                            <div id="home-stat-done" class="text-2xl font-bold text-emerald-600">--</div>
+                        </div>
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Tổng
+                                chi phí</div>
+                            <div id="home-stat-cost" class="text-2xl font-bold text-blue-600">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Module Cards -->
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">🗂️ Module chính
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-card p-5 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
                             onclick="switchTab('BH')">
                             <div>
-                                <h3 class="text-sm font-medium text-muted-foreground mb-1">Bảo Hành</h3>
-                                <div class="text-2xl font-bold text-foreground">BH</div>
+                                <h3 class="text-sm font-bold text-foreground mb-1">Quản lý Bảo hành</h3>
+                                <p class="text-xs text-muted-foreground">Tiếp nhận, theo dõi, xử lý phiếu BH</p>
                             </div>
                             <div
-                                class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
                                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-card p-8 rounded-xl border border-border text-center">
-                        <h2 class="text-xl font-semibold mb-2">Hệ thống Quản lý ERP v2.0</h2>
-                        <p class="text-muted-foreground text-sm">Vui lòng chọn module bên trái để quản lý dữ liệu Google
-                            Sheets.</p>
+                        <div class="bg-card p-5 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
+                            onclick="switchTab('DS_CHI_TIET_SP')">
+                            <div>
+                                <h3 class="text-sm font-bold text-foreground mb-1">Quản lý Linh kiện</h3>
+                                <p class="text-xs text-muted-foreground">Danh sách, giá linh kiện sửa chữa</p>
+                            </div>
+                            <div
+                                class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="bg-card p-5 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
+                            onclick="switchTab('DS_SP')">
+                            <div>
+                                <h3 class="text-sm font-bold text-foreground mb-1">Danh sách Sản phẩm</h3>
+                                <p class="text-xs text-muted-foreground">Quản lý sản phẩm và hình ảnh</p>
+                            </div>
+                            <div
+                                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="bg-card p-5 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
+                            onclick="switchTab('BH'); setTimeout(() => switchTab('dashboard-bh'), 100)">
+                            <div>
+                                <h3 class="text-sm font-bold text-foreground mb-1">Dashboard BH</h3>
+                                <p class="text-xs text-muted-foreground">Biểu đồ và thống kê bảo hành</p>
+                            </div>
+                            <div
+                                class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -865,15 +926,11 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="px-4 py-3 border-t border-border flex items-center justify-between bg-card text-sm">
-                        <span class="text-muted-foreground" id="pageInfo">Trang 1 / 1</span>
-                        <div class="flex items-center gap-2">
-                            <button
-                                class="px-3 py-1.5 border border-border rounded hover:bg-muted disabled:opacity-50 transition"
-                                id="prevPage" onclick="changePage(-1)">Trước</button>
-                            <button
-                                class="px-3 py-1.5 border border-border rounded hover:bg-muted disabled:opacity-50 transition"
-                                id="nextPage" onclick="changePage(1)">Tiếp</button>
+                    <div
+                        class="px-4 py-3 border-t border-border flex items-center justify-between bg-card text-sm flex-wrap gap-2">
+                        <span class="text-muted-foreground text-xs" id="pageInfo">Trang 1 / 1</span>
+                        <div id="paginationPages" class="flex items-center gap-1 flex-wrap">
+                            <!-- Page numbers injected by JS -->
                         </div>
                     </div>
                 </div>
@@ -1075,7 +1132,7 @@
             },
             'BH': {
                 sheetName: 'BH',
-                columns: ["id", "ngay", "truong", "shop", "mdh", "ghi_chu", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "xac_dinh_loi", "phuong_an_xly", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "ngay_tra", "mvd_trả", "id_khach", "sdt", "dia_chi"]
+                columns: ["ngay", "truong", "shop", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "phuong_an_xly", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "id_khach", "ngay_tra", "mvd_trả"]
             },
             'DS_CHI_TIET_SP': {
                 sheetName: 'DS_CHI_TIET_SP',
@@ -1231,7 +1288,7 @@
 
         // Phân trang & Sắp xếp
         let currentPage = 1;
-        const rowsPerPage = 20;
+        const rowsPerPage = 30;
         let sortConfig = { col: null, dir: 'asc' };
 
         // --- AUTHENTICATION ---
@@ -1605,7 +1662,7 @@
                         const isChiPhi = (columnName === 'chi_phi_sua' || columnName === 'chi phí sửa');
 
                         if (isImageUrl(cellValue)) {
-                            td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
+                            td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="event.stopPropagation(); zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
                         } else if (isChiPhi && currentActiveTab === 'BH') {
                             const bhId = row[0]; // Giả sử ID ở cột đầu tiên
                             const isExpanded = expandedRows.has(bhId);
@@ -1667,8 +1724,7 @@
             }
 
             document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages}`;
-            document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = currentPage === totalPages;
+            renderPagination(currentPage, totalPages);
         }
 
         function handleSort(colIndex) {
@@ -1681,9 +1737,62 @@
             filterAndSortData();
         }
 
-        function changePage(delta) {
-            currentPage += delta;
+        function goToPage(page) {
+            const totalRows = displayData.length - 1;
+            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
             renderTable();
+        }
+
+        function changePage(delta) {
+            goToPage(currentPage + delta);
+        }
+
+        function renderPagination(currentPage, totalPages) {
+            const container = document.getElementById('paginationPages');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const btnClass = (active) => `min-w-[32px] h-8 px-2 rounded border text-xs font-medium transition-all ${active ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted text-foreground'
+                }`;
+
+            const makeBtn = (label, page, active = false, disabled = false) => {
+                const btn = document.createElement('button');
+                btn.textContent = label;
+                btn.className = btnClass(active) + (disabled ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer');
+                if (!disabled) btn.onclick = () => goToPage(page);
+                return btn;
+            };
+
+            // Prev
+            container.appendChild(makeBtn('‹', currentPage - 1, false, currentPage === 1));
+
+            // Page numbers with ellipsis
+            const pages = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                if (currentPage > 3) pages.push('...');
+                for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+                if (currentPage < totalPages - 2) pages.push('...');
+                pages.push(totalPages);
+            }
+
+            pages.forEach(p => {
+                if (p === '...') {
+                    const span = document.createElement('span');
+                    span.textContent = '...';
+                    span.className = 'px-1 text-muted-foreground text-xs';
+                    container.appendChild(span);
+                } else {
+                    container.appendChild(makeBtn(p, p, p === currentPage));
+                }
+            });
+
+            // Next
+            container.appendChild(makeBtn('›', currentPage + 1, false, currentPage === totalPages));
         }
 
         function filterData() {
@@ -1926,6 +2035,15 @@
         // --- UTILS ---
         const TINH_TRANG_OPTS = ["Mới nhận", "Đã kiểm tra", "Đang sửa", "Đã sửa xong", "Không sửa được"];
         const TRANG_THAI_OPTS = ["Mới tạo", "Đang xử lý", "Chờ linh kiện", "Đang sửa", "Hoàn thành", "Đã trả khách", "Hủy"];
+
+        function generateId(length = 8) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
 
         function formatDateToISO(dateStr) {
             if (!dateStr) return "";
@@ -2187,6 +2305,55 @@
 
         let bhCharts = {}; // Lưu trữ các instance của biểu đồ
 
+        async function renderHomeDashboard() {
+            const setStats = (total, repairing, done, cost) => {
+                const el = id => document.getElementById(id);
+                if (el('home-stat-total')) el('home-stat-total').textContent = total;
+                if (el('home-stat-repairing')) el('home-stat-repairing').textContent = repairing;
+                if (el('home-stat-done')) el('home-stat-done').textContent = done;
+                if (el('home-stat-cost')) el('home-stat-cost').textContent = cost.toLocaleString('vi-VN') + 'đ';
+            };
+
+            try {
+                // Dùng cache BH data nếu đang ở tab BH, hoặc fetch riêng
+                let bhData = [];
+                if (CONFIG.sheetName === 'BH' && currentData.length > 1) {
+                    bhData = currentData;
+                } else {
+                    const token = await getAccessToken();
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/BH!A:Z`;
+                    const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const result = await resp.json();
+                    bhData = result.values || [];
+                }
+
+                if (bhData.length < 2) return setStats(0, 0, 0, 0);
+
+                const headers = bhData[0];
+                const trangThaiIdx = headers.findIndex(h => h && h.toLowerCase().includes('trang_thai'));
+                const chiPhiIdx = headers.findIndex(h => h && h.toLowerCase().includes('chi_phi'));
+                const rows = bhData.slice(1);
+
+                const total = rows.length;
+                const repairing = rows.filter(r => {
+                    const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
+                    return ['đang sửa', 'đang xử lý', 'chờ linh kiện'].some(s => tt.toLowerCase().includes(s));
+                }).length;
+                const done = rows.filter(r => {
+                    const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
+                    return ['hoàn thành', 'đã trả khách'].some(s => tt.toLowerCase().includes(s));
+                }).length;
+                const cost = rows.reduce((sum, r) => {
+                    const v = chiPhiIdx !== -1 ? parseFloat((r[chiPhiIdx] || '0').toString().replace(/[^0-9.]/g, '')) : 0;
+                    return sum + (isNaN(v) ? 0 : v);
+                }, 0);
+
+                setStats(total, repairing, done, cost);
+            } catch (e) {
+                console.warn('renderHomeDashboard error:', e);
+            }
+        }
+
         function switchTab(tabId) {
             currentActiveTab = tabId;
 
@@ -2230,6 +2397,7 @@
                 viewHome.classList.remove('hidden');
                 viewHome.classList.add('block');
                 pageTitle.textContent = "Trang chủ";
+                renderHomeDashboard();
             } else if (tabId === 'DASHBOARD_BH') {
                 viewDashboardBH.classList.remove('hidden');
                 viewDashboardBH.classList.add('flex');
@@ -2659,6 +2827,13 @@
             });
 
             if (!hasData) return alert("Vui lòng nhập ít nhất một trường thông tin.");
+
+            // Auto-generate ID for new BH records
+            const rawHeadersForId = currentData[0];
+            const idColIndex = rawHeadersForId.findIndex(h => h && h.toString().trim().toLowerCase() === 'id');
+            if (currentActiveTab === 'BH' && idColIndex !== -1 && !newData[idColIndex]) {
+                newData[idColIndex] = generateId();
+            }
 
             isSaving = true;
             const statusLabel = document.getElementById('saveStatus');
