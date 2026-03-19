@@ -15,6 +15,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
     <!-- XLSX Library for Excel Parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Chart.js for Dashboards -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -202,6 +204,143 @@
         #detailDrawer.translate-x-0 {
             transform: translateX(0);
         }
+
+        /* Header & User Profile Enhancements */
+        .header-dateTime {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid theme('colors.border');
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1e293b;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .header-dateTime svg {
+            color: #6366f1;
+        }
+
+        .notification-btn {
+            position: relative;
+            padding: 0.5rem;
+            color: #64748b;
+            border-radius: 9999px;
+            transition: all 0.2s;
+        }
+
+        .notification-btn:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background: #6366f1;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            width: 16px;
+            height: 16px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .user-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.375rem;
+            padding-right: 0.75rem;
+            border-radius: 9999px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .user-action-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .user-action-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: #a855f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px #e2e8f0;
+            object-fit: cover;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 1.5rem;
+            width: 240px;
+            background: white;
+            border: 1px solid theme('colors.border');
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 50;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-dropdown.show {
+            display: flex;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: #475569;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .dropdown-item.logout {
+            color: #ef4444;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .dropdown-item.logout:hover {
+            background: #fef2f2;
+        }
     </style>
 </head>
 
@@ -358,27 +497,30 @@
                     </svg>
                     Quản lý Bảo hành
                 </button>
+
+                <button onclick="switchTab('DS_CHI_TIET_SP')" id="nav-ds-chi-tiet-sp"
+                    class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted text-muted-foreground group">
+                    <svg class="w-5 h-5 group-hover:text-foreground" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Quản lý Linh kiện
+                </button>
+
+                <button onclick="switchTab('DASHBOARD_BH')" id="nav-dashboard-bh"
+                    class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted text-muted-foreground group">
+                    <svg class="w-5 h-5 group-hover:text-foreground" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Dashboard Bảo hành
+                </button>
             </nav>
 
-            <!-- User Profile & Logout -->
-            <div class="mt-auto p-4 border-t border-border bg-muted/20">
-                <div class="flex items-center gap-3 mb-3">
-                    <img id="userAvatar" src="https://via.placeholder.com/32"
-                        class="w-8 h-8 rounded-full border border-border object-cover">
-                    <div class="min-w-0">
-                        <div id="userName" class="text-sm font-bold truncate">User Name</div>
-                        <div id="userRole" class="text-[10px] text-muted-foreground uppercase tracking-tight">Role</div>
-                    </div>
-                </div>
-                <button onclick="handleLogout()"
-                    class="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition border border-red-100">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Đăng xuất
-                </button>
-            </div>
         </aside>
 
         <!-- Main Content -->
@@ -387,15 +529,91 @@
             <header class="sticky top-0 z-30 bg-card border-b border-border">
                 <div class="flex items-center justify-between h-14 px-6">
                     <h1 id="pageTitle" class="text-lg font-semibold text-foreground">Trang chủ</h1>
-                    <div class="flex items-center gap-4">
-                        <button class="p-2 text-muted-foreground hover:bg-muted rounded-full">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                        </button>
-                        <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-medium cursor-pointer"
-                            onclick="openSettings()">AD</div>
+
+                    <div class="flex items-center gap-6">
+                        <!-- Clock & Date -->
+                        <div class="header-dateTime hidden md:flex">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span id="headerClock">00:00:00</span>
+                            </div>
+                            <div class="w-px h-4 bg-border"></div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span id="headerDate">Thứ 1, 01/01/2024</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <!-- Notification -->
+                            <button class="notification-btn">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <span class="notification-badge">4</span>
+                            </button>
+
+                            <!-- User Profile Button -->
+                            <div class="relative">
+                                <div class="user-action-btn" onclick="toggleUserDropdown(event)">
+                                    <img id="headerUserAvatar" src="https://via.placeholder.com/32"
+                                        class="user-action-avatar">
+                                    <div class="hidden sm:block text-left">
+                                        <div id="headerUserName" class="text-sm font-bold text-slate-700 leading-tight">
+                                            User Name</div>
+                                        <div id="headerUserRole"
+                                            class="text-[11px] text-slate-400 font-medium uppercase tracking-tight">
+                                            Admin</div>
+                                    </div>
+                                    <svg class="w-4 h-4 text-slate-400 ml-1" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+
+                                <!-- User Dropdown Menu -->
+                                <div id="userDropdown" class="user-dropdown">
+                                    <div class="dropdown-item">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Hồ sơ cá nhân
+                                    </div>
+                                    <div class="dropdown-item" onclick="openSettings()">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Cài đặt hệ thống
+                                    </div>
+                                    <div class="dropdown-item">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                        </svg>
+                                        Đổi mật khẩu
+                                    </div>
+                                    <div class="dropdown-item logout" onclick="handleLogout()">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        </svg>
+                                        Đăng xuất
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -405,6 +623,7 @@
 
                 <!-- View: Home -->
                 <div id="view-home" class="block">
+                    <!-- ... existing home logic ... -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div class="bg-card p-6 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
                             onclick="switchTab('DS_SP')">
@@ -442,6 +661,66 @@
                     </div>
                 </div>
 
+                <!-- View: Dashboard Bảo hành -->
+                <div id="view-dashboard-bh" class="hidden flex-col gap-6">
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <h3 class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Tổng
+                                số phiếu</h3>
+                            <div id="stat-total-bh" class="text-2xl font-bold text-foreground">0</div>
+                        </div>
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <h3 class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Đang
+                                xử lý</h3>
+                            <div id="stat-processing-bh" class="text-2xl font-bold text-blue-600">0</div>
+                        </div>
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <h3 class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Hoàn
+                                thành</h3>
+                            <div id="stat-completed-bh" class="text-2xl font-bold text-emerald-600">0</div>
+                        </div>
+                        <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
+                            <h3 class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Tổng
+                                chi phí</h3>
+                            <div id="stat-cost-bh" class="text-2xl font-bold text-amber-600">0đ</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Chart 1: Trang thai -->
+                        <div class="bg-card p-5 rounded-xl border border-border shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-sm font-bold text-slate-700">Trạng thái bảo hành</h4>
+                            </div>
+                            <div class="h-64 relative">
+                                <canvas id="chartStatusBH"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Nhan vien -->
+                        <div class="bg-card p-5 rounded-xl border border-border shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-sm font-bold text-slate-700">Thống kê theo Nhân viên (Trưởng)</h4>
+                            </div>
+                            <div class="h-64 relative">
+                                <canvas id="chartStaffBH"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: Xu huong (Full Width) -->
+                        <div class="bg-card p-5 rounded-xl border border-border shadow-sm lg:col-span-2">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-sm font-bold text-slate-700">Xu hướng tiếp nhận (6 tháng gần nhất)</h4>
+                            </div>
+                            <div class="h-72 relative">
+                                <canvas id="chartTrendBH"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- View: Data Table -->
                 <div id="view-table"
                     class="hidden flex-col h-full bg-card border border-border rounded-xl shadow-sm overflow-hidden"
@@ -475,7 +754,7 @@
                                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg> Tải Excel
                             </button>
-                            <button
+                            <button id="btn-add-row"
                                 class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:opacity-90 transition"
                                 onclick="addRow()">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -607,6 +886,14 @@
             </div>
         </div>
         <div class="p-4 border-t border-border bg-muted/30 flex justify-end gap-3">
+            <button id="btnExportPDF"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm flex items-center gap-2 shadow-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4" />
+                </svg>
+                Xuất PDF
+            </button>
             <button id="btnEditDetail"
                 class="px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition text-sm flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -642,6 +929,10 @@
             'BH': {
                 sheetName: 'BH',
                 columns: ["id", "ngay", "truong", "shop", "mdh", "ghi_chu", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "xac_dinh_loi", "phuong_an_xly", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "ngay_tra", "mvd_trả", "id_khach", "sdt", "dia_chi"]
+            },
+            'DS_CHI_TIET_SP': {
+                sheetName: 'DS_CHI_TIET_SP',
+                columns: ["id", "chi_tiet", "gia", "id_sp"]
             }
         };
 
@@ -719,6 +1010,7 @@
 
         function updateUserProfileUI() {
             if (!currentUser) return;
+            // Sidebar elements (removed but keeping for safety if referenced elsewhere)
             const nameEl = document.getElementById('userName');
             const avatarEl = document.getElementById('userAvatar');
             const roleEl = document.getElementById('userRole');
@@ -728,7 +1020,53 @@
             if (avatarEl && currentUser.avatar) {
                 avatarEl.src = currentUser.avatar;
             }
+
+            // New Header elements
+            const hNameEl = document.getElementById('headerUserName');
+            const hAvatarEl = document.getElementById('headerUserAvatar');
+            const hRoleEl = document.getElementById('headerUserRole');
+
+            if (hNameEl) hNameEl.textContent = currentUser.name;
+            if (hRoleEl) hRoleEl.textContent = currentUser.role || "Nhân viên";
+            if (hAvatarEl && currentUser.avatar) {
+                hAvatarEl.src = currentUser.avatar;
+            }
         }
+
+        // --- NEW HEADER LOGIC ---
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const clockEl = document.getElementById('headerClock');
+            if (clockEl) clockEl.textContent = `${h}:${m}:${s}`;
+
+            // Update date if needed (e.g., every minute or on load)
+            const days = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+            const dayName = days[now.getDay()];
+            const dateStr = `${dayName}, ${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+            const dateEl = document.getElementById('headerDate');
+            if (dateEl) dateEl.textContent = dateStr;
+        }
+
+        function toggleUserDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', () => {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Start clock
+        setInterval(updateClock, 1000);
+        updateClock();
 
         let currentData = []; // [headers, row1, row2, ...]
         let displayData = []; // Dữ liệu đã filter và sort
@@ -805,7 +1143,6 @@
                     currentData = result.values;
                     try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
                     currentPage = 1;
-                    sortConfig = { col: null, dir: 'asc' };
                     filterAndSortData();
                 } else {
                     alert("Sheet không có dữ liệu hoặc lỗi cấu hình.");
@@ -989,6 +1326,19 @@
 
                     let valA = a[sortConfig.col] || "";
                     let valB = b[sortConfig.col] || "";
+
+                    // Kiểm tra định dạng ngày DD/MM/YYYY
+                    const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+                    const matchA = valA.toString().trim().match(dateRegex);
+                    const matchB = valB.toString().trim().match(dateRegex);
+
+                    if (matchA && matchB) {
+                        const dateA = new Date(matchA[3], matchA[2] - 1, matchA[1]);
+                        const dateB = new Date(matchB[3], matchB[2] - 1, matchB[1]);
+                        if (dateA < dateB) return sortConfig.dir === 'asc' ? -1 : 1;
+                        if (dateA > dateB) return sortConfig.dir === 'asc' ? 1 : -1;
+                        return 0;
+                    }
 
                     const numA = parseFloat(valA);
                     const numB = parseFloat(valB);
@@ -1491,6 +1841,12 @@
                 editBtn.onclick = () => startEditFromDetail(rowIndex);
             }
 
+            // Setup Export PDF Button
+            const exportBtn = document.getElementById('btnExportPDF');
+            if (exportBtn) {
+                exportBtn.onclick = () => exportTicketPDF(rowIndex);
+            }
+
             const row = currentData[rowIndex];
             const headers = currentData[0];
             const headerContent = document.getElementById('detailDrawerHeader');
@@ -1506,8 +1862,12 @@
 
             headers.forEach((h, i) => {
                 if (!h || h.trim() === "") return;
+                const lower = h.toLowerCase().trim();
+
+                // Loại bỏ các cột thừa theo yêu cầu
+                if (['udt', 'lb1', 'lb2', 'lb3', 'lb4'].includes(lower)) return;
+
                 const val = row[i] || "";
-                const lower = h.toLowerCase();
 
                 const isImg = isImageUrl(val) || lower.includes('anh') || lower.includes('ảnh');
                 const isTinhTrang = lower.includes('tinh trang') || lower.includes('tình trạng');
@@ -1542,7 +1902,7 @@
 
                 // Grouping Logic identical to Form Drawer
                 const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') || (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') && !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') || lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') || lower.includes('địa chỉ') || lower.includes('dia_chi');
-                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
+                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong_an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
                 const isService = lower.includes('sua') || lower.includes('sửa') || lower.includes('chi phi') || lower.includes('chi phí') || isTinhTrang || isTrangThai || lower.includes('tra') || lower.includes('trả') || lower.includes('mvd');
 
                 if (isInfo) {
@@ -1559,16 +1919,38 @@
             openDetailDrawer();
         }
 
+        function exportTicketPDF(rowIndex) {
+            const headers = currentData[0];
+            const row = currentData[rowIndex];
+            const idColIdx = headers.findIndex(h => h && h.toLowerCase() === 'id');
+
+            if (idColIdx === -1) {
+                alert("Không tìm thấy cột ID trong dữ liệu.");
+                return;
+            }
+
+            const ticketId = row[idColIdx];
+            if (!ticketId) {
+                alert("Dòng này không có mã ID (vui lòng lưu phiếu trước khi in).");
+                return;
+            }
+
+            // Mở phieubh.html trong tab mới với tham số id
+            window.open(`phieubh.html?id=${ticketId}`, '_blank');
+        }
+
         function startEditFromDetail(rowIndex) {
             closeDetailDrawer();
             openFormDrawer(rowIndex);
         }
 
+        let bhCharts = {}; // Lưu trữ các instance của biểu đồ
+
         function switchTab(tabId) {
             currentActiveTab = tabId;
 
             // Reset Sidebar Styles
-            ['nav-home', 'nav-ds-sp', 'nav-bh'].forEach(id => {
+            ['nav-home', 'nav-ds-sp', 'nav-bh', 'nav-dashboard-bh', 'nav-ds-chi-tiet-sp'].forEach(id => {
                 const nav = document.getElementById(id);
                 if (nav) {
                     nav.classList.remove('bg-muted/60', 'text-foreground', 'active-tab');
@@ -1580,6 +1962,8 @@
             let activeNavId = 'nav-home';
             if (tabId === 'DS_SP') activeNavId = 'nav-ds-sp';
             else if (tabId === 'BH') activeNavId = 'nav-bh';
+            else if (tabId === 'DASHBOARD_BH') activeNavId = 'nav-dashboard-bh';
+            else if (tabId === 'DS_CHI_TIET_SP') activeNavId = 'nav-ds-chi-tiet-sp';
 
             const activeNav = document.getElementById(activeNavId);
             if (activeNav) {
@@ -1590,36 +1974,69 @@
             // Views switch
             const viewHome = document.getElementById('view-home');
             const viewTable = document.getElementById('view-table');
+            const viewDashboardBH = document.getElementById('view-dashboard-bh');
             const pageTitle = document.getElementById('pageTitle');
+
+            // Ẩn tất cả views trước
+            [viewHome, viewTable, viewDashboardBH].forEach(v => {
+                if (v) {
+                    v.classList.add('hidden');
+                    v.classList.remove('block', 'flex');
+                }
+            });
 
             if (tabId === 'HOME') {
                 viewHome.classList.remove('hidden');
                 viewHome.classList.add('block');
-
-                viewTable.classList.add('hidden');
-                viewTable.classList.remove('flex');
-
                 pageTitle.textContent = "Trang chủ";
-            } else {
-                viewHome.classList.add('hidden');
-                viewHome.classList.remove('block');
+            } else if (tabId === 'DASHBOARD_BH') {
+                viewDashboardBH.classList.remove('hidden');
+                viewDashboardBH.classList.add('flex');
+                pageTitle.textContent = "Dashboard Quản lý Bảo hành";
 
+                // Trực tiếp fetch dữ liệu BH nếu sheet hiện tại không phải BH
+                if (CONFIG.sheetName !== 'BH') {
+                    CONFIG.sheetName = 'BH';
+                    currentData = []; // Clear để fetch mới
+                    fetchData().then(() => renderDashboardBH());
+                } else {
+                    renderDashboardBH();
+                }
+            } else {
                 viewTable.classList.remove('hidden');
                 viewTable.classList.add('flex');
 
-                if (tabId === 'DS_SP') pageTitle.textContent = "Quản lý Sản Phẩm";
-                if (tabId === 'BH') pageTitle.textContent = "Quản lý Bảo Hành";
+                if (tabId === 'DS_SP') {
+                    pageTitle.textContent = "Quản lý Sản Phẩm";
+                    sortConfig = { col: null, dir: 'asc' };
+                }
+                if (tabId === 'BH') {
+                    pageTitle.textContent = "Quản lý Bảo Hành";
+                    // Tìm index của cột 'ngay' sẽ được thực hiện trong filterAndSortData hoặc preset ở đây
+                    // Giả định cột 'ngay' thường ở vị trí index 1 (cột B)
+                    sortConfig = { col: 1, dir: 'desc' };
+                }
+                if (tabId === 'DS_CHI_TIET_SP') {
+                    pageTitle.textContent = "Quản lý Linh kiện";
+                    sortConfig = { col: null, dir: 'asc' };
+                }
 
                 const btnExcel = document.getElementById('btn-excel-upload');
+                const btnAddRow = document.getElementById('btn-add-row');
+
                 if (btnExcel) {
-                    if (tabId === 'BH') btnExcel.classList.add('hidden');
+                    if (tabId === 'BH' || tabId === 'DS_SP' || tabId === 'DS_CHI_TIET_SP') btnExcel.classList.add('hidden');
                     else btnExcel.classList.remove('hidden');
+                }
+
+                if (btnAddRow) {
+                    if (tabId === 'DS_SP') btnAddRow.classList.add('hidden');
+                    else btnAddRow.classList.remove('hidden');
                 }
 
                 CONFIG.sheetName = TAB_CONFIGS[tabId].sheetName;
                 CONFIG.displayColumns = TAB_CONFIGS[tabId].columns;
 
-                // Clear current table display and caches
                 currentData = [];
                 displayData = [];
                 document.getElementById('tableHead').innerHTML = '';
@@ -1629,6 +2046,150 @@
 
                 fetchData();
             }
+        }
+
+        async function renderDashboardBH() {
+            if (!currentData || currentData.length < 2 || CONFIG.sheetName !== 'BH') {
+                // Nếu chưa có data, thử fetch lại
+                if (CONFIG.sheetName === 'BH') await fetchData();
+                else return;
+            }
+
+            const headers = currentData[0].map(h => h ? h.toString().toLowerCase().trim() : "");
+            const rows = currentData.slice(1);
+
+            const idxStatus = headers.indexOf('trang_thai');
+            const idxTinhTrang = headers.indexOf('tinh_trang');
+            const idxStaff = headers.indexOf('truong');
+            const idxCost = headers.indexOf('chi_phi_sua');
+            const idxDate = headers.indexOf('ngay');
+
+            let total = rows.length;
+            let processing = 0;
+            let completed = 0;
+            let totalCost = 0;
+
+            const statusCount = {};
+            const staffCount = {};
+            const timelineData = {};
+
+            rows.forEach(row => {
+                const tt = (row[idxTinhTrang] || "").toString().toLowerCase();
+                if (tt.includes('xong') || tt.includes('hoàn thành') || tt.includes('trả')) completed++;
+                else if (tt.includes('đang') || tt.includes('sửa')) processing++;
+
+                let cost = parseFloat((row[idxCost] || "0").toString().replace(/[^0-9.-]+/g, ""));
+                if (!isNaN(cost)) totalCost += cost;
+
+                const st = row[idxStatus] || "Chưa xác định";
+                statusCount[st] = (statusCount[st] || 0) + 1;
+
+                const staff = row[idxStaff] || "Chưa giao";
+                staffCount[staff] = (staffCount[staff] || 0) + 1;
+
+                const dateStr = row[idxDate] || "";
+                if (dateStr) {
+                    const parts = dateStr.split('/');
+                    if (parts.length >= 2) {
+                        const monthYear = `${parts[1]}/${parts[parts.length - 1]}`;
+                        timelineData[monthYear] = (timelineData[monthYear] || 0) + 1;
+                    }
+                }
+            });
+
+            document.getElementById('stat-total-bh').textContent = total;
+            document.getElementById('stat-processing-bh').textContent = processing;
+            document.getElementById('stat-completed-bh').textContent = completed;
+            document.getElementById('stat-cost-bh').textContent = new Intl.NumberFormat('vi-VN').format(totalCost) + 'đ';
+
+            renderPieChart('chartStatusBH', Object.keys(statusCount), Object.values(statusCount), 'Trạng thái');
+            const topStaff = Object.entries(staffCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            renderBarChart('chartStaffBH', topStaff.map(s => s[0]), topStaff.map(s => s[1]), 'Số phiếu');
+            const months = Object.keys(timelineData).sort((a, b) => {
+                const [m1, y1] = a.split('/').map(Number);
+                const [m2, y2] = b.split('/').map(Number);
+                return y1 !== y2 ? y1 - y2 : m1 - m2;
+            }).slice(-6);
+            renderLineChart('chartTrendBH', months, months.map(m => timelineData[m]), 'Số lượng nhận');
+        }
+
+        function renderPieChart(canvasId, labels, data, label) {
+            if (bhCharts[canvasId]) bhCharts[canvasId].destroy();
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            bhCharts[canvasId] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'],
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function renderBarChart(canvasId, labels, data, label) {
+            if (bhCharts[canvasId]) bhCharts[canvasId].destroy();
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            bhCharts[canvasId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderLineChart(canvasId, labels, data, label) {
+            if (bhCharts[canvasId]) bhCharts[canvasId].destroy();
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            bhCharts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
         }
 
 
@@ -1667,7 +2228,10 @@
                 const val = h ? h.toString().trim() : "";
                 if (!val) return;
 
-                const lower = val.toLowerCase();
+                const lower = val.toLowerCase().trim();
+
+                // Loại bỏ các cột thừa theo yêu cầu
+                if (['udt', 'lb1', 'lb2', 'lb3', 'lb4'].includes(lower)) return;
                 const isImg = lower.includes('anh') || lower.includes('ảnh');
 
                 // Create Input Element (Side-by-side style)
@@ -1731,7 +2295,7 @@
 
                 // Grouping Logic
                 const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') || (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') && !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') || lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') || lower.includes('địa chỉ') || lower.includes('dia_chi');
-                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
+                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong_an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
                 const isService = lower.includes('sua') || lower.includes('sửa') || lower.includes('chi phi') || lower.includes('chi phí') || isTinhTrang || isTrangThai || lower.includes('tra') || lower.includes('trả') || lower.includes('mvd');
 
                 if (isInfo) {
