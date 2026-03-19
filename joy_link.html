@@ -4,159 +4,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gia Dụng JOY | Sản phẩm cao cấp</title>
+    <title>JOY Living | Tinh hoa gia dụng</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.25/jsrsasign-all-min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-light: #818cf8;
-            --secondary: #ec4899;
-            --bg-main: #ffffff;
-            --text-main: #1e293b;
-            --text-dim: #64748b;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body,
-        button,
-        input,
-        select,
-        textarea {
-            font-family: 'Inter', sans-serif;
+        * {
             margin: 0;
-            background: #ffffff;
-            color: var(--text-main);
-            overflow-x: hidden;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* --- LANDING MODE STYLES (MIGRATED & ADAPTED) --- */
-        .landing-header {
+        :root {
+            --primary: #8B5CF6;
+            --primary-light: #A78BFA;
+            --primary-dark: #7C3AED;
+            --secondary: #EC4899;
+            --bg: #FFFFFF;
+            --surface: #F9FAFB;
+            --text: #0F172A;
+            --text-soft: #334155;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --glass: rgba(255, 255, 255, 0.8);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.5;
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 1000;
             display: flex;
-            padding: 2rem 2rem 0;
+            align-items: center;
             justify-content: center;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            padding: 1rem 2rem;
+        }
+
+        .nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .logo {
-            font-weight: 900;
-            font-size: 2rem;
             display: flex;
             align-items: center;
-            color: var(--primary);
-            letter-spacing: -1px;
+            gap: 0.3rem;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .gia-dung {
-            font-size: 0.7rem;
-            background: var(--primary);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-right: 8px;
-            letter-spacing: 1px;
+        .logo-prefix {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #2D3748;
+            letter-spacing: -0.03em;
         }
 
-        .landing-container {
-            width: 100%;
-            max-width: 1200px;
+        .logo-divider {
+            width: 1.5px;
+            height: 1.25rem;
+            background-color: #CBD5E0;
+            margin: 0 0.3rem;
+        }
+
+        .logo-joy {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #7DA6D4;
+            line-height: 1;
+        }
+
+        .logo-icon {
+            color: #7DA6D4;
+            margin: 0 0.1rem;
+        }
+
+        /* Main Layout */
+        .main {
+            max-width: 1280px;
             margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .product-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            background: white;
+            gap: 3rem;
+            margin-bottom: 4rem;
         }
 
-        .modal-gallery {
+        /* Gallery */
+        .gallery {
             position: sticky;
-            top: 0;
-            height: 100vh;
-            background: #f8fafc;
-            border-right: 1px solid #f1f5f9;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            top: 6rem;
+            height: fit-content;
         }
 
-        .main-image-container {
-            width: 100%;
+        .gallery-main {
+            background: var(--surface);
+            border-radius: 24px;
+            overflow: hidden;
             aspect-ratio: 1;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
         }
 
-        .main-image {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
+        .gallery-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
         }
 
-        .thumb-strip {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            overflow-x: auto;
-            padding: 10px 0;
+        .gallery-thumbs {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.75rem;
         }
 
         .thumb {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
             cursor: pointer;
             border: 2px solid transparent;
             transition: var(--transition);
-            object-fit: cover;
+            background: var(--surface);
+        }
+
+        .thumb:hover {
+            transform: translateY(-2px);
         }
 
         .thumb.active {
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
         }
 
-        .modal-details {
-            padding: 4rem 10% 4rem 4rem;
-            display: flex;
-            flex-direction: column;
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .product-brand {
-            font-size: 1.1rem;
-            background: var(--primary);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 6px;
+        /* Product Info */
+        .info {
+            padding: 1rem 0;
+        }
+
+        .brand {
             display: inline-block;
-            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: white;
             font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.25rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.3px;
         }
 
-        #modalName {
-            font-size: 2.8rem;
-            line-height: 1.1;
-            margin: 0 0 1rem;
+        .title {
+            font-size: 2.5rem;
             font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: var(--text);
         }
 
-        .modal-price {
-            font-size: 2rem;
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-bottom: 1.5rem;
+            color: #FBBF24;
+        }
+
+        .rating span {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+        }
+
+        .price {
+            margin-bottom: 2rem;
+        }
+
+        .current-price {
+            font-size: 2.5rem;
             font-weight: 800;
             color: var(--primary);
-            margin-bottom: 1.5rem;
         }
 
         .old-price {
+            font-size: 1.25rem;
+            color: var(--text-muted);
             text-decoration: line-through;
-            color: var(--text-dim);
-            font-size: 1.2rem;
-            margin-right: 15px;
-            font-weight: 400;
+            margin-left: 1rem;
+        }
+
+        .variant {
+            margin-bottom: 2rem;
+        }
+
+        .variant label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-soft);
+        }
+
+        .variant-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text);
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .variant-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+
+        .cta {
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+
+        .cta-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+        }
+
+        .specs {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .specs h4 {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .specs-content {
+            color: var(--text-soft);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        .description h4 {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .description-content {
+            color: var(--text-soft);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Full Description Section */
+        .full-description {
+            max-width: 900px;
+            margin: 5rem auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+            border-radius: 32px;
+        }
+
+        .full-description h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--text);
+        }
+
+        .full-description-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-soft);
+            white-space: pre-line;
+        }
+
+        /* Checkout Section */
+        .checkout {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 3rem;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .checkout-title {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .checkout-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
@@ -167,127 +412,184 @@
             display: block;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            font-size: 0.95rem;
+            color: var(--text-soft);
         }
 
         .form-input {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            padding: 0.875rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: 16px;
             font-family: inherit;
-            box-sizing: border-box;
+            font-size: 1rem;
             transition: var(--transition);
+            background: white;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
         }
 
-        .landing-extra-info {
-            margin-top: 2rem;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 1.5rem;
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
         }
 
-        .landing-extra-info h4 {
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-            color: var(--text-main);
-            font-weight: 700;
-        }
-
-        .landing-footer-area {
-            background: #fff;
-            border-top: 1px solid #f1f5f9;
-            padding: 4rem 2rem;
-        }
-
-        #directCheckoutSection {
-            background: #ffffff;
-            border: 2px solid var(--primary);
-            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
-            padding: 3rem;
-            border-radius: 30px;
-            margin-top: 3rem;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .btn-large {
+        .submit-button {
             width: 100%;
-            height: 65px;
-            background: var(--primary);
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 1.3rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
+            border-radius: 20px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
             cursor: pointer;
             transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            margin-top: 2rem;
         }
 
-        .btn-large:hover {
-            background: #4338ca;
+        .submit-button:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
         }
 
-        .checkout-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
+        .submit-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
-        #loader {
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .free-shipping {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 1rem;
         }
 
-        @media (max-width: 900px) {
-            .landing-container {
-                grid-template-columns: 1fr;
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .title {
+                font-size: 2rem;
             }
+        }
 
-            .modal-gallery {
-                position: relative;
-                height: auto;
+        @media (max-width: 768px) {
+            .header {
                 padding: 1rem;
             }
 
-            .modal-details {
-                padding: 2rem 1.5rem;
+            .main {
+                padding: 1rem;
             }
 
-            #modalName {
-                font-size: 1.8rem;
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
             }
 
-            .checkout-grid {
+            .gallery {
+                position: relative;
+                top: 0;
+            }
+
+            .form-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
 
-            #directCheckoutSection {
+            .checkout {
                 padding: 1.5rem;
-                border-radius: 20px;
+                border-radius: 24px;
             }
 
-            #directCheckoutSection h3 {
-                font-size: 1.6rem !important;
+            .checkout-title {
+                font-size: 1.75rem;
+            }
+
+            .full-description {
+                padding: 1.5rem;
+                margin: 3rem 1rem;
+            }
+        }
+
+        /* Promo Timer */
+        .promo-timer {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            padding: 0.625rem 1.25rem;
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .timer-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .timer-label span {
+            color: var(--secondary);
+            font-size: 0.65rem;
+        }
+
+        .timer-values {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .timer-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timer-box {
+            background: var(--text);
+            color: white;
+            padding: 0.35rem 0.5rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            min-width: 38px;
+            text-align: center;
+            line-height: 1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .timer-sep {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-top: -2px;
+        }
+
+        @media (max-width: 640px) {
+            .promo-timer {
+                padding: 0.4rem 0.75rem;
+            }
+
+            .timer-label {
+                display: none;
+            }
+
+            .timer-box {
+                font-size: 0.9rem;
+                min-width: 32px;
+                padding: 0.25rem 0.4rem;
             }
         }
     </style>
@@ -295,134 +597,144 @@
 
 <body>
     <div id="loader">
-        <div style="text-align: center;">
-            <div
-                style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;">
-            </div>
-            <p>Đang tải thông tin sản phẩm...</p>
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p style="color: var(--text-muted); font-weight: 500;">Đang tải thông tin sản phẩm...</p>
         </div>
     </div>
 
-    <div class="landing-header">
-        <div class="logo">
-            <span class="gia-dung">GIA DỤNG</span> J
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor" style="margin: 0 2px;">
-                <defs>
-                    <mask id="ovenMaskLd">
-                        <rect width="40" height="40" fill="white" />
-                        <rect x="8" y="10" width="16" height="16" rx="2" fill="black" />
-                        <circle cx="31" cy="18" r="3.5" fill="black" />
-                    </mask>
-                </defs>
-                <rect x="4" y="6" width="32" height="24" rx="4" fill="currentColor" mask="url(#ovenMaskLd)" />
-                <path d="M 8 30 L 12 30 L 11 34 L 9 34 Z" fill="currentColor" />
-                <path d="M 28 30 L 32 30 L 31 34 L 29 34 Z" fill="currentColor" />
-            </svg>
-            Y
-        </div>
-    </div>
-
-    <div class="landing-container">
-        <div class="modal-gallery">
-            <div class="main-image-container">
-                <img src="" alt="" class="main-image" id="modalMainImg">
+    <header class="header">
+        <nav class="nav">
+            <div class="logo" onclick="location.reload()">
+                <span class="logo-prefix">GIA DỤNG</span>
+                <span class="logo-divider"></span>
+                <span class="logo-joy">J</span>
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 40 40" fill="currentColor">
+                    <defs>
+                        <mask id="ovenMaskNav">
+                            <rect width="40" height="40" fill="white"></rect>
+                            <rect x="8" y="10" width="16" height="16" rx="2" fill="black"></rect>
+                            <circle cx="31" cy="18" r="3.5" fill="black"></circle>
+                        </mask>
+                    </defs>
+                    <rect x="4" y="6" width="32" height="24" rx="4" fill="currentColor" mask="url(#ovenMaskNav)"></rect>
+                    <path d="M 8 30 L 12 30 L 11 34 L 9 34 Z" fill="currentColor"></path>
+                    <path d="M 28 30 L 32 30 L 31 34 L 29 34 Z" fill="currentColor"></path>
+                </svg>
+                <span class="logo-joy">Y</span>
             </div>
-            <div class="thumb-strip" id="modalThumbs"></div>
-        </div>
-        <div class="modal-details">
-            <p id="modalBrand" class="product-brand"></p>
-            <h2 id="modalName"></h2>
-            <div class="modal-price" id="modalPrice"></div>
-            <div id="modalRating" style="margin-bottom: 1rem; color: #fbbf24;"></div>
+            <div class="promo-timer" id="promoTimer">
+                <div class="timer-label">
+                    ƯU ĐÃI
+                    <span>KẾT THÚC SAU</span>
+                </div>
+                <div class="timer-values">
+                    <div class="timer-unit">
+                        <div class="timer-box" id="timer-h">00</div>
+                    </div>
+                    <div class="timer-sep">:</div>
+                    <div class="timer-unit">
+                        <div class="timer-box" id="timer-m">00</div>
+                    </div>
+                    <div class="timer-sep">:</div>
+                    <div class="timer-unit">
+                        <div class="timer-box" id="timer-s">00</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-            <div class="form-group">
-                <label>Phân loại / Kích thước</label>
-                <select class="form-input" id="variantSelect">
-                    <option value="none">Mặc định</option>
-                </select>
+    <main class="main">
+        <div class="product-grid">
+            <!-- Gallery -->
+            <div class="gallery">
+                <div class="gallery-main">
+                    <img src="" alt="" id="modalMainImg">
+                </div>
+                <div class="gallery-thumbs" id="modalThumbs"></div>
             </div>
 
-            <div style="margin: 2rem 0;">
-                <button class="btn-large"
-                    onclick="document.getElementById('directCheckoutSection').scrollIntoView({ behavior: 'smooth' })">
-                    <i data-lucide="shopping-bag"></i> MUA NGAY MIỄN PHÍ SHIP
+            <!-- Product Info -->
+            <div class="info">
+                <span class="brand" id="modalBrand"></span>
+                <h1 class="title" id="modalName"></h1>
+
+                <div class="rating" id="modalRating"></div>
+
+                <div class="price" id="modalPrice"></div>
+
+                <div class="variant">
+                    <label>Phân loại / Kích thước</label>
+                    <select class="variant-select" id="variantSelect">
+                        <option value="none">Chọn phân loại</option>
+                    </select>
+                </div>
+
+                <div class="cta">
+                    <button class="cta-button"
+                        onclick="document.getElementById('checkout-section').scrollIntoView({ behavior: 'smooth' })">
+                        <i data-lucide="shopping-bag" style="width: 20px;"></i>
+                        MUA NGAY - MIỄN PHÍ VẬN CHUYỂN
+                    </button>
+                    <p class="cta-note">✓ Kiểm tra hàng trước khi thanh toán</p>
+                </div>
+
+                <div class="specs">
+                    <h4>Thông số kỹ thuật</h4>
+                    <div class="specs-content" id="modalSpecs"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Description -->
+        <section class="full-description">
+            <h2>Chi tiết sản phẩm</h2>
+            <div class="full-description-content" id="landingDescScroll"></div>
+        </section>
+
+        <!-- Checkout Section -->
+        <section id="checkout-section" class="checkout">
+            <h3 class="checkout-title">SỞ HỮU NGAY HÔM NAY</h3>
+            <p class="checkout-subtitle">Điền thông tin để đặt hàng nhanh - Chúng tôi sẽ liên hệ xác nhận trong 5 phút
+            </p>
+
+            <form onsubmit="handleDirectCheckout(event)" id="directOrderForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Họ và tên</label>
+                        <input type="text" class="form-input" id="directName" required placeholder="Nguyễn Văn A">
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="tel" class="form-input" id="directPhone" required placeholder="090 123 4567">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ nhận hàng</label>
+                    <textarea class="form-input" id="directAddress" required rows="3"
+                        placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Ghi chú (tùy chọn)</label>
+                    <textarea class="form-input" id="directNote" rows="2"
+                        placeholder="Ví dụ: Giao hàng giờ hành chính, để ở bảo vệ..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-button" id="submitDirectOrderBtn">
+                    <i data-lucide="check-circle" style="width: 20px;"></i>
+                    XÁC NHẬN ĐẶT HÀNG
                 </button>
-                <p style="text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-top: 0.75rem;">Kiểm tra
-                    hàng trước khi thanh toán</p>
-            </div>
+                <p class="free-shipping">🎁 Miễn phí vận chuyển toàn quốc - Đổi trả trong 7 ngày</p>
+            </form>
+        </section>
+    </main>
 
-            <div class="landing-extra-info">
-                <h4>Thông số kỹ thuật</h4>
-                <div id="modalSpecs"
-                    style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.5rem;"></div>
-
-                <h4>Mô tả sản phẩm</h4>
-                <p id="modalDesc" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-dim);"></p>
-            </div>
-        </div>
-    </div>
-
-    <div class="landing-footer-area">
-        <div style="max-width: 900px; margin: 0 auto;">
-            <div style="margin-bottom: 5rem;">
-                <h2
-                    style="font-size: 2.2rem; margin-bottom: 2.5rem; color: var(--text-main); text-align: center; font-weight: 800;">
-                    Chi tiết sản phẩm</h2>
-                <div id="landingDescScroll"
-                    style="font-size: 1.15rem; line-height: 1.8; color: var(--text-dim); white-space: pre-line;"></div>
-            </div>
-
-            <div id="directCheckoutSection">
-                <h3
-                    style="margin-bottom: 1rem; text-align: center; color: var(--primary); font-weight: 800; font-size: 2.2rem;">
-                    SỞ HỮU NGAY HÔM NAY</h3>
-                <p style="text-align: center; color: var(--text-dim); margin-bottom: 3rem; font-size: 1.1rem;">Điền
-                    thông tin bên dưới để đặt hàng nhanh.</p>
-
-                <form onsubmit="handleDirectCheckout(event)" id="directOrderForm">
-                    <div class="checkout-grid">
-                        <div class="form-group">
-                            <label>Họ và tên</label>
-                            <input type="text" class="form-input" id="directName" required placeholder="Nguyễn Văn A">
-                        </div>
-                        <div class="form-group">
-                            <label>Số điện thoại</label>
-                            <input type="tel" class="form-input" id="directPhone" required placeholder="0901234567">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Địa chỉ nhận hàng</label>
-                        <textarea class="form-input" id="directAddress" required rows="3"
-                            placeholder="Số nhà, Tên đường..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Ghi chú</label>
-                        <textarea class="form-input" id="directNote" rows="2"
-                            placeholder="Ví dụ: Giao giờ hành chính"></textarea>
-                    </div>
-                    <div style="margin-top: 2rem;">
-                        <button type="submit" class="btn-large" id="submitDirectOrderBtn">XÁC NHẬN ĐẶT HÀNG</button>
-                        <p style="text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem;">
-                            Miễn phí vận chuyển toàn quốc</p>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <style>
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-
+    <!-- Original JavaScript (giữ nguyên) -->
     <script>
+        // Giữ nguyên toàn bộ JavaScript từ file gốc
         const CONFIG = {
             spreadsheetId: "1Bfz39faKp79G1BYEw7R0_2TZPF4vP2wZxOq7pvmNIkQ",
             serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
@@ -562,21 +874,22 @@ sR2Sh8e3h3Knd6j1tceRIFU=
         }
 
         function renderProduct(p) {
-            document.title = p.name + " | Gia Dụng JOY";
+            document.title = p.name + " | JOY Living";
             document.getElementById('modalName').innerText = p.name;
             document.getElementById('modalBrand').innerText = p.brand;
             document.getElementById('modalPrice').innerHTML = `
                 ${p.oldPrice > p.price ? `<span class="old-price">${formatVND(p.oldPrice)}</span>` : ''}
-                ${formatVND(p.price)}
+                <span class="current-price">${formatVND(p.price)}</span>
             `;
             document.getElementById('modalMainImg').src = p.images[0];
-            document.getElementById('modalDesc').innerText = p.desc.substring(0, 200) + "...";
             document.getElementById('landingDescScroll').innerText = p.desc;
             document.getElementById('modalSpecs').innerText = p.specs;
 
             const thumbs = document.getElementById('modalThumbs');
             thumbs.innerHTML = p.images.map((img, i) => `
-                <img src="${img}" class="thumb ${i === 0 ? 'active' : ''}" onclick="changeImg(this, '${img}')">
+                <div class="thumb ${i === 0 ? 'active' : ''}" onclick="changeImg(this, '${img}')">
+                    <img src="${img}" alt="">
+                </div>
             `).join('');
 
             const variants = document.getElementById('variantSelect');
@@ -584,10 +897,41 @@ sR2Sh8e3h3Knd6j1tceRIFU=
 
             let stars = "";
             for (let i = 0; i < 5; i++) {
-                stars += `<i data-lucide="star" style="width: 16px; fill: ${i < p.rating ? '#fbbf24' : 'none'}"></i>`;
+                stars += `<i data-lucide="star" style="width: 20px; fill: ${i < Math.floor(p.rating) ? '#FBBF24' : 'none'}; stroke: ${i < Math.floor(p.rating) ? '#FBBF24' : '#CBD5E1'}"></i>`;
             }
-            document.getElementById('modalRating').innerHTML = stars;
+            document.getElementById('modalRating').innerHTML = stars + `<span>(${p.rating}/5)</span>`;
             lucide.createIcons();
+
+            // Khởi tạo đếm ngược
+            startCountdown();
+        }
+
+        function startCountdown() {
+            // Thiết lập thời gian kết thúc là cuối ngày hôm nay
+            const now = new Date();
+            const target = new Date(now);
+            target.setHours(23, 59, 59, 999);
+
+            function update() {
+                const currentTime = new Date();
+                const diff = target - currentTime;
+
+                if (diff <= 0) {
+                    document.getElementById('promoTimer').style.opacity = '0.5';
+                    return;
+                }
+
+                const h = Math.floor(diff / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('timer-h').innerText = h.toString().padStart(2, '0');
+                document.getElementById('timer-m').innerText = m.toString().padStart(2, '0');
+                document.getElementById('timer-s').innerText = s.toString().padStart(2, '0');
+            }
+
+            update();
+            setInterval(update, 1000);
         }
 
         function changeImg(el, src) {
@@ -601,7 +945,7 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             const btn = document.getElementById('submitDirectOrderBtn');
             const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = 'ĐANG XỬ LÝ...';
+            btn.innerHTML = '<i data-lucide="loader" style="width: 20px; animation: spin 1s linear infinite;"></i> ĐANG XỬ LÝ...';
 
             try {
                 const variant = document.getElementById('variantSelect').value;
@@ -630,13 +974,15 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                     })
                 });
 
-                alert("Cảm ơn bạn! Đơn đặt hàng đã được tiếp nhận. Chúng tôi sẽ liên hệ sớm nhất!");
+                alert("🎉 Cảm ơn bạn! Đơn hàng đã được tiếp nhận. Chúng tôi sẽ liên hệ xác nhận trong ít phút!");
                 e.target.reset();
+                lucide.createIcons();
             } catch (err) {
-                alert("Lỗi: " + err.message);
+                alert("❌ Có lỗi xảy ra: " + err.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+                lucide.createIcons();
             }
         }
 
