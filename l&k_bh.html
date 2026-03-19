@@ -209,13 +209,25 @@
     <!-- Login Overlay -->
     <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-muted">
         <div class="bg-card p-8 rounded-xl shadow-lg w-full max-w-sm border border-border">
-            <h2 class="text-2xl font-bold mb-6 text-center text-primary">Đăng nhập</h2>
-            <div class="space-y-4">
+            <h2 class="text-2xl font-bold mb-6 text-center text-primary">Hệ thống ERP</h2>
+            <div id="loginLoading" class="hidden text-center py-4">
+                <div
+                    class="spinner border-4 border-primary/20 border-l-primary w-8 h-8 rounded-full animate-spin mx-auto mb-2">
+                </div>
+                <p class="text-xs text-muted-foreground italic">Đang tải dữ liệu nhân viên...</p>
+            </div>
+            <div id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-muted-foreground">Tài khoản</label>
+                    <input type="text" id="usernameInput"
+                        class="w-full border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary"
+                        placeholder="Nhập ID nhân viên">
+                </div>
                 <div>
                     <label class="block text-sm font-medium mb-1 text-muted-foreground">Mật khẩu</label>
                     <input type="password" id="passwordInput"
                         class="w-full border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary"
-                        placeholder="Nhập: demo" onkeydown="if(event.key==='Enter') handleLogin()">
+                        placeholder="••••••••" onkeydown="if(event.key==='Enter') handleLogin()">
                 </div>
                 <button onclick="handleLogin()"
                     class="w-full bg-primary text-primary-foreground font-semibold py-2 rounded-lg hover:opacity-90 transition">Đăng
@@ -305,10 +317,9 @@
                         phiếu</button>
                 </div>
             </div>
-            <div class="p-4 border-b border-border flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold">LK
-                </div>
-                <div class="font-semibold truncate">Bảo hành LOCK&KING</div>
+            <div class="p-4 border-b border-border flex items-center justify-center">
+                <img src="https://locknking.com/wp-content/uploads/2025/06/logo-lockking.png" alt="Lock&King Logo"
+                    class="h-10 w-auto object-contain">
             </div>
 
             <!-- Sidebar Navigation -->
@@ -348,6 +359,26 @@
                     Quản lý Bảo hành
                 </button>
             </nav>
+
+            <!-- User Profile & Logout -->
+            <div class="mt-auto p-4 border-t border-border bg-muted/20">
+                <div class="flex items-center gap-3 mb-3">
+                    <img id="userAvatar" src="https://via.placeholder.com/32"
+                        class="w-8 h-8 rounded-full border border-border object-cover">
+                    <div class="min-w-0">
+                        <div id="userName" class="text-sm font-bold truncate">User Name</div>
+                        <div id="userRole" class="text-[10px] text-muted-foreground uppercase tracking-tight">Role</div>
+                    </div>
+                </div>
+                <button onclick="handleLogout()"
+                    class="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition border border-red-100">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Đăng xuất
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -594,13 +625,12 @@
         const CONFIG = {
             spreadsheetId: "15ZdIdON8Dj9TkWCt6VsmbtRvHtF0J3xndP9Cxh-nCdk",
             sheetName: "DS_SP",
+            authSheetName: "DSNV",
             serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
             privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NN84hLTkQPZd\nLj7niXZTICq7nHsuTn3J6r2Paq12m70/lYSmrwh1i0EStr9bO19QM8cevGlslwGr\nWSVOLJlc6+w1HGPKvRXtA41kYV9MYIvpzIPQtkFE7Hxq71QyBARcv39Lfzze6Ioj\n3G8VBvAKFLAnCUr97GHRv+KbCTFxPZupd3PEB+xS5ZUlzdBCEZvDid3iXaaEJJ+l\nTd1apAGQHjtnDTLOkiTa8zf7X5ebALwnI9MziOdN8VyprHXGhkachPbKyrG0QwEs\n2jtiI6Y5ULsBPjNefoavH8MKU5DEAT9h0fZ7KfsKYVMDuXqmEKBs0D3B4Z6aDZQW\nwT2dDRZDAgMBAAECggEAEIuVoSzZVuFhaz1GI9ji0IacjvO50cIq7M8Zrj4/F756\nEw6PIhKENafAb7U4INm2AnzUMO8CqL9Jpxs85qUM3W4JysSByqLUiRW2184amIyb\nj7jCXfLBTQn8AbHgrUepl5d/vBmFYMgon/mqjbNiGDb4FZgEQSkie5o6fi/dWp5d\nNahbZl+WTOB/znhAfKh/zferHNxldR/ERmwOubZUerkqysWiBigc3ovpLSUof9ur\nz3hNPPp0CKQjF40xuQc6FYTHUHMLuMvp78PXuc/mYqQmZ8VOGhU+faGtZ4m+QJly\ndF5dS8U5cwKEF+ptuAUiWSahn6INb9yKn3+FcsW0UQKBgQDb8N4eWFvbgpRo/vxo\nwBN2u2TWubj6clcrq/1a+VR0njC28Can0ogJHhrFhPxVs5D/rugs3HlbyAXJFptY\nV0DZPCwBxGU5P5RbGjXWWEUXjp4ISKQD8WKfVlXNr79TqLdOg2NZBYQAi06Cpo/T\nPV9l7LSG2Tj/9WdvD7W2wvrpaQKBgQDVPjpJN6xh7+sHtSU0mjKvrqigpHbuSQ/o\nXpUaWSIpJffm5QpFPAOcTT5mHZCyllicJQIrfPSY+sH8n+sF03CUqVkV4Q2UqfOf\npFaLDB4P6SQ8iesZyF4VKFrj/cAvRJmp0e5W/DRnFkoEp+8c+nrru2+Dzm9kb7Uq\n0CiltqYAywKBgBtcfrV1to+7Ue0x84KwintV2rifyDRX7yI+tjkQFYKgf1zyyUxN\nc6D2vsvdvGqI+TvlrXqPPwW8/4NBrbeyux2LT8o0fYc+sp0WyKXOu2Gv21caelUH\nPYam/eultn6Y2Z0J2V0kw4Qx0GWOhQv5cZnDdb3k3iNxixmU8b03ynEpAoGBAKEA\n7O0fNe50QRZ+tOq0ihSPYQ55XrqnO3WNBDLynZJH8pbI1CpWF7vJrpVXOUs9rQWo\nA61mGR/wJMtiywaJEHWOL48PbzuR3jno0NcHfSMyOoPi9jlvSWncIFQH4TVPLF5F\n/Rh8L+ytrZE6YpWUoX6e9KGmGgDRPw5mQGpuL4RlAoGADe9n080SXlsUk4nHVjUz\nEfv7EBoBkgOpqb9T1foRfJl46NxmmTOYV3iGIhjwcDskEg284k4iq/gH6EEFyEBc\nVz13jzB1nBgjfezFesVQz7bA/+Wik6HZtxAxVg38BKMt+Q1tYw9wOjbGPqOn++VC\nsR2Sh8e3h3Knd6j1tceRIFU=\n-----END PRIVATE KEY-----\n",
             tokenUrl: "https://oauth2.googleapis.com/token",
             scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-            // Tên các cột bạn muốn hiển thị
             displayColumns: ["model", "ten_sp", "anh"],
-            // API Key cho ImgBB
             imgbbApiKey: "1bad1429a242d7040fda3f2cfddb3a25"
         };
 
@@ -617,17 +647,86 @@
 
         let currentActiveTab = 'HOME';
         let isLoggedIn = false;
+        let usersData = [];   // Dữ liệu từ Sheet DSNV
+        let currentUser = null;
+
+        async function fetchAuthData() {
+            const loading = document.getElementById('loginLoading');
+            const form = document.getElementById('loginForm');
+            if (loading) loading.classList.remove('hidden');
+            if (form) form.classList.add('hidden');
+
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const sname = CONFIG.authSheetName;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A2:G100`;
+
+                const resp = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const data = await resp.json();
+
+                if (data.values) {
+                    usersData = data.values.map(r => ({
+                        id: r[0],
+                        name: r[1],
+                        avatar: r[2],
+                        gender: r[3],
+                        birthday: r[4],
+                        role: r[5],
+                        password: r[6]
+                    }));
+                }
+            } catch (err) {
+                console.error("Auth Fetch Error:", err);
+            } finally {
+                if (loading) loading.classList.add('hidden');
+                if (form) form.classList.remove('hidden');
+            }
+        }
 
         function handleLogin() {
-            const pwd = document.getElementById('passwordInput').value;
-            if (pwd === 'demo') {
+            const uid = document.getElementById('usernameInput').value.trim();
+            const pwd = document.getElementById('passwordInput').value.trim();
+
+            if (!uid || !pwd) return alert("Vui lòng nhập đầy đủ thông tin.");
+
+            const user = usersData.find(u => u.id === uid && (u.password ? u.password.toString() : "") === pwd);
+
+            if (user) {
                 isLoggedIn = true;
-                localStorage.setItem('gs_logged_in', 'true');
+                currentUser = user;
+                localStorage.setItem('erp_user_session', JSON.stringify(user));
+
+                updateUserProfileUI();
+
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainApp').classList.remove('hidden');
-                switchTab('HOME'); // Ensure initial state is home
+                switchTab('HOME');
             } else {
-                alert('Mật khẩu không đúng!');
+                alert('Tài khoản hoặc mật khẩu không chính xác!');
+            }
+        }
+
+        function handleLogout() {
+            isLoggedIn = false;
+            currentUser = null;
+            localStorage.removeItem('erp_user_session');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function updateUserProfileUI() {
+            if (!currentUser) return;
+            const nameEl = document.getElementById('userName');
+            const avatarEl = document.getElementById('userAvatar');
+            const roleEl = document.getElementById('userRole');
+
+            if (nameEl) nameEl.textContent = currentUser.name;
+            if (roleEl) roleEl.textContent = currentUser.role || "Nhân viên";
+            if (avatarEl && currentUser.avatar) {
+                avatarEl.src = currentUser.avatar;
             }
         }
 
@@ -1765,7 +1864,7 @@
         }
 
         // Khởi tạo
-        window.onload = () => {
+        window.onload = async () => {
             const cachedData = localStorage.getItem('gs_cached_data');
             if (cachedData) {
                 try {
@@ -1774,11 +1873,31 @@
                 } catch (e) { console.error("Cache parse error", e); }
             }
 
-            // Check Login Persistence
-            if (localStorage.getItem('gs_logged_in') === 'true') {
-                isLoggedIn = true;
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainApp').classList.remove('hidden');
+            // Check for existing session
+            const session = localStorage.getItem('erp_user_session');
+            if (session) {
+                try {
+                    currentUser = JSON.parse(session);
+                    isLoggedIn = true;
+                    updateUserProfileUI();
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainApp').classList.remove('hidden');
+                } catch (e) {
+                    localStorage.removeItem('erp_user_session');
+                }
+            }
+
+            // Fetch latest user data anyway for next login or to refresh name/avatar
+            await fetchAuthData();
+
+            // If just logged in from persistent session, the data might have refreshed
+            if (isLoggedIn) {
+                const refreshed = usersData.find(u => u.id === currentUser.id);
+                if (refreshed) {
+                    currentUser = refreshed;
+                    localStorage.setItem('erp_user_session', JSON.stringify(currentUser));
+                    updateUserProfileUI();
+                }
             }
 
             switchTab('HOME');
