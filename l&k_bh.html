@@ -317,6 +317,67 @@
             display: flex;
         }
 
+        /* Sidebar Toggle Styles */
+        #sidebar {
+            transition: all 0.3s ease;
+        }
+
+        #main-content {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-collapsed #sidebar {
+            width: 64px !important;
+        }
+
+        .sidebar-collapsed #main-content {
+            margin-left: 64px !important;
+        }
+
+        .sidebar-collapsed #sidebar .logo-text,
+        .sidebar-collapsed #sidebar span,
+        .sidebar-collapsed #sidebar .menu-label {
+            display: none !important;
+        }
+
+        .sidebar-collapsed #sidebar .logo-container {
+            padding: 0.75rem 0.25rem !important;
+        }
+
+        .sidebar-collapsed #sidebar .main-logo {
+            height: 20px !important;
+        }
+
+        .sidebar-collapsed #sidebar nav button {
+            padding: 0.5rem;
+            justify-content: center;
+        }
+
+        .sidebar-collapsed #sidebar nav button svg {
+            margin-right: 0;
+        }
+
+        .sidebar-collapsed #formDrawer {
+            width: calc(100% - 64px) !important;
+        }
+
+        .sidebar-toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            color: #64748b;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
         .dropdown-item {
             display: flex;
             align-items: center;
@@ -378,92 +439,17 @@
     <!-- Main Layout -->
     <div id="mainApp" class="hidden flex h-[100dvh] bg-background text-foreground overflow-hidden">
         <!-- Sidebar -->
-        <aside
-            class="fixed inset-y-0 left-0 z-50 bg-card border-r border-border flex flex-col w-[280px] transition-transform duration-300">
-            <!-- Form Drawer (Add New) -->
-            <div id="formDrawerOverlay"
-                class="fixed inset-0 z-[60] bg-black/20 backdrop-blur-[2px] hidden transition-opacity"
-                onclick="closeFormDrawer()"></div>
-            <div id="formDrawer"
-                class="fixed inset-y-0 right-0 z-[70] w-full lg:w-[calc(100%-280px)] bg-card border-l border-border transition-transform translate-x-full flex flex-col shadow-2xl">
-                <div class="px-6 border-b border-border bg-card sticky top-0 z-10">
-                    <div class="h-14 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4v16m8-8H4" />
-                                </svg>
-                            </div>
-                            <h2 class="font-bold text-lg">BH Form</h2>
-                        </div>
-                        <button onclick="closeFormDrawer()"
-                            class="p-2 hover:bg-muted rounded-full text-muted-foreground transition">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <!-- Form Columns Header Divider -->
-                    <div class="flex border-t border-border/50"></div>
-                </div>
-
-                <!-- Persistent Header Fields (Tinh trang, Trang thai) -->
-                <div id="formDrawerHeader" class="px-6 py-2 bg-muted/20 border-b border-border/50 hidden">
-                    <!-- Persistent fields injected here -->
-                </div>
-
-                <div class="flex-1 overflow-y-auto p-6 no-scrollbar relative min-h-0">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Column 1 -->
-                        <div class="flex flex-col">
-                            <h3
-                                class="text-sm font-bold text-primary mb-4 pb-2 border-b border-border/50 uppercase tracking-wider flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span>
-                                Thông tin đơn
-                            </h3>
-                            <div id="form-page-1" class="space-y-4"></div>
-                        </div>
-                        <!-- Column 2 -->
-                        <div class="flex flex-col">
-                            <h3
-                                class="text-sm font-bold text-primary mb-4 pb-2 border-b border-border/50 uppercase tracking-wider flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span>
-                                Sản phẩm
-                            </h3>
-                            <div id="form-page-2" class="space-y-4"></div>
-                        </div>
-                        <!-- Column 3 -->
-                        <div class="flex flex-col">
-                            <h3
-                                class="text-sm font-bold text-primary mb-4 pb-2 border-b border-border/50 uppercase tracking-wider flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">3</span>
-                                Sửa chữa
-                            </h3>
-                            <div id="form-page-3" class="space-y-4"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-4 border-t border-border bg-muted/30 flex justify-end gap-3">
-                    <button onclick="closeFormDrawer()"
-                        class="px-4 py-2 bg-muted text-foreground rounded-lg font-medium hover:bg-muted/80 transition text-sm">Hủy</button>
-                    <button onclick="saveNewRecord()"
-                        class="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition text-sm">Lưu
-                        phiếu</button>
-                </div>
-            </div>
-            <div class="p-4 border-b border-border flex items-center justify-center">
+        <aside id="sidebar"
+            class="fixed inset-y-0 left-0 z-50 bg-card border-r border-border flex flex-col w-[280px] transition-all duration-300">
+            <div class="p-4 border-b border-border flex items-center justify-center logo-container">
                 <img src="https://locknking.com/wp-content/uploads/2025/06/logo-lockking.png" alt="Lock&King Logo"
-                    class="h-10 w-auto object-contain">
+                    class="h-10 w-auto object-contain main-logo">
             </div>
 
             <!-- Sidebar Navigation -->
             <nav class="flex-1 overflow-y-auto p-4 space-y-1 no-scrollbar">
-                <div class="px-3 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Menu chính
+                <div class="px-3 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase menu-label">
+                    Menu chính
                 </div>
 
                 <button onclick="switchTab('HOME')" id="nav-home"
@@ -472,10 +458,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    Trang chủ
+                    <span>Trang chủ</span>
                 </button>
 
-                <div class="px-3 mt-6 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Quản lý
+                <div
+                    class="px-3 mt-6 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase menu-label">
+                    Quản lý
                     Dữ liệu</div>
 
                 <button onclick="switchTab('DS_SP')" id="nav-ds-sp"
@@ -485,7 +473,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                     </svg>
-                    Quản lý DS_SP
+                    <span>Quản lý DS_SP</span>
                 </button>
 
                 <button onclick="switchTab('BH')" id="nav-bh"
@@ -495,7 +483,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    Quản lý Bảo hành
+                    <span>Quản lý Bảo hành</span>
                 </button>
 
                 <button onclick="switchTab('DS_CHI_TIET_SP')" id="nav-ds-chi-tiet-sp"
@@ -507,7 +495,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    Quản lý Linh kiện
+                    <span>Quản lý Linh kiện</span>
                 </button>
 
                 <button onclick="switchTab('DASHBOARD_BH')" id="nav-dashboard-bh"
@@ -517,18 +505,26 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    Dashboard Bảo hành
+                    <span>Dashboard Bảo hành</span>
                 </button>
             </nav>
 
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col min-w-0 bg-muted/40 ml-[280px]">
+        <main id="main-content" class="flex-1 flex flex-col min-w-0 bg-muted/40 ml-[280px]">
             <!-- Header -->
             <header class="sticky top-0 z-30 bg-card border-b border-border">
                 <div class="flex items-center justify-between h-14 px-6">
-                    <h1 id="pageTitle" class="text-lg font-semibold text-foreground">Trang chủ</h1>
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleSidebar()" class="sidebar-toggle-btn">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                        <h1 id="pageTitle" class="text-lg font-semibold text-foreground">Trang chủ</h1>
+                    </div>
 
                     <div class="flex items-center gap-6">
                         <!-- Clock & Date -->
@@ -617,6 +613,85 @@
                     </div>
                 </div>
             </header>
+
+            <!-- Repair Parts Modal -->
+            <div id="repairPartsModal"
+                class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div
+                    class="bg-card w-full max-w-xl rounded-2xl shadow-2xl border border-border flex flex-col max-h-[90vh]">
+                    <div class="p-4 border-b border-border flex justify-between items-center">
+                        <h3 id="repairPartsModalTitle" class="text-lg font-bold text-primary">Danh sách linh kiện</h3>
+                        <button onclick="closeRepairPartsModal()"
+                            class="p-2 hover:bg-muted rounded-full transition-colors">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="p-4 overflow-y-auto flex-1 no-scrollbar">
+                        <table class="w-full">
+                            <thead class="bg-muted/50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-bold uppercase text-muted-foreground">
+                                        Linh kiện</th>
+                                    <th class="px-4 py-2 text-right text-xs font-bold uppercase text-muted-foreground">
+                                        Giá</th>
+                                    <th
+                                        class="px-4 py-2 text-center text-xs font-bold uppercase text-muted-foreground w-12">
+                                        Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="repairPartsListBody">
+                                <!-- Data will be injected here -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="font-bold border-t-2 border-primary/20">
+                                    <td class="px-4 py-4 text-sm text-primary uppercase tracking-wider">Tổng cộng</td>
+                                    <td id="repairPartsTotal" class="px-4 py-4 text-sm text-right text-primary">0</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Add UI (Initially hidden) -->
+                        <div id="addRepairPartUI"
+                            class="mt-6 p-4 bg-muted/30 rounded-xl border border-dashed border-border hidden">
+                            <div class="flex flex-col gap-4">
+                                <label class="text-xs font-bold text-muted-foreground uppercase">Chọn linh kiện
+                                    mới</label>
+                                <select id="selectLinhKien"
+                                    class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary outline-none">
+                                    <option value="">-- Chọn linh kiện --</option>
+                                </select>
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="document.getElementById('addRepairPartUI').classList.add('hidden')"
+                                        class="px-4 py-1.5 text-xs font-medium hover:bg-muted rounded-lg transition-colors">Hủy</button>
+                                    <button onclick="confirmAddRepairPart()"
+                                        class="px-4 py-1.5 text-xs font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">Xác
+                                        nhận</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 border-t border-border flex justify-between items-center bg-muted/10">
+                        <button onclick="showAddRepairPartUI()"
+                            class="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20 transition-colors text-sm font-bold">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Thêm linh kiện
+                        </button>
+                        <button onclick="closeRepairPartsModal()"
+                            class="px-6 py-2 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 transition-colors text-sm font-bold">Đóng</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Scrollable Content Area -->
             <div class="flex-1 overflow-auto p-6" id="pageContent">
@@ -829,27 +904,119 @@
         </div>
     </div>
 
+    <!-- Form Drawer (Add New) -->
+    <div id="formDrawerOverlay" class="fixed inset-0 z-[60] bg-black/20 backdrop-blur-[2px] hidden transition-opacity"
+        onclick="closeFormDrawer()"></div>
+    <div id="formDrawer"
+        class="fixed inset-y-0 right-0 z-[70] w-full lg:w-[calc(100%-280px)] bg-card border-l border-border transition-transform translate-x-full flex flex-col shadow-2xl">
+        <div class="px-6 border-b border-border bg-card sticky top-0 z-10">
+            <div class="h-14 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                    <h2 class="font-bold text-lg">BH Form</h2>
+                </div>
+                <button onclick="closeFormDrawer()"
+                    class="p-2 hover:bg-muted rounded-full text-muted-foreground transition">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Form Columns Header Divider -->
+            <div class="flex border-t border-border/50"></div>
+        </div>
+
+        <!-- Persistent Header Fields (Tinh trang, Trang thai) -->
+        <div id="formDrawerHeader" class="px-6 py-2 bg-muted/20 border-b border-border/50 hidden">
+            <!-- Persistent fields injected here -->
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 no-scrollbar relative min-h-0">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Column 1 -->
+                <div class="flex flex-col">
+                    <h3
+                        class="text-sm font-bold text-primary mb-4 pb-2 border-b border-border/50 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span>
+                        Thông tin đơn
+                    </h3>
+                    <div id="form-page-1" class="space-y-4"></div>
+                </div>
+                <!-- Column 2 -->
+                <div class="flex flex-col">
+                    <h3
+                        class="text-sm font-bold text-primary mb-4 pb-2 border-b border-border/50 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span>
+                        Sản phẩm
+                    </h3>
+                    <div id="form-page-2" class="space-y-4"></div>
+                </div>
+                <!-- Column 3 -->
+                <div class="flex flex-col">
+                    <h3
+                        class="text-sm font-bold text-primary mb-4 pb-2 border-b border-border/50 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">3</span>
+                        Sửa chữa
+                    </h3>
+                    <div id="form-page-3" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-border bg-muted/30 flex justify-end gap-3">
+            <button onclick="closeFormDrawer()"
+                class="px-4 py-2 bg-muted text-foreground rounded-lg font-medium hover:bg-muted/80 transition text-sm">Hủy</button>
+            <button onclick="saveNewRecord()"
+                class="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition text-sm">Lưu
+                phiếu</button>
+        </div>
+    </div>
+
     <!-- Detail Drawer -->
     <div id="detailDrawerOverlay" class="fixed inset-0 z-[60] bg-black/20 backdrop-blur-[2px] hidden transition-opacity"
         onclick="closeDetailDrawer()"></div>
     <div id="detailDrawer"
         class="fixed inset-y-0 right-0 z-[70] w-full lg:w-[calc(100%-280px)] bg-card border-l border-border transition-transform translate-x-full flex flex-col shadow-2xl">
-        <div class="h-14 px-6 border-b border-border flex items-center justify-between bg-card sticky top-0 z-10">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+        <div class="h-14 px-4 border-b border-border flex items-center justify-between bg-card sticky top-0 z-10">
+            <div class="flex items-center gap-2 overflow-hidden">
+                <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <h2 class="font-bold text-lg">Chi tiết phiếu bảo hành</h2>
+                <h2 class="font-bold text-base truncate">Chi tiết phiếu bảo hành</h2>
             </div>
-            <button onclick="closeDetailDrawer()"
-                class="p-2 hover:bg-muted rounded-full text-muted-foreground transition">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="btnExportPDF"
+                    class="px-3 py-1.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-xs flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4" />
+                    </svg>
+                    Xuất PDF
+                </button>
+                <button id="btnEditDetail"
+                    class="px-3 py-1.5 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition text-xs flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Sửa
+                </button>
+                <div class="w-px h-6 bg-border mx-1"></div>
+                <button onclick="closeDetailDrawer()"
+                    class="p-2 hover:bg-muted rounded-full text-muted-foreground transition">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
         </div>
         <!-- Persistent Header Fields (Tinh trang, Trang thai) -->
         <div id="detailDrawerHeader" class="px-6 py-2 bg-muted/20 border-b border-border/50 hidden"></div>
@@ -884,26 +1051,6 @@
                     <div id="detail-page-3" class="space-y-4"></div>
                 </div>
             </div>
-        </div>
-        <div class="p-4 border-t border-border bg-muted/30 flex justify-end gap-3">
-            <button id="btnExportPDF"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm flex items-center gap-2 shadow-sm">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4" />
-                </svg>
-                Xuất PDF
-            </button>
-            <button id="btnEditDetail"
-                class="px-4 py-2 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition text-sm flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Sửa
-            </button>
-            <button onclick="closeDetailDrawer()"
-                class="px-6 py-2 bg-muted text-foreground rounded-lg font-medium hover:bg-muted/80 transition text-sm">Đóng</button>
         </div>
     </div>
 
@@ -996,6 +1143,10 @@
             } else {
                 alert('Tài khoản hoặc mật khẩu không chính xác!');
             }
+        }
+
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
         }
 
         function handleLogout() {
@@ -1450,8 +1601,23 @@
                         `;
                     } else {
                         const cellValue = row[colIndex] || "";
+                        const columnName = rawHeaders[colIndex] ? rawHeaders[colIndex].toString().trim().toLowerCase() : "";
+                        const isChiPhi = (columnName === 'chi_phi_sua' || columnName === 'chi phí sửa');
+
                         if (isImageUrl(cellValue)) {
                             td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
+                        } else if (isChiPhi && currentActiveTab === 'BH') {
+                            const bhId = row[0]; // Giả sử ID ở cột đầu tiên
+                            const isExpanded = expandedRows.has(bhId);
+                            td.innerHTML = `
+                                <div class="flex items-center gap-2">
+                                    <button onclick="event.stopPropagation(); toggleExpandRow('${bhId}', ${absoluteIndex})" 
+                                        class="w-5 h-5 flex items-center justify-center ${isExpanded ? 'bg-slate-500' : 'bg-primary'} text-white rounded-full hover:opacity-80 transition-all font-bold">
+                                        ${isExpanded ? '-' : '+'}
+                                    </button>
+                                    <span>${cellValue || 0}</span>
+                                </div>
+                            `;
                         } else {
                             td.textContent = cellValue;
                         }
@@ -1460,6 +1626,35 @@
                 });
 
                 bodyFragment.appendChild(tr);
+
+                // Insert Expand Row if expanded
+                const bhId = row[0];
+                if (expandedRows.has(bhId)) {
+                    const expandTr = document.createElement('tr');
+                    expandTr.className = "bg-muted/30 border-b border-border/60";
+                    const expandTd = document.createElement('td');
+                    expandTd.colSpan = visibleIndices.length + 1;
+                    expandTd.className = "px-6 py-4 animate-in slide-in-from-top-2 duration-200";
+
+                    const containerId = `sub-table-container-${bhId}`;
+                    expandTd.innerHTML = `
+                        <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-sm font-bold text-primary uppercase">Chi tiết linh kiện phiếu ${bhId}</h4>
+                                <button onclick="showAddRepairPartUI('${bhId}')" class="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-xs font-bold">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    Thêm linh kiện
+                                </button>
+                            </div>
+                            <div id="${containerId}">Đang tải...</div>
+                        </div>
+                    `;
+                    expandTr.appendChild(expandTd);
+                    bodyFragment.appendChild(expandTr);
+
+                    // Trigger load data asynchronously
+                    setTimeout(() => renderSubTable(bhId, containerId), 50);
+                }
             });
 
             head.appendChild(headFragment);
@@ -1885,24 +2080,48 @@
                     item.className = "flex items-start justify-between py-3 border-b border-border/40 last:border-0 gap-4";
 
                     let displayVal = val || "---";
-                    item.innerHTML = `
-                        <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0 pt-0.5">${h}</div>
-                        <div class="text-sm font-medium flex-1 text-right text-foreground break-words">${displayVal}</div>
-                    `;
+                    const isChiPhi = (lower === 'chi_phi_sua' || lower === 'chi phí sửa');
 
-                    if (isTinhTrang || isTrangThai) {
+                    if (isChiPhi) {
+                        item.className = "flex flex-col py-3 border-b border-border/40 last:border-0 gap-2";
+                        item.innerHTML = `
+                            <div class="flex items-start justify-between gap-4 w-full">
+                                <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0 pt-0.5">${h}</div>
+                                <div class="text-sm font-medium flex-1 text-right text-foreground break-words flex items-center justify-end gap-2">
+                                    <button onclick="event.stopPropagation(); toggleDetailExpand('${row[0]}', ${i})" 
+                                        class="w-5 h-5 flex items-center justify-center bg-primary text-white rounded-full hover:opacity-80 transition-all font-bold"
+                                        id="btn-expand-detail-${i}">
+                                        +
+                                    </button>
+                                    <span id="detail-val-${i}">${displayVal}</span>
+                                </div>
+                            </div>
+                            <div id="detail-expand-container-${i}" class="hidden w-full mt-1 text-left bg-muted/20 p-3 rounded-lg border border-border/40">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-[10px] uppercase font-bold text-muted-foreground font-bold">Bảng linh kiện</span>
+                                    <button onclick="showAddRepairPartUI('${row[0]}', 'detail-sub-table-${i}')" class="text-primary hover:underline text-[10px] font-bold">+ Thêm</button>
+                                </div>
+                                <div id="detail-sub-table-${i}" class="text-xs">Đang tải...</div>
+                            </div>
+                        `;
+                    } else if (isTinhTrang || isTrangThai) {
                         displayVal = val ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">${val}</span>` : "---";
                         item.className = "flex items-center justify-between py-2 border-b border-border/40 last:border-0 gap-4";
                         item.innerHTML = `
                             <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0">${h}</div>
                             <div class="flex-1 flex justify-end">${displayVal}</div>
                         `;
+                    } else {
+                        item.innerHTML = `
+                            <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0 pt-0.5">${h}</div>
+                            <div class="text-sm font-medium flex-1 text-right text-foreground break-words">${displayVal}</div>
+                        `;
                     }
                 }
 
                 // Grouping Logic identical to Form Drawer
-                const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') || (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') && !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') || lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') || lower.includes('địa chỉ') || lower.includes('dia_chi');
-                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong_an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
+                const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') || (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') && !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') || lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') || lower.includes('địa chỉ') || lower.includes('dia_chi') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('ghi_chu');
+                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong_an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
                 const isService = lower.includes('sua') || lower.includes('sửa') || lower.includes('chi phi') || lower.includes('chi phí') || isTinhTrang || isTrangThai || lower.includes('tra') || lower.includes('trả') || lower.includes('mvd');
 
                 if (isInfo) {
@@ -2294,8 +2513,8 @@
                 group.appendChild(inputWrapper);
 
                 // Grouping Logic
-                const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') || (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') && !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') || lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') || lower.includes('địa chỉ') || lower.includes('dia_chi');
-                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong_an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
+                const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') || (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') && !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') || lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') || lower.includes('địa chỉ') || lower.includes('dia_chi') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('ghi_chu');
+                const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong_an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
                 const isService = lower.includes('sua') || lower.includes('sửa') || lower.includes('chi phi') || lower.includes('chi phí') || isTinhTrang || isTrangThai || lower.includes('tra') || lower.includes('trả') || lower.includes('mvd');
 
                 if (isInfo) {
@@ -2466,6 +2685,226 @@
 
             switchTab('HOME');
         };
+
+        // --- REPAIR PARTS MANAGEMENT (EXPAND ROW VERSION) ---
+        let expandedRows = new Set();
+        let repairPartsTargetId = null;
+        let currentSubTableContainer = null;
+
+        function toggleExpandRow(bhId, absoluteIndex) {
+            if (expandedRows.has(bhId)) {
+                expandedRows.delete(bhId);
+            } else {
+                expandedRows.add(bhId);
+            }
+            renderTable();
+        }
+
+        function toggleDetailExpand(bhId, colIdx) {
+            const container = document.getElementById(`detail-expand-container-${colIdx}`);
+            const btn = document.getElementById(`btn-expand-detail-${colIdx}`);
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                btn.textContent = '-';
+                btn.classList.replace('bg-primary', 'bg-slate-500');
+                renderSubTable(bhId, `detail-sub-table-${colIdx}`);
+            } else {
+                container.classList.add('hidden');
+                btn.textContent = '+';
+                btn.classList.replace('bg-slate-500', 'bg-primary');
+            }
+        }
+
+        async function renderSubTable(bhId, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:E`;
+
+                const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const data = await response.json();
+                const allRows = data.values || [];
+
+                const parts = allRows.filter(r => r[1] == bhId);
+
+                if (parts.length === 0) {
+                    container.innerHTML = '<div class="py-2 text-muted-foreground italic">Chưa có linh kiện.</div>';
+                } else {
+                    let html = `
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-[10px] uppercase text-muted-foreground border-b border-border/40">
+                                    <th class="py-1">Linh kiện</th>
+                                    <th class="py-1 text-right">Giá</th>
+                                    <th class="py-1 text-center w-8"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    parts.forEach(part => {
+                        html += `
+                            <tr class="border-b border-border/20 last:border-0">
+                                <td class="py-2 font-medium">${part[3]}</td>
+                                <td class="py-2 text-right">${(parseFloat(part[4]) || 0).toLocaleString()}</td>
+                                <td class="py-2 text-center text-destructive cursor-pointer hover:opacity-70" onclick="deleteRepairPart('${part[0]}', '${bhId}', '${containerId}')">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+                    container.innerHTML = html;
+                }
+            } catch (err) {
+                container.innerHTML = '<div class="text-destructive">Lỗi tải dữ liệu.</div>';
+            }
+        }
+
+        async function showAddRepairPartUI(bhId, containerToRefresh = null) {
+            repairPartsTargetId = bhId;
+            currentSubTableContainer = containerToRefresh; // null means refresh table
+
+            const modal = document.getElementById('repairPartsModal');
+            document.getElementById('repairPartsModalTitle').textContent = `Thêm linh kiện cho phiếu ${bhId}`;
+            modal.classList.remove('hidden');
+
+            // Ẩn các phần không liên quan trong modal cũ
+            const modalTable = modal.querySelector('table');
+            if (modalTable) modalTable.style.display = 'none';
+            const modalFooter = modal.querySelector('.modal-footer');
+            if (modalFooter) modalFooter.style.display = 'none';
+
+            const addUI = document.getElementById('addRepairPartUI');
+            addUI.classList.remove('hidden');
+
+            const select = document.getElementById('selectLinhKien');
+            if (select.options.length <= 1) {
+                try {
+                    const token = await getAccessToken();
+                    const sid = CONFIG.spreadsheetId;
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/DS_CHI_TIET_SP!A:Z`;
+                    const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                    const lkRows = (await response.json()).values || [];
+                    const lkHeaders = lkRows[0].map(h => h.toString().toLowerCase().trim());
+                    const idIdx = lkHeaders.indexOf('id');
+                    const detailIdx = lkHeaders.findIndex(h => h.includes('chi_tiet') || h.includes('tên') || h.includes('sp'));
+                    const priceIdx = lkHeaders.findIndex(h => h.includes('gia') || h.includes('giá'));
+
+                    lkRows.slice(1).forEach(p => {
+                        if (!p[idIdx]) return;
+                        const opt = document.createElement('option');
+                        opt.value = p[idIdx];
+                        opt.dataset.detail = p[detailIdx] || "Không tên";
+                        opt.dataset.price = p[priceIdx] || 0;
+                        opt.textContent = `${p[detailIdx] || "Không tên"} - ${p[priceIdx]}`;
+                        select.appendChild(opt);
+                    });
+                } catch (err) { console.error(err); }
+            }
+        }
+
+        function closeRepairPartsModal() {
+            document.getElementById('repairPartsModal').classList.add('hidden');
+        }
+
+        async function confirmAddRepairPart() {
+            const select = document.getElementById('selectLinhKien');
+            if (!select.value) return alert("Chọn linh kiện.");
+
+            const bhId = repairPartsTargetId;
+            const newPartId = Math.random().toString(36).substring(2, 10).toUpperCase();
+            const newRow = [newPartId, bhId, select.value, select.options[select.selectedIndex].dataset.detail, select.options[select.selectedIndex].dataset.price];
+
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:A:append?valueInputOption=USER_ENTERED`;
+
+                const resp = await fetch(url, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: [newRow] })
+                });
+
+                if (resp.ok) {
+                    document.getElementById('repairPartsModal').classList.add('hidden');
+                    if (currentSubTableContainer) {
+                        await renderSubTable(bhId, currentSubTableContainer);
+                    } else {
+                        renderTable();
+                    }
+                    await updateMainWarrantyCost(bhId);
+                }
+            } catch (err) { alert("Lỗi lưu dữ liệu."); }
+        }
+
+        async function deleteRepairPart(id, bhId, containerId) {
+            if (!confirm("Xóa linh kiện này?")) return;
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const getIdsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:A`, { headers: { "Authorization": `Bearer ${token}` } });
+                const ids = (await getIdsResp.json()).values || [];
+                const rowIndex = ids.findIndex(row => row[0] == id);
+                if (rowIndex === -1) return;
+
+                const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A${rowIndex + 1}:E${rowIndex + 1}:clear`;
+                await fetch(clearUrl, { method: "POST", headers: { "Authorization": `Bearer ${token}` } });
+
+                await renderSubTable(bhId, containerId);
+                await updateMainWarrantyCost(bhId);
+            } catch (e) { alert("Lỗi xóa linh kiện."); }
+        }
+
+        async function updateMainWarrantyCost(bhId) {
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const resp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:E`, { headers: { "Authorization": `Bearer ${token}` } });
+                const parts = (await resp.json()).values || [];
+                const total = parts.filter(r => r[1] == bhId).reduce((sum, p) => sum + (parseFloat(p[4]) || 0), 0);
+
+                const getIdsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/BH!A:A`, { headers: { "Authorization": `Bearer ${token}` } });
+                const rIdx = ((await getIdsResp.json()).values || []).findIndex(r => r[0] == bhId);
+                if (rIdx === -1) return;
+
+                const headsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/BH!1:1`, { headers: { "Authorization": `Bearer ${token}` } });
+                const cpIdx = ((await headsResp.json()).values[0] || []).findIndex(h => h && h.toLowerCase().includes('chi_phi_sua'));
+                if (cpIdx === -1) return;
+
+                const range = `BH!${getColLetter(cpIdx + 1)}${rIdx + 1}`;
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: [[total]] })
+                });
+
+                const localIdx = currentData.findIndex(r => r[0] == bhId);
+                if (localIdx !== -1) {
+                    currentData[localIdx][cpIdx] = total;
+                    updateCostInUI(bhId, cpIdx, total);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function updateCostInUI(bhId, cpIdx, total) {
+            const btns = document.querySelectorAll('button[onclick*="toggleExpandRow"]');
+            btns.forEach(btn => {
+                const clickAttr = btn.getAttribute('onclick');
+                if (clickAttr && clickAttr.includes(`'${bhId}'`)) {
+                    const span = btn.parentElement.querySelector('span');
+                    if (span) span.textContent = total;
+                }
+            });
+            const detailSpan = document.getElementById(`detail-val-${cpIdx}`);
+            if (detailSpan) detailSpan.textContent = total;
+        }
     </script>
 </body>
 
