@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gia Dụng JOY | Sản phẩm cao cấp</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.25/jsrsasign-all-min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --bg-main: #ffffff;
+            --text-main: #1e293b;
+            --text-dim: #64748b;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background: #ffffff;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* --- LANDING MODE STYLES (MIGRATED & ADAPTED) --- */
+        .landing-header {
+            display: flex;
+            padding: 2rem 2rem 0;
+            justify-content: center;
+        }
+
+        .logo {
+            font-weight: 900;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+        .gia-dung {
+            font-size: 0.7rem;
+            background: var(--primary);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+            letter-spacing: 1px;
+        }
+
+        .landing-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+        }
+
+        .modal-gallery {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: #f8fafc;
+            border-right: 1px solid #f1f5f9;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .main-image-container {
+            width: 100%;
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .thumb-strip {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            object-fit: cover;
+        }
+
+        .thumb.active {
+            border-color: var(--primary);
+        }
+
+        .modal-details {
+            padding: 4rem 10% 4rem 4rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-brand {
+            font-size: 1.1rem;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        #modalName {
+            font-size: 2.8rem;
+            line-height: 1.1;
+            margin: 0 0 1rem;
+            font-weight: 800;
+        }
+
+        .modal-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            margin-right: 15px;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .landing-extra-info {
+            margin-top: 2rem;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1.5rem;
+        }
+
+        .landing-extra-info h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .landing-footer-area {
+            background: #fff;
+            border-top: 1px solid #f1f5f9;
+            padding: 4rem 2rem;
+        }
+
+        #directCheckoutSection {
+            background: #ffffff;
+            border: 2px solid var(--primary);
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
+            padding: 3rem;
+            border-radius: 30px;
+            margin-top: 3rem;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-large {
+            width: 100%;
+            height: 65px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-large:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 900px) {
+            .landing-container {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-gallery {
+                position: relative;
+                height: auto;
+                padding: 1rem;
+            }
+
+            .modal-details {
+                padding: 2rem 1.5rem;
+            }
+
+            #modalName {
+                font-size: 1.8rem;
+            }
+
+            .checkout-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            #directCheckoutSection {
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+
+            #directCheckoutSection h3 {
+                font-size: 1.6rem !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loader">
+        <div style="text-align: center;">
+            <div
+                style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;">
+            </div>
+            <p>Đang tải thông tin sản phẩm...</p>
+        </div>
+    </div>
+
+    <div class="landing-header">
+        <div class="logo">
+            <span class="gia-dung">GIA DỤNG</span> J
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor" style="margin: 0 2px;">
+                <defs>
+                    <mask id="ovenMaskLd">
+                        <rect width="40" height="40" fill="white" />
+                        <rect x="8" y="10" width="16" height="16" rx="2" fill="black" />
+                        <circle cx="31" cy="18" r="3.5" fill="black" />
+                    </mask>
+                </defs>
+                <rect x="4" y="6" width="32" height="24" rx="4" fill="currentColor" mask="url(#ovenMaskLd)" />
+                <path d="M 8 30 L 12 30 L 11 34 L 9 34 Z" fill="currentColor" />
+                <path d="M 28 30 L 32 30 L 31 34 L 29 34 Z" fill="currentColor" />
+            </svg>
+            Y
+        </div>
+    </div>
+
+    <div class="landing-container">
+        <div class="modal-gallery">
+            <div class="main-image-container">
+                <img src="" alt="" class="main-image" id="modalMainImg">
+            </div>
+            <div class="thumb-strip" id="modalThumbs"></div>
+        </div>
+        <div class="modal-details">
+            <p id="modalBrand" class="product-brand"></p>
+            <h2 id="modalName"></h2>
+            <div class="modal-price" id="modalPrice"></div>
+            <div id="modalRating" style="margin-bottom: 1rem; color: #fbbf24;"></div>
+
+            <div class="form-group">
+                <label>Phân loại / Kích thước</label>
+                <select class="form-input" id="variantSelect">
+                    <option value="none">Mặc định</option>
+                </select>
+            </div>
+
+            <div style="margin: 2rem 0;">
+                <button class="btn-large"
+                    onclick="document.getElementById('directCheckoutSection').scrollIntoView({ behavior: 'smooth' })">
+                    <i data-lucide="shopping-bag"></i> MUA NGAY MIỄN PHÍ SHIP
+                </button>
+                <p style="text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-top: 0.75rem;">Kiểm tra
+                    hàng trước khi thanh toán</p>
+            </div>
+
+            <div class="landing-extra-info">
+                <h4>Thông số kỹ thuật</h4>
+                <div id="modalSpecs"
+                    style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 1.5rem;"></div>
+
+                <h4>Mô tả sản phẩm</h4>
+                <p id="modalDesc" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-dim);"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="landing-footer-area">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <div style="margin-bottom: 5rem;">
+                <h2
+                    style="font-size: 2.2rem; margin-bottom: 2.5rem; color: var(--text-main); text-align: center; font-weight: 800;">
+                    Chi tiết sản phẩm</h2>
+                <div id="landingDescScroll"
+                    style="font-size: 1.15rem; line-height: 1.8; color: var(--text-dim); white-space: pre-line;"></div>
+            </div>
+
+            <div id="directCheckoutSection">
+                <h3
+                    style="margin-bottom: 1rem; text-align: center; color: var(--primary); font-weight: 800; font-size: 2.2rem;">
+                    SỞ HỮU NGAY HÔM NAY</h3>
+                <p style="text-align: center; color: var(--text-dim); margin-bottom: 3rem; font-size: 1.1rem;">Điền
+                    thông tin bên dưới để đặt hàng nhanh.</p>
+
+                <form onsubmit="handleDirectCheckout(event)" id="directOrderForm">
+                    <div class="checkout-grid">
+                        <div class="form-group">
+                            <label>Họ và tên</label>
+                            <input type="text" class="form-input" id="directName" required placeholder="Nguyễn Văn A">
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="tel" class="form-input" id="directPhone" required placeholder="0901234567">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ nhận hàng</label>
+                        <textarea class="form-input" id="directAddress" required rows="3"
+                            placeholder="Số nhà, Tên đường..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ghi chú</label>
+                        <textarea class="form-input" id="directNote" rows="2"
+                            placeholder="Ví dụ: Giao giờ hành chính"></textarea>
+                    </div>
+                    <div style="margin-top: 2rem;">
+                        <button type="submit" class="btn-large" id="submitDirectOrderBtn">XÁC NHẬN ĐẶT HÀNG</button>
+                        <p style="text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem;">
+                            Miễn phí vận chuyển toàn quốc</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+    <script>
+        const CONFIG = {
+            spreadsheetId: "1Bfz39faKp79G1BYEw7R0_2TZPF4vP2wZxOq7pvmNIkQ",
+            serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
+            privateKey: `-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NN84hLTkQPZd
+Lj7niXZTICq7nHsuTn3J6r2Paq12m70/lYSmrwh1i0EStr9bO19QM8cevGlslwGr
+WSVOLJlc6+w1HGPKvRXtA41kYV9MYIvpzIPQtkFE7Hxq71QyBARcv39Lfzze6Ioj
+3G8VBvAKFLAnCUr97GHRv+KbCTFxPZupd3PEB+xS5ZUlzdBCEZvDid3iXaaEJJ+l
+Td1apAGQHjtnDTLOkiTa8zf7X5ebALwnI9MziOdN8VyprHXGhkachPbKyrG0QwEs
+2jtiI6Y5ULsBPjNefoavH8MKU5DEAT9h0fZ7KfsKYVMDuXqmEKBs0D3B4Z6aDZQW
+wT2dDRZDAgMBAAECggEAEIuVoSzZVuFhaz1GI9ji0IacjvO50cIq7M8Zrj4/F756
+Ew6PIhKENafAb7U4INm2AnzUMO8CqL9Jpxs85qUM3W4JysSByqLUiRW2184amIyb
+j7jCXfLBTQn8AbHgrUepl5d/vBmFYMgon/mqjbNiGDb4FZgEQSkie5o6fi/dWp5d
+NahbZl+WTOB/znhAfKh/zferHNxldR/ERmwOubZUerkqysWiBigc3ovpLSUof9ur
+z3hNPPp0CKQjF40xuQc6FYTHUHMLuMvp78PXuc/mYqQmZ8VOGhU+faGtZ4m+QJly
+dF5dS8U5cwKEF+ptuAUiWSahn6INb9yKn3+FcsW0UQKBgQDb8N4eWFvbgpRo/vxo
+wBN2u2TWubj6clcrq/1a+VR0njC28Can0ogJHhrFhPxVs5D/rugs3HlbyAXJFptY
+V0DZPCwBxGU5P5RbGjXWWEUXjp4ISKQD8WKfVlXNr79TqLdOg2NZBYQAi06Cpo/T
+PV9l7LSG2Tj/9WdvD7W2wvrpaQKBgQDVPjpJN6xh7+sHtSU0mjKvrqigpHbuSQ/o
+XpUaWSIpJffm5QpFPAOcTT5mHZCyllicJQIrfPSY+sH8n+sF03CUqVkV4Q2UqfOf
+pFaLDB4P6SQ8iesZyF4VKFrj/cAvRJmp0e5W/DRnFkoEp+8c+nrru2+Dzm9kb7Uq
+0CiltqYAywKBgBtcfrV1to+7Ue0x84KwintV2rifyDRX7yI+tjkQFYKgf1zyyUxN
+c6D2vsvdvGqI+TvlrXqPPwW8/4NBrbeyux2LT8o0fYc+sp0WyKXOu2Gv21caelUH
+PYam/eultn6Y2Z0J2V0kw4Qx0GWOhQv5cZnDdb3k3iNxixmU8b03ynEpAoGBAKEA
+7O0fNe50QRZ+tOq0ihSPYQ55XrqnO3WNBDLynZJH8pbI1CpWF7vJrpVXOUs9rQWo
+A61mGR/wJMtiywaJEHWOL48PbzuR3jno0NcHfSMyOoPi9jlvSWncIFQH4TVPLF5F
+/Rh8L+ytrZE6YpWUoX6e9KGmGgDRPw5mQGpuL4RlAoGADe9n080SXlsUk4nHVjUz
+Efv7EBoBkgOpqb9T1foRfJl46NxmmTOYV3iGIhjwcDskEg284k4iq/gH6EEFyEBc
+Vz13jzB1nBgjfezFesVQz7bA/+Wik6HZtxAxVg38BKMt+Q1tYw9wOjbGPqOn++VC
+sR2Sh8e3h3Knd6j1tceRIFU=
+-----END PRIVATE KEY-----`,
+            tokenUrl: "https://oauth2.googleapis.com/token"
+        };
+
+        let products = [];
+        let currentProduct = null;
+        let accessToken = null;
+        let tokenExpiry = 0;
+
+        async function getAccessToken() {
+            if (accessToken && Date.now() < tokenExpiry - 300000) return accessToken;
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const payload = {
+                iss: CONFIG.serviceAccountEmail,
+                scope: "https://www.googleapis.com/auth/spreadsheets",
+                aud: CONFIG.tokenUrl,
+                exp: now + 3600,
+                iat: now
+            };
+            const sJWT = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(payload), CONFIG.privateKey);
+            const res = await fetch(CONFIG.tokenUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWT}`
+            });
+            const data = await res.json();
+            accessToken = data.access_token;
+            tokenExpiry = Date.now() + (data.expires_in * 1000);
+            return accessToken;
+        }
+
+        function formatVND(num) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
+        }
+
+        async function init() {
+            lucide.createIcons();
+            const token = await getAccessToken();
+            const [prodRes, imgRes] = await Promise.all([
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/SP_WEB!A2:Q`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/ANH_WEB!A2:B`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+
+            const prodData = await prodRes.json();
+            const imgData = await imgRes.json();
+
+            const imageMap = {};
+            if (imgData.values) {
+                imgData.values.forEach(row => {
+                    const pid = row[0];
+                    const url = row[1];
+                    if (pid && url) {
+                        if (!imageMap[pid]) imageMap[pid] = [];
+                        imageMap[pid].push(url);
+                    }
+                });
+            }
+
+            if (prodData.values) {
+                products = prodData.values.map(row => {
+                    const pid = row[0];
+                    const regPrice = parseInt(row[4]) || 0;
+                    const promoPrice = parseInt(row[14]) || 0;
+                    const finalPrice = (promoPrice > 0 && promoPrice < regPrice) ? promoPrice : regPrice;
+                    const oldPrice = finalPrice < regPrice ? regPrice : 0;
+
+                    let allImages = [];
+                    if (row[5]) allImages.push(...row[5].split(",").map(i => i.trim()));
+                    if (imageMap[pid]) allImages.push(...imageMap[pid]);
+                    allImages = [...new Set(allImages.filter(url => url))];
+                    if (allImages.length === 0) allImages = ["https://via.placeholder.com/400x400?text=No+Image"];
+
+                    return {
+                        id: pid,
+                        name: row[1],
+                        brand: row[2],
+                        category: row[3],
+                        price: finalPrice,
+                        oldPrice: oldPrice,
+                        images: allImages,
+                        desc: row[7] || "",
+                        specs: row[8] || "",
+                        rating: parseFloat(row[9]) || 5,
+                        variants: (row[12] || "").split(",").map(v => v.trim()),
+                        slug: row[15] || ""
+                    };
+                });
+
+                const params = new URLSearchParams(window.location.search);
+                const linkVal = params.get('link');
+                if (linkVal) {
+                    currentProduct = products.find(p => p.slug === linkVal || p.name === linkVal || p.id === linkVal);
+                }
+            }
+
+            if (currentProduct) {
+                renderProduct(currentProduct);
+                document.getElementById('loader').style.display = 'none';
+            } else {
+                document.getElementById('loader').innerHTML = "<p>Không tìm thấy sản phẩm!</p>";
+            }
+        }
+
+        function renderProduct(p) {
+            document.title = p.name + " | Gia Dụng JOY";
+            document.getElementById('modalName').innerText = p.name;
+            document.getElementById('modalBrand').innerText = p.brand;
+            document.getElementById('modalPrice').innerHTML = `
+                ${p.oldPrice > p.price ? `<span class="old-price">${formatVND(p.oldPrice)}</span>` : ''}
+                ${formatVND(p.price)}
+            `;
+            document.getElementById('modalMainImg').src = p.images[0];
+            document.getElementById('modalDesc').innerText = p.desc.substring(0, 200) + "...";
+            document.getElementById('landingDescScroll').innerText = p.desc;
+            document.getElementById('modalSpecs').innerText = p.specs;
+
+            const thumbs = document.getElementById('modalThumbs');
+            thumbs.innerHTML = p.images.map((img, i) => `
+                <img src="${img}" class="thumb ${i === 0 ? 'active' : ''}" onclick="changeImg(this, '${img}')">
+            `).join('');
+
+            const variants = document.getElementById('variantSelect');
+            variants.innerHTML = p.variants.map(v => `<option value="${v}">${v}</option>`).join('');
+
+            let stars = "";
+            for (let i = 0; i < 5; i++) {
+                stars += `<i data-lucide="star" style="width: 16px; fill: ${i < p.rating ? '#fbbf24' : 'none'}"></i>`;
+            }
+            document.getElementById('modalRating').innerHTML = stars;
+            lucide.createIcons();
+        }
+
+        function changeImg(el, src) {
+            document.getElementById('modalMainImg').src = src;
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        async function handleDirectCheckout(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitDirectOrderBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'ĐANG XỬ LÝ...';
+
+            try {
+                const variant = document.getElementById('variantSelect').value;
+                const orderData = {
+                    id: 'LND-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                    date: new Date().toLocaleString('vi-VN'),
+                    name: document.getElementById('directName').value,
+                    phone: document.getElementById('directPhone').value,
+                    address: document.getElementById('directAddress').value,
+                    items: `${currentProduct.name} (${variant}) x1`,
+                    total: currentProduct.price,
+                    status: "Chờ xác nhận",
+                    note: document.getElementById('directNote').value
+                };
+
+                const token = await getAccessToken();
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/DAT_HANG!A:A:append?valueInputOption=RAW`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        values: [[
+                            orderData.id, orderData.date, orderData.name, orderData.phone,
+                            orderData.address, orderData.items, orderData.total,
+                            orderData.status, orderData.note
+                        ]]
+                    })
+                });
+
+                alert("Cảm ơn bạn! Đơn đặt hàng đã được tiếp nhận. Chúng tôi sẽ liên hệ sớm nhất!");
+                e.target.reset();
+            } catch (err) {
+                alert("Lỗi: " + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
