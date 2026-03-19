@@ -103,8 +103,8 @@
 
         /* Images */
         .img-preview {
-            max-width: 60px;
-            max-height: 40px;
+            max-width: 45px;
+            max-height: 30px;
             border-radius: 4px;
             cursor: pointer;
             object-fit: cover;
@@ -1924,6 +1924,26 @@
         }
 
         // --- UTILS ---
+        const TINH_TRANG_OPTS = ["Mới nhận", "Đã kiểm tra", "Đang sửa", "Đã sửa xong", "Không sửa được"];
+        const TRANG_THAI_OPTS = ["Mới tạo", "Đang xử lý", "Chờ linh kiện", "Đang sửa", "Hoàn thành", "Đã trả khách", "Hủy"];
+
+        function formatDateToISO(dateStr) {
+            if (!dateStr) return "";
+            const parts = dateStr.split('/');
+            if (parts.length !== 3) return dateStr;
+            const d = parts[0].padStart(2, '0');
+            const m = parts[1].padStart(2, '0');
+            const y = parts[2];
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatDateToDisplay(dateISO) {
+            if (!dateISO) return "";
+            const parts = dateISO.split('-');
+            if (parts.length !== 3) return dateISO;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
         function isImageUrl(url) {
             if (typeof url !== 'string') return false;
             const cleanUrl = url.trim().toLowerCase();
@@ -2074,7 +2094,9 @@
                     item.className = "py-2 border-b border-border/40 last:border-0";
                     item.innerHTML = `
                         <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">${h}</div>
-                        <img src="${val}" class="rounded-xl border border-border max-w-full h-auto shadow-sm cursor-zoom-in" onclick="zoomImage('${val.replace(/'/g, "\\'")}')">
+                        <div class="w-full h-48 rounded-xl border border-border bg-muted/20 overflow-hidden flex items-center justify-center cursor-zoom-in" onclick="zoomImage('${val.replace(/'/g, "\\'")}')">
+                            <img src="${val}" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<span class=text-xs text-muted-foreground>Lỗi tải ảnh</span>'">
+                        </div>
                     `;
                 } else {
                     item.className = "flex items-start justify-between py-3 border-b border-border/40 last:border-0 gap-4";
@@ -2464,24 +2486,32 @@
                 const inputWrapper = document.createElement('div');
                 inputWrapper.className = "relative flex-1 flex items-center";
 
-                const isTinhTrang = lower.includes('tinh trang') || lower.includes('tình trạng');
-                const isTrangThai = lower.includes('trang thai') || lower.includes('trạng thái');
+                const isTinhTrang = lower.includes('tinh_trang') || lower.includes('tinh trang') || lower.includes('tình trạng');
+                const isTrangThai = lower.includes('trang_thai') || lower.includes('trang thai') || lower.includes('trạng thái');
+                const isDate = lower.includes('ngay') || lower.includes('ngày');
 
                 let input;
                 if (isTinhTrang || isTrangThai) {
                     input = document.createElement('select');
                     input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right cursor-pointer";
 
-                    const options = isTinhTrang
-                        ? ["", "Chưa sửa", "Đang sửa", "Đã sửa", "Không sửa được"]
-                        : ["", "Mới nhận", "Đang kiểm tra", "Đang sửa", "Chờ trả", "Đã trả"];
+                    const options = isTinhTrang ? TINH_TRANG_OPTS : TRANG_THAI_OPTS;
+
+                    const defaultOpt = document.createElement('option');
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "-- Chọn --";
+                    input.appendChild(defaultOpt);
 
                     options.forEach(opt => {
                         const o = document.createElement('option');
                         o.value = opt;
-                        o.textContent = opt || "-- Chọn --";
+                        o.textContent = opt;
                         input.appendChild(o);
                     });
+                } else if (isDate) {
+                    input = document.createElement('input');
+                    input.type = "date";
+                    input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right";
                 } else {
                     input = document.createElement('input');
                     input.type = "text";
@@ -2491,7 +2521,12 @@
 
                 // Populate data if editing
                 if (editRow) {
-                    input.value = editRow[i] || "";
+                    let cellVal = editRow[i] || "";
+                    if (isDate) {
+                        input.value = formatDateToISO(cellVal);
+                    } else {
+                        input.value = cellVal;
+                    }
                 }
 
                 input.dataset.col = i;
@@ -2499,6 +2534,28 @@
                 inputWrapper.appendChild(input);
 
                 if (isImg && !isTinhTrang && !isTrangThai) {
+                    // Thêm Preview Thumbnail trong form
+                    const previewImg = document.createElement('img');
+                    previewImg.id = `form-preview-${i}`;
+                    previewImg.className = "w-6 h-6 rounded object-cover border border-border mr-2 hidden cursor-pointer";
+                    previewImg.onclick = () => { if (previewImg.src) zoomImage(previewImg.src); };
+
+                    const updatePreview = (url) => {
+                        if (isImageUrl(url)) {
+                            previewImg.src = url;
+                            previewImg.classList.remove('hidden');
+                        } else {
+                            previewImg.classList.add('hidden');
+                        }
+                    };
+
+                    if (editRow && editRow[i]) updatePreview(editRow[i]);
+
+                    // Lắng nghe thay đổi input để cập nhật preview
+                    input.addEventListener('input', (e) => updatePreview(e.target.value));
+
+                    inputWrapper.prepend(previewImg);
+
                     const uploadBtn = document.createElement('label');
                     uploadBtn.className = "absolute right-2 p-1.5 hover:bg-muted rounded-md cursor-pointer text-muted-foreground transition";
                     uploadBtn.title = "Tải ảnh lên";
@@ -2552,7 +2609,11 @@
                 const result = await response.json();
                 if (result.success) {
                     const targetInput = document.getElementById(`form-input-${colIndex}`);
-                    if (targetInput) targetInput.value = result.data.url;
+                    if (targetInput) {
+                        targetInput.value = result.data.url;
+                        // Trigger input event to update preview
+                        targetInput.dispatchEvent(new Event('input'));
+                    }
                 } else {
                     alert("Lỗi tải ảnh: " + result.error.message);
                 }
@@ -2578,7 +2639,7 @@
 
             // Pick inputs and selects from the entire drawer
             const root = document.getElementById('formDrawer');
-            const inputs = root.querySelectorAll('input[type="text"], select');
+            const inputs = root.querySelectorAll('input, select');
             const rawHeaders = currentData[0];
             const newData = new Array(rawHeaders.length).fill("");
 
@@ -2586,7 +2647,13 @@
             inputs.forEach(input => {
                 const col = parseInt(input.dataset.col);
                 if (isNaN(col)) return; // Skip if no col index
-                const val = (input.value || "").trim();
+                let val = (input.value || "").trim();
+
+                // Convert date back to DD/MM/YYYY
+                if (input.type === 'date' && val) {
+                    val = formatDateToDisplay(val);
+                }
+
                 newData[col] = val;
                 if (val !== "") hasData = true;
             });
