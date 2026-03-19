@@ -3148,6 +3148,42 @@
             if (detailSpan) detailSpan.textContent = total;
         }
     </script>
+    <!-- Image Zoom Overlay -->
+    <div id="imageOverlay" class="image-overlay" onclick="closeImageOverlay()">
+        <img id="overlayImage" src="" alt="Zoomed Image">
+    </div>
+
+    <!-- Modal Linh kiện (Đã có ở trên nhưng đảm bảo không trùng lặp hoặc thiếu) -->
+    <div id="repairPartsModal" class="modal-overlay hidden">
+        <div class="modal max-w-2xl w-full">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-foreground" id="repairPartsModalTitle">Linh kiện sửa chữa</h2>
+                <button class="p-1 hover:bg-muted rounded text-muted-foreground"
+                    onclick="closeRepairPartsModal()">✕</button>
+            </div>
+
+            <!-- UI Thêm linh kiện -->
+            <div id="addRepairPartUI" class="mb-4 p-4 bg-muted/30 rounded-lg hidden">
+                <div class="flex flex-col gap-3">
+                    <label class="text-sm font-medium">Chọn linh kiện từ danh sách:</label>
+                    <select id="selectLinhKien"
+                        class="w-full border border-border rounded px-3 py-2 outline-none focus:border-primary text-sm">
+                        <option value="">-- Chọn linh kiện --</option>
+                    </select>
+                    <div class="flex justify-end gap-2 mt-2">
+                        <button class="px-3 py-1.5 border border-border rounded hover:bg-muted text-xs"
+                            onclick="document.getElementById('addRepairPartUI').classList.add('hidden')">Hủy</button>
+                        <button class="px-3 py-1.5 bg-primary text-white rounded hover:opacity-90 text-xs"
+                            onclick="confirmAddRepairPart()">Xác nhận thêm</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="repairPartsList" class="max-h-[60vh] overflow-y-auto no-scrollbar">
+                <!-- Nội dung được nạp qua JS -->
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
