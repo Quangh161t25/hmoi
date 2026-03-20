@@ -13,6 +13,7 @@
         rel="stylesheet">
     <!-- JSRSAsign for JWT -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- XLSX Library for Excel Parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Chart.js for Dashboards -->
@@ -1044,22 +1045,6 @@
                 <h2 class="font-bold text-base truncate">Chi tiết phiếu bảo hành</h2>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-                <button id="btnExportPDF"
-                    class="px-3 py-1.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-xs flex items-center gap-1.5 shadow-sm">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4" />
-                    </svg>
-                    Xuất PDF
-                </button>
-                <button id="btnOpenLink"
-                    class="px-3 py-1.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition text-xs flex items-center gap-1.5 shadow-sm">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Mở link phiếu BH
-                </button>
                 <button id="btnEditDetail"
                     class="px-3 py-1.5 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition text-xs flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1067,6 +1052,14 @@
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Sửa
+                </button>
+                <button id="btnExportPDF"
+                    class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg font-medium hover:bg-emerald-100 transition text-xs flex items-center gap-1.5 hidden">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Xuất PDF
                 </button>
                 <div class="w-px h-6 bg-border mx-1"></div>
                 <button onclick="closeDetailDrawer()"
@@ -1142,6 +1135,36 @@
                 columns: ["id", "chi_tiet", "gia", "id_sp"]
             }
         };
+
+        const HEADER_MAPPING = {
+            'ngay': 'Ngày',
+            'truong': 'Trường',
+            'shop': 'Shop',
+            'mdh': 'mdh',
+            'ghi_chu': 'Ghi chú',
+            'anh_da_nhan': 'Ảnh đã nhận',
+            'sp': 'Sản phẩm',
+            'anh_sp': 'Ảnh sản phẩm',
+            'mo_ta_loi': 'Mô tả lỗi',
+            'xac_dinh_loi': 'Xác định lỗi',
+            'phuong_an_xly': 'Phương án xử lý',
+            'ngay_sua': 'Ngày sửa',
+            'chi_phi_sua': 'Chi phí sửa',
+            'tinh_trang': 'Tình trạng',
+            'trang_thai': 'Trạng thái',
+            'ngay_tra': 'Ngày trả',
+            'mvd_tra': 'Mã vận đơn trả',
+            'mvd_trả': 'Mã vận đơn trả',
+            'id_khach': 'ID khách',
+            'sdt': 'SĐT',
+            'dia_chi': 'Địa chỉ'
+        };
+
+        function getDisplayHeader(key) {
+            if (!key) return "";
+            const cleanKey = key.toString().trim().toLowerCase();
+            return HEADER_MAPPING[cleanKey] || key;
+        }
 
         let currentActiveTab = 'HOME';
         let isLoggedIn = false;
@@ -1604,7 +1627,7 @@
             visibleIndices.forEach(idx => {
                 const h = rawHeaders[idx];
                 const th = document.createElement('th');
-                th.innerHTML = `${h} <span class="sort-icon"></span>`;
+                th.innerHTML = `${getDisplayHeader(h)} <span class="sort-icon"></span>`;
                 th.onclick = () => handleSort(idx);
                 if (sortConfig.col === idx) {
                     th.className = sortConfig.dir === 'asc' ? 'sorted-asc' : 'sorted-desc';
@@ -2179,21 +2202,19 @@
                 editBtn.onclick = () => startEditFromDetail(rowIndex);
             }
 
-            // Setup Open Link Button
-            const openLinkBtn = document.getElementById('btnOpenLink');
-            if (openLinkBtn) {
-                openLinkBtn.onclick = () => openWarrantyLink(rowIndex);
-                if (isPartsTab) openLinkBtn.classList.add('hidden');
-                else openLinkBtn.classList.remove('hidden');
+            // Setup PDF Button
+            const pdfBtn = document.getElementById('btnExportPDF');
+            if (pdfBtn) {
+                if (isPartsTab) {
+                    pdfBtn.classList.add('hidden');
+                } else {
+                    pdfBtn.classList.remove('hidden');
+                    pdfBtn.onclick = () => exportOrderToPDF(rowIndex);
+                }
             }
 
-            // Setup Export PDF Button
-            const exportBtn = document.getElementById('btnExportPDF');
-            if (exportBtn) {
-                exportBtn.onclick = () => exportTicketPDF(rowIndex);
-                if (isPartsTab) exportBtn.classList.add('hidden');
-                else exportBtn.classList.remove('hidden');
-            }
+            // Removed btnOpenLink logic per user request
+
 
             // Update Header Title
             const drawerTitle = document.querySelector('#detailDrawer h2');
@@ -2252,7 +2273,7 @@
                 if (isImg && val) {
                     item.className = "py-2 border-b border-border/40 last:border-0";
                     item.innerHTML = `
-                        <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">${h}</div>
+                        <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">${getDisplayHeader(h)}</div>
                         <div class="w-full h-48 rounded-xl border border-border bg-muted/20 overflow-hidden flex items-center justify-center cursor-zoom-in" onclick="zoomImage('${val.replace(/'/g, "\\'")}')">
                             <img src="${val}" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<span class=text-xs text-muted-foreground>Lỗi tải ảnh</span>'">
                         </div>
@@ -2267,7 +2288,7 @@
                         item.className = "flex flex-col py-3 border-b border-border/40 last:border-0 gap-2";
                         item.innerHTML = `
                             <div class="flex items-start justify-between gap-4 w-full">
-                                <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0 pt-0.5">${h}</div>
+                                <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0 pt-0.5">${getDisplayHeader(h)}</div>
                                 <div class="text-sm font-medium flex-1 text-right text-foreground break-words flex items-center justify-end gap-2">
                                     <button onclick="event.stopPropagation(); toggleDetailExpand('${row[0]}', ${i})" 
                                         class="w-5 h-5 flex items-center justify-center bg-primary text-white rounded-full hover:opacity-80 transition-all font-bold"
@@ -2289,12 +2310,12 @@
                         displayVal = val ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">${val}</span>` : "---";
                         item.className = "flex items-center justify-between py-2 border-b border-border/40 last:border-0 gap-4";
                         item.innerHTML = `
-                            <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0">${h}</div>
+                            <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0">${getDisplayHeader(h)}</div>
                             <div class="flex-1 flex justify-end">${displayVal}</div>
                         `;
                     } else {
                         item.innerHTML = `
-                            <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0 pt-0.5">${h}</div>
+                            <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0 pt-0.5">${getDisplayHeader(h)}</div>
                             <div class="text-sm font-medium flex-1 text-right text-foreground break-words">${displayVal}</div>
                         `;
                     }
@@ -2327,53 +2348,160 @@
             openDetailDrawer();
         }
 
-        function exportTicketPDF(rowIndex) {
+
+
+        function exportOrderToPDF(rowIndex) {
             const row = currentData[rowIndex];
             const headers = currentData[0];
-            const idColIdx = headers.findIndex(h => h && h.toLowerCase() === 'id');
+            const dataMap = {};
+            headers.forEach((h, i) => {
+                if (h) {
+                    const key = h.trim().toLowerCase();
+                    dataMap[key] = row[i] || "";
+                    dataMap[key.replace(/\s+/g, '_')] = row[i] || "";
+                    const noAccent = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    dataMap[noAccent] = row[i] || "";
+                    dataMap[noAccent.replace(/\s+/g, '_')] = row[i] || "";
+                }
+            });
 
-            if (idColIdx === -1) {
-                alert("Không tìm thấy cột ID trong dữ liệu.");
-                return;
-            }
+            const getVal = (keys) => {
+                for (let k of keys) {
+                    const lowerK = k.toLowerCase().trim();
+                    const variations = [
+                        lowerK,
+                        lowerK.replace(/\s+/g, '_'),
+                        lowerK.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+                        lowerK.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_')
+                    ];
+                    for (let v of variations) {
+                        if (dataMap[v] !== undefined && dataMap[v] !== "") return dataMap[v];
+                    }
+                }
+                return "---";
+            };
 
-            const ticketId = row[idColIdx];
-            if (!ticketId) {
-                alert("Dòng này không có mã ID (vui lòng lưu phiếu trước khi in).");
-                return;
-            }
+            const displayId = dataMap['mdh'] || dataMap['id'] || 'N/A';
+            const customerName = getVal(['id_khach', 'khach', 'khách', 'khách hàng']);
+            const customerPhone = getVal(['sdt', 'sđt', 'số điện thoại']);
+            const customerAddress = getVal(['dia_chi', 'địa chỉ', 'dia chi']);
+            const orderDate = getVal(['ngay', 'ngay_nhan', 'ngày nhận', 'ngay nhan']);
+            const shopName = getVal(['shop', 'sàn', 'san']);
+            const billId = getVal(['mdh', 'mvd', 'mã vận đơn', 'ma van don']);
+            const product = getVal(['sp', 'sản phẩm', 'san pham']);
+            const faultDescription = getVal(['mo_ta_loi', 'mô tả lỗi', 'loi', 'lỗi']);
+            const faultType = getVal(['xac_dinh_loi', 'xác định lỗi']);
+            const solution = getVal(['phuong_an_xly', 'phương án', 'phuong an', 'phương án xử lý']);
+            const repairCost = getVal(['chi_phi_sua', 'chi phí', 'chi chi', 'chi phí sửa']);
+            const conditionText = getVal(['tinh_trang', 'tình trạng', 'tinh trang']);
+            const statusText = getVal(['trang_thai', 'trạng thái', 'trang thai']);
 
-            // Sử dụng iframe ẩn để tải PDF mà không mở tab mới
-            let iframe = document.getElementById('pdfDownloadIframe');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.id = 'pdfDownloadIframe';
-                iframe.style.display = 'none';
-                document.body.appendChild(iframe);
-            }
-            iframe.src = `l&k_phieubh.html?id=${ticketId}&download=true`;
+            const tempDiv = document.createElement('div');
+            tempDiv.style.background = "white";
+            tempDiv.style.width = "800px";
+            tempDiv.style.fontFamily = "'Inter', sans-serif";
+
+            tempDiv.innerHTML = `
+                <div style="padding: 40px; background: white; color: #333;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #2563eb; padding-bottom: 20px;">
+                        <div style="width: 60%;">
+                            <img src="https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=2592000&url=https://locknking.com/wp-content/uploads/2025/06/logo-lockking.png" style="height: 60px; margin-bottom: 10px;">
+                        </div>
+                        <div style="text-align: right; width: 35%;">
+                            <h1 style="font-size: 24px; font-weight: 800; color: #2563eb; margin: 0; text-transform: uppercase;">Phiếu Bảo Hành</h1>
+                            <p style="font-size: 14px; color: #64748b; margin: 5px 0 0 0;">Mã phiếu: <strong>${displayId}</strong></p>
+                            <p style="font-size: 14px; color: #64748b; margin: 1px 0 0 0;">Ngày in: ${new Date().toLocaleDateString('vi-VN')}</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 40px; margin-bottom: 35px;">
+                        <div style="flex: 1;">
+                            <h3 style="font-size: 13px; font-weight: 800; border-left: 4px solid #2563eb; padding-left: 10px; margin-bottom: 15px; color: #1e293b; text-transform: uppercase;">Thông tin khách hàng</h3>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Họ tên:</strong> ${customerName}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>SĐT:</strong> ${customerPhone}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Địa chỉ:</strong> ${customerAddress}</p>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="font-size: 13px; font-weight: 800; border-left: 4px solid #2563eb; padding-left: 10px; margin-bottom: 15px; color: #1e293b; text-transform: uppercase;">Thông tin biên nhận</h3>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Ngày:</strong> ${orderDate}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Shop/Sàn:</strong> ${shopName}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>mdh:</strong> ${billId}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 35px;">
+                        <h3 style="font-size: 13px; font-weight: 800; border-left: 4px solid #2563eb; padding-left: 10px; margin-bottom: 15px; color: #1e293b; text-transform: uppercase;">Sản phẩm & Tình trạng</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px; border: 1px solid #e2e8f0;">
+                            <thead>
+                                <tr style="background: #f8fafc;">
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #e2e8f0;">Tên sản phẩm</th>
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #e2e8f0;">mô tả lỗi</th>
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #e2e8f0;">Lỗi xác định</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px; border: 1px solid #e2e8f0;">${product}</td>
+                                    <td style="padding: 12px; border: 1px solid #e2e8f0;">${faultDescription}</td>
+                                    <td style="padding: 12px; border: 1px solid #e2e8f0; color: #dc2626;">${faultType}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-bottom: 40px; background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 40px;">
+                        <div style="flex: 1;">
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Phương án xử lý:</strong> ${solution}</p>
+                            <p style="margin: 5px 0; font-size: 15px;"><strong>Tổng chi phí:</strong> <span style="color: #2563eb; font-weight: 800;">${repairCost} đ</span></p>
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Tình trạng:</strong> <span style="color: #0369a1; font-weight: 600;">${conditionText}</span></p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Trạng thái:</strong> <span style="color: #15803d; font-weight: 600;">${statusText}</span></p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-around; margin-top: 60px;">
+                        <div style="text-align: center; width: 200px;">
+                            <p style="font-size: 14px; font-weight: 700; margin-bottom: 80px;">Xác nhận khách hàng</p>
+                            <p style="font-size: 11px; color: #94a3b8;">(Ký và ghi rõ họ tên)</p>
+                        </div>
+                        <div style="text-align: center; width: 200px;">
+                            <p style="font-size: 14px; font-weight: 700; margin-bottom: 80px;">Kỹ thuật viên</p>
+                            <p style="font-size: 11px; color: #94a3b8;">(Ký và ghi rõ họ tên)</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 100px; text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 25px;">
+                        <p style="font-size: 11px; color: #94a3b8; font-style: italic;">Cảm ơn quý khách đã tin tưởng dịch vụ của Lock&King!</p>
+                    </div>
+                </div>
+            `;
+
+            const opt = {
+                margin: 0,
+                filename: `Phieu-Bao-Hanh-${displayId}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Hiển thị thông báo đang xử lý
+            const btn = document.getElementById('btnExportPDF');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<svg class="animate-spin h-3.5 w-3.5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang xuất...`;
+            btn.disabled = true;
+
+            html2pdf().set(opt).from(tempDiv).save().then(() => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error("Lỗi xuất PDF:", err);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                alert("Có lỗi xảy ra khi xuất PDF. Vui lòng thử lại.");
+            });
         }
 
-        function openWarrantyLink(rowIndex) {
-            const row = currentData[rowIndex];
-            const headers = currentData[0];
-            const idColIdx = headers.findIndex(h => h && h.toLowerCase() === 'id');
-
-            if (idColIdx === -1) {
-                alert("Không tìm thấy cột ID trong dữ liệu.");
-                return;
-            }
-
-            const ticketId = row[idColIdx];
-            if (!ticketId) {
-                alert("Dòng này không có mã ID.");
-                return;
-            }
-
-            // Mở link phiếu BH theo yêu cầu
-            const url = `https://quangh161t25.github.io/hmoi/l&k_phieubh.html?id=${ticketId}`;
-            window.open(url, '_blank');
-        }
 
         function startEditFromDetail(rowIndex) {
             closeDetailDrawer();
@@ -2404,10 +2532,8 @@
                     bhData = result.values || [];
                 }
 
-                if (bhData.length < 2) return setStats(0, 0, 0, 0);
-
-                const headers = bhData[0];
-                const trangThaiIdx = headers.findIndex(h => h && h.toLowerCase().includes('trang_thai'));
+                if (bhData.length < 2) return setStats(0, 0, 0, 0); const headers = bhData[0]; const trangThaiIdx = headers.findIndex(h => h
+                    && h.toLowerCase().includes('trang_thai'));
                 const chiPhiIdx = headers.findIndex(h => h && h.toLowerCase().includes('chi_phi'));
                 const rows = bhData.slice(1);
 
@@ -2538,11 +2664,8 @@
 
         async function renderDashboardBH() {
             if (!currentData || currentData.length < 2 || CONFIG.sheetName !== 'BH') {
-                // Nếu chưa có data, thử fetch lại
-                if (CONFIG.sheetName === 'BH') await fetchData();
-                else return;
+                if (CONFIG.sheetName === 'BH') await fetchData(); else return;
             }
-
             const headers = currentData[0].map(h => h ? h.toString().toLowerCase().trim() : "");
             const rows = currentData.slice(1);
 
@@ -2707,14 +2830,21 @@
             // Update Column Headers for Parts
             const h3s = document.querySelectorAll('#formDrawer h3');
             if (isPartsTab) {
-                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin linh kiện`;
-                if (h3s[1]) h3s[1].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Sản phẩm tương thích`;
+                if (h3s[0]) h3s[0].innerHTML = `<span
+            class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin linh
+        kiện`;
+                if (h3s[1]) h3s[1].innerHTML = `<span
+            class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Sản phẩm tương
+        thích`;
                 if (h3s[2]) h3s[2].parentElement.classList.add('hidden');
             } else {
-                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin đơn`;
-                if (h3s[1]) h3s[1].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Sản phẩm`;
+                if (h3s[0]) h3s[0].innerHTML = `<span
+            class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin đơn`;
+                if (h3s[1]) h3s[1].innerHTML = `<span
+            class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Sản phẩm`;
                 if (h3s[2]) {
-                    h3s[2].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">3</span> Sửa chữa`;
+                    h3s[2].innerHTML = `<span
+            class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">3</span> Sửa chữa`;
                     h3s[2].parentElement.classList.remove('hidden');
                 }
             }
@@ -2749,7 +2879,7 @@
 
                 const label = document.createElement('label');
                 label.className = "text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0";
-                label.textContent = val;
+                label.textContent = getDisplayHeader(val);
 
                 const inputWrapper = document.createElement('div');
                 inputWrapper.className = "relative flex-1 flex items-center";
@@ -2787,15 +2917,17 @@
                     const searchBox = document.createElement('div');
                     searchBox.className = "p-2 border-b border-border bg-muted/10";
                     searchBox.innerHTML = `
-                        <div class="relative">
-                            <input type="text" placeholder="Tìm kiếm sản phẩm..." 
-                                class="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-md focus:outline-none focus:border-primary"
-                                oninput="filterPartProducts(this)">
-                            <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                    `;
+        <div class="relative">
+            <input type="text" placeholder="Tìm kiếm sản phẩm..."
+                class="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-md focus:outline-none focus:border-primary"
+                oninput="filterPartProducts(this)">
+            <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        `;
                     wrapper.appendChild(searchBox);
 
                     const container = document.createElement('div');
@@ -2849,9 +2981,13 @@
                     const footer = document.createElement('div');
                     footer.className = "p-2 border-t border-border flex justify-between items-center bg-muted/5";
                     footer.innerHTML = `
-                        <button type="button" onclick="clearPartSelections(this)" class="text-[10px] font-bold text-muted-foreground hover:text-red-500 transition-colors uppercase">Clear</button>
-                        <button type="button" onclick="this.closest('.overflow-y-auto').parentElement.nextElementSibling?.querySelector('input')?.focus()" class="text-[10px] font-bold text-primary hover:underline transition-colors uppercase">Done</button>
-                    `;
+        <button type="button" onclick="clearPartSelections(this)"
+            class="text-[10px] font-bold text-muted-foreground hover:text-red-500 transition-colors uppercase">Xóa
+            chọn</button>
+        <button type="button"
+            onclick="this.closest('.overflow-y-auto').parentElement.nextElementSibling?.querySelector('input')?.focus()"
+            class="text-[10px] font-bold text-primary hover:underline transition-colors uppercase">Xong</button>
+        `;
                     wrapper.appendChild(footer);
 
                     container.dataset.col = i;
@@ -2916,9 +3052,12 @@
                     uploadBtn.className = "absolute right-2 p-1.5 hover:bg-muted rounded-md cursor-pointer text-muted-foreground transition";
                     uploadBtn.title = "Tải ảnh lên";
                     uploadBtn.innerHTML = `
-                        <input type="file" style="display: none;" onchange="handleFormImageUpload(this, ${i})">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    `;
+        <input type="file" style="display: none;" onchange="handleFormImageUpload(this, ${i})">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        `;
                     inputWrapper.appendChild(uploadBtn);
                 }
 
@@ -2926,9 +3065,16 @@
                 group.appendChild(inputWrapper);
 
                 // Grouping Logic
-                const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') || (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') && !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') || lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') || lower.includes('địa chỉ') || lower.includes('dia_chi') || lower.includes('da nhan') || lower.includes('đã nhận') || lower.includes('da_nhan') || lower.includes('ghi_chu');
+                const isInfo = lower.includes('ngay_nhan') || lower.includes('ngay nhan') || lower.includes('ngày nhận') ||
+                    (lower.includes('ngay') && !lower.includes('sua') && !lower.includes('sửa') && !lower.includes('tra') &&
+                        !lower.includes('trả')) || lower.includes('shop') || lower.includes('mdh') || lower.includes('khach') ||
+                    lower.includes('khách') || lower.includes('sdt') || lower.includes('sđt') || lower.includes('dia chi') ||
+                    lower.includes('địa chỉ') || lower.includes('dia_chi') || lower.includes('da nhan') || lower.includes('đã nhận')
+                    || lower.includes('da_nhan') || lower.includes('ghi_chu');
                 const isProduct = lower.includes('sp') || lower.includes('sản phẩm') || lower.includes('loi') || lower.includes('lỗi') || lower.includes('phuong_an') || lower.includes('phương án') || lower.includes('xac dinh') || lower.includes('xác định');
-                const isService = lower.includes('sua') || lower.includes('sửa') || lower.includes('chi phi') || lower.includes('chi phí') || isTinhTrang || isTrangThai || lower.includes('tra') || lower.includes('trả') || lower.includes('mvd');
+                const isService = lower.includes('sua') || lower.includes('sửa') || lower.includes('chi phi') ||
+                    lower.includes('chi phí') || isTinhTrang || isTrangThai || lower.includes('tra') || lower.includes('trả') ||
+                    lower.includes('mvd');
 
                 if (isInfo) {
                     if (page1) page1.appendChild(group);
@@ -3048,7 +3194,8 @@
             // Auto-generate ID for new records (BH or Parts)
             const rawHeadersForId = currentData[0];
             const idColIndex = rawHeadersForId.findIndex(h => h && h.toString().trim().toLowerCase() === 'id');
-            if ((currentActiveTab === 'BH' || currentActiveTab === 'DS_CHI_TIET_SP') && idColIndex !== -1 && !newData[idColIndex]) {
+            if ((currentActiveTab === 'BH' || currentActiveTab === 'DS_CHI_TIET_SP') && idColIndex !== -1 &&
+                !newData[idColIndex]) {
                 newData[idColIndex] = (currentActiveTab === 'DS_CHI_TIET_SP') ? generateId(8) : generateId();
             }
 
@@ -3073,7 +3220,8 @@
                     method = "PUT";
                 } else {
                     // Append new row
-                    url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:append?valueInputOption=USER_ENTERED`;
+                    url =
+                        `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:append?valueInputOption=USER_ENTERED`;
                     method = "POST";
                 }
 
@@ -3193,31 +3341,37 @@
                     container.innerHTML = '<div class="py-2 text-muted-foreground italic">Chưa có linh kiện.</div>';
                 } else {
                     let html = `
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="text-[10px] uppercase text-muted-foreground border-b border-border/40">
-                                    <th class="py-1">Linh kiện</th>
-                                    <th class="py-1 text-right">Giá</th>
-                                    <th class="py-1 text-center w-8"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-[10px] uppercase text-muted-foreground border-b border-border/40">
+                    <th class="py-1">Linh kiện</th>
+                    <th class="py-1 text-right">Giá</th>
+                    <th class="py-1 text-center w-8"></th>
+                </tr>
+            </thead>
+            <tbody>
+                `;
                     parts.forEach(part => {
                         html += `
-                            <tr class="border-b border-border/20 last:border-0">
-                                <td class="py-2 font-medium">${part[3]}</td>
-                                <td class="py-2 text-right">${(parseFloat(part[4]) || 0).toLocaleString()}</td>
-                                <td class="py-2 text-center text-destructive cursor-pointer hover:opacity-70" onclick="deleteRepairPart('${part[0]}', '${bhId}', '${containerId}')">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                </td>
-                            </tr>
-                        `;
+                <tr class="border-b border-border/20 last:border-0">
+                    <td class="py-2 font-medium">${part[3]}</td>
+                    <td class="py-2 text-right">${(parseFloat(part[4]) || 0).toLocaleString()}</td>
+                    <td class="py-2 text-center text-destructive cursor-pointer hover:opacity-70"
+                        onclick="deleteRepairPart('${part[0]}', '${bhId}', '${containerId}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                            </path>
+                        </svg>
+                    </td>
+                </tr>
+                `;
                     });
                     html += `
-                            </tbody>
-                        </table>
-                    `;
+            </tbody>
+        </table>
+        `;
                     container.innerHTML = html;
                 }
             } catch (err) {
@@ -3245,12 +3399,10 @@
             const select = document.getElementById('selectLinhKien');
             if (select.options.length <= 1) {
                 try {
-                    const token = await getAccessToken();
-                    const sid = CONFIG.spreadsheetId;
-                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/DS_CHI_TIET_SP!A:Z`;
-                    const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
-                    const lkRows = (await response.json()).values || [];
-                    const lkHeaders = lkRows[0].map(h => h.toString().toLowerCase().trim());
+                    const token = await getAccessToken(); const sid = CONFIG.spreadsheetId;
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/DS_CHI_TIET_SP!A:Z`; const
+                        response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } }); const lkRows = (await
+                            response.json()).values || []; const lkHeaders = lkRows[0].map(h => h.toString().toLowerCase().trim());
                     const idIdx = lkHeaders.indexOf('id');
                     const detailIdx = lkHeaders.findIndex(h => h.includes('chi_tiet') || h.includes('tên') || h.includes('sp'));
                     const priceIdx = lkHeaders.findIndex(h => h.includes('gia') || h.includes('giá'));
@@ -3278,12 +3430,14 @@
 
             const bhId = repairPartsTargetId;
             const newPartId = Math.random().toString(36).substring(2, 10).toUpperCase();
-            const newRow = [newPartId, bhId, select.value, select.options[select.selectedIndex].dataset.detail, select.options[select.selectedIndex].dataset.price];
+            const newRow = [newPartId, bhId, select.value, select.options[select.selectedIndex].dataset.detail,
+                select.options[select.selectedIndex].dataset.price];
 
             try {
                 const token = await getAccessToken();
                 const sid = CONFIG.spreadsheetId;
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:A:append?valueInputOption=USER_ENTERED`;
+                const url =
+                    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:A:append?valueInputOption=USER_ENTERED`;
 
                 const resp = await fetch(url, {
                     method: "POST",
@@ -3308,12 +3462,18 @@
             try {
                 const token = await getAccessToken();
                 const sid = CONFIG.spreadsheetId;
-                const getIdsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:A`, { headers: { "Authorization": `Bearer ${token}` } });
+                const getIdsResp = await
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:A`, {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
                 const ids = (await getIdsResp.json()).values || [];
                 const rowIndex = ids.findIndex(row => row[0] == id);
                 if (rowIndex === -1) return;
 
-                const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A${rowIndex + 1}:E${rowIndex + 1}:clear`;
+                const clearUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A${rowIndex
+                    + 1}:E${rowIndex + 1}:clear`;
                 await fetch(clearUrl, { method: "POST", headers: { "Authorization": `Bearer ${token}` } });
 
                 await renderSubTable(bhId, containerId);
@@ -3325,24 +3485,36 @@
             try {
                 const token = await getAccessToken();
                 const sid = CONFIG.spreadsheetId;
-                const resp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:E`, { headers: { "Authorization": `Bearer ${token}` } });
+                const resp = await
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/LINK_KIEN_SUA_CHUA!A:E`, {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
                 const parts = (await resp.json()).values || [];
                 const total = parts.filter(r => r[1] == bhId).reduce((sum, p) => sum + (parseFloat(p[4]) || 0), 0);
 
-                const getIdsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/BH!A:A`, { headers: { "Authorization": `Bearer ${token}` } });
+                const getIdsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/BH!A:A`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
                 const rIdx = ((await getIdsResp.json()).values || []).findIndex(r => r[0] == bhId);
                 if (rIdx === -1) return;
 
-                const headsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/BH!1:1`, { headers: { "Authorization": `Bearer ${token}` } });
-                const cpIdx = ((await headsResp.json()).values[0] || []).findIndex(h => h && h.toLowerCase().includes('chi_phi_sua'));
+                const headsResp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/BH!1:1`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const cpIdx = ((await headsResp.json()).values[0] || []).findIndex(h => h &&
+                    h.toLowerCase().includes('chi_phi_sua'));
                 if (cpIdx === -1) return;
 
                 const range = `BH!${getColLetter(cpIdx + 1)}${rIdx + 1}`;
-                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`, {
-                    method: "PUT",
-                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ values: [[total]] })
-                });
+                await
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`,
+                        {
+                            method: "PUT",
+                            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                            body: JSON.stringify({ values: [[total]] })
+                        });
 
                 const localIdx = currentData.findIndex(r => r[0] == bhId);
                 if (localIdx !== -1) {
