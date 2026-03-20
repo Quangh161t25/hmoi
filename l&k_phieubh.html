@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Bảo Hành - Lock&King</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.25/jsrsasign-all-min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        .ticket-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+            }
+
+            .ticket-container {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                border-radius: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
+        <div class="loading-spinner"></div>
+        <p class="mt-4 text-slate-500 font-medium">Đang tải dữ liệu phiếu...</p>
+    </div>
+
+    <div id="errorView"
+        class="hidden fixed inset-0 flex flex-col items-center justify-center bg-white z-50 p-6 text-center">
+        <div class="text-red-500 mb-4 text-5xl">⚠️</div>
+        <h2 id="errorMsg" class="text-xl font-bold text-slate-800">Không tìm thấy thông tin phiếu</h2>
+        <p class="text-slate-500 mt-2">Vui lòng kiểm tra lại đường dẫn hoặc ID phiếu.</p>
+    </div>
+
+    <div class="no-print fixed top-6 right-6 flex gap-3">
+        <button onclick="window.print()"
+            class="px-6 py-2 bg-primary bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-blue-700 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4" />
+            </svg>
+            In phiếu
+        </button>
+    </div>
+
+    <div id="ticketContent" class="ticket-container hidden">
+        <!-- Template will be injected here -->
+    </div>
+
+    <script>
+        const CONFIG = {
+            spreadsheetId: "15ZdIdON8Dj9TkWCt6VsmbtRvHtF0J3xndP9Cxh-nCdk",
+            sheetName: "BH",
+            serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
+            privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NN84hLTkQPZd\nLj7niXZTICq7nHsuTn3J6r2Paq12m70/lYSmrwh1i0EStr9bO19QM8cevGlslwGr\nWSVOLJlc6+w1HGPKvRXtA41kYV9MYIvpzIPQtkFE7Hxq71QyBARcv39Lfzze6Ioj\n3G8VBvAKFLAnCUr97GHRv+KbCTFxPZupd3PEB+xS5ZUlzdBCEZvDid3iXaaEJJ+l\nTd1apAGQHjtnDTLOkiTa8zf7X5ebALwnI9MziOdN8VyprHXGhkachPbKyrG0QwEs\n2jtiI6Y5ULsBPjNefoavH8MKU5DEAT9h0fZ7KfsKYVMDuXqmEKBs0D3B4Z6aDZQW\nwT2dDRZDAgMBAAECggEAEIuVoSzZVuFhaz1GI9ji0IacjvO50cIq7M8Zrj4/F756\nEw6PIhKENafAb7U4INm2AnzUMO8CqL9Jpxs85qUM3W4JysSByqLUiRW2184amIyb\nj7jCXfLBTQn8AbHgrUepl5d/vBmFYMgon/mqjbNiGDb4FZgEQSkie5o6fi/dWp5d\nNahbZl+WTOB/znhAfKh/zferHNxldR/ERmwOubZUerkqysWiBigc3ovpLSUof9ur\nz3hNPPp0CKQjF40xuQc6FYTHUHMLuMvp78PXuc/mYqQmZ8VOGhU+faGtZ4m+QJly\ndF5dS8U5cwKEF+ptuAUiWSahn6INb9yKn3+FcsW0UQKBgQDb8N4eWFvbgpRo/vxo\nwBN2u2TWubj6clcrq/1a+VR0njC28Can0ogJHhrFhPxVs5D/rugs3HlbyAXJFptY\nV0DZPCwBxGU5P5RbGjXWWEUXjp4ISKQD8WKfVlXNr79TqLdOg2NZBYQAi06Cpo/T\nPV9l7LSG2Tj/9WdvD7W2wvrpaQKBgQDVPjpJN6xh7+sHtSU0mjKvrqigpHbuSQ/o\nXpUaWSIpJffm5QpFPAOcTT5mHZCyllicJQIrfPSY+sH8n+sF03CUqVkV4Q2UqfOf\npFaLDB4P6SQ8iesZyF4VKFrj/cAvRJmp0e5W/DRnFkoEp+8c+nrru2+Dzm9kb7Uq\n0CiltqYAywKBgBtcfrV1to+7Ue0x84KwintV2rifyDRX7yI+tjkQFYKgf1zyyUxN\nc6D2vsvdvGqI+TvlrXqPPwW8/4NBrbeyux2LT8o0fYc+sp0WyKXOu2Gv21caelUH\nPYam/eultn6Y2Z0J2V0kw4Qx0GWOhQv5cZnDdb3k3iNxixmU8b03ynEpAoGBAKEA\n7O0fNe50QRZ+tOq0ihSPYQ55XrqnO3WNBDLynZJH8pbI1CpWF7vJrpVXOUs9rQWo\nA61mGR/wJMtiywaJEHWOL48PbzuR3jno0NcHfSMyOoPi9jlvSWncIFQH4TVPLF5F\n/Rh8L+ytrZE6YpWUoX6e9KGmGgDRPw5mQGpuL4RlAoGADe9n080SXlsUk4nHVjUz\nEfv7EBoBkgOpqb9T1foRfJl46NxmmTOYV3iGIhjwcDskEg284k4iq/gH6EEFyEBc\nVz13jzB1nBgjfezFesVQz7bA/+Wik6HZtxAxVg38BKMt+Q1tYw9wOjbGPqOn++VC\nsR2Sh8e3h3Knd6j1tceRIFU=\n-----END PRIVATE KEY-----\n",
+            tokenUrl: "https://oauth2.googleapis.com/token",
+            scopes: ["https://www.googleapis.com/auth/spreadsheets"]
+        };
+
+        let accessToken = null;
+        let tokenExpiry = 0;
+
+        async function getAccessToken() {
+            if (accessToken && Date.now() < tokenExpiry - 300000) return accessToken;
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const payload = { iss: CONFIG.serviceAccountEmail, scope: CONFIG.scopes.join(" "), aud: CONFIG.tokenUrl, exp: now + 3600, iat: now };
+            const sJWT = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(payload), CONFIG.privateKey);
+            try {
+                const response = await fetch(CONFIG.tokenUrl, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWT}` });
+                const data = await response.json();
+                accessToken = data.access_token;
+                tokenExpiry = Date.now() + (data.expires_in * 1000);
+                return accessToken;
+            } catch (err) { console.error("Lỗi auth:", err); }
+        }
+
+        async function loadTicket() {
+            const params = new URLSearchParams(window.location.search);
+            const ticketId = params.get('id');
+            if (!ticketId) {
+                showError("Thiếu ID phiếu trong đường dẫn!");
+                return;
+            }
+
+            try {
+                const token = await getAccessToken();
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.sheetName}!A1:Z5000`;
+                const resp = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const data = await resp.json();
+
+                if (!data.values || data.values.length < 2) {
+                    showError("Dữ liệu trống hoặc không có thông tin!");
+                    return;
+                }
+
+                const headers = data.values[0];
+                const rows = data.values.slice(1);
+
+                // Tìm dòng theo ID (giả sử cột ID là cột đầu tiên hoặc cột có tên 'id')
+                const idColIdx = headers.findIndex(h => h && h.toLowerCase() === 'id');
+                const targetRow = rows.find(r => r[idColIdx] == ticketId);
+
+                if (!targetRow) {
+                    showError("Không tìm thấy phiếu có ID: " + ticketId);
+                    return;
+                }
+
+                renderTicket(headers, targetRow);
+            } catch (err) {
+                console.error(err);
+                showError("Lỗi kết nối khi tải dữ liệu.");
+            }
+        }
+
+        function renderTicket(headers, row) {
+            const dataMap = {};
+            headers.forEach((h, i) => {
+                if (h) {
+                    const key = h.trim().toLowerCase();
+                    dataMap[key] = row[i] || "";
+                    dataMap[key.replace(/\s+/g, '_')] = row[i] || "";
+                }
+            });
+
+            const getVal = (keys) => {
+                for (let k of keys) {
+                    const lowerK = k.toLowerCase();
+                    const underK = lowerK.replace(/\s+/g, '_');
+                    if (dataMap[lowerK] !== undefined && dataMap[lowerK] !== "") return dataMap[lowerK];
+                    if (dataMap[underK] !== undefined && dataMap[underK] !== "") return dataMap[underK];
+                }
+                return "---";
+            };
+
+            const displayId = dataMap['mdh'] || dataMap['id'] || 'N/A';
+            const customerName = getVal(['id_khach', 'khach', 'khách', 'khách hàng']);
+            const customerPhone = getVal(['sdt', 'sđt', 'số điện thoại']);
+            const customerAddress = getVal(['dia_chi', 'địa chỉ', 'dia chi']);
+            const orderDate = getVal(['ngay_nhan', 'ngày nhận', 'ngay nhan']);
+            const shopName = getVal(['shop', 'sàn', 'san']);
+            const billId = getVal(['mvd', 'mã vận đơn', 'ma van don']);
+            const product = getVal(['sp', 'sản phẩm', 'san pham']);
+            const receivedItems = getVal(['da_nhan', 'đã nhận', 'da nhan']);
+            const faultType = getVal(['xac_dinh_loi', 'lỗi', 'loi', 'xác định lỗi']);
+            const solution = getVal(['phuong_an_xly', 'phương án', 'phuong an', 'phương án xử lý']);
+            const repairCost = getVal(['chi_phi_sua', 'chi phí', 'chi chi', 'chi phí sửa']);
+            const conditionText = getVal(['tinh_trang', 'tình trạng', 'tinh trang']);
+            const statusText = getVal(['trang_thai', 'trạng thái', 'trang thai']);
+
+            const content = document.getElementById('ticketContent');
+            content.innerHTML = `
+                <div style="padding: 40px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #2563eb; padding-bottom: 20px;">
+                        <div style="width: 60%;">
+                            <img src="https://locknking.com/wp-content/uploads/2025/06/logo-lockking.png" style="height: 50px; margin-bottom: 10px;">
+                            <p style="font-size: 12px; color: #64748b; margin: 0;"><strong>CÔNG TY TNHH LOCK&KING VIỆT NAM</strong></p>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;">Số 1 Lương Yên, Bạch Đằng, Hai Bà Trưng, Hà Nội</p>
+                            <p style="font-size: 12px; color: #64748b; margin: 0;">Hotline: 086 28 28 888 | Website: https://locknking.com</p>
+                        </div>
+                        <div style="text-align: right; width: 35%;">
+                            <h1 style="font-size: 24px; font-weight: 800; color: #2563eb; margin: 0; text-transform: uppercase;">Phiếu Bảo Hành</h1>
+                            <p style="font-size: 14px; color: #64748b; margin: 5px 0 0 0;">Mã phiếu: <strong>${displayId}</strong></p>
+                            <p style="font-size: 14px; color: #64748b; margin: 1px 0 0 0;">Ngày in: ${new Date().toLocaleDateString('vi-VN')}</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 40px; margin-bottom: 35px;">
+                        <div style="flex: 1;">
+                            <h3 style="font-size: 13px; font-weight: 800; border-left: 4px solid #2563eb; padding-left: 10px; margin-bottom: 15px; color: #1e293b; text-transform: uppercase;">Thông tin khách hàng</h3>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Họ tên:</strong> ${customerName}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>SĐT:</strong> ${customerPhone}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Địa chỉ:</strong> ${customerAddress}</p>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="font-size: 13px; font-weight: 800; border-left: 4px solid #2563eb; padding-left: 10px; margin-bottom: 15px; color: #1e293b; text-transform: uppercase;">Thông tin biên nhận</h3>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Ngày nhận:</strong> ${orderDate}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Shop/Sàn:</strong> ${shopName}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Vận đơn:</strong> ${billId}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 35px;">
+                        <h3 style="font-size: 13px; font-weight: 800; border-left: 4px solid #2563eb; padding-left: 10px; margin-bottom: 15px; color: #1e293b; text-transform: uppercase;">Sản phẩm & Tình trạng</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px; border: 1px solid #e2e8f0;">
+                            <thead>
+                                <tr style="background: #f8fafc;">
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #e2e8f0;">Tên sản phẩm</th>
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #e2e8f0;">Đã nhận</th>
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #e2e8f0;">Lỗi xác định</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px; border: 1px solid #e2e8f0;">${product}</td>
+                                    <td style="padding: 12px; border: 1px solid #e2e8f0;">${receivedItems}</td>
+                                    <td style="padding: 12px; border: 1px solid #e2e8f0; color: #dc2626;">${faultType}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-bottom: 40px; background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 40px;">
+                        <div style="flex: 1;">
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Phương án xử lý:</strong> ${solution}</p>
+                            <p style="margin: 5px 0; font-size: 15px;"><strong>Tổng chi phí:</strong> <span style="color: #2563eb; font-weight: 800;">${repairCost} đ</span></p>
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Tình trạng:</strong> <span style="color: #0369a1; font-weight: 600;">${conditionText}</span></p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Trạng thái:</strong> <span style="color: #15803d; font-weight: 600;">${statusText}</span></p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-around; margin-top: 60px;">
+                        <div style="text-align: center; width: 200px;">
+                            <p style="font-size: 14px; font-weight: 700; margin-bottom: 80px;">Xác nhận khách hàng</p>
+                            <p style="font-size: 11px; color: #94a3b8;">(Ký và ghi rõ họ tên)</p>
+                        </div>
+                        <div style="text-align: center; width: 200px;">
+                            <p style="font-size: 14px; font-weight: 700; margin-bottom: 80px;">Kỹ thuật viên</p>
+                            <p style="font-size: 11px; color: #94a3b8;">(Ký và ghi rõ họ tên)</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 100px; text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 25px;">
+                        <p style="font-size: 11px; color: #94a3b8; font-style: italic;">Cảm ơn quý khách đã tin tưởng dịch vụ của Lock&King!</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('loader').classList.add('hidden');
+            content.classList.remove('hidden');
+        }
+
+        function showError(msg) {
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('errorView').classList.remove('hidden');
+            document.getElementById('errorMsg').textContent = msg;
+        }
+
+        window.onload = loadTicket;
+    </script>
+</body>
+
+</html>
