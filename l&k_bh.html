@@ -2405,7 +2405,7 @@
                 <div style="padding: 40px; background: white; color: #333;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #2563eb; padding-bottom: 20px;">
                         <div style="width: 60%;">
-                            <img src="https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=2592000&url=https://locknking.com/wp-content/uploads/2025/06/logo-lockking.png" style="height: 60px; margin-bottom: 10px;">
+                            <img src="https://api.allorigins.win/raw?url=https://locknking.com/wp-content/uploads/2025/06/logo-lockking.png" crossorigin="anonymous" style="height: 60px; margin-bottom: 10px;">
                         </div>
                         <div style="text-align: right; width: 35%;">
                             <h1 style="font-size: 24px; font-weight: 800; color: #2563eb; margin: 0; text-transform: uppercase;">Phiếu Bảo Hành</h1>
@@ -2491,14 +2491,23 @@
             btn.innerHTML = `<svg class="animate-spin h-3.5 w-3.5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Đang xuất...`;
             btn.disabled = true;
 
-            html2pdf().set(opt).from(tempDiv).save().then(() => {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-            }).catch(err => {
-                console.error("Lỗi xuất PDF:", err);
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-                alert("Có lỗi xảy ra khi xuất PDF. Vui lòng thử lại.");
+            // Doi anh load xong truoc khi xuat
+            const images = tempDiv.getElementsByTagName('img');
+            const loadPromises = Array.from(images).map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+            });
+
+            Promise.all(loadPromises).then(() => {
+                html2pdf().set(opt).from(tempDiv).save().then(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }).catch(err => {
+                    console.error("Lỗi xuất PDF:", err);
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    alert("Có lỗi xảy ra khi xuất PDF. Vui lòng thử lại.");
+                });
             });
         }
 
