@@ -461,20 +461,20 @@
                     <span>Trang chủ</span>
                 </button>
 
-                <div
-                    class="px-3 mt-6 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase menu-label">
-                    Quản lý
-                    Dữ liệu</div>
-
-                <button onclick="switchTab('DS_SP')" id="nav-ds-sp"
+                <button onclick="switchTab('DASHBOARD_BH')" id="nav-dashboard-bh"
                     class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted text-muted-foreground group">
                     <svg class="w-5 h-5 group-hover:text-foreground" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>Quản lý DS_SP</span>
+                    <span>Dashboard Bảo hành</span>
                 </button>
+
+                <div
+                    class="px-3 mt-6 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase menu-label">
+                    Quản lý
+                    Dữ liệu</div>
 
                 <button onclick="switchTab('BH')" id="nav-bh"
                     class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted text-muted-foreground group">
@@ -498,14 +498,14 @@
                     <span>Quản lý Linh kiện</span>
                 </button>
 
-                <button onclick="switchTab('DASHBOARD_BH')" id="nav-dashboard-bh"
+                <button onclick="switchTab('DS_SP')" id="nav-ds-sp"
                     class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted text-muted-foreground group">
                     <svg class="w-5 h-5 group-hover:text-foreground" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                     </svg>
-                    <span>Dashboard Bảo hành</span>
+                    <span>Quản lý Sản phẩm</span>
                 </button>
             </nav>
 
@@ -699,12 +699,7 @@
                 <!-- View: Home -->
                 <div id="view-home" class="block">
                     <!-- Welcome Banner -->
-                    <div
-                        class="mb-6 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-xl p-5 border border-primary/20">
-                        <h2 class="text-lg font-bold text-foreground mb-1">Hệ thống Quản lý ERP v2.0</h2>
-                        <p class="text-muted-foreground text-sm">Chào mừng bạn quay trở lại. Dữ liệu được cập nhật tự
-                            động từ Google Sheets.</p>
-                    </div>
+
 
                     <!-- Dashboard Bảo hành -->
                     <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">📊 Dashboard Bảo
@@ -781,7 +776,7 @@
                             </div>
                         </div>
                         <div class="bg-card p-5 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
-                            onclick="switchTab('BH'); setTimeout(() => switchTab('dashboard-bh'), 100)">
+                            onclick="switchTab('DASHBOARD_BH')">
                             <div>
                                 <h3 class="text-sm font-bold text-foreground mb-1">Dashboard BH</h3>
                                 <p class="text-xs text-muted-foreground">Biểu đồ và thống kê bảo hành</p>
@@ -1128,7 +1123,7 @@
         const TAB_CONFIGS = {
             'DS_SP': {
                 sheetName: 'DS_SP',
-                columns: ["model", "ten_sp", "anh"]
+                columns: ["anh", "model", "ten_sp"]
             },
             'BH': {
                 sheetName: 'BH',
@@ -2198,7 +2193,7 @@
                 const lower = h.toLowerCase().trim();
 
                 // Loại bỏ các cột thừa theo yêu cầu
-                if (['udt', 'lb1', 'lb2', 'lb3', 'lb4'].includes(lower)) return;
+                if (['id', 'udt', 'lb1', 'lb2', 'lb3', 'lb4'].includes(lower)) return;
 
                 const val = row[i] || "";
 
@@ -2337,13 +2332,15 @@
                 const total = rows.length;
                 const repairing = rows.filter(r => {
                     const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
-                    return ['đang sửa', 'đang xử lý', 'chờ linh kiện'].some(s => tt.toLowerCase().includes(s));
+                    return tt.toLowerCase().includes('đang sửa');
                 }).length;
                 const done = rows.filter(r => {
                     const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
-                    return ['hoàn thành', 'đã trả khách'].some(s => tt.toLowerCase().includes(s));
+                    return tt.toLowerCase().includes('đã xong');
                 }).length;
                 const cost = rows.reduce((sum, r) => {
+                    const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
+                    if (!tt.toLowerCase().includes('đã xong')) return sum;
                     const v = chiPhiIdx !== -1 ? parseFloat((r[chiPhiIdx] || '0').toString().replace(/[^0-9.]/g, '')) : 0;
                     return sum + (isNaN(v) ? 0 : v);
                 }, 0);
@@ -2640,7 +2637,7 @@
                 const lower = val.toLowerCase().trim();
 
                 // Loại bỏ các cột thừa theo yêu cầu
-                if (['udt', 'lb1', 'lb2', 'lb3', 'lb4'].includes(lower)) return;
+                if (['id', 'udt', 'lb1', 'lb2', 'lb3', 'lb4'].includes(lower)) return;
                 const isImg = lower.includes('anh') || lower.includes('ảnh');
 
                 // Create Input Element (Side-by-side style)
