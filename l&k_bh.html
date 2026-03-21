@@ -54,6 +54,9 @@
         th {
             cursor: pointer;
             position: relative;
+            white-space: normal !important;
+            vertical-align: middle !important;
+            line-height: 1.2;
         }
 
         .sort-icon {
@@ -1138,9 +1141,9 @@
 
         const HEADER_MAPPING = {
             'ngay': 'Ngày',
-            'truong': 'Trường',
-            'shop': 'Shop',
-            'mdh': 'mdh',
+            'truong': 'Người giao',
+            'shop': 'Shop / NPP / Đại lý',
+            'mdh': 'Mã đơn hàng',
             'ghi_chu': 'Ghi chú',
             'anh_da_nhan': 'Ảnh đã nhận',
             'sp': 'Sản phẩm',
@@ -1155,7 +1158,7 @@
             'ngay_tra': 'Ngày trả',
             'mvd_tra': 'Mã vận đơn trả',
             'mvd_trả': 'Mã vận đơn trả',
-            'id_khach': 'ID khách',
+            'id_khach': 'Họ tên khách hàng',
             'sdt': 'SĐT',
             'dia_chi': 'Địa chỉ'
         };
@@ -2061,6 +2064,23 @@
         // --- UTILS ---
         const TINH_TRANG_OPTS = ["Mới nhận", "Đã kiểm tra", "Đang sửa", "Đã sửa xong", "Không sửa được"];
         const TRANG_THAI_OPTS = ["Mới tạo", "Đang xử lý", "Chờ linh kiện", "Đang sửa", "Hoàn thành", "Đã trả khách", "Hủy"];
+        const PHUONG_AN_XLY_OPTS = [
+            "Sửa chữa",
+            "Thay thế linh kiện",
+            "Đổi sản phẩm mới",
+            "Bảo hành tiêu chuẩn",
+            "Bảo hành mở rộng",
+            "Vệ sinh / bảo dưỡng",
+            "Cập nhật phần mềm",
+            "Căn chỉnh / hiệu chỉnh",
+            "Kiểm tra – không phát hiện lỗi",
+            "Không đủ điều kiện bảo hành",
+            "Không sửa được",
+            "Chờ linh kiện",
+            "Khách từ chối sửa",
+            "Trả lại khách",
+            "Hủy phiếu bảo hành"
+        ];
 
         function generateId(length = 8) {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -2895,16 +2915,21 @@
 
                 const isTinhTrang = lower.includes('tinh_trang') || lower.includes('tinh trang') || lower.includes('tình trạng');
                 const isTrangThai = lower.includes('trang_thai') || lower.includes('trang thai') || lower.includes('trạng thái');
+                const isPhuongAnXly = lower.includes('phuong_an_xly') || lower.includes('phương án xử lý');
                 const isDate = lower.includes('ngay') || lower.includes('ngày');
 
                 let input;
                 const isIdSp = lower.includes('id_sp') && currentActiveTab === 'DS_CHI_TIET_SP';
+                const isSp = (lower === 'sp' || lower === 'sản phẩm') && currentActiveTab === 'BH';
 
-                if (isTinhTrang || isTrangThai) {
+                if (isTinhTrang || isTrangThai || isPhuongAnXly) {
                     input = document.createElement('select');
                     input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right cursor-pointer";
 
-                    const options = isTinhTrang ? TINH_TRANG_OPTS : TRANG_THAI_OPTS;
+                    let options = [];
+                    if (isTinhTrang) options = TINH_TRANG_OPTS;
+                    else if (isTrangThai) options = TRANG_THAI_OPTS;
+                    else if (isPhuongAnXly) options = PHUONG_AN_XLY_OPTS;
 
                     const defaultOpt = document.createElement('option');
                     defaultOpt.value = "";
@@ -2917,8 +2942,8 @@
                         o.textContent = opt;
                         input.appendChild(o);
                     });
-                } else if (isIdSp) {
-                    // Custom multiselect / checkboxes for id_sp with Search
+                } else if (isIdSp || isSp) {
+                    // Custom selection for id_sp (multi) or sp (single) with Search
                     const wrapper = document.createElement('div');
                     wrapper.className = "w-full border border-border rounded-lg bg-background overflow-hidden flex flex-col";
 
@@ -2968,9 +2993,10 @@
                             div.dataset.search = `${p.id} ${p.name}`.toLowerCase();
 
                             const ck = document.createElement('input');
-                            ck.type = "checkbox";
+                            ck.type = isSp ? "radio" : "checkbox";
+                            if (isSp) ck.name = `form-radio-${i}`;
                             ck.value = p.id;
-                            ck.className = "rounded border-border text-primary focus:ring-primary h-3.5 w-3.5";
+                            ck.className = isSp ? "border-border text-primary focus:ring-primary h-3.5 w-3.5" : "rounded border-border text-primary focus:ring-primary h-3.5 w-3.5";
                             if (currentVals.includes(p.id)) ck.checked = true;
 
                             const txt = document.createElement('span');
@@ -3153,8 +3179,8 @@
 
         function clearPartSelections(btn) {
             const wrapper = btn.closest('.flex-col');
-            const checkboxes = wrapper.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(ck => ck.checked = false);
+            const inputs = wrapper.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+            inputs.forEach(input => input.checked = false);
         }
 
         function closeFormDrawer() {
@@ -3182,8 +3208,8 @@
 
                 let val = "";
                 if (input.tagName === 'DIV' && input.id.includes('container')) {
-                    // Xử lý multiselect linh kiện
-                    const checked = Array.from(input.querySelectorAll('input[type="checkbox"]:checked')).map(ck => ck.value);
+                    // Xử lý multiselect (checkbox) hoặc single-select (radio)
+                    const checked = Array.from(input.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked')).map(ck => ck.value);
                     val = checked.join(',');
                 } else {
                     val = (input.value || "").trim();
