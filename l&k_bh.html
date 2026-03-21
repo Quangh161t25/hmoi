@@ -826,6 +826,41 @@
 
                 <!-- View: Dashboard Bảo hành -->
                 <div id="view-dashboard-bh" class="hidden flex-col gap-6">
+                    <!-- Dashboard Filters -->
+                    <div class="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-wrap items-end gap-4">
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Từ
+                                ngày</label>
+                            <input type="date" id="db-filter-date-from" onchange="renderDashboardBH()"
+                                class="w-full border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-primary">
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Đến
+                                ngày</label>
+                            <input type="date" id="db-filter-date-to" onchange="renderDashboardBH()"
+                                class="w-full border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-primary">
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Shop /
+                                NPP</label>
+                            <select id="db-filter-shop" onchange="renderDashboardBH()"
+                                class="w-full border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-primary bg-background">
+                                <option value="">-- Tất cả Shop --</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Trạng thái
+                                phiếu</label>
+                            <select id="db-filter-status" onchange="renderDashboardBH()"
+                                class="w-full border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-primary bg-background">
+                                <option value="">-- Tất cả Trạng thái --</option>
+                            </select>
+                        </div>
+                        <button onclick="resetDashboardFilters()"
+                            class="h-[34px] px-4 py-2 bg-muted text-foreground rounded-lg text-xs font-bold hover:bg-muted/80 transition">Lên
+                            lại</button>
+                    </div>
+
                     <!-- Summary Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
@@ -3067,13 +3102,61 @@
                 if (CONFIG.sheetName === 'BH') await fetchData(); else return;
             }
             const headers = currentData[0].map(h => h ? h.toString().toLowerCase().trim() : "");
-            const rows = currentData.slice(1);
-
             const idxStatus = headers.indexOf('trang_thai');
             const idxTinhTrang = headers.indexOf('tinh_trang');
             const idxStaff = headers.indexOf('truong');
             const idxCost = headers.indexOf('chi_phi_sua');
             const idxDate = headers.indexOf('ngay');
+            const idxShop = headers.indexOf('shop');
+
+            const allRows = currentData.slice(1);
+
+            // Populate Filters if empty (only first time or when data changes)
+            const shopSelect = document.getElementById('db-filter-shop');
+            const statusSelect = document.getElementById('db-filter-status');
+
+            if (shopSelect && shopSelect.options.length <= 1) {
+                const uniqueShops = [...new Set(allRows.map(r => r[idxShop]).filter(s => s))].sort();
+                uniqueShops.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = s;
+                    shopSelect.appendChild(opt);
+                });
+            }
+            if (statusSelect && statusSelect.options.length <= 1) {
+                const uniqueStatus = [...new Set(allRows.map(r => r[idxStatus]).filter(s => s))].sort();
+                uniqueStatus.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = s;
+                    statusSelect.appendChild(opt);
+                });
+            }
+
+            // Read Filters
+            const filterFrom = document.getElementById('db-filter-date-from').value;
+            const filterTo = document.getElementById('db-filter-date-to').value;
+            const filterShop = document.getElementById('db-filter-shop').value;
+            const filterStatus = document.getElementById('db-filter-status').value;
+
+            // Apply Filtering
+            const rows = allRows.filter(row => {
+                // Shop Filter
+                if (filterShop && row[idxShop] !== filterShop) return false;
+                // Status Filter
+                if (filterStatus && row[idxStatus] !== filterStatus) return false;
+                // Date Filter
+                if (filterFrom || filterTo) {
+                    const cellDate = parseVNPageDate(row[idxDate]);
+                    if (!cellDate) return false;
+                    if (filterFrom && cellDate < new Date(filterFrom)) return false;
+                    if (filterTo) {
+                        const toDate = new Date(filterTo);
+                        toDate.setHours(23, 59, 59, 999);
+                        if (cellDate > toDate) return false;
+                    }
+                }
+                return true;
+            });
 
             let total = rows.length;
             let processing = 0;
@@ -3122,6 +3205,22 @@
                 return y1 !== y2 ? y1 - y2 : m1 - m2;
             }).slice(-6);
             renderLineChart('chartTrendBH', months, months.map(m => timelineData[m]), 'Số lượng nhận');
+        }
+
+        function resetDashboardFilters() {
+            document.getElementById('db-filter-date-from').value = "";
+            document.getElementById('db-filter-date-to').value = "";
+            document.getElementById('db-filter-shop').value = "";
+            document.getElementById('db-filter-status').value = "";
+            renderDashboardBH();
+        }
+
+        function parseVNPageDate(str) {
+            if (!str) return null;
+            const parts = str.split('/');
+            if (parts.length < 3) return null;
+            // dd/mm/yyyy
+            return new Date(parts[2], parts[1] - 1, parts[0]);
         }
 
         function renderPieChart(canvasId, labels, data, label) {
