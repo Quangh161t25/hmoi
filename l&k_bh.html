@@ -716,33 +716,36 @@
 
 
                     <!-- Dashboard Bảo hành -->
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">📊 Dashboard Bảo
-                        hành</h3>
+                    <h3
+                        class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                        📊 Dashboard Bảo hành
+                    </h3>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
-                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Tổng
-                                đơn</div>
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                                Tổng số phiếu</div>
                             <div id="home-stat-total" class="text-2xl font-bold text-foreground">--</div>
                         </div>
                         <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
-                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Đang
-                                sửa</div>
-                            <div id="home-stat-repairing" class="text-2xl font-bold text-amber-500">--</div>
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                                Đang xử lý</div>
+                            <div id="home-stat-repairing" class="text-2xl font-bold text-blue-600">--</div>
                         </div>
                         <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
-                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Hoàn
-                                thành</div>
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                                Hoàn thành</div>
                             <div id="home-stat-done" class="text-2xl font-bold text-emerald-600">--</div>
                         </div>
                         <div class="bg-card p-4 rounded-xl border border-border shadow-sm">
-                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Tổng
-                                chi phí</div>
-                            <div id="home-stat-cost" class="text-2xl font-bold text-blue-600">--</div>
+                            <div class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                                Tổng chi phí</div>
+                            <div id="home-stat-cost" class="text-2xl font-bold text-orange-600">--</div>
                         </div>
                     </div>
 
                     <!-- Module Cards -->
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">🗂️ Module chính
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">🗂️ Module
+                        chính
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div class="bg-card p-5 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
@@ -2918,26 +2921,25 @@
                     bhData = result.values || [];
                 }
 
-                if (bhData.length < 2) return setStats(0, 0, 0, 0); const headers = bhData[0]; const trangThaiIdx = headers.findIndex(h => h
-                    && h.toLowerCase().includes('trang_thai'));
-                const chiPhiIdx = headers.findIndex(h => h && h.toLowerCase().includes('chi_phi'));
-                const rows = bhData.slice(1);
+                if (bhData.length < 2) return setStats(0, 0, 0, 0);
+                const headers = bhData[0].map(h => h ? h.toString().toLowerCase().trim() : "");
+                const tinhTrangIdx = headers.indexOf('tinh_trang');
+                const chiPhiIdx = headers.indexOf('chi_phi_sua');
 
+                const rows = bhData.slice(1);
                 const total = rows.length;
-                const repairing = rows.filter(r => {
-                    const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
-                    return tt.toLowerCase().includes('đang sửa');
-                }).length;
-                const done = rows.filter(r => {
-                    const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
-                    return tt.toLowerCase().includes('đã xong');
-                }).length;
-                const cost = rows.reduce((sum, r) => {
-                    const tt = trangThaiIdx !== -1 ? (r[trangThaiIdx] || '') : '';
-                    if (!tt.toLowerCase().includes('đã xong')) return sum;
-                    const v = chiPhiIdx !== -1 ? parseFloat((r[chiPhiIdx] || '0').toString().replace(/[^0-9.]/g, '')) : 0;
-                    return sum + (isNaN(v) ? 0 : v);
-                }, 0);
+                let repairing = 0;
+                let done = 0;
+                let cost = 0;
+
+                rows.forEach(r => {
+                    const tt = (r[tinhTrangIdx] || "").toString().toLowerCase();
+                    if (tt.includes('xong') || tt.includes('hoàn thành') || tt.includes('trả')) done++;
+                    else if (tt.includes('đang') || tt.includes('sửa')) repairing++;
+
+                    let c = parseFloat((r[chiPhiIdx] || "0").toString().replace(/[^0-9.-]+/g, ""));
+                    if (!isNaN(c)) cost += c;
+                });
 
                 setStats(total, repairing, done, cost);
             } catch (e) {
