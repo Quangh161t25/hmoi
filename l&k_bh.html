@@ -1169,7 +1169,7 @@
             return HEADER_MAPPING[cleanKey] || key;
         }
 
-        let currentActiveTab = 'HOME';
+        let currentActiveTab = 'BH';
         let isLoggedIn = false;
         let usersData = [];   // Dữ liệu từ Sheet DSNV
         let currentUser = null;
@@ -1357,6 +1357,37 @@
             }
         }
 
+        let globalProductList = []; // Global cache for Product lookup
+
+        async function fetchGlobalProducts() {
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/DS_SP!A:Z`;
+                const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const result = await response.json();
+                if (result.values && result.values.length > 1) {
+                    const h = result.values[0].map(v => v.toLowerCase().trim());
+                    const mIdx = h.indexOf('model');
+                    const tIdx = h.indexOf('ten_sp');
+                    globalProductList = result.values.slice(1).map(r => ({
+                        id: (r[mIdx] || "").toString().trim(),
+                        name: (r[tIdx] || "").toString().trim()
+                    }));
+                }
+            } catch (err) { console.error("fetchGlobalProducts error:", err); }
+        }
+
+        function formatProductDisplay(val) {
+            if (!val) return "---";
+            const s = val.toString().trim();
+            if (s === "" || s === "---") return "---";
+            if (s.includes(' - ')) return s; // Already formatted
+
+            const found = globalProductList.find(p => p.id.toLowerCase() === s.toLowerCase());
+            return found ? `${found.id} - ${found.name}` : s;
+        }
+
         // --- DATA OPERATIONS ---
         async function fetchData() {
             // Đừng refresh bảng khi đang có dòng sửa/thêm
@@ -1379,6 +1410,10 @@
                 if (result.values) {
                     currentData = result.values;
                     try { localStorage.setItem('gs_cached_data', JSON.stringify(currentData)); } catch (e) { }
+
+                    // Fetch global products for lookup if not already loaded
+                    if (globalProductList.length === 0) await fetchGlobalProducts();
+
                     currentPage = 1;
                     filterAndSortData();
                 } else {
@@ -1688,7 +1723,11 @@
                     } else {
                         const cellValue = row[colIndex] || "";
                         const columnName = rawHeaders[colIndex] ? rawHeaders[colIndex].toString().trim().toLowerCase() : "";
+                        const isSp = (columnName === 'sp' || columnName === 'sản phẩm');
                         const isChiPhi = (columnName === 'chi_phi_sua' || columnName === 'chi phí sửa');
+
+                        let displayVal = cellValue;
+                        if (isSp && currentActiveTab === 'BH') displayVal = formatProductDisplay(cellValue);
 
                         if (isImageUrl(cellValue)) {
                             td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="event.stopPropagation(); zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
@@ -1701,11 +1740,11 @@
                                         class="w-5 h-5 flex items-center justify-center ${isExpanded ? 'bg-slate-500' : 'bg-primary'} text-white rounded-full hover:opacity-80 transition-all font-bold">
                                         ${isExpanded ? '-' : '+'}
                                     </button>
-                                    <span>${cellValue || 0}</span>
+                                    <span>${displayVal || 0}</span>
                                 </div>
                             `;
                         } else {
-                            td.textContent = cellValue;
+                            td.textContent = displayVal;
                         }
                     }
                     tr.appendChild(td);
@@ -2285,10 +2324,15 @@
                 const val = row[i] || "";
 
                 const isImg = isImageUrl(val) || lower.includes('anh') || lower.includes('ảnh');
+                const isSp = (lower === 'sp' || lower === 'sản phẩm');
                 const isTinhTrang = lower.includes('tinh trang') || lower.includes('tình trạng');
                 const isTrangThai = lower.includes('trang thai') || lower.includes('trạng thái');
 
                 const item = document.createElement('div');
+
+                let displayVal = val;
+                if (isSp && currentActiveTab === 'BH') displayVal = formatProductDisplay(val);
+                if (!displayVal) displayVal = "---";
 
                 if (isImg && val) {
                     item.className = "py-2 border-b border-border/40 last:border-0";
@@ -2301,7 +2345,6 @@
                 } else {
                     item.className = "flex items-start justify-between py-3 border-b border-border/40 last:border-0 gap-4";
 
-                    let displayVal = val || "---";
                     const isChiPhi = (lower === 'chi_phi_sua' || lower === 'chi phí sửa');
 
                     if (isChiPhi) {
@@ -2315,7 +2358,7 @@
                                         id="btn-expand-detail-${i}">
                                         +
                                     </button>
-                                    <span id="detail-val-${i}">${displayVal}</span>
+                                    <span id="detail-val-${i}">${displayVal || 0}</span>
                                 </div>
                             </div>
                             <div id="detail-expand-container-${i}" class="hidden w-full mt-1 text-left bg-muted/20 p-3 rounded-lg border border-border/40">
@@ -2327,11 +2370,11 @@
                             </div>
                         `;
                     } else if (isTinhTrang || isTrangThai) {
-                        displayVal = val ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">${val}</span>` : "---";
+                        const formattedVal = displayVal !== "---" ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">${displayVal}</span>` : "---";
                         item.className = "flex items-center justify-between py-2 border-b border-border/40 last:border-0 gap-4";
                         item.innerHTML = `
                             <div class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider w-1/3 flex-shrink-0">${getDisplayHeader(h)}</div>
-                            <div class="flex-1 flex justify-end">${displayVal}</div>
+                            <div class="flex-1 flex justify-end">${formattedVal}</div>
                         `;
                     } else {
                         item.innerHTML = `
@@ -2993,11 +3036,15 @@
                             div.dataset.search = `${p.id} ${p.name}`.toLowerCase();
 
                             const ck = document.createElement('input');
+                            ck.id = `radio-${i}-${p.id}`;
                             ck.type = isSp ? "radio" : "checkbox";
                             if (isSp) ck.name = `form-radio-${i}`;
-                            ck.value = p.id;
+                            const fullVal = `${p.id} - ${p.name}`;
+                            // User wants to store ONLY the ID (Model)
+                            ck.value = isSp ? p.id : p.id;
                             ck.className = isSp ? "border-border text-primary focus:ring-primary h-3.5 w-3.5" : "rounded border-border text-primary focus:ring-primary h-3.5 w-3.5";
-                            if (currentVals.includes(p.id)) ck.checked = true;
+                            // For lookup we check if either ID or full string matches
+                            if (currentVals.includes(p.id) || currentVals.includes(fullVal)) ck.checked = true;
 
                             const txt = document.createElement('span');
                             txt.className = "text-[11px] text-foreground font-medium truncate";
@@ -3020,7 +3067,7 @@
             class="text-[10px] font-bold text-muted-foreground hover:text-red-500 transition-colors uppercase">Xóa
             chọn</button>
         <button type="button"
-            onclick="this.closest('.overflow-y-auto').parentElement.nextElementSibling?.querySelector('input')?.focus()"
+            onclick="const p = this.closest('.flex-col'); p.style.opacity = '0.5'; setTimeout(() => p.style.opacity = '1', 300); p.parentElement.nextElementSibling?.querySelector('input, select')?.focus()"
             class="text-[10px] font-bold text-primary hover:underline transition-colors uppercase">Xong</button>
         `;
                     wrapper.appendChild(footer);
