@@ -881,13 +881,21 @@
                                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg> Làm mới
                             </button>
+                            <button id="btn-excel-template"
+                                class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-blue-700 transition"
+                                onclick="downloadExcelTemplate()">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg> Tải file mẫu
+                            </button>
                             <button id="btn-excel-upload"
                                 class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-emerald-700 transition"
                                 onclick="triggerExcelUpload()">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg> Tải Excel
+                                </svg> Nhập Excel
                             </button>
                             <button id="btn-add-row"
                                 class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:opacity-90 transition"
@@ -1127,7 +1135,7 @@
         const TAB_CONFIGS = {
             'DS_SP': {
                 sheetName: 'DS_SP',
-                columns: ["anh", "model", "ten_sp"]
+                columns: ["id", "model", "ten_sp", "anh"]
             },
             'BH': {
                 sheetName: 'BH',
@@ -1140,6 +1148,13 @@
         };
 
         const HEADER_MAPPING = {
+            'id': 'ID',
+            'model': 'Model',
+            'ten_sp': 'Tên sản phẩm',
+            'anh': 'Ảnh',
+            'chi_tiet': 'Chi tiết',
+            'gia': 'Giá',
+            'id_sp': 'ID sản phẩm',
             'ngay': 'Ngày',
             'truong': 'Người giao',
             'shop': 'Shop / NPP / Đại lý',
@@ -1427,8 +1442,34 @@
         }
 
         // --- EXCEL OPERATIONS ---
-        function triggerExcelUpload() {
+        async function triggerExcelUpload() {
             document.getElementById('excelInput').click();
+        }
+
+        function downloadExcelTemplate() {
+            let headers = [];
+            let fileName = "";
+
+            if (currentActiveTab === 'DS_SP') {
+                headers = [["id", "model", "ten_sp", "gia", "mo_ta", "anh"]];
+                fileName = "Mau_nhap_san_pham.xlsx";
+            } else if (currentActiveTab === 'BH') {
+                headers = [["ngay", "truong", "shop", "mdh", "ghi_chu", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "xac_dinh_loi", "phuong_an_xly", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "ngay_tra", "mvd_tra", "id_khach", "sdt", "dia_chi"]];
+                fileName = "Mau_nhap_bao_hanh.xlsx";
+            } else {
+                // Default to current data headers if available
+                if (currentData.length > 0) {
+                    headers = [currentData[0]];
+                } else {
+                    headers = [["Data"]];
+                }
+                fileName = `Mau_nhap_${currentActiveTab}.xlsx`;
+            }
+
+            const worksheet = XLSX.utils.aoa_to_sheet(headers);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+            XLSX.writeFile(workbook, fileName);
         }
 
         async function handleExcelUpload(input) {
@@ -1490,8 +1531,42 @@
                         return newRow;
                     });
 
-                    if (confirm(`Tìm thấy ${cleanRowsToImport.length} dòng dữ liệu. Bạn có muốn tải lên Google Sheets không?`)) {
-                        await uploadBatchData(importedData);
+                    if (currentActiveTab === 'DS_SP') {
+                        // Logic đặc thù cho DS_SP: Kiểm tra ID trùng và chỉ thêm mới
+                        const idIdx = sheetHeaders.findIndex(h => h.toLowerCase() === 'id');
+                        if (idIdx === -1) {
+                            alert("Không tìm thấy cột 'id' trong bảng Google Sheets.");
+                            return;
+                        }
+
+                        // Lấy danh sách ID hiện tại (bỏ qua dòng tiêu đề)
+                        const existingIds = currentData.slice(1).map(r => (r[idIdx] || "").toString().trim().toLowerCase());
+
+                        let newRows = [];
+                        let skippedCount = 0;
+
+                        importedData.forEach(row => {
+                            const excelId = (row[idIdx] || "").toString().trim().toLowerCase();
+                            if (excelId && !existingIds.includes(excelId)) {
+                                newRows.push(row);
+                            } else {
+                                skippedCount++;
+                            }
+                        });
+
+                        if (newRows.length === 0) {
+                            alert(`Không có sản phẩm mới nào được tìm thấy. Đã bỏ qua ${skippedCount} dòng trùng ID.`);
+                            return;
+                        }
+
+                        if (confirm(`Tìm thấy ${newRows.length} sản phẩm mới (Đã bỏ qua ${skippedCount} dòng trùng). Bạn có muốn tải lên không?`)) {
+                            await appendBatchData(newRows);
+                        }
+                    } else {
+                        // Logic mặc định cho các tab khác: Ghi đè toàn bộ
+                        if (confirm(`Tìm thấy ${cleanRowsToImport.length} dòng dữ liệu. Bạn có muốn XÓA DỮ LIỆU CŨ và tải lên bản mới không?`)) {
+                            await uploadBatchData(importedData);
+                        }
                     }
                 } catch (err) {
                     console.error("Excel parse error:", err);
@@ -1541,15 +1616,15 @@
                 });
 
                 if (response.ok) {
-                    alert(`Đã làm sạch bảng và tải lên thành công ${rows.length} dòng.`);
-                    await fetchData(); // Làm mới bảng dữ liệu
+                    alert(`Đã thêm thành công ${rows.length} dòng mới.`);
+                    await fetchData();
                 } else {
                     const err = await response.json();
-                    alert("Lỗi khi tải dữ liệu lên Google Sheets: " + (err.error ? err.error.message : "Không xác định"));
+                    alert("Lỗi khi thêm dữ liệu: " + (err.error ? err.error.message : "Không xác định"));
                 }
             } catch (err) {
-                console.error("Batch upload error:", err);
-                alert("Lỗi kết nối khi tải dữ liệu. Vui lòng thử lại.");
+                console.error("appendBatchData error:", err);
+                alert("Lỗi hệ thống khi thêm dữ liệu.");
             } finally {
                 statusLabel.style.display = 'none';
             }
@@ -2708,11 +2783,17 @@
                 }
 
                 const btnExcel = document.getElementById('btn-excel-upload');
+                const btnTemplate = document.getElementById('btn-excel-template');
                 const btnAddRow = document.getElementById('btn-add-row');
 
                 if (btnExcel) {
-                    if (tabId === 'BH' || tabId === 'DS_SP' || tabId === 'DS_CHI_TIET_SP') btnExcel.classList.add('hidden');
-                    else btnExcel.classList.remove('hidden');
+                    if (tabId === 'BH' || tabId === 'DS_SP' || tabId === 'DS_CHI_TIET_SP') btnExcel.classList.remove('hidden');
+                    else btnExcel.classList.add('hidden');
+                }
+
+                if (btnTemplate) {
+                    if (tabId === 'BH' || tabId === 'DS_SP') btnTemplate.classList.remove('hidden');
+                    else btnTemplate.classList.add('hidden');
                 }
 
                 if (btnAddRow) {
