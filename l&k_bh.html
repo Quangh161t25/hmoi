@@ -900,7 +900,7 @@
                         <!-- Chart 2: Nhan vien -->
                         <div class="bg-card p-5 rounded-xl border border-border shadow-sm">
                             <div class="flex items-center justify-between mb-4">
-                                <h4 class="text-sm font-bold text-slate-700">Thống kê theo Nhân viên (Trưởng)</h4>
+                                <h4 class="text-sm font-bold text-slate-700">Thống kê theo Người sửa</h4>
                             </div>
                             <div class="h-64 relative">
                                 <canvas id="chartStaffBH"></canvas>
@@ -925,15 +925,30 @@
                     style="min-height: calc(100vh - 12rem);">
                     <!-- Controls -->
                     <div class="p-4 border-b border-border flex flex-wrap items-center justify-between gap-4">
-                        <div class="relative flex-1 min-w-[250px] max-w-sm">
-                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="text" id="searchInput"
-                                class="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-sm"
-                                placeholder="Tìm kiếm dữ liệu..." oninput="handleSearchInput()">
+                        <div class="flex flex-wrap items-center gap-2 flex-1">
+                            <div class="relative flex-1 min-w-[200px] max-w-sm">
+                                <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="text" id="searchInput"
+                                    class="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-sm"
+                                    placeholder="Tìm kiếm dữ liệu..." oninput="handleSearchInput()">
+                            </div>
+                            <!-- Bộ lọc Người sửa (chỉ hiện khi tab BH) -->
+                            <div id="filter-ng-sua-wrapper" class="hidden items-center gap-1.5">
+                                <svg class="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <select id="filter-ng-sua"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Người sửa --</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button
@@ -1412,7 +1427,7 @@
             },
             'BH': {
                 sheetName: 'BH',
-                columns: ["ngay", "truong", "shop", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "phuong_an_xly", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "id_khach", "ngay_tra", "mvd_trả"]
+                columns: ["ngay", "truong", "shop", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "phuong_an_xly", "ng_sua", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "id_khach", "ngay_tra", "mvd_trả"]
             },
             'DS_CHI_TIET_SP': {
                 sheetName: 'DS_CHI_TIET_SP',
@@ -1443,6 +1458,7 @@
             'mo_ta_loi': 'Mô tả lỗi',
             'xac_dinh_loi': 'Xác định lỗi',
             'phuong_an_xly': 'Phương án xử lý',
+            'ng_sua': 'Người sửa',
             'ngay_sua': 'Ngày sửa',
             'chi_phi_sua': 'Chi phí sửa',
             'tinh_trang': 'Tình trạng',
@@ -1476,21 +1492,30 @@
                 const token = await getAccessToken();
                 const sid = CONFIG.spreadsheetId;
                 const sname = CONFIG.authSheetName;
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A2:G100`;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:Z200`;
 
                 const resp = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
                 const data = await resp.json();
 
-                if (data.values) {
-                    usersData = data.values.map(r => ({
-                        id: r[0],
-                        name: r[1],
-                        avatar: r[2],
-                        gender: r[3],
-                        birthday: r[4],
-                        role: r[5],
-                        password: r[6]
-                    }));
+                if (data.values && data.values.length > 1) {
+                    const headers = data.values[0].map(h => h ? h.toString().trim().toLowerCase() : '');
+                    const iId = headers.findIndex(h => h === 'id');
+                    const iName = headers.findIndex(h => h === 'ho_ten' || h === 'họ tên' || h === 'name' || h === 'ten');
+                    const iAvatar = headers.findIndex(h => h === 'avatar' || h === 'anh' || h === 'ảnh');
+                    const iGender = headers.findIndex(h => h === 'gender' || h === 'gioi_tinh');
+                    const iBirthday = headers.findIndex(h => h === 'birthday' || h === 'ngay_sinh');
+                    const iRole = headers.findIndex(h => h === 'role' || h === 'chuc_vu');
+                    const iPass = headers.findIndex(h => h === 'password' || h === 'mat_khau');
+
+                    usersData = data.values.slice(1).map(r => ({
+                        id: iId !== -1 ? (r[iId] || '') : (r[0] || ''),
+                        name: iName !== -1 ? (r[iName] || '') : (r[1] || ''),
+                        avatar: iAvatar !== -1 ? (r[iAvatar] || '') : (r[2] || ''),
+                        gender: iGender !== -1 ? (r[iGender] || '') : (r[3] || ''),
+                        birthday: iBirthday !== -1 ? (r[iBirthday] || '') : (r[4] || ''),
+                        role: iRole !== -1 ? (r[iRole] || '') : (r[5] || ''),
+                        password: iPass !== -1 ? (r[iPass] || '') : (r[6] || '')
+                    })).filter(u => u.id);
                 }
             } catch (err) {
                 console.error("Auth Fetch Error:", err);
@@ -1680,6 +1705,23 @@
             return found ? `${found.id} - ${found.name}` : s;
         }
 
+        // Tra cứu tên nhân viên từ ID (usersData)
+        function getEmployeeName(id) {
+            if (!id) return "---";
+            const s = id.toString().trim();
+            const found = usersData.find(u => u.id && u.id.toString().trim().toLowerCase() === s.toLowerCase());
+            if (!found) {
+                console.warn('[getEmployeeName] Không tìm thấy user id:', s, '| usersData.length:', usersData.length);
+                return s;
+            }
+            // Ưu tiên: ho_ten, sau đó name
+            const displayName = found.ho_ten || found.name;
+            if (!displayName) {
+                console.warn('[getEmployeeName] user tìm thấy nhưng name rỗng:', JSON.stringify(found));
+            }
+            return displayName || s;
+        }
+
         // --- DATA OPERATIONS ---
         async function fetchData() {
             // Đừng refresh bảng khi đang có dòng sửa/thêm
@@ -1731,7 +1773,7 @@
                 headers = [["id", "model", "ten_sp", "gia", "mo_ta", "anh"]];
                 fileName = "Mau_nhap_san_pham.xlsx";
             } else if (currentActiveTab === 'BH') {
-                headers = [["ngay", "truong", "shop", "mdh", "ghi_chu", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "xac_dinh_loi", "phuong_an_xly", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "ngay_tra", "mvd_tra", "id_khach", "sdt", "dia_chi"]];
+                headers = [["ngay", "truong", "shop", "mdh", "ghi_chu", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "xac_dinh_loi", "phuong_an_xly", "ng_sua", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "ngay_tra", "mvd_tra", "id_khach", "sdt", "dia_chi"]];
                 fileName = "Mau_nhap_bao_hanh.xlsx";
             } else {
                 // Default to current data headers if available
@@ -1912,6 +1954,16 @@
             const rawHeaders = currentData[0];
             let data = currentData.slice(1);
 
+            // Lọc theo Người sửa (BH tab)
+            const ngSuaFilterEl = document.getElementById('filter-ng-sua');
+            const ngSuaFilter = ngSuaFilterEl ? ngSuaFilterEl.value : '';
+            if (ngSuaFilter && currentActiveTab === 'BH') {
+                const ngSuaIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'ng_sua');
+                if (ngSuaIdx !== -1) {
+                    data = data.filter(row => (row[ngSuaIdx] || '').toString().trim().toLowerCase() === ngSuaFilter.toLowerCase());
+                }
+            }
+
             // Xác định danh sách cột đang được hiển thị
             let visibleIndices = [];
             if (CONFIG.displayColumns && CONFIG.displayColumns.length > 0) {
@@ -1979,6 +2031,28 @@
 
             displayData = [rawHeaders, ...data];
             renderTable();
+
+            // Cập nhật dropdown Người sửa (luôn render lại để đảm bảo hiển thị tên mới nhất)
+            if (currentActiveTab === 'BH') {
+                const ngSuaSelect = document.getElementById('filter-ng-sua');
+                if (ngSuaSelect) {
+                    const currentVal = ngSuaSelect.value;
+                    const ngSuaIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'ng_sua');
+                    if (ngSuaIdx !== -1) {
+                        const allData = currentData.slice(1);
+                        const uniqueNgSua = [...new Set(allData.map(r => (r[ngSuaIdx] || '').toString().trim()).filter(v => v))].sort();
+                        ngSuaSelect.innerHTML = '<option value="">-- Ng\u01b0\u1eddi s\u1eeda --</option>';
+                        uniqueNgSua.forEach(v => {
+                            const opt = document.createElement('option');
+                            opt.value = v;
+                            const label = getEmployeeName(v);
+                            opt.textContent = label;
+                            ngSuaSelect.appendChild(opt);
+                        });
+                        ngSuaSelect.value = currentVal;
+                    }
+                }
+            }
         }
 
         function renderTable() {
@@ -2077,9 +2151,11 @@
                         const columnName = rawHeaders[colIndex] ? rawHeaders[colIndex].toString().trim().toLowerCase() : "";
                         const isSp = (columnName === 'sp' || columnName === 'sản phẩm');
                         const isChiPhi = (columnName === 'chi_phi_sua' || columnName === 'chi phí sửa');
+                        const isNgSua = (columnName === 'ng_sua');
 
                         let displayVal = cellValue;
                         if (isSp && currentActiveTab === 'BH') displayVal = formatProductDisplay(cellValue);
+                        if (isNgSua && currentActiveTab === 'BH') displayVal = getEmployeeName(cellValue);
 
                         if (isImageUrl(cellValue)) {
                             td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="event.stopPropagation(); zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
@@ -2684,6 +2760,7 @@
 
                 let displayVal = val;
                 if (isSp && currentActiveTab === 'BH') displayVal = formatProductDisplay(val);
+                if (lower === 'ng_sua' && currentActiveTab === 'BH') displayVal = getEmployeeName(val);
                 if (!displayVal) displayVal = "---";
 
                 if (isImg && val) {
@@ -3086,6 +3163,18 @@
                 CONFIG.sheetName = TAB_CONFIGS[tabId].sheetName;
                 CONFIG.displayColumns = TAB_CONFIGS[tabId].columns;
 
+                // Hiện/ẩn bộ lọc Người sửa
+                const ngSuaWrapper = document.getElementById('filter-ng-sua-wrapper');
+                if (ngSuaWrapper) {
+                    if (tabId === 'BH') {
+                        ngSuaWrapper.classList.add('flex');
+                        ngSuaWrapper.classList.remove('hidden');
+                    } else {
+                        ngSuaWrapper.classList.add('hidden');
+                        ngSuaWrapper.classList.remove('flex');
+                    }
+                }
+
                 currentData = [];
                 displayData = [];
                 document.getElementById('tableHead').innerHTML = '';
@@ -3104,7 +3193,7 @@
             const headers = currentData[0].map(h => h ? h.toString().toLowerCase().trim() : "");
             const idxStatus = headers.indexOf('trang_thai');
             const idxTinhTrang = headers.indexOf('tinh_trang');
-            const idxStaff = headers.indexOf('truong');
+            const idxNgSua = headers.indexOf('ng_sua');
             const idxCost = headers.indexOf('chi_phi_sua');
             const idxDate = headers.indexOf('ngay');
             const idxShop = headers.indexOf('shop');
@@ -3164,7 +3253,7 @@
             let totalCost = 0;
 
             const statusCount = {};
-            const staffCount = {};
+            const ngSuaCount = {};
             const timelineData = {};
 
             rows.forEach(row => {
@@ -3178,8 +3267,9 @@
                 const st = row[idxStatus] || "Chưa xác định";
                 statusCount[st] = (statusCount[st] || 0) + 1;
 
-                const staff = row[idxStaff] || "Chưa giao";
-                staffCount[staff] = (staffCount[staff] || 0) + 1;
+                let ngSuaId = row[idxNgSua] ? row[idxNgSua].toString().trim() : "";
+                const staff = ngSuaId ? getEmployeeName(ngSuaId) : "Chưa phân công";
+                ngSuaCount[staff] = (ngSuaCount[staff] || 0) + 1;
 
                 const dateStr = row[idxDate] || "";
                 if (dateStr) {
@@ -3197,7 +3287,7 @@
             document.getElementById('stat-cost-bh').textContent = new Intl.NumberFormat('vi-VN').format(totalCost) + 'đ';
 
             renderPieChart('chartStatusBH', Object.keys(statusCount), Object.values(statusCount), 'Trạng thái');
-            const topStaff = Object.entries(staffCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const topStaff = Object.entries(ngSuaCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
             renderBarChart('chartStaffBH', topStaff.map(s => s[0]), topStaff.map(s => s[1]), 'Số phiếu');
             const months = Object.keys(timelineData).sort((a, b) => {
                 const [m1, y1] = a.split('/').map(Number);
@@ -3388,6 +3478,7 @@
                 const isTrangThai = lower.includes('trang_thai') || lower.includes('trang thai') || lower.includes('trạng thái');
                 const isPhuongAnXly = lower.includes('phuong_an_xly') || lower.includes('phương án xử lý');
                 const isDate = lower.includes('ngay') || lower.includes('ngày');
+                const isNgSua = (lower === 'ng_sua') && currentActiveTab === 'BH';
 
                 let input;
 
@@ -3409,6 +3500,25 @@
                         const o = document.createElement('option');
                         o.value = opt;
                         o.textContent = opt;
+                        input.appendChild(o);
+                    });
+                } else if (isNgSua) {
+                    // Dropdown chọn nhân viên sửa: lưu ID, hiển thị Tên
+                    input = document.createElement('select');
+                    input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right cursor-pointer";
+
+                    const defOpt = document.createElement('option');
+                    defOpt.value = "";
+                    defOpt.textContent = "-- Chọn Người sửa --";
+                    input.appendChild(defOpt);
+
+                    const currentVal = editRow ? (editRow[i] || "") : (isAddingNewRow && currentUser ? currentUser.id : "");
+                    usersData.forEach(u => {
+                        if (!u.id) return;
+                        const o = document.createElement('option');
+                        o.value = u.id;
+                        o.textContent = u.name || u.id;
+                        if (u.id.toString().trim().toLowerCase() === currentVal.toString().trim().toLowerCase()) o.selected = true;
                         input.appendChild(o);
                     });
                 } else if (isIdSp || isSp) {
@@ -3516,6 +3626,14 @@
                         input.value = generateId(8);
                         input.readOnly = true;
                         input.classList.add('bg-muted/30');
+                    }
+
+                    // Auto-fill ng_sua = user đang đăng nhập khi tạo mới BH
+                    if (lower === 'ng_sua' && isAddingNewRow && currentActiveTab === 'BH' && currentUser) {
+                        input.value = currentUser.id;
+                        input.readOnly = true;
+                        input.classList.add('bg-muted/30');
+                        input.title = 'Tự động theo user đăng nhập';
                     }
                 }
 
@@ -3705,6 +3823,14 @@
             if ((currentActiveTab === 'BH' || currentActiveTab === 'DS_CHI_TIET_SP') && idColIndex !== -1 &&
                 !newData[idColIndex]) {
                 newData[idColIndex] = (currentActiveTab === 'DS_CHI_TIET_SP') ? generateId(8) : generateId();
+            }
+
+            // Tự động set ng_sua = user đang đăng nhập khi tạo mới phiếu BH
+            if (isAddingNewRow && currentActiveTab === 'BH' && currentUser) {
+                const ngSuaIdx = rawHeadersForId.findIndex(h => h && h.toString().trim().toLowerCase() === 'ng_sua');
+                if (ngSuaIdx !== -1 && !newData[ngSuaIdx]) {
+                    newData[ngSuaIdx] = currentUser.id;
+                }
             }
 
             isSaving = true;
