@@ -290,6 +290,24 @@
             height: 100%;
             border: none;
         }
+
+        .btn-camera {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .btn-camera:hover {
+            background: #1d4ed8;
+            color: white;
+        }
     </style>
 </head>
 
@@ -344,7 +362,7 @@
 
     <div id="imageManager">
         <iframe
-            src="https://script.google.com/macros/s/AKfycbydNVRTgr7UmQC7dKBM3BCQclASfSClYCZKaSLwTJGvogYYLaE_L0c83jh7qLFw858r/exec"
+            src="https://script.google.com/macros/s/AKfycbzi-W9OOmO_NzaBhSFKyQfWvIEJwWkD2hI-v2CmQHilH7uq3WuX10ZTTbQvuT7pmFR7/exec"
             allow="geolocation; camera; microphone; clipboard-read; clipboard-write" title="Quản Lý Ảnh"></iframe>
     </div>
 
@@ -407,6 +425,9 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                 }
             }
         };
+
+        // Đọc tham số ?up= từ URL của trang này (ví dụ: sp_pm_joy.html?up=txx1)
+        const UP_PARAM = new URLSearchParams(window.location.search).get('up') || '';
 
         let currentTab = 'SP_PM', allData = [], accessToken = null, tokenExpiry = 0;
         let currentPage = 1, rowsPerPage = 100, filteredData = [];
@@ -490,7 +511,8 @@ sR2Sh8e3h3Knd6j1tceRIFU=
 
         function renderHeaders() {
             const head = document.getElementById('tableHead');
-            const headers = CONFIG.tabs[currentTab].headers;
+            const headers = [...CONFIG.tabs[currentTab].headers];
+            if (currentTab === 'SP_PM') headers.push('');
             head.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
         }
 
@@ -498,6 +520,10 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             lucide.createIcons();
             initDragAndDrop();
             await fetchData();
+            // Nếu URL có ?up=MaSP → tự động mở tab Quản Lý Ảnh với mã đó
+            if (UP_PARAM) {
+                openImageManager(UP_PARAM);
+            }
         }
 
         function initDragAndDrop() {
@@ -539,8 +565,7 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             const pageData = filteredData.slice(start, end);
 
             tbody.innerHTML = pageData.map(row => {
-                return `<tr>
-                    ${row.map((cell, idx) => {
+                const cells = row.map((cell, idx) => {
                     if (idx === tabConfig.imgCol && cell) {
                         const firstImg = cell.split(',')[0].trim();
                         return `<td>
@@ -560,8 +585,14 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                         return `<td>${linksHtml.join(', ')}</td>`;
                     }
                     return `<td>${cell || ''}</td>`;
-                }).join('')}
-                </tr>`;
+                }).join('');
+
+                // Thêm nút ảnh cho SP_PM (dùng cột Mã = index 5)
+                const extraCol = currentTab === 'SP_PM'
+                    ? `<td><button class="btn-camera" onclick="openImageManager('${(row[5] || '').replace(/'/g, "\\'")}')">📷 Ảnh</button></td>`
+                    : '';
+
+                return `<tr>${cells}${extraCol}</tr>`;
             }).join('');
 
             renderPagination();
@@ -666,6 +697,15 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                 }
             };
             reader.readAsArrayBuffer(file);
+        }
+
+        function openImageManager(ma) {
+            // Lấy BASE_URL động từ iframe (không hardcode, tránh lỗi khi đổi URL)
+            const iframe = document.querySelector('#imageManager iframe');
+            const BASE_URL = iframe.getAttribute('src').split('?')[0];
+            const url = ma ? BASE_URL + '?up=' + encodeURIComponent(ma) : BASE_URL;
+            iframe.src = url;
+            switchTab('ANH');
         }
 
         init();
