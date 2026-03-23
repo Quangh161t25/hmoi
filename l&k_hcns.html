@@ -475,6 +475,19 @@
                     </svg>
                     <span>Phòng ban</span>
                 </button>
+                <div
+                    class="px-3 mt-6 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase menu-label">
+                    Công việc
+                </div>
+                <button onclick="switchTab('GIAO_VIEC')" id="nav-giao-viec"
+                    class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted text-muted-foreground group">
+                    <svg class="w-5 h-5 group-hover:text-foreground" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9m-7-4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    <span>Công việc</span>
+                </button>
             </nav>
 
         </aside>
@@ -610,6 +623,20 @@
                                 </svg>
                             </div>
                         </div>
+                        <div class="bg-card p-5 rounded-xl border border-border flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-all active:scale-[0.98]"
+                            onclick="switchTab('GIAO_VIEC')">
+                            <div>
+                                <h3 class="text-sm font-bold text-foreground mb-1">Module Giao việc</h3>
+                                <p class="text-xs text-muted-foreground">Sếp giao việc - Nhân viên cập nhật</p>
+                            </div>
+                            <div
+                                class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9m-7-4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -660,6 +687,29 @@
                                     <option value="ngừng hoạt động">Ngừng hoạt động</option>
                                 </select>
                             </div>
+                            <div id="filter-gv-wrapper" class="flex items-center gap-1.5 flex-wrap hidden">
+                                <select id="filter-gv-trang-thai"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Trạng thái --</option>
+                                    <option value="chưa làm">Chưa làm</option>
+                                    <option value="đang làm">Đang làm</option>
+                                    <option value="hoàn thành">Hoàn thành</option>
+                                    <option value="hủy">Hủy</option>
+                                </select>
+                                <select id="filter-gv-ng-nhan"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[160px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Người nhận --</option>
+                                </select>
+                                <select id="filter-gv-thoi-gian"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[150px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Thời gian --</option>
+                                    <option value="today">Hôm nay</option>
+                                    <option value="week">Tuần này</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2">
@@ -689,6 +739,22 @@
                                             d="M4 6h16M4 12h8m-8 6h16" />
                                     </svg>
                                 </button>
+                                <button id="btn-view-kanban" onclick="setViewMode('kanban')"
+                                    class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
+                                    title="Kanban">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 5h4v14H4V5zm6 0h4v8h-4V5zm6 0h4v11h-4V5z" />
+                                    </svg>
+                                </button>
+                                <button id="btn-view-scope" onclick="setViewMode('scope')"
+                                    class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
+                                    title="Việc theo chế độ">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 6h16M4 12h16M4 18h10" />
+                                    </svg>
+                                </button>
                             </div>
 
                             <button
@@ -705,11 +771,68 @@
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4v16m8-8H4" />
-                                </svg> Thêm Mới
+                                </svg> <span id="btn-add-row-label">Thêm Mới</span>
                             </button>
                             <div id="saveStatus"
                                 class="fixed top-4 right-4 z-[100] bg-primary text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium animate-bounce"
                                 style="display: none;">Đang xử lý...</div>
+                        </div>
+                    </div>
+                    <div id="giao-viec-panel" class="hidden p-4 border-b border-border bg-amber-50/40">
+                        <div id="gv-inner-tabs"
+                            class="flex flex-wrap gap-1.5 mb-4 p-1 bg-muted/60 rounded-xl border border-border/60 w-fit max-w-full">
+                            <button type="button" id="gv-tab-my" onclick="switchTaskScope('MY')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Công việc của
+                                tôi</button>
+                            <button type="button" id="gv-tab-assigned" onclick="switchTaskScope('ASSIGNED_BY_ME')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Công việc tôi
+                                giao</button>
+                            <button type="button" id="gv-tab-all" onclick="switchTaskScope('ALL')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Tất cả công
+                                việc</button>
+                            <button type="button" id="gv-tab-personal" onclick="switchTaskScope('PERSONAL')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Công việc cá
+                                nhân</button>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                            <div class="bg-card p-3 rounded-lg border border-border">
+                                <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Tổng
+                                    việc</div>
+                                <div id="gv-stat-total" class="text-xl font-bold text-foreground">0</div>
+                            </div>
+                            <div class="bg-card p-3 rounded-lg border border-border">
+                                <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Đang
+                                    làm</div>
+                                <div id="gv-stat-doing" class="text-xl font-bold text-blue-600">0</div>
+                            </div>
+                            <div class="bg-card p-3 rounded-lg border border-border">
+                                <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Hoàn
+                                    thành</div>
+                                <div id="gv-stat-done" class="text-xl font-bold text-emerald-600">0</div>
+                            </div>
+                        </div>
+                        <div id="giao-viec-manager-box" class="hidden bg-card border border-border rounded-lg p-4">
+                            <h4 class="text-sm font-bold mb-3">Giao việc nhanh (Sếp/Quản lý)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                                <input id="gv-input-ten-cv" type="text" placeholder="Tên công việc"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                                <input id="gv-input-cong-viec" type="text" placeholder="Nội dung công việc"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                                <select id="gv-input-ng-nhan"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:border-primary"></select>
+                                <input id="gv-input-ng-hoan-thanh" type="date"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                            </div>
+                            <div class="mt-3">
+                                <button onclick="createTaskFromPanel()"
+                                    class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition">Tạo
+                                    giao việc</button>
+                            </div>
+                        </div>
+                        <div id="giao-viec-employee-box" class="hidden bg-card border border-border rounded-lg p-4">
+                            <h4 class="text-sm font-bold mb-3">Việc theo chế độ: <span id="gv-scope-label">Công việc của
+                                    tôi</span></h4>
+                            <div id="giao-viec-employee-list" class="space-y-2 text-sm"></div>
                         </div>
                     </div>
 
@@ -745,6 +868,12 @@
                         <div id="treeViewContainer" class="hidden flex-1 w-full bg-card p-6 overflow-auto">
                             <!-- Tree injected here -->
                         </div>
+                        <div id="kanbanViewContainer" class="hidden flex-1 w-full bg-slate-50 p-4 overflow-auto">
+                            <!-- Kanban injected here -->
+                        </div>
+                        <div id="taskScopeViewContainer" class="hidden flex-1 w-full bg-card p-4 overflow-auto">
+                            <!-- Scope list injected here -->
+                        </div>
                     </div>
 
                     <!-- Pagination -->
@@ -765,12 +894,44 @@
     <div class="image-overlay" id="imageOverlay" onclick="closeImageOverlay()">
         <img id="overlayImage" src="" alt="Zoomed Image" onclick="event.stopPropagation()">
     </div>
+    <div id="systemNotificationStack" class="fixed top-16 right-4 z-[120] space-y-2 w-[320px]"></div>
+
+    <!-- Task Detail Modal -->
+    <div id="taskDetailModalOverlay" class="fixed inset-0 z-[130] bg-black/30 backdrop-blur-sm hidden"
+        onclick="closeTaskDetailModal()"></div>
+    <div id="taskDetailModal" class="fixed inset-0 z-[140] hidden items-center justify-center p-4">
+        <div class="bg-card border border-border rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-border flex items-center justify-between gap-3 bg-card">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9m-3-4h3m-3 0a2 2 0 00-2-2h1a2 2 0 012 2v1m-7 4h6" />
+                        </svg>
+                    </div>
+                    <h2 id="taskDetailTitle" class="font-bold text-lg truncate">Chi tiết công việc</h2>
+                </div>
+                <button class="p-2 hover:bg-muted rounded-full text-muted-foreground transition"
+                    onclick="closeTaskDetailModal()">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="px-6 py-4 space-y-4">
+                <div id="taskDetailBody" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                <div id="taskDetailActions" class="flex flex-wrap gap-2 pt-1"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- Form Drawer (Add New / Edit) -->
     <div id="formDrawerOverlay" class="fixed inset-0 z-[60] bg-black/20 backdrop-blur-[2px] hidden transition-opacity"
         onclick="closeFormDrawer()"></div>
     <div id="formDrawer"
-        class="fixed inset-y-0 right-0 z-[70] w-full lg:w-[calc(100%-280px)] bg-card border-l border-border transition-transform translate-x-full flex flex-col shadow-2xl">
+        class="fixed inset-y-0 right-0 z-[70] w-full lg:w-[90%] bg-card border-l border-border transition-transform translate-x-full flex flex-col shadow-2xl">
         <div class="px-6 border-b border-border bg-card sticky top-0 z-10">
             <div class="h-14 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -828,7 +989,7 @@
     <div id="detailDrawerOverlay" class="fixed inset-0 z-[60] bg-black/20 backdrop-blur-[2px] hidden transition-opacity"
         onclick="closeDetailDrawer()"></div>
     <div id="detailDrawer"
-        class="fixed inset-y-0 right-0 z-[70] w-full lg:w-[calc(100%-280px)] bg-card border-l border-border transition-transform translate-x-full flex flex-col shadow-2xl">
+        class="fixed inset-y-0 right-0 z-[70] w-full lg:w-[90%] bg-card border-l border-border transition-transform translate-x-full flex flex-col shadow-2xl">
         <div class="h-14 px-4 border-b border-border flex items-center justify-between bg-card sticky top-0 z-10">
             <div class="flex items-center gap-2 overflow-hidden">
                 <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
@@ -840,6 +1001,14 @@
                 <h2 class="font-bold text-base truncate">Chi tiết</h2>
             </div>
             <div class="flex items-center gap-2 shrink-0">
+                <button id="btnUpdateStatusDetail"
+                    class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition text-xs flex items-center gap-1.5 hidden">
+                    Cập nhật trạng thái
+                </button>
+                <button id="btnMarkCompleteDetail"
+                    class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg font-medium hover:bg-emerald-100 transition text-xs flex items-center gap-1.5 hidden">
+                    Hoàn thành
+                </button>
                 <button id="btnEditDetail"
                     class="px-3 py-1.5 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition text-xs flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -849,7 +1018,7 @@
                     Sửa
                 </button>
                 <button id="btnDeleteDetail"
-                    class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition text-xs flex items-center gap-1.5 hidden">
+                    class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition text-xs flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -908,20 +1077,27 @@
 
         const TAB_CONFIGS = {
             'DS_NHAN_VIEN': { sheetName: 'DSNV', columns: ["id", "ho_ten", "hinh_anh", "gioi_tinh", "dien_thoai", "chuc_vu", "phong_ban", "trang_thai", "quyen", "email", "ngay_sinh", "ngay_vao_lam", "file_ho_so"] },
-            'PHONG_BAN': { sheetName: 'DS_PHONG_BAN', columns: ["ten_phong_ban", "phong_ban_cap_tren", "cap_do", "thu_tu", "trang_thai"] }
+            'PHONG_BAN': { sheetName: 'DS_PHONG_BAN', columns: ["ten_phong_ban", "phong_ban_cap_tren", "cap_do", "thu_tu", "trang_thai"] },
+            // Columns used to display in the list table.
+            // Editing / details use all sheet columns (from currentData[0] headers).
+            'GIAO_VIEC': { sheetName: 'GIAO_VIEC', columns: ["ngay", "ten_cv", "ng_nhan", "trang_thai"] }
         };
 
         const HEADER_MAPPING = {
             'id': 'ID', 'ho_ten': 'Họ và tên', 'hinh_anh': 'Hình ảnh', 'gioi_tinh': 'Giới tính', 'ngay_sinh': 'Ngày sinh', 'mat_khau': 'Mật khẩu',
             'quyen': 'Quyền hạn', 'email': 'Email', 'dien_thoai': 'Số điện thoại', 'chuc_vu': 'Chức vụ', 'phong_ban': 'Phòng ban',
             'chi_nhanh': 'Chi nhánh', 'ngay_vao_lam': 'Ngày vào làm', 'file_ho_so': 'Hồ sơ (Link)', 'trang_thai': 'Trạng thái',
-            'ten_phong_ban': 'Tên phòng ban', 'phong_ban_cap_tren': 'Phòng ban cấp trên', 'mo_ta': 'Mô tả', 'cap_do': 'Cấp độ', 'thu_tu': 'Thứ tự'
+            'ten_phong_ban': 'Tên phòng ban', 'phong_ban_cap_tren': 'Phòng ban cấp trên', 'mo_ta': 'Mô tả', 'cap_do': 'Cấp độ', 'thu_tu': 'Thứ tự',
+            // Task module
+            'ngay': 'Ngày', 'cong_viec': 'Loại công việc', 'ng_giao': 'Người giao việc', 'ng_nhan': 'Người nhận',
+            'ng_hoan_thanh': 'Ngày hoàn thành', 'han_hoan_thanh': 'Hạn hoàn thành', 'ten_cv': 'Tên công việc'
         };
 
         const GIOI_TINH_OPTS = ["Nam", "Nữ", "Khác"];
         const QUYEN_OPTS = ["Admin", "Quản lý", "Nhân viên"];
         const TRANG_THAI_NV_OPTS = ["Đang làm", "Nghỉ việc", "Tạm nghỉ"];
         const TRANG_THAI_PB_OPTS = ["Hoạt động", "Ngừng hoạt động"];
+        const TRANG_THAI_GV_OPTS = ["Chưa làm", "Đang làm", "Hoàn thành", "Hủy"];
 
         let currentActiveTab = 'HOME';
         let currentViewMode = 'table';
@@ -943,6 +1119,13 @@
         let currentPage = 1;
         const rowsPerPage = 30;
         let sortConfig = { col: null, dir: 'asc' };
+        let currentTaskScope = 'MY';
+        let taskNotifyState = { known: {}, soon: {}, overdue: {} };
+
+        function isManagerRole() {
+            const role = ((currentUser && currentUser.role) || "").toLowerCase();
+            return role.includes('admin') || role.includes('quản lý') || role.includes('quan ly') || role.includes('giám đốc') || role.includes('giam doc') || role.includes('sếp') || role.includes('sep');
+        }
 
         async function fetchAuthData() {
             const loading = document.getElementById('loginLoading');
@@ -1102,10 +1285,26 @@
 
         function getStatusBadge(status) {
             let clean = (status || "").toLowerCase().trim();
-            if (clean === 'đang làm' || clean === 'hoạt động') return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700">${status}</span>`;
+            if (clean === 'đang làm') {
+                const isTask = currentActiveTab === 'GIAO_VIEC';
+                return isTask
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700">${status}</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700">${status}</span>`;
+            }
+            if (clean === 'chưa làm') return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">${status}</span>`;
             if (clean === 'nghỉ việc' || clean === 'ngừng hoạt động') return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-100 text-red-700">${status}</span>`;
             if (clean === 'tạm nghỉ') return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700">${status}</span>`;
+            if (clean === 'hoàn thành') return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700">${status}</span>`;
+            if (clean === 'hủy' || clean === 'huỷ') return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-700">${status}</span>`;
+            if (clean === 'hoạt động') return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700">${status}</span>`;
             return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-gray-100 text-gray-700">${status || "---"}</span>`;
+        }
+
+        function getTaskScopeLabel(scope) {
+            if (scope === 'ASSIGNED_BY_ME') return 'Công việc tôi giao';
+            if (scope === 'PERSONAL') return 'Công việc cá nhân';
+            if (scope === 'ALL') return 'Tất cả công việc';
+            return 'Công việc của tôi';
         }
 
         function buildFallbackSheetData() {
@@ -1155,7 +1354,9 @@
                 const token = await getAccessToken();
                 const fallbackNames = currentActiveTab === 'PHONG_BAN'
                     ? [CONFIG.sheetName, 'DS_PHONG_BAN', 'DS PHONG BAN', 'PHONG_BAN', 'PHONG BAN', 'PHONGBAN']
-                    : [CONFIG.sheetName];
+                    : currentActiveTab === 'GIAO_VIEC'
+                        ? [CONFIG.sheetName, 'GIAO_VIEC', 'GIAO VIEC']
+                        : [CONFIG.sheetName];
                 const { result, sheetName } = await fetchSheetValuesByCandidates(token, fallbackNames);
                 if (sheetName && sheetName !== CONFIG.sheetName) CONFIG.sheetName = sheetName;
 
@@ -1222,6 +1423,93 @@
                     if (ttIdx !== -1 && ttFilter && (row[ttIdx] || '').toString().toLowerCase() !== ttFilter) return false;
                     return true;
                 });
+            } else if (currentActiveTab === 'GIAO_VIEC') {
+                const ttFilter = document.getElementById('filter-gv-trang-thai').value.toLowerCase();
+                const ngNhanFilter = document.getElementById('filter-gv-ng-nhan').value.toLowerCase();
+                const timeFilterEl = document.getElementById('filter-gv-thoi-gian');
+                const timeFilter = timeFilterEl ? timeFilterEl.value.toLowerCase() : '';
+                const ttIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'trang_thai');
+                const ngNhanIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'ng_nhan');
+                const ngGiaoIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'ng_giao');
+                const ngayIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'ngay');
+                const congViecIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'cong_viec');
+
+                const startToday = new Date(); startToday.setHours(0, 0, 0, 0);
+                const endToday = new Date(startToday); endToday.setHours(23, 59, 59, 999);
+                const nowDay = startToday.getDay(); // 0=Sun, 1=Mon...
+                const diffToMon = (nowDay + 6) % 7; // Mon -> 0, Sun -> 6
+                const startWeek = new Date(startToday); startWeek.setDate(startWeek.getDate() - diffToMon);
+                const endWeek = new Date(startWeek); endWeek.setDate(endWeek.getDate() + 6); endWeek.setHours(23, 59, 59, 999);
+
+                const ngNhanSelect = document.getElementById('filter-gv-ng-nhan');
+                if (ngNhanSelect && ngNhanIdx !== -1) {
+                    const currentVal = ngNhanSelect.value;
+                    const unique = [...new Set(currentData.slice(1).map(r => (r[ngNhanIdx] || '').toString().trim()).filter(v => v))].sort();
+                    ngNhanSelect.innerHTML = `<option value="">-- Người nhận --</option>`;
+                    unique.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = opt.textContent = v;
+                        ngNhanSelect.appendChild(opt);
+                    });
+                    ngNhanSelect.value = currentVal;
+                }
+
+                data = data.filter(row => {
+                    if (ttIdx !== -1 && ttFilter) {
+                        const canon = (row[ttIdx] || '').toString().trim().toLowerCase();
+                        const lane = normalizeKanbanStatus(canon);
+                        const laneToStatus = {
+                            todo: 'chưa làm',
+                            doing: 'đang làm',
+                            done: 'hoàn thành',
+                            cancel: 'hủy'
+                        };
+                        const canonStatus = laneToStatus[lane] || canon;
+                        if (canonStatus !== ttFilter) return false;
+                    }
+                    if (ngayIdx !== -1 && timeFilter) {
+                        const ngayVal = row[ngayIdx] || '';
+                        const d = ngayVal ? parseDisplayDateToDate(ngayVal) : null;
+                        if (!d) return false;
+                        if (timeFilter === 'today') {
+                            if (d.getTime() < startToday.getTime() || d.getTime() > endToday.getTime()) return false;
+                        } else if (timeFilter === 'week') {
+                            if (d.getTime() < startWeek.getTime() || d.getTime() > endWeek.getTime()) return false;
+                        }
+                    }
+                    if (ngNhanIdx !== -1 && ngNhanFilter && (row[ngNhanIdx] || '').toString().toLowerCase() !== ngNhanFilter) return false;
+                    return true;
+                });
+
+                const meId = ((currentUser && currentUser.id) || "").toLowerCase();
+                const meName = ((currentUser && currentUser.name) || "").toLowerCase();
+                const matchMe = (val) => val === meId || val === meName;
+
+                if (currentTaskScope === 'MY') {
+                    data = data.filter(row => {
+                        const val = ngNhanIdx !== -1 ? (row[ngNhanIdx] || '').toString().toLowerCase() : "";
+                        return matchMe(val);
+                    });
+                } else if (currentTaskScope === 'ASSIGNED_BY_ME') {
+                    data = data.filter(row => {
+                        const val = ngGiaoIdx !== -1 ? (row[ngGiaoIdx] || '').toString().toLowerCase() : "";
+                        return matchMe(val);
+                    });
+                } else if (currentTaskScope === 'PERSONAL') {
+                    data = data.filter(row => {
+                        const valNhan = ngNhanIdx !== -1 ? (row[ngNhanIdx] || '').toString().toLowerCase() : "";
+                        const valCv = congViecIdx !== -1 ? (row[congViecIdx] || '').toString().toLowerCase() : "";
+                        return matchMe(valNhan) && valCv === 'cv_cn'.toLowerCase();
+                    });
+                } else if (currentTaskScope === 'ALL') {
+                    if (!isManagerRole()) {
+                        data = data.filter(row => {
+                            const valNhan = ngNhanIdx !== -1 ? (row[ngNhanIdx] || '').toString().toLowerCase() : "";
+                            const valGiao = ngGiaoIdx !== -1 ? (row[ngGiaoIdx] || '').toString().toLowerCase() : "";
+                            return matchMe(valNhan) || matchMe(valGiao);
+                        });
+                    }
+                }
             }
 
             let visibleIndices = [];
@@ -1269,6 +1557,7 @@
 
             displayData = [rawHeaders, ...data];
             renderTable();
+            if (currentActiveTab === 'GIAO_VIEC') renderTaskModulePanel();
 
             if (currentActiveTab === 'HOME') {
                 const statTotal = document.getElementById('home-stat-total');
@@ -1283,7 +1572,7 @@
 
         function setViewMode(mode) {
             currentViewMode = mode;
-            ['table', 'card', 'tree'].forEach(m => {
+            ['table', 'card', 'tree', 'kanban', 'scope'].forEach(m => {
                 const btn = document.getElementById(`btn-view-${m}`);
                 if (btn) {
                     btn.classList.toggle('bg-background', mode === m);
@@ -1300,11 +1589,13 @@
             const tableView = document.getElementById('tableViewContainer');
             const cardView = document.getElementById('cardViewContainer');
             const treeView = document.getElementById('treeViewContainer');
+            const kanbanView = document.getElementById('kanbanViewContainer');
+            const scopeView = document.getElementById('taskScopeViewContainer');
             const head = document.getElementById('tableHead');
             const body = document.getElementById('tableBody');
             const pagination = document.getElementById('paginationWrapper');
 
-            head.innerHTML = ''; body.innerHTML = ''; cardView.innerHTML = ''; treeView.innerHTML = '';
+            head.innerHTML = ''; body.innerHTML = ''; cardView.innerHTML = ''; treeView.innerHTML = ''; kanbanView.innerHTML = ''; scopeView.innerHTML = '';
 
             if (displayData.length === 0) return;
             const rawHeaders = displayData[0];
@@ -1326,15 +1617,23 @@
             const pageData = displayData.slice(startIdx, endIdx);
 
             if (currentViewMode === 'card') {
-                tableView.classList.add('hidden'); treeView.classList.add('hidden'); cardView.classList.remove('hidden');
+                tableView.classList.add('hidden'); treeView.classList.add('hidden'); kanbanView.classList.add('hidden'); scopeView.classList.add('hidden'); cardView.classList.remove('hidden');
                 pagination.classList.remove('hidden');
                 renderCards(pageData, rawHeaders, sheetHeaders);
             } else if (currentViewMode === 'tree') {
-                tableView.classList.add('hidden'); cardView.classList.add('hidden'); treeView.classList.remove('hidden');
+                tableView.classList.add('hidden'); cardView.classList.add('hidden'); kanbanView.classList.add('hidden'); scopeView.classList.add('hidden'); treeView.classList.remove('hidden');
                 pagination.classList.add('hidden');
                 renderTree(displayData.slice(1), sheetHeaders);
+            } else if (currentViewMode === 'kanban') {
+                tableView.classList.add('hidden'); cardView.classList.add('hidden'); treeView.classList.add('hidden'); scopeView.classList.add('hidden'); kanbanView.classList.remove('hidden');
+                pagination.classList.add('hidden');
+                renderKanban(displayData.slice(1), sheetHeaders);
+            } else if (currentViewMode === 'scope') {
+                tableView.classList.add('hidden'); cardView.classList.add('hidden'); treeView.classList.add('hidden'); kanbanView.classList.add('hidden'); scopeView.classList.remove('hidden');
+                pagination.classList.add('hidden');
+                renderMyTasksList();
             } else {
-                tableView.classList.remove('hidden'); cardView.classList.add('hidden'); treeView.classList.add('hidden');
+                tableView.classList.remove('hidden'); cardView.classList.add('hidden'); treeView.classList.add('hidden'); kanbanView.classList.add('hidden'); scopeView.classList.add('hidden');
                 pagination.classList.remove('hidden');
 
                 const headFragment = document.createDocumentFragment();
@@ -1384,9 +1683,30 @@
                             if (isImageUrl(cellValue)) {
                                 td.innerHTML = `<img src="${cellValue}" class="img-preview" onclick="event.stopPropagation(); zoomImage('${cellValue.replace(/'/g, "\\'")}')" onerror="this.parentElement.textContent='${cellValue.replace(/'/g, "\\'")}'">`;
                             } else if (cName === 'trang_thai') {
-                                td.innerHTML = getStatusBadge(cellValue);
+                                if (currentActiveTab === 'GIAO_VIEC') {
+                                    const hanIdx = rawHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'han_hoan_thanh');
+                                    const hanVal = hanIdx !== -1 ? (row[hanIdx] || '') : '';
+                                    const deadline = hanVal ? parseDisplayDateToDate(hanVal) : null;
+                                    const stLower = (cellValue || '').toString().toLowerCase().trim();
+                                    const today = new Date(); today.setHours(0, 0, 0, 0);
+                                    const isOverdue = !!deadline && stLower !== 'hoàn thành' && deadline.getTime() < today.getTime();
+                                    td.innerHTML = isOverdue
+                                        ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-700">Cảnh báo quá hạn</span>`
+                                        : getStatusBadge(cellValue);
+                                } else {
+                                    td.innerHTML = getStatusBadge(cellValue);
+                                }
                             } else {
-                                td.textContent = cellValue;
+                                if (currentActiveTab === 'GIAO_VIEC' && cName === 'ngay') {
+                                    const d = parseDisplayDateToDate(cellValue);
+                                    if (d) {
+                                        const dd = String(d.getDate()).padStart(2, '0');
+                                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                                        td.textContent = `${dd}/${mm}`;
+                                    } else td.textContent = cellValue;
+                                } else {
+                                    td.textContent = cellValue;
+                                }
                             }
                         }
                         tr.appendChild(td);
@@ -1405,7 +1725,44 @@
         function renderCards(pageData, rawHeaders, sheetHeaders) {
             const container = document.getElementById('cardViewContainer');
 
-            if (currentActiveTab === 'PHONG_BAN') {
+            if (currentActiveTab === 'GIAO_VIEC') {
+                const iId = sheetHeaders.indexOf('id');
+                const iTenCv = sheetHeaders.indexOf('ten_cv');
+                const iCongViec = sheetHeaders.indexOf('cong_viec');
+                const iNguoiGiao = sheetHeaders.indexOf('ng_giao');
+                const iNguoiNhan = sheetHeaders.indexOf('ng_nhan');
+                const iHan = sheetHeaders.indexOf('ng_hoan_thanh');
+                const iStatus = sheetHeaders.indexOf('trang_thai');
+
+                pageData.forEach(row => {
+                    const absoluteIndex = currentData.indexOf(row);
+                    const id = row[iId] || "";
+                    const tenCv = row[iTenCv] || "---";
+                    const congViec = row[iCongViec] || "---";
+                    const nguoiGiao = row[iNguoiGiao] || "---";
+                    const nguoiNhan = row[iNguoiNhan] || "---";
+                    const han = row[iHan] || "---";
+                    const status = row[iStatus] || "";
+
+                    const card = document.createElement('div');
+                    card.className = "bg-card border border-border rounded-xl p-5 flex flex-col gap-3 cursor-pointer relative";
+                    card.onclick = () => showDetail(absoluteIndex);
+                    card.innerHTML = `
+                        <div class="absolute top-4 right-4">${getStatusBadge(status)}</div>
+                        <div class="pr-20">
+                            <h3 class="text-base font-bold text-foreground truncate" title="${tenCv}">${tenCv}</h3>
+                            <p class="text-xs text-muted-foreground mt-1">Mã việc: ${id || "---"}</p>
+                        </div>
+                        <p class="text-sm text-foreground line-clamp-2">${congViec}</p>
+                        <div class="pt-3 border-t border-border/50 text-xs text-muted-foreground space-y-1">
+                            <div>Người giao: <span class="font-medium text-foreground">${nguoiGiao}</span></div>
+                            <div>Người nhận: <span class="font-medium text-foreground">${nguoiNhan}</span></div>
+                            <div>Hạn hoàn thành: <span class="font-medium text-foreground">${han}</span></div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else if (currentActiveTab === 'PHONG_BAN') {
                 const iName = sheetHeaders.indexOf('ten_phong_ban');
                 const iParent = sheetHeaders.indexOf('phong_ban_cap_tren');
                 const iStatus = sheetHeaders.indexOf('trang_thai');
@@ -1543,6 +1900,107 @@
             container.innerHTML = roots.length > 0 ? buildHTML(roots) : '<p class="text-muted-foreground text-center mt-10">Không có dữ liệu</p>';
         }
 
+        function normalizeKanbanStatus(status) {
+            const st = (status || '').toString().trim().toLowerCase();
+            if (st === 'chưa làm' || st === 'chua lam' || st === 'chưa nhan' || st === 'chưa nhận' || st === 'đã nhận' || st === 'chờ duyệt' || st === 'trễ hạn') return 'todo';
+            if (st === 'đang làm') return 'doing';
+            if (st === 'hoàn thành') return 'done';
+            if (st === 'hủy' || st === 'huỷ') return 'cancel';
+            // Default to TODO lane if unknown
+            return 'todo';
+        }
+
+        let kanbanDragTaskId = null;
+        let kanbanDragFromLane = null;
+
+        function handleKanbanDragStart(taskId, fromLane) {
+            kanbanDragTaskId = taskId || null;
+            kanbanDragFromLane = fromLane || null;
+        }
+
+        function handleKanbanDragEnd() {
+            kanbanDragTaskId = null;
+            kanbanDragFromLane = null;
+        }
+
+        function getStatusTextForLane(laneKey) {
+            if (laneKey === 'todo') return 'Chưa làm';
+            if (laneKey === 'doing') return 'Đang làm';
+            if (laneKey === 'done') return 'Hoàn thành';
+            if (laneKey === 'cancel') return 'Hủy';
+            return 'Chưa làm';
+        }
+
+        function handleKanbanDrop(toLaneKey) {
+            if (!kanbanDragTaskId) return;
+            const nextStatus = getStatusTextForLane(toLaneKey);
+            updateTaskStatusById(kanbanDragTaskId, nextStatus);
+            handleKanbanDragEnd();
+        }
+
+        function renderKanban(dataRows, sheetHeaders) {
+            const container = document.getElementById('kanbanViewContainer');
+            if (currentActiveTab !== 'GIAO_VIEC') {
+                container.innerHTML = '<p class="text-muted-foreground">Chế độ Kanban chỉ dùng cho module Công việc.</p>';
+                return;
+            }
+            const iTitle = sheetHeaders.indexOf('ten_cv');
+            const iDesc = sheetHeaders.indexOf('cong_viec');
+            const iStatus = sheetHeaders.indexOf('trang_thai');
+            const iOwner = sheetHeaders.indexOf('ng_nhan');
+            const iDeadline = sheetHeaders.indexOf('han_hoan_thanh');
+            const iId = sheetHeaders.indexOf('id');
+            if (iTitle === -1 || iStatus === -1) {
+                container.innerHTML = '<p class="text-muted-foreground">Không đủ cột để hiển thị Kanban.</p>';
+                return;
+            }
+
+            const lanes = {
+                todo: { title: 'Chưa làm', items: [] },
+                doing: { title: 'Đang làm', items: [] },
+                done: { title: 'Hoàn thành', items: [] },
+                cancel: { title: 'Hủy', items: [] }
+            };
+            dataRows.forEach(row => {
+                const laneKey = normalizeKanbanStatus(row[iStatus]);
+                if (!lanes[laneKey]) return;
+                lanes[laneKey].items.push(row);
+            });
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    ${Object.keys(lanes).map(key => {
+                const lane = lanes[key];
+                return `
+                            <div class="bg-white rounded-xl border border-border p-3"
+                                ondragover="event.preventDefault()"
+                                ondrop="handleKanbanDrop('${key}')">
+                                <div class="font-bold text-sm mb-3">${lane.title} <span class="text-xs text-muted-foreground">(${lane.items.length})</span></div>
+                                <div class="space-y-2 min-h-[240px]">
+                                    ${lane.items.map(r => {
+                    const rawId = iId !== -1 ? (r[iId] || '') : (r[0] || '');
+                    const idSafe = rawId.toString().replace(/'/g, "\\'");
+                    return `
+                                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 cursor-grab"
+                                                draggable="true"
+                                                ondragstart="handleKanbanDragStart('${idSafe}', '${key}')"
+                                                ondragend="handleKanbanDragEnd()">
+                                                <div class="text-sm font-semibold">${r[iTitle] || '---'}</div>
+                                                <div class="text-xs text-muted-foreground mt-1 line-clamp-2">${iDesc !== -1 ? (r[iDesc] || '---') : '---'}</div>
+                                                <div class="text-[11px] text-muted-foreground mt-2">Người nhận: ${iOwner !== -1 ? (r[iOwner] || '---') : '---'}</div>
+                                                <div class="text-[11px] text-muted-foreground">Hạn: ${iDeadline !== -1 ? (r[iDeadline] || '---') : '---'}</div>
+                                                <div class="text-[11px] text-slate-400 mt-1">${iId !== -1 ? (r[iId] || '') : ''}</div>
+                                            </div>
+                                        `;
+                }).join('') || '<div class="text-xs text-muted-foreground">Không có công việc</div>'}
+                                </div>
+                            </div>
+                        `;
+            }).join('')}
+                </div>
+            `;
+        }
+
         function handleSort(colIndex) {
             if (sortConfig.col === colIndex) sortConfig.dir = sortConfig.dir === 'asc' ? 'desc' : 'asc';
             else { sortConfig.col = colIndex; sortConfig.dir = 'asc'; }
@@ -1585,6 +2043,7 @@
         }
 
         function startInlineEdit(rowIndex) {
+            if (currentActiveTab === 'GIAO_VIEC' && !isManagerRole()) return;
             if (isAddingNewRow) return alert("Vui lòng hoàn tất hoặc hủy dòng đang thêm.");
             editingRowIndex = rowIndex; renderTable();
         }
@@ -1649,6 +2108,7 @@
         }
 
         async function clearRowData(absoluteIndex, closeDrawer = false) {
+            if (currentActiveTab === 'GIAO_VIEC' && !isManagerRole()) return;
             if (isAddingNewRow) return alert("Vui lòng hoàn tất hoặc hủy dòng đang thêm.");
             if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu của mục này không?")) return;
 
@@ -1716,15 +2176,146 @@
             document.getElementById('detailDrawer').classList.add('translate-x-full');
         }
 
+        function openTaskDetailModal(rowIndex) {
+            const overlay = document.getElementById('taskDetailModalOverlay');
+            const modal = document.getElementById('taskDetailModal');
+            if (!overlay || !modal) return;
+
+            const row = currentData[rowIndex];
+            const headers = currentData[0] || [];
+            const idx = getTaskHeaderIndexes(headers);
+
+            const taskId = idx.id !== -1 ? (row[idx.id] || '') : '';
+            const tenCv = idx.tenCv !== -1 ? (row[idx.tenCv] || '---') : '---';
+            const congViec = idx.congViec !== -1 ? (row[idx.congViec] || '---') : '---';
+            const ngay = idx.ngay !== -1 ? (row[idx.ngay] || '---') : '---';
+            const ngGiao = idx.ngGiao !== -1 ? (row[idx.ngGiao] || '---') : '---';
+            const ngNhan = idx.ngNhan !== -1 ? (row[idx.ngNhan] || '---') : '---';
+            const trangThai = idx.trangThai !== -1 ? (row[idx.trangThai] || '---') : '---';
+            const ngHoanThanh = idx.ngHoanThanh !== -1 ? (row[idx.ngHoanThanh] || '---') : '---';
+            const han = idx.hanHoanThanh !== -1 ? (row[idx.hanHoanThanh] || '---') : '---';
+
+            // Overdue warning: han_hoan_thanh < TODAY() AND trang_thai != Hoàn thành
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const deadline = idx.hanHoanThanh !== -1 ? parseDisplayDateToDate(row[idx.hanHoanThanh]) : null;
+            const stLower = (trangThai || '').toString().toLowerCase().trim();
+            const overdue = !!deadline && deadline.getTime() < today.getTime() && stLower !== 'hoàn thành';
+
+            document.getElementById('taskDetailTitle').textContent = 'CHI TIẾT CÔNG VIỆC';
+            const statusBadge = overdue
+                ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-700">Cảnh báo quá hạn</span>`
+                : getStatusBadge(trangThai);
+
+            const body = document.getElementById('taskDetailBody');
+            body.innerHTML = `
+                <div class="space-y-2">
+                    <div><span class="text-muted-foreground font-medium">Tên CV:</span> <span class="font-semibold">${tenCv}</span></div>
+                    <div><span class="text-muted-foreground font-medium">Nội dung:</span> <span>${congViec}</span></div>
+                    <div><span class="text-muted-foreground font-medium">Ngày tạo:</span> <span>${ngay}</span></div>
+                    <div><span class="text-muted-foreground font-medium">Người giao:</span> <span>${ngGiao}</span></div>
+                    <div><span class="text-muted-foreground font-medium">Người nhận:</span> <span>${ngNhan}</span></div>
+                    <div><span class="text-muted-foreground font-medium">Trạng thái:</span> <span class="ml-2">${statusBadge}</span></div>
+                    <div><span class="text-muted-foreground font-medium">Ngày hoàn thành:</span> <span>${ngHoanThanh}</span></div>
+                    <div><span class="text-muted-foreground font-medium">Hạn hoàn thành:</span> <span>${han}</span></div>
+                </div>
+            `;
+
+            const actions = document.getElementById('taskDetailActions');
+            actions.innerHTML = '';
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Đóng';
+            closeBtn.className = 'bg-muted text-foreground px-3 py-2 rounded-lg text-sm font-medium hover:bg-muted/80 transition';
+            closeBtn.onclick = closeTaskDetailModal;
+            actions.appendChild(closeBtn);
+
+            const isEmployee = !isManagerRole();
+            const taskStatusLower = stLower;
+            const taskIdVal = taskId;
+
+            // Nút "Cập nhật trạng thái"
+            const updBtn = document.createElement('button');
+            updBtn.textContent = 'Cập nhật trạng thái';
+            updBtn.className = 'bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary/20 transition';
+            if (taskStatusLower === 'chưa làm') {
+                updBtn.onclick = () => { closeTaskDetailModal(); updateTaskStatusById(taskIdVal, 'Đang làm'); };
+            } else {
+                updBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            actions.appendChild(updBtn);
+
+            // Nút "Sửa công việc"
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Sửa công việc';
+            editBtn.className = 'bg-amber-100 text-amber-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-amber-200 transition';
+            editBtn.onclick = () => { closeTaskDetailModal(); openFormDrawer(rowIndex); };
+            actions.appendChild(editBtn);
+
+            // Nút "Đánh dấu hoàn thành"
+            const doneBtn = document.createElement('button');
+            doneBtn.textContent = 'Đánh dấu hoàn thành';
+            doneBtn.className = 'bg-emerald-100 text-emerald-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-200 transition';
+            doneBtn.onclick = () => {
+                closeTaskDetailModal();
+                updateTaskStatusById(taskIdVal, 'Hoàn thành');
+            };
+            actions.appendChild(doneBtn);
+
+            // Nút "Xóa công việc"
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Xóa công việc';
+            delBtn.className = 'bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition';
+            delBtn.onclick = () => { clearRowData(rowIndex, true); closeTaskDetailModal(); };
+            actions.appendChild(delBtn);
+
+            overlay.classList.remove('hidden');
+            modal.classList.remove('hidden');
+            overlay.addEventListener('click', closeTaskDetailModal, { once: true });
+        }
+
+        function closeTaskDetailModal() {
+            const overlay = document.getElementById('taskDetailModalOverlay');
+            const modal = document.getElementById('taskDetailModal');
+            if (overlay) overlay.classList.add('hidden');
+            if (modal) modal.classList.add('hidden');
+        }
+
         function showDetail(rowIndex) {
             if (editingRowIndex !== null) return;
 
-            document.getElementById('btnEditDetail').onclick = () => { closeDetailDrawer(); openFormDrawer(rowIndex); };
-            document.getElementById('btnDeleteDetail').onclick = () => clearRowData(rowIndex, true);
-            document.getElementById('btnDeleteDetail').classList.remove('hidden');
+            const row = currentData[rowIndex];
+            const headers = currentData[0];
+            const idx = getTaskHeaderIndexes(headers);
+            const taskIdVal = (idx.id !== -1) ? (row[idx.id] || "") : "";
+            const stRaw = (idx.trangThai !== -1) ? (row[idx.trangThai] || "") : "";
+
+            const btnEdit = document.getElementById('btnEditDetail');
+            const btnDel = document.getElementById('btnDeleteDetail');
+            const btnUpd = document.getElementById('btnUpdateStatusDetail');
+            const btnDone = document.getElementById('btnMarkCompleteDetail');
+
+            btnEdit.onclick = () => { closeDetailDrawer(); openFormDrawer(rowIndex); };
+            btnDel.onclick = () => clearRowData(rowIndex, true);
+            btnUpd.onclick = () => { closeDetailDrawer(); updateTaskStatusById(taskIdVal, 'Đang làm'); };
+            btnDone.onclick = () => { closeDetailDrawer(); updateTaskStatusById(taskIdVal, 'Hoàn thành'); };
+
+            // Hiển thị nút theo Tab
+            if (currentActiveTab === 'GIAO_VIEC') {
+                btnUpd.classList.remove('hidden');
+                btnDone.classList.remove('hidden');
+                btnUpd.classList.toggle('opacity-50', stRaw.toLowerCase() !== 'chưa làm');
+                btnUpd.classList.toggle('cursor-not-allowed', stRaw.toLowerCase() !== 'chưa làm');
+                if (stRaw.toLowerCase() !== 'chưa làm') btnUpd.onclick = null;
+            } else {
+                btnUpd.classList.add('hidden');
+                btnDone.classList.add('hidden');
+            }
+
+            btnEdit.classList.remove('hidden');
+            btnDel.classList.remove('hidden');
 
             const drawerTitle = document.querySelector('#detailDrawer h2');
-            drawerTitle.textContent = currentActiveTab === 'PHONG_BAN' ? "Chi tiết Phòng ban" : "Hồ sơ nhân viên";
+            drawerTitle.textContent = currentActiveTab === 'PHONG_BAN' ? "Chi tiết Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Chi tiết giao việc" : "Hồ sơ nhân viên");
 
             const grid = document.getElementById('detailDrawerGrid');
             const h3s = document.querySelectorAll('#detailDrawer h3');
@@ -1734,6 +2325,11 @@
                 grid.classList.add('grid-cols-1');
                 if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin chung`;
                 if (h3s[1]) h3s[1].parentElement.classList.add('hidden');
+            } else if (currentActiveTab === 'GIAO_VIEC') {
+                grid.classList.remove('md:grid-cols-2');
+                grid.classList.add('grid-cols-1');
+                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Chi tiết giao việc`;
+                if (h3s[1]) h3s[1].parentElement.classList.add('hidden');
             } else {
                 grid.classList.add('md:grid-cols-2');
                 grid.classList.remove('grid-cols-1');
@@ -1741,7 +2337,6 @@
                 if (h3s[1]) { h3s[1].parentElement.classList.remove('hidden'); h3s[1].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Thông tin công việc`; }
             }
 
-            const row = currentData[rowIndex]; const headers = currentData[0];
             const page1 = document.getElementById('detail-page-1'); const page2 = document.getElementById('detail-page-2');
             page1.innerHTML = ''; page2.innerHTML = '';
 
@@ -1751,12 +2346,14 @@
 
                 const allowedColsNV = ['ho_ten', 'hinh_anh', 'gioi_tinh', 'ngay_sinh', 'quyen', 'email', 'dien_thoai', 'chuc_vu', 'phong_ban', 'trang_thai', 'ngay_vao_lam', 'file_ho_so', 'id'];
                 const allowedColsPB = ['ten_phong_ban', 'phong_ban_cap_tren', 'mo_ta', 'cap_do', 'thu_tu', 'trang_thai', 'id'];
+                const allowedColsGV = ['id', 'ngay', 'cong_viec', 'ng_giao', 'ng_nhan', 'ng_hoan_thanh', 'han_hoan_thanh', 'ten_cv', 'trang_thai'];
 
-                const allowedCols = currentActiveTab === 'PHONG_BAN' ? allowedColsPB : allowedColsNV;
+                const allowedCols = currentActiveTab === 'PHONG_BAN' ? allowedColsPB : (currentActiveTab === 'GIAO_VIEC' ? allowedColsGV : allowedColsNV);
                 if (!allowedCols.includes(lower)) return;
 
                 const val = row[i] || "";
-                const isImg = isImageUrl(val) || lower.includes('anh') || lower.includes('ảnh');
+                const isDate = lower.includes('ngay') || lower.includes('ngày') || lower.includes('hoan_thanh');
+                const isImg = !isDate && (isImageUrl(val) || lower.includes('anh') || lower.includes('ảnh'));
                 const isStatus = lower === 'trang_thai';
 
                 let displayVal = val || "---";
@@ -1779,6 +2376,8 @@
 
                 if (currentActiveTab === 'PHONG_BAN') {
                     page1.appendChild(item);
+                } else if (currentActiveTab === 'GIAO_VIEC') {
+                    page1.appendChild(item);
                 } else {
                     if (['hinh_anh', 'ho_ten', 'gioi_tinh', 'ngay_sinh', 'email', 'dien_thoai', 'id'].includes(lower)) page1.appendChild(item);
                     else page2.appendChild(item);
@@ -1795,12 +2394,14 @@
 
         function switchTab(tabId) {
             currentActiveTab = tabId;
-            ['nav-home', 'nav-ds-nhan-vien', 'nav-phong-ban'].forEach(id => {
+            ['nav-home', 'nav-ds-nhan-vien', 'nav-phong-ban', 'nav-giao-viec'].forEach(id => {
                 const nav = document.getElementById(id);
                 if (nav) { nav.classList.remove('bg-muted/60', 'text-foreground'); nav.classList.add('text-muted-foreground'); }
             });
 
-            let activeNavId = tabId === 'HOME' ? 'nav-home' : (tabId === 'DS_NHAN_VIEN' ? 'nav-ds-nhan-vien' : 'nav-phong-ban');
+            let activeNavId = tabId === 'HOME'
+                ? 'nav-home'
+                : (tabId === 'DS_NHAN_VIEN' ? 'nav-ds-nhan-vien' : (tabId === 'PHONG_BAN' ? 'nav-phong-ban' : 'nav-giao-viec'));
             const activeNav = document.getElementById(activeNavId);
             if (activeNav) { activeNav.classList.remove('text-muted-foreground'); activeNav.classList.add('bg-muted/60', 'text-foreground'); }
 
@@ -1812,10 +2413,22 @@
 
             const filterNvWrapper = document.getElementById('filter-nv-wrapper');
             const filterPbWrapper = document.getElementById('filter-pb-wrapper');
+            const filterGvWrapper = document.getElementById('filter-gv-wrapper');
             const btnTreeView = document.getElementById('btn-view-tree');
+            const btnKanbanView = document.getElementById('btn-view-kanban');
+            const btnScopeView = document.getElementById('btn-view-scope');
+            const giaoViecPanel = document.getElementById('giao-viec-panel');
+            const btnAddRow = document.getElementById('btn-add-row');
 
             if (tabId === 'HOME') {
                 viewHome.classList.remove('hidden'); viewHome.classList.add('block'); pageTitle.textContent = "Trang chủ";
+                filterNvWrapper.classList.add('hidden');
+                filterPbWrapper.classList.add('hidden');
+                filterGvWrapper.classList.add('hidden');
+                giaoViecPanel.classList.add('hidden');
+                btnKanbanView.classList.add('hidden');
+                btnScopeView.classList.add('hidden');
+                btnAddRow.classList.add('hidden');
             } else {
                 viewTable.classList.remove('hidden'); viewTable.classList.add('flex');
                 sortConfig = { col: null, dir: 'asc' };
@@ -1824,13 +2437,37 @@
                     pageTitle.textContent = "Danh sách Nhân viên";
                     filterNvWrapper.classList.remove('hidden');
                     filterPbWrapper.classList.add('hidden');
+                    filterGvWrapper.classList.add('hidden');
+                    giaoViecPanel.classList.add('hidden');
                     btnTreeView.classList.add('hidden');
-                    if (currentViewMode === 'tree') currentViewMode = 'table';
+                    btnKanbanView.classList.add('hidden');
+                    btnScopeView.classList.add('hidden');
+                    btnAddRow.classList.remove('hidden');
+                    if (currentViewMode === 'tree' || currentViewMode === 'kanban' || currentViewMode === 'scope') currentViewMode = 'table';
                 } else if (tabId === 'PHONG_BAN') {
                     pageTitle.textContent = "Cơ cấu Phòng ban";
                     filterNvWrapper.classList.add('hidden');
                     filterPbWrapper.classList.remove('hidden');
+                    filterGvWrapper.classList.add('hidden');
+                    giaoViecPanel.classList.add('hidden');
                     btnTreeView.classList.remove('hidden');
+                    btnKanbanView.classList.add('hidden');
+                    btnScopeView.classList.add('hidden');
+                    btnAddRow.classList.remove('hidden');
+                    if (currentViewMode === 'kanban' || currentViewMode === 'scope') currentViewMode = 'table';
+                } else if (tabId === 'GIAO_VIEC') {
+                    pageTitle.textContent = "Công việc";
+                    filterNvWrapper.classList.add('hidden');
+                    filterPbWrapper.classList.add('hidden');
+                    filterGvWrapper.classList.remove('hidden');
+                    giaoViecPanel.classList.remove('hidden');
+                    btnTreeView.classList.add('hidden');
+                    btnKanbanView.classList.remove('hidden');
+                    btnScopeView.classList.remove('hidden');
+                    btnAddRow.classList.remove('hidden');
+                    const btnAddRowLabel = document.getElementById('btn-add-row-label');
+                    if (btnAddRowLabel) btnAddRowLabel.textContent = '+ Thêm công việc';
+                    if (currentViewMode === 'tree' || currentViewMode === 'table') currentViewMode = 'table';
                 }
 
                 CONFIG.sheetName = TAB_CONFIGS[tabId].sheetName;
@@ -1846,13 +2483,371 @@
             }
         }
 
+        function getTaskHeaderIndexes(headers) {
+            const getIdx = (name) => headers.findIndex(h => h && h.toString().trim().toLowerCase() === name);
+            return {
+                id: getIdx('id'),
+                ngay: getIdx('ngay'),
+                congViec: getIdx('cong_viec'),
+                ngGiao: getIdx('ng_giao'),
+                ngNhan: getIdx('ng_nhan'),
+                ngHoanThanh: getIdx('ng_hoan_thanh'),
+                hanHoanThanh: getIdx('han_hoan_thanh'),
+                tenCv: getIdx('ten_cv'),
+                trangThai: getIdx('trang_thai')
+            };
+        }
+
+        function updateTaskInnerTabs() {
+            const map = [
+                { id: 'gv-tab-my', scope: 'MY' },
+                { id: 'gv-tab-assigned', scope: 'ASSIGNED_BY_ME' },
+                { id: 'gv-tab-all', scope: 'ALL' },
+                { id: 'gv-tab-personal', scope: 'PERSONAL' }
+            ];
+            const activeCls = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground shadow-sm';
+            const idleCls = 'px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:bg-background hover:text-foreground';
+            map.forEach(({ id, scope }) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.className = currentTaskScope === scope ? activeCls : idleCls;
+            });
+        }
+
+        function switchTaskScope(scope) {
+            currentTaskScope = scope;
+            updateTaskInnerTabs();
+            const hasSheetData = Array.isArray(currentData) && currentData.length > 1;
+            if (currentActiveTab === 'GIAO_VIEC' && hasSheetData) {
+                currentPage = 1;
+                filterAndSortData();
+                return;
+            }
+            switchTab('GIAO_VIEC');
+        }
+
+        function renderTaskModulePanel() {
+            const panel = document.getElementById('giao-viec-panel');
+            if (!panel || currentActiveTab !== 'GIAO_VIEC') return;
+
+            const managerBox = document.getElementById('giao-viec-manager-box');
+            const employeeBox = document.getElementById('giao-viec-employee-box');
+            managerBox.classList.add('hidden');
+            employeeBox.classList.add('hidden');
+
+            const headers = currentData[0] || [];
+            const rows = currentData.slice(1);
+            const idx = getTaskHeaderIndexes(headers);
+            const total = rows.length;
+            const doing = idx.trangThai === -1 ? 0 : rows.filter(r => normalizeKanbanStatus(r[idx.trangThai]) === 'doing').length;
+            const done = idx.trangThai === -1 ? 0 : rows.filter(r => normalizeKanbanStatus(r[idx.trangThai]) === 'done').length;
+
+            document.getElementById('gv-stat-total').textContent = total;
+            document.getElementById('gv-stat-doing').textContent = doing;
+            document.getElementById('gv-stat-done').textContent = done;
+            const deadlineInput = document.getElementById('gv-input-ng-hoan-thanh');
+            if (deadlineInput && !deadlineInput.value) deadlineInput.value = formatTodayIso();
+
+            populateTaskAssigneeSelect();
+            renderMyTasksList();
+            checkTaskAutoReminders(rows, idx);
+            updateTaskInnerTabs();
+        }
+
+        function populateTaskAssigneeSelect() {
+            const select = document.getElementById('gv-input-ng-nhan');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '';
+            usersData.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id || u.name || '';
+                opt.textContent = `${u.name || u.id} (${u.id || ''})`;
+                select.appendChild(opt);
+            });
+            if (usersData.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Chưa có dữ liệu nhân sự';
+                select.appendChild(opt);
+            }
+            select.value = currentVal || (select.options[0] ? select.options[0].value : '');
+        }
+
+        function formatTodayIso() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        async function createTaskFromPanel() {
+            if (currentActiveTab !== 'GIAO_VIEC' || !isManagerRole()) return;
+            const tenCv = (document.getElementById('gv-input-ten-cv').value || '').trim();
+            const congViec = (document.getElementById('gv-input-cong-viec').value || '').trim();
+            const ngNhan = (document.getElementById('gv-input-ng-nhan').value || '').trim();
+            const hanIso = (document.getElementById('gv-input-ng-hoan-thanh').value || '').trim();
+            if (!tenCv || !congViec || !ngNhan) return alert("Vui lòng nhập đủ Tên công việc, Nội dung và Người nhận.");
+
+            const headers = currentData[0] || TAB_CONFIGS['GIAO_VIEC'].columns;
+            const idx = getTaskHeaderIndexes(headers);
+            const row = new Array(headers.length).fill("");
+            if (idx.id !== -1) row[idx.id] = `gv_${generateId(8).toLowerCase()}`;
+            if (idx.ngay !== -1) row[idx.ngay] = formatDateToDisplay(formatTodayIso());
+            if (idx.congViec !== -1) row[idx.congViec] = congViec;
+            if (idx.ngGiao !== -1) row[idx.ngGiao] = (currentUser && (currentUser.name || currentUser.id)) || "";
+            if (idx.ngNhan !== -1) row[idx.ngNhan] = ngNhan;
+            if (idx.ngHoanThanh !== -1) row[idx.ngHoanThanh] = hanIso ? formatDateToDisplay(hanIso) : "";
+            if (idx.tenCv !== -1) row[idx.tenCv] = tenCv;
+            if (idx.trangThai !== -1) row[idx.trangThai] = "Chưa làm";
+
+            const token = await getAccessToken();
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.sheetName}!A1:append?valueInputOption=USER_ENTERED`;
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ values: [row] })
+            });
+            if (!response.ok) return alert("Không thể tạo giao việc.");
+
+            document.getElementById('gv-input-ten-cv').value = '';
+            document.getElementById('gv-input-cong-viec').value = '';
+            document.getElementById('gv-input-ng-hoan-thanh').value = '';
+            await fetchData();
+        }
+
+        async function updateTaskStatusById(taskId, nextStatus) {
+            const headers = currentData[0] || [];
+            const idx = getTaskHeaderIndexes(headers);
+            if (idx.id === -1 || idx.trangThai === -1) return;
+            const rowIndex = currentData.findIndex((r, i) => i > 0 && (r[idx.id] || '').toString() === taskId);
+            if (rowIndex === -1) return;
+
+            const row = currentData[rowIndex];
+            const currentStatusRaw = (idx.trangThai !== -1 ? (row[idx.trangThai] || '') : '');
+            const currentLane = normalizeKanbanStatus(currentStatusRaw);
+            const nextLane = normalizeKanbanStatus(nextStatus);
+
+            // Cho phép tất cả người dùng cập nhật trạng thái
+            if (false && !isManagerRole()) { // Vô hiệu hóa kiểm tra tạm thời theo yêu cầu "Các nút chung"
+                const ngNhanIdx = idx.ngNhan;
+                if (ngNhanIdx !== -1) {
+                    const meId = ((currentUser && currentUser.id) || "").toLowerCase();
+                    const meName = ((currentUser && currentUser.name) || "").toLowerCase();
+                    const val = (row[ngNhanIdx] || '').toString().toLowerCase();
+                    if (!(val === meId || val === meName)) return;
+                }
+
+                // Allowed transitions for employee
+                const allowed = {
+                    todo: ['doing', 'cancel'],
+                    doing: ['done', 'cancel'],
+                    done: [],
+                    cancel: []
+                };
+                if (!allowed[currentLane] || !allowed[currentLane].includes(nextLane)) {
+                    return; // Không cho chuyển trạng thái không hợp lệ
+                }
+            }
+
+            if (currentLane === nextLane) return;
+
+            const newData = [...currentData[rowIndex]];
+            newData[idx.trangThai] = nextStatus;
+            // Auto-fill completion date for "Hoàn thành"
+            if (idx.ngHoanThanh !== -1) {
+                const nst = (nextStatus || '').toString().toLowerCase().trim();
+                if (nst === 'hoàn thành') {
+                    newData[idx.ngHoanThanh] = formatDateToDisplay(formatTodayIso());
+                } else if (nst === 'hủy' || nst === 'huỷ') {
+                    newData[idx.ngHoanThanh] = "";
+                }
+            }
+
+            const token = await getAccessToken();
+            const colLetter = getColLetter(headers.length);
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.sheetName}!A${rowIndex + 1}:${colLetter}${rowIndex + 1}?valueInputOption=USER_ENTERED`;
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ values: [newData] })
+            });
+            if (!response.ok) return alert("Không thể cập nhật trạng thái.");
+            await fetchData();
+        }
+
+        function parseDisplayDateToDate(dateStr) {
+            if (!dateStr) return null;
+            const text = dateStr.toString().trim();
+            if (!text) return null;
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+                const [dd, mm, yyyy] = text.split('/').map(v => parseInt(v, 10));
+                return new Date(yyyy, mm - 1, dd, 23, 59, 59);
+            }
+            if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+                const [yyyy, mm, dd] = text.split('-').map(v => parseInt(v, 10));
+                return new Date(yyyy, mm - 1, dd, 23, 59, 59);
+            }
+            const d = new Date(text);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function getNotificationStoreKey() {
+            const key = (currentUser && currentUser.id) ? currentUser.id : 'guest';
+            return `gv_notify_state_${key}`;
+        }
+
+        function loadTaskNotifyState() {
+            try {
+                const raw = localStorage.getItem(getNotificationStoreKey());
+                if (raw) {
+                    taskNotifyState = JSON.parse(raw);
+                    taskNotifyState.known = taskNotifyState.known || {};
+                    taskNotifyState.soon = taskNotifyState.soon || {};
+                    taskNotifyState.overdue = taskNotifyState.overdue || {};
+                }
+            } catch (e) { }
+        }
+
+        function saveTaskNotifyState() {
+            try { localStorage.setItem(getNotificationStoreKey(), JSON.stringify(taskNotifyState)); } catch (e) { }
+        }
+
+        function pushSystemNotification(message, type = 'info') {
+            const stack = document.getElementById('systemNotificationStack');
+            if (!stack) return;
+            const box = document.createElement('div');
+            const color = type === 'danger' ? 'border-rose-300 bg-rose-50 text-rose-800'
+                : type === 'warning' ? 'border-amber-300 bg-amber-50 text-amber-800'
+                    : 'border-blue-300 bg-blue-50 text-blue-800';
+            box.className = `border ${color} rounded-lg px-3 py-2 shadow-sm text-sm`;
+            box.textContent = message;
+            stack.prepend(box);
+            while (stack.children.length > 5) stack.removeChild(stack.lastChild);
+            setTimeout(() => box.remove(), 7000);
+        }
+
+        function checkTaskAutoReminders(rows, idx) {
+            if (!rows || idx.id === -1) return;
+            const now = new Date();
+            const meId = ((currentUser && currentUser.id) || "").toLowerCase();
+            const meName = ((currentUser && currentUser.name) || "").toLowerCase();
+            const isMe = (val) => {
+                const clean = (val || '').toString().toLowerCase();
+                return clean === meId || clean === meName;
+            };
+            const relevantRows = rows.filter(r => isManagerRole() || isMe(idx.ngNhan !== -1 ? r[idx.ngNhan] : ''));
+
+            relevantRows.forEach(r => {
+                const id = (r[idx.id] || '').toString();
+                if (!id) return;
+                const title = idx.tenCv !== -1 ? (r[idx.tenCv] || id) : id;
+                const statusRaw = idx.trangThai !== -1 ? (r[idx.trangThai] || '') : '';
+                const lane = normalizeKanbanStatus(statusRaw);
+                const isDone = lane === 'done';
+                const isCanceled = lane === 'cancel';
+
+                if (!taskNotifyState.known[id]) {
+                    taskNotifyState.known[id] = 1;
+                    pushSystemNotification(`Công việc mới: ${title}`, 'info');
+                }
+
+                const deadline = idx.hanHoanThanh !== -1 ? parseDisplayDateToDate(r[idx.hanHoanThanh]) : null;
+                if (deadline && !isDone && !isCanceled) {
+                    const diffMs = deadline.getTime() - now.getTime();
+                    const hours = diffMs / (1000 * 60 * 60);
+                    if (hours <= 24 && hours >= 0 && !taskNotifyState.soon[id]) {
+                        taskNotifyState.soon[id] = 1;
+                        pushSystemNotification(`Sắp đến hạn: ${title}`, 'warning');
+                    }
+                    if (hours < 0 && !taskNotifyState.overdue[id]) {
+                        taskNotifyState.overdue[id] = 1;
+                        pushSystemNotification(`Quá hạn: ${title}`, 'danger');
+                    }
+                }
+            });
+            saveTaskNotifyState();
+        }
+
+        function renderMyTasksList() {
+            const wrap = document.getElementById('taskScopeViewContainer');
+            if (!wrap) return;
+            wrap.innerHTML = `<div class="bg-card border border-border rounded-lg p-4"><h4 class="text-sm font-bold mb-3">Việc theo chế độ: <span id="gv-scope-label-view">${getTaskScopeLabel(currentTaskScope)}</span></h4><div id="giao-viec-employee-list" class="space-y-2 text-sm"></div></div>`;
+            const listWrap = document.getElementById('giao-viec-employee-list');
+            if (!listWrap) return;
+            const headers = currentData[0] || [];
+            const idx = getTaskHeaderIndexes(headers);
+            if (headers.length === 0 || idx.id === -1) {
+                listWrap.innerHTML = '<p class="text-muted-foreground">Chưa có dữ liệu giao việc.</p>';
+                return;
+            }
+
+            const meId = ((currentUser && currentUser.id) || "").toLowerCase();
+            const meName = ((currentUser && currentUser.name) || "").toLowerCase();
+            const meMatch = (v) => {
+                const clean = (v || '').toString().toLowerCase();
+                return clean === meId || clean === meName;
+            };
+            let myRows = currentData.slice(1).filter(r => {
+                if (currentTaskScope === 'ASSIGNED_BY_ME') {
+                    const val = idx.ngGiao !== -1 ? (r[idx.ngGiao] || '') : '';
+                    return meMatch(val);
+                }
+                if (currentTaskScope === 'PERSONAL') {
+                    const valNhan = idx.ngNhan !== -1 ? (r[idx.ngNhan] || '') : '';
+                    const valCv = idx.congViec !== -1 ? (r[idx.congViec] || '') : '';
+                    return meMatch(valNhan) && valCv.toString().trim().toLowerCase() === 'cv_cn';
+                }
+                if (currentTaskScope === 'ALL') {
+                    if (isManagerRole()) return true;
+                    const valNhan = idx.ngNhan !== -1 ? (r[idx.ngNhan] || '') : '';
+                    const valGiao = idx.ngGiao !== -1 ? (r[idx.ngGiao] || '') : '';
+                    return meMatch(valNhan) || meMatch(valGiao);
+                }
+                const val = idx.ngNhan !== -1 ? (r[idx.ngNhan] || '') : '';
+                return meMatch(val);
+            }).slice(0, 8);
+
+            if (myRows.length === 0) {
+                listWrap.innerHTML = '<p class="text-muted-foreground">Bạn chưa có việc phù hợp chế độ này.</p>';
+                return;
+            }
+
+            myRows.forEach(r => {
+                const absoluteIndex = currentData.indexOf(r);
+                const id = r[idx.id] || "";
+                const tenCv = idx.tenCv !== -1 ? (r[idx.tenCv] || "---") : "---";
+                const han = idx.hanHoanThanh !== -1 ? (r[idx.hanHoanThanh] || "---") : "---";
+                const st = idx.trangThai !== -1 ? (r[idx.trangThai] || "---") : "---";
+                const row = document.createElement('div');
+                row.className = 'border border-border rounded-lg p-3 bg-background/60 flex items-center justify-between gap-2 cursor-pointer hover:bg-muted/30 transition';
+                row.onclick = () => showDetail(absoluteIndex);
+
+                const stLower = (st || '').toString().toLowerCase().trim();
+                const deadline = parseDisplayDateToDate(han);
+                const isOverdue = !!deadline && stLower !== 'hoàn thành' && deadline.getTime() < new Date().getTime();
+                const badgeHtml = isOverdue
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-700">Cảnh báo quá hạn</span>`
+                    : getStatusBadge(st);
+
+                row.innerHTML = `
+                    <div class="min-w-0">
+                        <div class="font-semibold truncate">${tenCv}</div>
+                        <div class="text-xs text-muted-foreground">Hạn: ${han} • ${id}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${badgeHtml}
+                    </div>
+                `;
+                listWrap.appendChild(row);
+            });
+        }
+
         function openFormDrawer(editIndex) {
             if (editIndex !== undefined) {
                 editingRowIndex = editIndex; isAddingNewRow = false;
-                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Sửa Phòng ban" : "Sửa hồ sơ nhân viên";
+                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Sửa Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Sửa giao việc" : "Sửa hồ sơ nhân viên");
             } else {
                 editingRowIndex = null; isAddingNewRow = true;
-                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Thêm Phòng ban" : "Thêm nhân viên";
+                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Thêm Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Thêm giao việc" : "Thêm nhân viên");
             }
 
             const grid = document.getElementById('formDrawerGrid');
@@ -1861,6 +2856,10 @@
             if (currentActiveTab === 'PHONG_BAN') {
                 grid.classList.remove('md:grid-cols-2'); grid.classList.add('grid-cols-1');
                 if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin chung`;
+                if (h3s[1]) h3s[1].parentElement.classList.add('hidden');
+            } else if (currentActiveTab === 'GIAO_VIEC') {
+                grid.classList.remove('md:grid-cols-2'); grid.classList.add('grid-cols-1');
+                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin giao việc`;
                 if (h3s[1]) h3s[1].parentElement.classList.add('hidden');
             } else {
                 grid.classList.add('md:grid-cols-2'); grid.classList.remove('grid-cols-1');
@@ -1878,7 +2877,8 @@
                 const val = h ? h.toString().trim() : ""; if (!val) return;
                 const lower = val.toLowerCase().trim();
 
-                const isImg = lower.includes('anh') || lower.includes('ảnh');
+                const isDate = lower.includes('ngay') || lower.includes('ngày') || lower.includes('han_hoan_thanh') || lower.includes('hoan_thanh');
+                const isImg = (lower.includes('anh') || lower.includes('ảnh')) && !isDate;
                 const isMultiLine = isImg;
 
                 const group = document.createElement('div');
@@ -1890,10 +2890,9 @@
                 const inputWrapper = document.createElement('div');
                 inputWrapper.className = "relative flex-1 flex items-center w-full min-w-0";
 
-                const isDate = lower.includes('ngay') || lower.includes('ngày');
                 let input;
 
-                if (['gioi_tinh', 'quyen', 'chuc_vu', 'phong_ban', 'trang_thai', 'phong_ban_cap_tren'].includes(lower)) {
+                if (['gioi_tinh', 'quyen', 'chuc_vu', 'phong_ban', 'trang_thai', 'phong_ban_cap_tren', 'ng_nhan', 'ng_giao'].includes(lower)) {
                     input = document.createElement('select');
                     input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right cursor-pointer";
                     const defaultOpt = document.createElement('option'); defaultOpt.value = ""; defaultOpt.textContent = "-- Chọn --"; input.appendChild(defaultOpt);
@@ -1903,6 +2902,9 @@
                     else if (lower === 'quyen') opts = QUYEN_OPTS;
                     else if (lower === 'trang_thai' && currentActiveTab === 'DS_NHAN_VIEN') opts = TRANG_THAI_NV_OPTS;
                     else if (lower === 'trang_thai' && currentActiveTab === 'PHONG_BAN') opts = TRANG_THAI_PB_OPTS;
+                    else if (lower === 'trang_thai' && currentActiveTab === 'GIAO_VIEC') opts = TRANG_THAI_GV_OPTS;
+                    else if (lower === 'ng_nhan' && currentActiveTab === 'GIAO_VIEC') opts = usersData.map(u => u.id || u.name).filter(v => v);
+                    else if (lower === 'ng_giao' && currentActiveTab === 'GIAO_VIEC') opts = [((currentUser && (currentUser.name || currentUser.id)) || "")].filter(v => v);
                     else if (lower === 'phong_ban' && currentActiveTab === 'DS_NHAN_VIEN' && departmentsData.length > 1) {
                         let pbNameIdx = departmentsData[0].findIndex(dh => dh.toString().toLowerCase().trim() === 'ten_phong_ban');
                         if (pbNameIdx !== -1) opts = [...new Set(departmentsData.slice(1).map(r => r[pbNameIdx]).filter(v => v))].sort();
@@ -1923,6 +2925,12 @@
                         const o = document.createElement('option'); o.value = opt; o.textContent = opt; input.appendChild(o);
                     });
 
+                    // Defaults for task creation
+                    if (currentActiveTab === 'GIAO_VIEC' && isAddingNewRow) {
+                        if (lower === 'ng_giao') input.value = (currentUser && (currentUser.name || currentUser.id)) || "";
+                        if (lower === 'trang_thai') input.value = 'Chưa làm';
+                    }
+
                     // Logic for cap_do auto calculate
                     if (lower === 'phong_ban_cap_tren' && currentActiveTab === 'PHONG_BAN') {
                         input.addEventListener('change', (e) => {
@@ -1941,13 +2949,23 @@
                 else if (isDate) {
                     input = document.createElement('input'); input.type = "date";
                     input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right";
+                    if (currentActiveTab === 'GIAO_VIEC' && isAddingNewRow && lower === 'ngay') {
+                        input.value = formatTodayIso();
+                    }
                 } else {
                     input = document.createElement('input'); input.type = "text";
                     input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background pr-10 text-right";
                     input.placeholder = `Nhập...`;
 
                     if (lower === 'id' && isAddingNewRow) {
-                        input.value = (currentActiveTab === 'PHONG_BAN' ? 'pb_' : 'nv_') + generateId(8).toLowerCase(); input.readOnly = true; input.classList.add('bg-muted/30');
+                        let prefix = 'nv_';
+                        if (currentActiveTab === 'PHONG_BAN') prefix = 'pb_';
+                        if (currentActiveTab === 'GIAO_VIEC') prefix = 'gv_';
+                        input.value = prefix + generateId(8).toLowerCase(); input.readOnly = true; input.classList.add('bg-muted/30');
+                    }
+                    if (currentActiveTab === 'GIAO_VIEC' && isAddingNewRow) {
+                        if (lower === 'ng_giao') input.value = (currentUser && (currentUser.name || currentUser.id)) || "";
+                        if (lower === 'ngay') input.value = formatDateToDisplay(formatTodayIso());
                     }
                     if (currentActiveTab === 'PHONG_BAN') {
                         if (lower === 'cap_do') {
@@ -1992,15 +3010,41 @@
 
                 if (currentActiveTab === 'PHONG_BAN') {
                     page1.appendChild(group);
+                } else if (currentActiveTab === 'GIAO_VIEC') {
+                    page1.appendChild(group);
                 } else {
                     if (['hinh_anh', 'ho_ten', 'gioi_tinh', 'ngay_sinh', 'email', 'dien_thoai', 'mat_khau', 'id'].includes(lower)) page1.appendChild(group);
                     else page2.appendChild(group);
                 }
             });
 
-            document.getElementById('formDrawerOverlay').classList.remove('hidden');
-            document.getElementById('formDrawer').classList.remove('translate-x-full');
-            document.getElementById('formDrawer').classList.add('translate-x-0');
+            // Auto-fill cong_viec when creating a new task
+            if (currentActiveTab === 'GIAO_VIEC') {
+                const headers = currentData[0] || [];
+                const taskIdx = getTaskHeaderIndexes(headers);
+                const ngGiaoEl = taskIdx.ngGiao !== -1 ? document.getElementById(`form-input-${taskIdx.ngGiao}`) : null;
+                const ngNhanEl = taskIdx.ngNhan !== -1 ? document.getElementById(`form-input-${taskIdx.ngNhan}`) : null;
+                const congEl = taskIdx.congViec !== -1 ? document.getElementById(`form-input-${taskIdx.congViec}`) : null;
+
+                const updateCongViec = () => {
+                    if (!congEl) return;
+                    const giaoVal = ngGiaoEl && ngGiaoEl.value ? ngGiaoEl.value.toString().trim() : '';
+                    const nhanVal = ngNhanEl && ngNhanEl.value ? ngNhanEl.value.toString().trim() : '';
+                    if (!giaoVal || !nhanVal) return;
+                    congEl.value = (giaoVal !== nhanVal) ? "ĐC GIAO" : "TỰ CV";
+                };
+
+                if (congEl) {
+                    congEl.readOnly = true;
+                    congEl.classList.add('bg-muted/30');
+                    updateCongViec();
+                    if (ngNhanEl) ngNhanEl.addEventListener('change', updateCongViec);
+                }
+
+                document.getElementById('formDrawerOverlay').classList.remove('hidden');
+                document.getElementById('formDrawer').classList.remove('translate-x-full');
+                document.getElementById('formDrawer').classList.add('translate-x-0');
+            }
         }
 
         function closeFormDrawer() {
@@ -2093,6 +3137,7 @@
                 const refreshed = usersData.find(u => u.id === currentUser.id);
                 if (refreshed) { currentUser = refreshed; localStorage.setItem('erp_user_session', JSON.stringify(currentUser)); updateUserProfileUI(); }
                 await fetchDepartmentsData(); // Pre-load departments data
+                loadTaskNotifyState();
             }
 
             // Set init view
@@ -2103,6 +3148,13 @@
                 await fetchData();
                 switchTab('HOME');
             }
+
+            setInterval(() => {
+                if (isLoggedIn && currentActiveTab === 'GIAO_VIEC' && currentData.length > 1) {
+                    const idx = getTaskHeaderIndexes(currentData[0] || []);
+                    checkTaskAutoReminders(currentData.slice(1), idx);
+                }
+            }, 60000);
         };
     </script>
 </body>
