@@ -986,11 +986,10 @@
         async function fetchDepartmentsData() {
             try {
                 const token = await getAccessToken();
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/DS_PHONG_BAN!A:Z`;
-                const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
-                const data = await response.json();
-                if (data.values && data.values.length > 0) {
-                    departmentsData = data.values;
+                const candidates = ['DS_PHONG_BAN', 'DS PHONG BAN', 'PHONG_BAN', 'PHONG BAN', 'PHONGBAN'];
+                const { result } = await fetchSheetValuesByCandidates(token, candidates);
+                if (Array.isArray(result.values) && result.values.length > 0) {
+                    departmentsData = result.values;
                 }
             } catch (err) {
                 console.error("Failed to fetch departments background data", err);
@@ -1109,6 +1108,44 @@
             return `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-gray-100 text-gray-700">${status || "---"}</span>`;
         }
 
+        function buildFallbackSheetData() {
+            const fallbackHeaders = (CONFIG.displayColumns && CONFIG.displayColumns.length > 0)
+                ? [...CONFIG.displayColumns]
+                : ['id'];
+            return [fallbackHeaders];
+        }
+
+        async function fetchSheetValues(token, sheetName) {
+            const sid = CONFIG.spreadsheetId;
+            const ranges = [`${sheetName}!A:Z`, `'${sheetName}'!A:Z`];
+            let lastError = null;
+
+            for (const range of ranges) {
+                const encodedRange = encodeURIComponent(range);
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodedRange}`;
+                const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const result = await response.json();
+                if (!result.error) return result;
+                lastError = result.error;
+            }
+
+            throw new Error(lastError && lastError.message ? lastError.message : `Khong doc duoc sheet: ${sheetName}`);
+        }
+
+        async function fetchSheetValuesByCandidates(token, candidateNames) {
+            let lastError = null;
+            for (const name of candidateNames) {
+                if (!name) continue;
+                try {
+                    const result = await fetchSheetValues(token, name);
+                    return { result, sheetName: name };
+                } catch (err) {
+                    lastError = err;
+                }
+            }
+            throw lastError || new Error("Khong tim thay sheet phu hop.");
+        }
+
         async function fetchData() {
             if (editingRowIndex !== null) return;
             const loading = document.getElementById('loading');
@@ -1116,17 +1153,18 @@
 
             try {
                 const token = await getAccessToken();
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.sheetName}!A:Z`;
-                const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
-                const result = await response.json();
+                const fallbackNames = currentActiveTab === 'PHONG_BAN'
+                    ? [CONFIG.sheetName, 'DS_PHONG_BAN', 'DS PHONG BAN', 'PHONG_BAN', 'PHONG BAN', 'PHONGBAN']
+                    : [CONFIG.sheetName];
+                const { result, sheetName } = await fetchSheetValuesByCandidates(token, fallbackNames);
+                if (sheetName && sheetName !== CONFIG.sheetName) CONFIG.sheetName = sheetName;
 
-                if (result.values) {
-                    currentData = result.values;
-                    if (currentActiveTab === 'PHONG_BAN') departmentsData = [...currentData]; // Sync cache
-                    try { localStorage.setItem(`gs_cached_data_${currentActiveTab}`, JSON.stringify(currentData)); } catch (e) { }
-                    currentPage = 1;
-                    filterAndSortData();
-                } else { alert("Sheet không có dữ liệu hoặc lỗi cấu hình."); }
+                const hasValues = Array.isArray(result.values) && result.values.length > 0;
+                currentData = hasValues ? result.values : buildFallbackSheetData();
+                if (currentActiveTab === 'PHONG_BAN') departmentsData = [...currentData]; // Sync cache
+                try { localStorage.setItem(`gs_cached_data_${currentActiveTab}`, JSON.stringify(currentData)); } catch (e) { }
+                currentPage = 1;
+                filterAndSortData();
             } catch (err) { console.error("Fetch error:", err); }
             finally { loading.style.display = 'none'; }
         }
