@@ -1545,6 +1545,20 @@
                     if (!isNaN(numA) && !isNaN(numB)) { valA = numA; valB = numB; }
                     if (valA < valB) return sortConfig.dir === 'asc' ? -1 : 1; if (valA > valB) return sortConfig.dir === 'asc' ? 1 : -1; return 0;
                 });
+            } else {
+                // Sắp xếp mặc định theo Ngày (mới nhất -> cũ nhất) nếu có cột 'ngay'
+                const ngayIdx = rawHeaders.findIndex(h => h && h.toString().toLowerCase().trim() === 'ngay');
+                if (ngayIdx !== -1) {
+                    data.sort((a, b) => {
+                        const valA = (a[ngayIdx] || "").toString().trim();
+                        const valB = (b[ngayIdx] || "").toString().trim();
+                        const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+                        const mA = valA.match(dateRegex); const mB = valB.match(dateRegex);
+                        const dA = mA ? new Date(mA[3], mA[2] - 1, mA[1]).getTime() : 0;
+                        const dB = mB ? new Date(mB[3], mB[2] - 1, mB[1]).getTime() : 0;
+                        return dB - dA;
+                    });
+                }
             }
 
             displayData = [rawHeaders, ...data];
@@ -1940,7 +1954,10 @@
             const iDesc = sheetHeaders.indexOf('cong_viec');
             const iStatus = sheetHeaders.indexOf('trang_thai');
             const iOwner = sheetHeaders.indexOf('ng_nhan');
-            const iDeadline = sheetHeaders.indexOf('han_hoan_thanh');
+            const iAssigner = sheetHeaders.indexOf('ng_giao');
+            const iDeadline = sheetHeaders.indexOf('ng_hoan_thanh');
+            const iProgress = sheetHeaders.indexOf('tien_do');
+            const iNgay = sheetHeaders.indexOf('ngay');
             const iId = sheetHeaders.indexOf('id');
             if (iTitle === -1 || iStatus === -1) {
                 container.innerHTML = '<p class="text-muted-foreground">Không đủ cột để hiển thị Kanban.</p>';
@@ -1959,6 +1976,20 @@
                 lanes[laneKey].items.push(row);
             });
 
+            // Sắp xếp giảm dần theo ngày
+            Object.keys(lanes).forEach(key => {
+                lanes[key].items.sort((a, b) => {
+                    const dateA = iNgay !== -1 ? (a[iNgay] || "") : "";
+                    const dateB = iNgay !== -1 ? (b[iNgay] || "") : "";
+                    const parseDate = (dStr) => {
+                        const m = dStr.toString().trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                        if (m) return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1])).getTime();
+                        return 0; // Trả về 0 nếu không đúng định dạng
+                    };
+                    return parseDate(dateB) - parseDate(dateA); // B lớn hơn A -> B đứng trước
+                });
+            });
+
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                     ${Object.keys(lanes).map(key => {
@@ -1972,16 +2003,46 @@
                                     ${lane.items.map(r => {
                     const rawId = iId !== -1 ? (r[iId] || '') : (r[0] || '');
                     const idSafe = rawId.toString().replace(/'/g, "\\'");
+                    const absoluteIdx = currentData.indexOf(r);
+                    const tenCv = r[iTitle] || '---';
+                    const congViec = iDesc !== -1 ? (r[iDesc] || '---') : '---';
+                    const ngGiao = iAssigner !== -1 ? (r[iAssigner] || '---') : '---';
+                    const ngNhan = iOwner !== -1 ? (r[iOwner] || '---') : '---';
+                    const han = iDeadline !== -1 ? (r[iDeadline] || '---') : '---';
+                    const tienDo = iProgress !== -1 ? (r[iProgress] || '0') : '0';
+                    const ngayTxt = iNgay !== -1 ? (r[iNgay] || '---') : '---';
                     return `
-                                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 cursor-grab"
+                                            <div class="bg-card border border-border shadow-sm rounded-xl p-4 cursor-grab hover:shadow-md transition flex flex-col gap-3 relative"
                                                 draggable="true"
                                                 ondragstart="handleKanbanDragStart('${idSafe}', '${key}')"
-                                                ondragend="handleKanbanDragEnd()">
-                                                <div class="text-sm font-semibold">${r[iTitle] || '---'}</div>
-                                                <div class="text-xs text-muted-foreground mt-1 line-clamp-2">${iDesc !== -1 ? (r[iDesc] || '---') : '---'}</div>
-                                                <div class="text-[11px] text-muted-foreground mt-2">Người nhận: ${iOwner !== -1 ? (r[iOwner] || '---') : '---'}</div>
-                                                <div class="text-[11px] text-muted-foreground">Hạn: ${iDeadline !== -1 ? (r[iDeadline] || '---') : '---'}</div>
-                                                <div class="text-[11px] text-slate-400 mt-1">${iId !== -1 ? (r[iId] || '') : ''}</div>
+                                                ondragend="handleKanbanDragEnd()"
+                                                onclick="showDetail(${absoluteIdx})">
+                                                
+                                                <div class="flex items-start justify-between gap-2">
+                                                    <div class="font-bold text-base text-primary leading-tight line-clamp-2">${tenCv}</div>
+                                                    <div class="text-xs font-bold bg-primary/10 text-primary px-2 py-1 rounded-md shrink-0">Tiến độ: ${tienDo}%</div>
+                                                </div>
+                                                
+                                                <div class="text-xs font-semibold text-muted-foreground bg-muted w-fit px-2 py-1 rounded uppercase">
+                                                    ${congViec}
+                                                </div>
+
+                                                <div class="space-y-1.5 text-xs text-muted-foreground">
+                                                    <div class="flex items-center gap-1">
+                                                        <span class="font-medium text-foreground">Người giao:</span> <span>${ngGiao}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1">
+                                                        <span class="font-medium text-foreground">Người nhận:</span> <span class="text-blue-600 font-semibold">${ngNhan}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1">
+                                                        <span class="font-medium text-foreground">Ngày:</span> <span>${ngayTxt}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1 mt-1 pt-2 border-t border-border/50">
+                                                        <span class="font-medium text-foreground">Hạn hoàn thành:</span> <span class="font-semibold text-rose-600">${han}</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="absolute inset-0 bg-transparent z-10 pointer-events-none"></div>
                                             </div>
                                         `;
                 }).join('') || '<div class="text-xs text-muted-foreground">Không có công việc</div>'}
@@ -3070,10 +3131,11 @@
                     if (ngNhanEl) ngNhanEl.addEventListener('change', updateCongViec);
                 }
 
-                document.getElementById('formDrawerOverlay').classList.remove('hidden');
-                document.getElementById('formDrawer').classList.remove('translate-x-full');
-                document.getElementById('formDrawer').classList.add('translate-x-0');
             }
+            // Mở drawer cho tất cả các tab
+            document.getElementById('formDrawerOverlay').classList.remove('hidden');
+            document.getElementById('formDrawer').classList.remove('translate-x-full');
+            document.getElementById('formDrawer').classList.add('translate-x-0');
         }
 
         function closeFormDrawer() {
