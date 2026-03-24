@@ -1849,7 +1849,7 @@
             return data.values || [];
         }
 
-        function renderDataTable(containerId, rows) {
+        function renderDataTable(containerId, rows, dataValue) {
             const container = document.getElementById(containerId);
             container.innerHTML = "";
 
@@ -1859,10 +1859,22 @@
             }
 
             const headers = rows[0].map(h => (h || "").toString().trim());
-            const bodyRows = rows.slice(1);
+            const idNvIdx = headers.findIndex(h => h.toLowerCase() === "id_nv");
+            const normalizedDataValue = (dataValue || "").trim().toLowerCase();
+            const isViewAll =
+                normalizedDataValue === "adminsan" ||
+                normalizedDataValue === "adminson";
+
+            let bodyRows = rows.slice(1);
+            if (!isViewAll && idNvIdx !== -1 && normalizedDataValue) {
+                bodyRows = bodyRows.filter(row => {
+                    const rowIdNv = (row[idNvIdx] || "").toString().trim().toLowerCase();
+                    return rowIdNv === normalizedDataValue;
+                });
+            }
 
             if (bodyRows.length === 0) {
-                container.innerHTML = `<div class="empty-list-note">Sheet chưa có dữ liệu.</div>`;
+                container.innerHTML = `<div class="empty-list-note">Không có dữ liệu với id_nv = ${dataValue}.</div>`;
                 return;
             }
 
@@ -1915,7 +1927,13 @@
             formArea.style.display = 'none';
             invalidMsg.style.display = 'none';
             dataListMode.style.display = 'block';
-            dataListHeader.textContent = `Danh sách full dữ liệu của 2 sheet (tham số data = ${dataValue})`;
+            const normalizedDataValue = (dataValue || "").trim().toLowerCase();
+            const isViewAll =
+                normalizedDataValue === "adminson" ||
+                normalizedDataValue === "adminson";
+            dataListHeader.textContent = isViewAll
+                ? "Danh sách full dữ liệu DK_CTV và DK_UNG_DUNG (admin mode)"
+                : `Danh sách DK_CTV và DK_UNG_DUNG với id_nv = ${dataValue}`;
 
             loadingText.textContent = "Đang tải danh sách từ 2 sheet...";
             loadingEl.style.display = 'block';
@@ -1924,8 +1942,8 @@
                     fetchSheetRowsForDataMode(CONFIG.sheets.DK_CTV.sheetName),
                     fetchSheetRowsForDataMode(CONFIG.sheets.DK_UNG_DUNG.sheetName)
                 ]);
-                renderDataTable('data-tab-DK_CTV', ctvRows);
-                renderDataTable('data-tab-DK_UNG_DUNG', ungDungRows);
+                renderDataTable('data-tab-DK_CTV', ctvRows, dataValue);
+                renderDataTable('data-tab-DK_UNG_DUNG', ungDungRows, dataValue);
                 switchDataTab('DK_CTV');
             } catch (err) {
                 console.error('openDataMode error:', err);
