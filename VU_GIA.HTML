@@ -937,7 +937,7 @@
             </div>
 
             <div class="header-title-main">
-                <h1>BẢNG GIÁ SẢN PHẨM LOCK&KING - TAKIN</h1>
+                <h1 id="priceTitle">BẢNG GIÁ SẢN PHẨM LOCK&KING - TAKIN</h1>
                 <div class="effective-date">(Áp dụng từ ngày 24/03/2026)</div>
             </div>
         </header>
@@ -1322,6 +1322,7 @@
 
             displayData = [rawHeaders, ...data];
             renderTable();
+            updateDisplayedPriceTitle();
         }
 
         function updateDashboard() {
@@ -1968,6 +1969,27 @@
                 opt.textContent = ncc;
                 select.appendChild(opt);
             });
+
+            updateDisplayedPriceTitle();
+        }
+
+        function getPriceTitleByNccSelection() {
+            const nccFilterEl = document.getElementById('nccFilter');
+            const selectedNcc = (nccFilterEl?.value || '').toString().trim().toLowerCase();
+
+            if (selectedNcc === 'lock&king' || selectedNcc.includes('lock')) {
+                return 'BẢNG GIÁ SẢN PHẨM LOCK&KING';
+            }
+            if (selectedNcc === 'takin' || selectedNcc.includes('takin')) {
+                return 'BẢNG GIÁ SẢN PHẨM TAKIN';
+            }
+            return 'BẢNG GIÁ SẢN PHẨM LOCK&KING - TAKIN';
+        }
+
+        function updateDisplayedPriceTitle() {
+            const titleEl = document.getElementById('priceTitle');
+            if (!titleEl) return;
+            titleEl.textContent = getPriceTitleByNccSelection();
         }
 
         // --- THEME TOGGLE ---
@@ -2283,6 +2305,8 @@
                 element.style.background = '#fff';
                 element.style.color = '#000';
                 element.style.fontFamily = "'Inter', sans-serif";
+                const pdfPriceTitle = document.getElementById('priceTitle')?.textContent?.trim()
+                    || getPriceTitleByNccSelection();
 
                 // Nội dung Header căn giữa
                 const headerHtml = `
@@ -2290,7 +2314,7 @@
                         <div style="font-size: 16px; font-weight: 800; color: #4f46e5; margin-bottom: 5px;">VU GIA COOPERATIVE COMPANY LIMITED</div>
                         <div style="font-size: 11px; margin-bottom: 3px;">230 Lacasta, Van Phu Urban Area, Kien Hung Ward, Ha Noi</div>
                         <div style="font-size: 11px; font-weight: 600; color: #4f46e5; margin-bottom: 25px;">Locknking.com - Locknking.vn - Locknking.kr</div>
-                        <div style="font-size: 22px; font-weight: 900; margin-bottom: 10px;">BẢNG GIÁ SẢN PHẨM LOCK&KING - TAKIN</div>
+                        <div style="font-size: 22px; font-weight: 900; margin-bottom: 10px;">${pdfPriceTitle}</div>
                         <div style="font-size: 12px; font-style: italic; opacity: 0.8;">(Áp dụng từ ngày 24/03/2026)</div>
                     </div>
                 `;
@@ -2346,9 +2370,10 @@
                     Array.from(tr.cells).forEach((cell, i) => {
                         const hName = headers[i];
                         cell.style.border = '1px solid #ddd';
-                        cell.style.padding = (hName === "#") ? '8px 2px' : '8px 5px'; // Giảm padding cho cột STT
+                        cell.style.padding = (hName === "#") ? '10px 3px' : '10px 6px'; // Tăng nhẹ khoảng cách dòng/ô
                         cell.style.color = '#000';
                         cell.style.wordBreak = 'break-word';
+                        cell.style.lineHeight = '1.35';
 
                         // Áp dụng độ rộng từ bảng cấu hình ở trên
                         const customWidth = pdfWidthConfigs[hName] || pdfWidthConfigs["Mặc định"];
@@ -2405,6 +2430,11 @@
                 });
 
                 element.appendChild(tableClone);
+                element.innerHTML += `
+                    <div style="margin-top: 30px; font-size: 20px; font-weight: 800; text-align: right; padding-right: 28px;">
+                        GIÁM ĐỐC CÔNG TY
+                    </div>
+                `;
 
                 // Cấu hình PDF
                 const now = new Date();
