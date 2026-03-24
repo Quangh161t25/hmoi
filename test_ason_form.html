@@ -347,6 +347,56 @@
             font-size: 0.92rem;
         }
 
+        .data-list-mode {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .data-list-header {
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .data-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .data-tab-btn {
+            padding: 0.55rem 0.9rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            background: #ffffff;
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .data-tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .data-tab-content {
+            display: none;
+        }
+
+        .data-tab-content.active {
+            display: block;
+        }
+
+        .empty-list-note {
+            padding: 1rem;
+            border: 1px dashed #d1d5db;
+            border-radius: 10px;
+            color: var(--text-dim);
+            font-size: 0.92rem;
+            background: #fafafa;
+        }
+
         /* Pagination */
         .pagination {
             display: flex;
@@ -732,6 +782,16 @@
                         <button class="btn-outline" onclick="clearCurrentForm()">Xóa trắng</button>
                         <button class="btn-outline" onclick="copyCurrentFormLink()">Copy link form hiện tại</button>
                     </div>
+                </div>
+
+                <div id="dataListMode" class="data-list-mode">
+                    <div id="dataListHeader" class="data-list-header"></div>
+                    <div class="data-tabs">
+                        <button class="data-tab-btn active" id="data-tab-btn-DK_CTV" onclick="switchDataTab('DK_CTV')">DK_CTV</button>
+                        <button class="data-tab-btn" id="data-tab-btn-DK_UNG_DUNG" onclick="switchDataTab('DK_UNG_DUNG')">DK_UNG_DUNG</button>
+                    </div>
+                    <div id="data-tab-DK_CTV" class="data-tab-content active"></div>
+                    <div id="data-tab-DK_UNG_DUNG" class="data-tab-content"></div>
                 </div>
             </div>
 
@@ -1779,22 +1839,135 @@
             }
         }
 
+        async function fetchSheetRowsForDataMode(sheetName) {
+            const token = await getAccessToken();
+            const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+            const encodedRange = encodeURIComponent(`${sheetName}!A:Z`);
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodedRange}`;
+            const res = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+            const data = await res.json();
+            return data.values || [];
+        }
+
+        function renderDataTable(containerId, rows) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+
+            if (!rows || rows.length < 2) {
+                container.innerHTML = `<div class="empty-list-note">Không có dữ liệu trong sheet.</div>`;
+                return;
+            }
+
+            const headers = rows[0].map(h => (h || "").toString().trim());
+            const bodyRows = rows.slice(1);
+
+            if (bodyRows.length === 0) {
+                container.innerHTML = `<div class="empty-list-note">Sheet chưa có dữ liệu.</div>`;
+                return;
+            }
+
+            const tableWrap = document.createElement("div");
+            tableWrap.className = "table-container";
+            const table = document.createElement("table");
+
+            const thead = document.createElement("thead");
+            const trHead = document.createElement("tr");
+            headers.forEach(h => {
+                const th = document.createElement("th");
+                th.textContent = h;
+                trHead.appendChild(th);
+            });
+            thead.appendChild(trHead);
+
+            const tbody = document.createElement("tbody");
+            bodyRows.forEach(row => {
+                const tr = document.createElement("tr");
+                headers.forEach((_, i) => {
+                    const td = document.createElement("td");
+                    td.textContent = row[i] || "";
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            tableWrap.appendChild(table);
+            container.appendChild(tableWrap);
+        }
+
+        function switchDataTab(tabName) {
+            document.querySelectorAll('.data-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.data-tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`data-tab-btn-${tabName}`).classList.add('active');
+            document.getElementById(`data-tab-${tabName}`).classList.add('active');
+        }
+
+        async function openDataMode(dataValue) {
+            const loadingEl = document.getElementById('loading');
+            const loadingText = document.getElementById('loadingText');
+            const formArea = document.getElementById('form-area');
+            const invalidMsg = document.getElementById('id-invalid-msg');
+            const dataListMode = document.getElementById('dataListMode');
+            const dataListHeader = document.getElementById('dataListHeader');
+
+            document.getElementById('tabNav').style.display = 'none';
+            formArea.style.display = 'none';
+            invalidMsg.style.display = 'none';
+            dataListMode.style.display = 'block';
+            dataListHeader.textContent = `Danh sách full dữ liệu của 2 sheet (tham số data = ${dataValue})`;
+
+            loadingText.textContent = "Đang tải danh sách từ 2 sheet...";
+            loadingEl.style.display = 'block';
+            try {
+                const [ctvRows, ungDungRows] = await Promise.all([
+                    fetchSheetRowsForDataMode(CONFIG.sheets.DK_CTV.sheetName),
+                    fetchSheetRowsForDataMode(CONFIG.sheets.DK_UNG_DUNG.sheetName)
+                ]);
+                renderDataTable('data-tab-DK_CTV', ctvRows);
+                renderDataTable('data-tab-DK_UNG_DUNG', ungDungRows);
+                switchDataTab('DK_CTV');
+            } catch (err) {
+                console.error('openDataMode error:', err);
+                document.getElementById('data-tab-DK_CTV').innerHTML = `<div class="empty-list-note">Lỗi tải dữ liệu: ${err.message}</div>`;
+                document.getElementById('data-tab-DK_UNG_DUNG').innerHTML = `<div class="empty-list-note">Lỗi tải dữ liệu: ${err.message}</div>`;
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
         // Khởi tạo
         window.onload = async () => {
             const params = new URLSearchParams(window.location.search);
             const formFromUrl = params.get('form');
             const idNv = params.get('id') || '';
+            const dataParam = params.get('data') || '';
 
-            if (formFromUrl && CONFIG.sheets[formFromUrl]) {
+            if (dataParam) {
+                await openDataMode(dataParam);
+                return;
+            }
+
+            // 1. Không truyền form -> Trang trắng
+            if (!formFromUrl) {
+                document.body.innerHTML = '';
+                document.body.style.background = '#ffffff';
+                return;
+            }
+
+            // 2. Truyền form hợp lệ
+            if (CONFIG.sheets[formFromUrl]) {
                 // Ẩn tab navigation khi truy cập bằng link cụ thể
                 document.getElementById('tabNav').style.display = 'none';
                 // Ẩn form trước khi xác thực
                 document.getElementById('form-area').style.display = 'none';
+
                 switchForm(formFromUrl, false);
                 await validateIdFromSheet(idNv);
             } else {
-                // Không có ?form -> hiện tabs, mặc định DK_CTV, không cần check ID
-                switchForm('DK_CTV', false);
+                // Form truyền vào không hợp lệ -> Trang trắng
+                document.body.innerHTML = '';
+                document.body.style.background = '#ffffff';
             }
         };
     </script>
