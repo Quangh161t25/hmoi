@@ -61,12 +61,12 @@
 
         /* Increase spacing for warranty order rows */
         #dataTable thead th {
-            padding: 10px 12px;
+            padding: 7px 10px;
         }
 
         #dataTable tbody td {
-            padding: 10px 12px;
-            line-height: 1.45;
+            padding: 7px 10px;
+            line-height: 1.3;
             vertical-align: middle;
         }
 
@@ -1438,7 +1438,7 @@
             },
             'BH': {
                 sheetName: 'BH',
-                columns: ["ngay", "truong", "shop", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "phuong_an_xly", "ng_sua", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "id_khach", "ngay_tra", "mvd_trả"]
+                columns: ["ngay", "truong", "shop", "anh_da_nhan", "sp", "anh_sp", "mo_ta_loi", "phuong_an_xly", "ng_sua", "ngay_sua", "chi_phi_sua", "tinh_trang", "trang_thai", "id_khach", "mvd_trả"]
             },
             'DS_CHI_TIET_SP': {
                 sheetName: 'DS_CHI_TIET_SP',
@@ -2198,16 +2198,17 @@
                     expandTr.className = "bg-muted/30 border-b border-border/60";
                     const expandTd = document.createElement('td');
                     expandTd.colSpan = visibleIndices.length + 1;
-                    expandTd.className = "px-6 py-4 animate-in slide-in-from-top-2 duration-200";
+                    // Cho phép nội dung chi tiết linh kiện hiển thị đầy đủ trong hàng mở rộng
+                    expandTd.className = "px-5 py-2.5 animate-in slide-in-from-top-2 duration-200 whitespace-normal";
 
                     const containerId = `sub-table-container-${bhId}`;
                     expandTd.innerHTML = `
-                        <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <h4 class="text-sm font-bold text-primary uppercase">Chi tiết linh kiện phiếu ${bhId}</h4>
-                                <button onclick="showAddRepairPartUI('${bhId}')" class="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-xs font-bold">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                    Thêm linh kiện
+                        <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden p-3">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <h4 class="text-xs font-bold text-primary uppercase leading-tight">Chi tiết linh kiện phiếu ${bhId}</h4>
+                                <button onclick="showAddRepairPartUI('${bhId}', 'sub-table-container-${bhId}')" type="button" class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors text-[11px] font-bold shrink-0">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    Thêm
                                 </button>
                             </div>
                             <div id="${containerId}">Đang tải...</div>
@@ -2801,10 +2802,10 @@
                                     <span id="detail-val-${i}">${displayVal || 0}</span>
                                 </div>
                             </div>
-                            <div id="detail-expand-container-${i}" class="hidden w-full mt-1 text-left bg-muted/20 p-3 rounded-lg border border-border/40">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-[10px] uppercase font-bold text-muted-foreground font-bold">Bảng linh kiện</span>
-                                    <button onclick="showAddRepairPartUI('${row[0]}', 'detail-sub-table-${i}')" class="text-primary hover:underline text-[10px] font-bold">+ Thêm</button>
+                            <div id="detail-expand-container-${i}" class="hidden w-full mt-1 text-left bg-muted/20 p-2.5 rounded-lg border border-border/40">
+                                <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                                    <span class="text-[10px] uppercase font-bold text-muted-foreground">Bảng linh kiện</span>
+                                    <button type="button" onclick="showAddRepairPartUI('${row[0]}', 'detail-sub-table-${i}')" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 text-[10px] font-bold">+ Thêm</button>
                                 </div>
                                 <div id="detail-sub-table-${i}" class="text-xs">Đang tải...</div>
                             </div>
@@ -3801,7 +3802,12 @@
             const root = document.getElementById('formDrawer');
             const inputs = root.querySelectorAll('input, select, div[data-col]');
             const rawHeaders = currentData[0];
-            const newData = new Array(rawHeaders.length).fill("");
+            const isEditMode = Number.isInteger(editingRowIndex) && editingRowIndex > 0 && !!currentData[editingRowIndex];
+            // Edit mode: giữ nguyên dữ liệu dòng cũ, chỉ ghi đè các cột người dùng thay đổi.
+            // Add mode: tạo dòng rỗng mới.
+            const newData = isEditMode
+                ? [...currentData[editingRowIndex]]
+                : new Array(rawHeaders.length).fill("");
 
             let hasData = false;
             inputs.forEach(input => {
@@ -3828,10 +3834,11 @@
 
             if (!hasData) return alert("Vui lòng nhập ít nhất một trường thông tin.");
 
-            // Auto-generate ID for new records (BH or Parts)
+            // Auto-generate ID chỉ áp dụng khi thêm mới
             const rawHeadersForId = currentData[0];
             const idColIndex = rawHeadersForId.findIndex(h => h && h.toString().trim().toLowerCase() === 'id');
-            if ((currentActiveTab === 'BH' || currentActiveTab === 'DS_CHI_TIET_SP') && idColIndex !== -1 &&
+            if (!isEditMode &&
+                (currentActiveTab === 'BH' || currentActiveTab === 'DS_CHI_TIET_SP') && idColIndex !== -1 &&
                 !newData[idColIndex]) {
                 newData[idColIndex] = (currentActiveTab === 'DS_CHI_TIET_SP') ? generateId(8) : generateId();
             }
@@ -3857,7 +3864,7 @@
                 const sname = CONFIG.sheetName;
 
                 let url, method;
-                if (editingRowIndex !== null) {
+                if (isEditMode) {
                     // Update existing row
                     const colLetter = getColLetter(rawHeaders.length);
                     const range = `${sname}!A${editingRowIndex + 1}:${colLetter}${editingRowIndex + 1}`;
@@ -3880,9 +3887,10 @@
                 });
 
                 if (response.ok) {
+                    const wasEditMode = isEditMode;
                     closeFormDrawer();
                     await fetchData();
-                    alert(editingRowIndex !== null ? "Đã cập nhật phiếu thành công!" : "Đã lưu phiếu bảo hành mới thành công!");
+                    alert(wasEditMode ? "Đã cập nhật phiếu thành công!" : "Đã lưu phiếu bảo hành mới thành công!");
                     editingRowIndex = null;
                 } else {
                     const err = await response.json();
@@ -3980,43 +3988,33 @@
                 const data = await response.json();
                 const allRows = data.values || [];
 
-                const parts = allRows.filter(r => r[1] == bhId);
+                const parts = allRows.filter(r => r && r[1] == bhId);
 
                 if (parts.length === 0) {
-                    container.innerHTML = '<div class="py-2 text-muted-foreground italic">Chưa có linh kiện.</div>';
+                    container.innerHTML = '<div class="py-2 text-muted-foreground italic text-xs">Chưa có linh kiện.</div>';
                 } else {
                     let html = `
-        <table class="w-full text-left">
-            <thead>
-                <tr class="text-[10px] uppercase text-muted-foreground border-b border-border/40">
-                    <th class="py-1">Linh kiện</th>
-                    <th class="py-1 text-right">Giá</th>
-                    <th class="py-1 text-center w-8"></th>
-                </tr>
-            </thead>
-            <tbody>
-                `;
+        <div class="text-[10px] uppercase font-bold text-muted-foreground tracking-wide border-b border-border/40 pb-1 mb-1">Linh kiện</div>
+        <div class="divide-y divide-border/25 text-xs">`;
                     parts.forEach(part => {
+                        const name = (part[3] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                         html += `
-                <tr class="border-b border-border/20 last:border-0">
-                    <td class="py-2 font-medium">${part[3]}</td>
-                    <td class="py-2 text-right">${(parseFloat(part[4]) || 0).toLocaleString()}</td>
-                    <td class="py-2 text-center text-destructive cursor-pointer hover:opacity-70"
-                        onclick="deleteRepairPart('${part[0]}', '${bhId}', '${containerId}')">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <div class="flex items-center justify-between gap-2 py-2 min-w-0">
+                    <div class="min-w-0 flex-1 flex flex-wrap items-center gap-2">
+                        <span class="font-medium text-foreground leading-snug break-words">${name}</span>
+                        <span class="text-[11px] font-bold text-primary tabular-nums">${(parseFloat(part[4]) || 0).toLocaleString()}đ</span>
+                    </div>
+                    <button type="button" class="shrink-0 p-1 text-destructive hover:opacity-70 rounded" onclick="deleteRepairPart('${part[0]}', '${bhId}', '${containerId}')" title="Xóa">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
                             </path>
                         </svg>
-                    </td>
-                </tr>
-                `;
+                    </button>
+                </div>`;
                     });
-                    html += `
-            </tbody>
-        </table>
-        `;
+                    html += `</div>`;
                     container.innerHTML = html;
                 }
             } catch (err) {
@@ -4042,26 +4040,37 @@
             addUI.classList.remove('hidden');
 
             const select = document.getElementById('selectLinhKien');
-            if (select.options.length <= 1) {
-                try {
-                    const token = await getAccessToken(); const sid = CONFIG.spreadsheetId;
-                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/DS_CHI_TIET_SP!A:Z`; const
-                        response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } }); const lkRows = (await
-                            response.json()).values || []; const lkHeaders = lkRows[0].map(h => h.toString().toLowerCase().trim());
-                    const idIdx = lkHeaders.indexOf('id');
-                    const detailIdx = lkHeaders.findIndex(h => h.includes('chi_tiet') || h.includes('tên') || h.includes('sp'));
-                    const priceIdx = lkHeaders.findIndex(h => h.includes('gia') || h.includes('giá'));
+            const customNameInput = document.getElementById('customLinhKienName');
+            const customPriceInput = document.getElementById('customLinhKienPrice');
+            select.innerHTML = '<option value="">-- Chọn linh kiện --</option>';
+            select.value = "";
+            if (customNameInput) customNameInput.value = "";
+            if (customPriceInput) customPriceInput.value = "";
 
-                    lkRows.slice(1).forEach(p => {
-                        if (!p[idIdx]) return;
-                        const opt = document.createElement('option');
-                        opt.value = p[idIdx];
-                        opt.dataset.detail = p[detailIdx] || "Không tên";
-                        opt.dataset.price = p[priceIdx] || 0;
-                        opt.textContent = `${p[detailIdx] || "Không tên"} - ${p[priceIdx]}`;
-                        select.appendChild(opt);
-                    });
-                } catch (err) { console.error(err); }
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/DS_CHI_TIET_SP!A:Z`;
+                const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const lkRows = (await response.json()).values || [];
+                if (lkRows.length === 0) return;
+
+                const lkHeaders = lkRows[0].map(h => h.toString().toLowerCase().trim());
+                const idIdx = lkHeaders.indexOf('id');
+                const detailIdx = lkHeaders.findIndex(h => h.includes('chi_tiet') || h.includes('tên') || h.includes('sp'));
+                const priceIdx = lkHeaders.findIndex(h => h.includes('gia') || h.includes('giá'));
+
+                lkRows.slice(1).forEach(p => {
+                    if (!p[idIdx]) return;
+                    const opt = document.createElement('option');
+                    opt.value = p[idIdx];
+                    opt.dataset.detail = p[detailIdx] || "Không tên";
+                    opt.dataset.price = p[priceIdx] || 0;
+                    opt.textContent = `${p[detailIdx] || "Không tên"} - ${p[priceIdx] || 0}`;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error(err);
             }
         }
 
@@ -4071,12 +4080,24 @@
 
         async function confirmAddRepairPart() {
             const select = document.getElementById('selectLinhKien');
-            if (!select.value) return alert("Chọn linh kiện.");
+            const customNameInput = document.getElementById('customLinhKienName');
+            const customPriceInput = document.getElementById('customLinhKienPrice');
+            const customName = (customNameInput?.value || "").trim();
+            const customPrice = (customPriceInput?.value || "").trim();
+
+            if (!select.value && !customName) {
+                return alert("Chọn linh kiện từ danh sách hoặc nhập tên linh kiện mới.");
+            }
 
             const bhId = repairPartsTargetId;
             const newPartId = Math.random().toString(36).substring(2, 10).toUpperCase();
-            const newRow = [newPartId, bhId, select.value, select.options[select.selectedIndex].dataset.detail,
-                select.options[select.selectedIndex].dataset.price];
+            const useCustomPart = !select.value && !!customName;
+            const selectedOption = select.options[select.selectedIndex];
+
+            const idSp = useCustomPart ? "" : (select.value || "");
+            const detail = useCustomPart ? customName : (selectedOption?.dataset.detail || "");
+            const price = useCustomPart ? (customPrice || 0) : (selectedOption?.dataset.price || 0);
+            const newRow = [newPartId, bhId, idSp, detail, price];
 
             try {
                 const token = await getAccessToken();
@@ -4095,7 +4116,15 @@
                     if (currentSubTableContainer) {
                         await renderSubTable(bhId, currentSubTableContainer);
                     } else {
-                        renderTable();
+                        // Ưu tiên refresh đúng container đang mở ở view ngoài
+                        const outsideContainerId = `sub-table-container-${bhId}`;
+                        const outsideContainer = document.getElementById(outsideContainerId);
+                        if (outsideContainer) {
+                            await renderSubTable(bhId, outsideContainerId);
+                        } else {
+                            renderTable();
+                            setTimeout(() => renderSubTable(bhId, outsideContainerId), 120);
+                        }
                     }
                     await updateMainWarrantyCost(bhId);
                 }
@@ -4204,6 +4233,13 @@
                         class="w-full border border-border rounded px-3 py-2 outline-none focus:border-primary text-sm">
                         <option value="">-- Chọn linh kiện --</option>
                     </select>
+                    <div class="text-[11px] text-muted-foreground">Hoặc nhập linh kiện mới nếu chưa có trong danh sách:
+                    </div>
+                    <input id="customLinhKienName" type="text" placeholder="Tên linh kiện mới"
+                        class="w-full border border-border rounded px-3 py-2 outline-none focus:border-primary text-sm">
+                    <input id="customLinhKienPrice" type="number" min="0" step="1000"
+                        placeholder="Giá linh kiện (tuỳ chọn)"
+                        class="w-full border border-border rounded px-3 py-2 outline-none focus:border-primary text-sm">
                     <div class="flex justify-end gap-2 mt-2">
                         <button class="px-3 py-1.5 border border-border rounded hover:bg-muted text-xs"
                             onclick="document.getElementById('addRepairPartUI').classList.add('hidden')">Hủy</button>
