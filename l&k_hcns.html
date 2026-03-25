@@ -477,19 +477,6 @@
                 </button>
                 <div
                     class="px-3 mt-6 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase menu-label">
-                    Kinh Doanh
-                </div>
-                <button onclick="switchTab('KINH_DOANH')" id="nav-kinh-doanh"
-                    class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted text-muted-foreground group">
-                    <svg class="w-5 h-5 group-hover:text-foreground" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <span>Kinh doanh</span>
-                </button>
-                <div
-                    class="px-3 mt-6 mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase menu-label">
                     Công việc
                 </div>
                 <button onclick="switchTab('GIAO_VIEC')" id="nav-giao-viec"
@@ -653,382 +640,254 @@
                     </div>
                 </div>
 
-                <!-- View: Kinh Doanh -->
-                <div id="view-kinh-doanh" class="hidden">
-                    <div class="mb-6">
-                        <h3
-                            class="text-sm font-bold text-primary mb-3 uppercase tracking-wider border-b border-border pb-2">
-                            CRM & Khách hàng</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="bg-card p-4 rounded-xl border-2 border-red-500 hover:border-primary cursor-pointer hover:shadow-md transition-all h-full"
-                                onclick="switchTab('DS_KHACH_HANG')">
-                                <div class="flex items-start gap-3">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 flex-shrink-0">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h3 class="text-sm font-bold mb-1">Danh sách khách hàng</h3>
-                                        <p class="text-[11px] text-muted-foreground">Hồ sơ khách hàng, liên hệ, lịch sử
-                                            giao dịch.</p>
-                                    </div>
-                                </div>
+                <!-- View: Data Table -->
+                <div id="view-table"
+                    class="hidden flex-col h-full bg-card border border-border rounded-xl shadow-sm overflow-hidden"
+                    style="min-height: calc(100vh - 12rem);">
+                    <!-- Controls -->
+                    <div class="p-4 border-b border-border flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex flex-wrap items-center gap-2 flex-1">
+                            <div class="relative flex-1 min-w-[200px] max-w-sm">
+                                <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="text" id="searchInput"
+                                    class="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-sm"
+                                    placeholder="Tìm kiếm dữ liệu..." oninput="handleSearchInput()">
                             </div>
-                            <div class="bg-card p-4 rounded-xl border-2 border-red-500 hover:border-primary cursor-pointer hover:shadow-md transition-all h-full"
-                                onclick="switchTab('DS_SAN_PHAM')">
-                                <div class="flex items-start gap-3">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 flex-shrink-0">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h3 class="text-sm font-bold mb-1">Danh sách sản phẩm</h3>
-                                        <p class="text-[11px] text-muted-foreground">Quản lý sản phẩm.</p>
-                                    </div>
-                                </div>
+
+                            <!-- Bộ lọc NV -->
+                            <div id="filter-nv-wrapper" class="flex items-center gap-1.5 flex-wrap hidden">
+                                <select id="filter-nv-phong-ban"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Phòng ban --</option>
+                                </select>
+                                <select id="filter-nv-chuc-vu"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Chức vụ --</option>
+                                </select>
+                                <select id="filter-nv-trang-thai"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Trạng thái --</option>
+                                </select>
+                            </div>
+
+                            <!-- Bộ lọc Phòng ban -->
+                            <div id="filter-pb-wrapper" class="flex items-center gap-1.5 flex-wrap hidden">
+                                <select id="filter-pb-trang-thai"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Trạng thái --</option>
+                                    <option value="hoạt động">Hoạt động</option>
+                                    <option value="ngừng hoạt động">Ngừng hoạt động</option>
+                                </select>
+                            </div>
+                            <div id="filter-gv-wrapper" class="flex items-center gap-1.5 flex-wrap hidden">
+                                <select id="filter-gv-trang-thai"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Trạng thái --</option>
+                                    <option value="chưa làm">Chưa làm</option>
+                                    <option value="đang làm">Đang làm</option>
+                                    <option value="hoàn thành">Hoàn thành</option>
+                                    <option value="hủy">Hủy</option>
+                                </select>
+                                <select id="filter-gv-ng-nhan"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[160px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Người nhận --</option>
+                                </select>
+                                <select id="filter-gv-thoi-gian"
+                                    class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[150px]"
+                                    onchange="filterAndSortData()">
+                                    <option value="">-- Thời gian --</option>
+                                    <option value="today">Hôm nay</option>
+                                    <option value="week">Tuần này</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="mb-6">
-                        <h3
-                            class="text-sm font-bold text-primary mb-3 uppercase tracking-wider border-b border-border pb-2">
-                            Bán hàng & Đơn hàng</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="bg-card p-4 rounded-xl border-2 border-red-500 hover:border-primary cursor-pointer hover:shadow-md transition-all h-full"
-                                onclick="switchTab('DON_HANG')">
-                                <div class="flex items-start gap-3">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 flex-shrink-0">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h3 class="text-sm font-bold mb-1">Đơn hàng</h3>
-                                        <p class="text-[11px] text-muted-foreground">Tạo, duyệt đơn hàng; xuất kho.</p>
-                                    </div>
-                                </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Nút chuyển đổi View -->
+                            <div id="view-toggle-wrapper" class="flex items-center gap-1 bg-muted p-1 rounded-lg mr-2">
+                                <button id="btn-view-table" onclick="setViewMode('table')"
+                                    class="p-1.5 rounded-md bg-background shadow-sm text-foreground transition-all"
+                                    title="Dạng Bảng">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                    </svg>
+                                </button>
+                                <button id="btn-view-card" onclick="setViewMode('card')"
+                                    class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all"
+                                    title="Dạng Thẻ">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                    </svg>
+                                </button>
+                                <button id="btn-view-tree" onclick="setViewMode('tree')"
+                                    class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
+                                    title="Dạng Cây">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 6h16M4 12h8m-8 6h16" />
+                                    </svg>
+                                </button>
+                                <button id="btn-view-kanban" onclick="setViewMode('kanban')"
+                                    class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
+                                    title="Kanban">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 5h4v14H4V5zm6 0h4v8h-4V5zm6 0h4v11h-4V5z" />
+                                    </svg>
+                                </button>
+                                <button id="btn-view-scope" onclick="setViewMode('scope')"
+                                    class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
+                                    title="Việc theo chế độ">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 6h16M4 12h16M4 18h10" />
+                                    </svg>
+                                </button>
                             </div>
+
+                            <button
+                                class="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary/20 transition"
+                                onclick="fetchData()">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg> Làm mới
+                            </button>
+                            <button id="btn-add-row"
+                                class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:opacity-90 transition"
+                                onclick="addRow()">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg> <span id="btn-add-row-label">Thêm Mới</span>
+                            </button>
+                            <div id="saveStatus"
+                                class="fixed top-4 right-4 z-[100] bg-primary text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium animate-bounce"
+                                style="display: none;">Đang xử lý...</div>
+                        </div>
+                    </div>
+                    <div id="giao-viec-panel" class="hidden p-4 border-b border-border bg-amber-50/40">
+                        <div id="gv-inner-tabs"
+                            class="flex flex-wrap gap-1.5 mb-4 p-1 bg-muted/60 rounded-xl border border-border/60 w-fit max-w-full">
+                            <button type="button" id="gv-tab-my" onclick="switchTaskScope('MY')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Công việc của
+                                tôi</button>
+                            <button type="button" id="gv-tab-assigned" onclick="switchTaskScope('ASSIGNED_BY_ME')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Công việc tôi
+                                giao</button>
+                            <button type="button" id="gv-tab-all" onclick="switchTaskScope('ALL')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Tất cả công
+                                việc</button>
+                            <button type="button" id="gv-tab-personal" onclick="switchTaskScope('PERSONAL')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Công việc cá
+                                nhân</button>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                            <div class="bg-card p-3 rounded-lg border border-border">
+                                <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Tổng
+                                    việc</div>
+                                <div id="gv-stat-total" class="text-xl font-bold text-foreground">0</div>
+                            </div>
+                            <div class="bg-card p-3 rounded-lg border border-border">
+                                <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Đang
+                                    làm</div>
+                                <div id="gv-stat-doing" class="text-xl font-bold text-blue-600">0</div>
+                            </div>
+                            <div class="bg-card p-3 rounded-lg border border-border">
+                                <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Hoàn
+                                    thành</div>
+                                <div id="gv-stat-done" class="text-xl font-bold text-emerald-600">0</div>
+                            </div>
+                        </div>
+                        <div id="giao-viec-manager-box" class="hidden bg-card border border-border rounded-lg p-4">
+                            <h4 class="text-sm font-bold mb-3">Giao việc nhanh (Sếp/Quản lý)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                                <input id="gv-input-ten-cv" type="text" placeholder="Tên công việc"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                                <input id="gv-input-cong-viec" type="text" placeholder="Nội dung công việc"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                                <select id="gv-input-ng-nhan"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:border-primary"></select>
+                                <input id="gv-input-ng-hoan-thanh" type="date"
+                                    class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                            </div>
+                            <div class="mt-3">
+                                <button onclick="createTaskFromPanel()"
+                                    class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition">Tạo
+                                    giao việc</button>
+                            </div>
+                        </div>
+                        <div id="giao-viec-employee-box" class="hidden bg-card border border-border rounded-lg p-4">
+                            <h4 class="text-sm font-bold mb-3">Việc theo chế độ: <span id="gv-scope-label">Công việc của
+                                    tôi</span></h4>
+                            <div id="giao-viec-employee-list" class="space-y-2 text-sm"></div>
+                        </div>
+                    </div>
+
+                    <!-- Containers (Table vs Grid vs Tree) -->
+                    <div class="flex-1 overflow-auto relative rounded-b-xl flex flex-col min-h-0" style="height: 500px">
+                        <div id="loading"
+                            class="loading bg-background/80 absolute inset-0 z-20 flex-col items-center justify-center">
+                            <div class="spinner"></div>
+                            <p class="text-sm font-medium">Đang tải dữ liệu...</p>
+                        </div>
+
+                        <!-- Table View -->
+                        <div id="tableViewContainer" class="flex-1 w-full relative">
+                            <table id="dataTable" class="w-full text-left border-collapse text-sm whitespace-nowrap">
+                                <thead class="bg-muted text-muted-foreground sticky top-0 z-10">
+                                    <tr id="tableHead" class="border-b border-border">
+                                        <!-- Headers injected here -->
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody" class="divide-y divide-border bg-card">
+                                    <!-- Data rows injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Card View -->
+                        <div id="cardViewContainer"
+                            class="hidden p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-max flex-1 bg-muted/10 items-start">
+                            <!-- Cards injected here -->
+                        </div>
+
+                        <!-- Tree View -->
+                        <div id="treeViewContainer" class="hidden flex-1 w-full bg-card p-6 overflow-auto">
+                            <!-- Tree injected here -->
+                        </div>
+                        <div id="kanbanViewContainer" class="hidden flex-1 w-full bg-slate-50 p-4 overflow-auto">
+                            <!-- Kanban injected here -->
+                        </div>
+                        <div id="taskScopeViewContainer" class="hidden flex-1 w-full bg-card p-4 overflow-auto">
+                            <!-- Scope list injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="px-4 py-3 border-t border-border flex items-center justify-between bg-card text-sm flex-wrap gap-2"
+                        id="paginationWrapper">
+                        <span class="text-muted-foreground text-xs" id="pageInfo">Trang 1 / 1</span>
+                        <div id="paginationPages" class="flex items-center gap-1 flex-wrap">
+                            <!-- Page numbers injected by JS -->
                         </div>
                     </div>
                 </div>
-                <div class="mb-6">
-                    <h3
-                        class="text-sm font-bold text-primary mb-3 uppercase tracking-wider border-b border-border pb-2">
-                        Báo cáo</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-card p-4 rounded-xl border-2 border-red-500 hover:border-primary cursor-pointer hover:shadow-md transition-all h-full"
-                            onclick="switchTab('BAO_CAO_DOANH_SO')">
-                            <div class="flex items-start gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 flex-shrink-0">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="text-sm font-bold mb-1">Báo cáo doanh số</h3>
-                                    <p class="text-[11px] text-muted-foreground">Doanh số theo thời gian, nhân viên.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="bg-card p-4 rounded-xl border border-border hover:border-primary cursor-pointer hover:shadow-md transition-all h-full">
-                            <div class="flex items-start gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 flex-shrink-0">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                                    </svg>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="text-sm font-bold mb-1">Báo cáo công nợ</h3>
-                                    <p class="text-[11px] text-muted-foreground">Tổng công nợ theo khách hàng.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="bg-card p-4 rounded-xl border border-border hover:border-primary cursor-pointer hover:shadow-md transition-all h-full">
-                            <div class="flex items-start gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 flex-shrink-0">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="text-sm font-bold mb-1">Thiết lập CRM</h3>
-                                    <p class="text-[11px] text-muted-foreground">Cấu hình hệ thống.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
-
-            <!-- View: Data Table -->
-            <div id="view-table"
-                class="hidden flex-col h-full bg-card border border-border rounded-xl shadow-sm overflow-hidden"
-                style="min-height: calc(100vh - 12rem);">
-                <!-- Controls -->
-                <div class="p-4 border-b border-border flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex flex-wrap items-center gap-2 flex-1">
-                        <div class="relative flex-1 min-w-[200px] max-w-sm">
-                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="text" id="searchInput"
-                                class="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:border-primary text-sm"
-                                placeholder="Tìm kiếm dữ liệu..." oninput="handleSearchInput()">
-                        </div>
-
-                        <!-- Bộ lọc NV -->
-                        <div id="filter-nv-wrapper" class="flex items-center gap-1.5 flex-wrap hidden">
-                            <select id="filter-nv-phong-ban"
-                                class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
-                                onchange="filterAndSortData()">
-                                <option value="">-- Phòng ban --</option>
-                            </select>
-                            <select id="filter-nv-chuc-vu"
-                                class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
-                                onchange="filterAndSortData()">
-                                <option value="">-- Chức vụ --</option>
-                            </select>
-                            <select id="filter-nv-trang-thai"
-                                class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
-                                onchange="filterAndSortData()">
-                                <option value="">-- Trạng thái --</option>
-                            </select>
-                        </div>
-
-                        <!-- Bộ lọc Phòng ban -->
-                        <div id="filter-pb-wrapper" class="flex items-center gap-1.5 flex-wrap hidden">
-                            <select id="filter-pb-trang-thai"
-                                class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
-                                onchange="filterAndSortData()">
-                                <option value="">-- Trạng thái --</option>
-                                <option value="hoạt động">Hoạt động</option>
-                                <option value="ngừng hoạt động">Ngừng hoạt động</option>
-                            </select>
-                        </div>
-                        <div id="filter-gv-wrapper" class="flex items-center gap-1.5 flex-wrap hidden">
-                            <select id="filter-gv-trang-thai"
-                                class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[130px]"
-                                onchange="filterAndSortData()">
-                                <option value="">-- Trạng thái --</option>
-                                <option value="chưa làm">Chưa làm</option>
-                                <option value="đang làm">Đang làm</option>
-                                <option value="hoàn thành">Hoàn thành</option>
-                                <option value="hủy">Hủy</option>
-                            </select>
-                            <select id="filter-gv-ng-nhan"
-                                class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[160px]"
-                                onchange="filterAndSortData()">
-                                <option value="">-- Người nhận --</option>
-                            </select>
-                            <select id="filter-gv-thoi-gian"
-                                class="border border-border rounded-lg px-2 py-2 text-sm bg-background focus:outline-none focus:border-primary min-w-[150px]"
-                                onchange="filterAndSortData()">
-                                <option value="">-- Thời gian --</option>
-                                <option value="today">Hôm nay</option>
-                                <option value="week">Tuần này</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-2">
-                        <!-- Nút chuyển đổi View -->
-                        <div id="view-toggle-wrapper" class="flex items-center gap-1 bg-muted p-1 rounded-lg mr-2">
-                            <button id="btn-view-table" onclick="setViewMode('table')"
-                                class="p-1.5 rounded-md bg-background shadow-sm text-foreground transition-all"
-                                title="Dạng Bảng">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                </svg>
-                            </button>
-                            <button id="btn-view-card" onclick="setViewMode('card')"
-                                class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all"
-                                title="Dạng Thẻ">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                                </svg>
-                            </button>
-                            <button id="btn-view-tree" onclick="setViewMode('tree')"
-                                class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
-                                title="Dạng Cây">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 12h8m-8 6h16" />
-                                </svg>
-                            </button>
-                            <button id="btn-view-kanban" onclick="setViewMode('kanban')"
-                                class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
-                                title="Kanban">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 5h4v14H4V5zm6 0h4v8h-4V5zm6 0h4v11h-4V5z" />
-                                </svg>
-                            </button>
-                            <button id="btn-view-scope" onclick="setViewMode('scope')"
-                                class="p-1.5 rounded-md text-muted-foreground hover:text-foreground transition-all hidden"
-                                title="Việc theo chế độ">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h10" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <button
-                            class="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary/20 transition"
-                            onclick="fetchData()">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg> Làm mới
-                        </button>
-                        <button id="btn-add-row"
-                            class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:opacity-90 transition"
-                            onclick="addRow()">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4" />
-                            </svg> <span id="btn-add-row-label">Thêm Mới</span>
-                        </button>
-                        <div id="saveStatus"
-                            class="fixed top-4 right-4 z-[100] bg-primary text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium animate-bounce"
-                            style="display: none;">Đang xử lý...</div>
-                    </div>
-                </div>
-                <div id="giao-viec-panel" class="hidden p-4 border-b border-border bg-amber-50/40">
-                    <div id="gv-inner-tabs"
-                        class="flex flex-wrap gap-1.5 mb-4 p-1 bg-muted/60 rounded-xl border border-border/60 w-fit max-w-full">
-                        <button type="button" id="gv-tab-my" onclick="switchTaskScope('MY')"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Công việc của
-                            tôi</button>
-                        <button type="button" id="gv-tab-assigned" onclick="switchTaskScope('ASSIGNED_BY_ME')"
-                            class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Công việc tôi
-                            giao</button>
-                        <button type="button" id="gv-tab-all" onclick="switchTaskScope('ALL')"
-                            class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Tất cả công
-                            việc</button>
-                        <button type="button" id="gv-tab-personal" onclick="switchTaskScope('PERSONAL')"
-                            class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">Công việc cá
-                            nhân</button>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                        <div class="bg-card p-3 rounded-lg border border-border">
-                            <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Tổng
-                                việc</div>
-                            <div id="gv-stat-total" class="text-xl font-bold text-foreground">0</div>
-                        </div>
-                        <div class="bg-card p-3 rounded-lg border border-border">
-                            <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Đang
-                                làm</div>
-                            <div id="gv-stat-doing" class="text-xl font-bold text-blue-600">0</div>
-                        </div>
-                        <div class="bg-card p-3 rounded-lg border border-border">
-                            <div class="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Hoàn
-                                thành</div>
-                            <div id="gv-stat-done" class="text-xl font-bold text-emerald-600">0</div>
-                        </div>
-                    </div>
-                    <div id="giao-viec-manager-box" class="hidden bg-card border border-border rounded-lg p-4">
-                        <h4 class="text-sm font-bold mb-3">Giao việc nhanh (Sếp/Quản lý)</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                            <input id="gv-input-ten-cv" type="text" placeholder="Tên công việc"
-                                class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
-                            <input id="gv-input-cong-viec" type="text" placeholder="Nội dung công việc"
-                                class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
-                            <select id="gv-input-ng-nhan"
-                                class="border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:border-primary"></select>
-                            <input id="gv-input-ng-hoan-thanh" type="date"
-                                class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
-                        </div>
-                        <div class="mt-3">
-                            <button onclick="createTaskFromPanel()"
-                                class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition">Tạo
-                                giao việc</button>
-                        </div>
-                    </div>
-                    <div id="giao-viec-employee-box" class="hidden bg-card border border-border rounded-lg p-4">
-                        <h4 class="text-sm font-bold mb-3">Việc theo chế độ: <span id="gv-scope-label">Công việc của
-                                tôi</span></h4>
-                        <div id="giao-viec-employee-list" class="space-y-2 text-sm"></div>
-                    </div>
-                </div>
-
-                <!-- Containers (Table vs Grid vs Tree) -->
-                <div class="flex-1 overflow-auto relative rounded-b-xl flex flex-col min-h-0" style="height: 500px">
-                    <div id="loading"
-                        class="loading bg-background/80 absolute inset-0 z-20 flex-col items-center justify-center">
-                        <div class="spinner"></div>
-                        <p class="text-sm font-medium">Đang tải dữ liệu...</p>
-                    </div>
-
-                    <!-- Table View -->
-                    <div id="tableViewContainer" class="flex-1 w-full relative">
-                        <table id="dataTable" class="w-full text-left border-collapse text-sm whitespace-nowrap">
-                            <thead class="bg-muted text-muted-foreground sticky top-0 z-10">
-                                <tr id="tableHead" class="border-b border-border">
-                                    <!-- Headers injected here -->
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody" class="divide-y divide-border bg-card">
-                                <!-- Data rows injected here -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Card View -->
-                    <div id="cardViewContainer"
-                        class="hidden p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-max flex-1 bg-muted/10 items-start">
-                        <!-- Cards injected here -->
-                    </div>
-
-                    <!-- Tree View -->
-                    <div id="treeViewContainer" class="hidden flex-1 w-full bg-card p-6 overflow-auto">
-                        <!-- Tree injected here -->
-                    </div>
-                    <div id="kanbanViewContainer" class="hidden flex-1 w-full bg-slate-50 p-4 overflow-auto">
-                        <!-- Kanban injected here -->
-                    </div>
-                    <div id="taskScopeViewContainer" class="hidden flex-1 w-full bg-card p-4 overflow-auto">
-                        <!-- Scope list injected here -->
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div class="px-4 py-3 border-t border-border flex items-center justify-between bg-card text-sm flex-wrap gap-2"
-                    id="paginationWrapper">
-                    <span class="text-muted-foreground text-xs" id="pageInfo">Trang 1 / 1</span>
-                    <div id="paginationPages" class="flex items-center gap-1 flex-wrap">
-                        <!-- Page numbers injected by JS -->
-                    </div>
-                </div>
-            </div>
-
-    </div>
-    </main>
+        </main>
     </div>
 
     <!-- Image Zoom Overlay -->
@@ -1213,9 +1072,7 @@
             'PHONG_BAN': { sheetName: 'DS_PHONG_BAN', columns: ["ten_phong_ban", "phong_ban_cap_tren", "cap_do", "thu_tu", "trang_thai"] },
             // Columns used to display in the list table.
             // Editing / details use all sheet columns (from currentData[0] headers).
-            'GIAO_VIEC': { sheetName: 'GIAO_VIEC', columns: ["ngay", "ten_cv", "ng_nhan", "trang_thai", "bao_cao", "xac_nhan"] },
-            'DS_KHACH_HANG': { sheetName: 'KHÁCH_HÀNG', columns: ["id", "ten_kh", "dien_thoai", "email", "ngay_cap_nhat", "nv_quan_ly"] },
-            'DS_SAN_PHAM': { sheetName: 'ds_sp', columns: ["id", "ten_sp", "model", "ncc", "gia_nhap", "gia_ban", "anh_sp", "thong_so"] }
+            'GIAO_VIEC': { sheetName: 'GIAO_VIEC', columns: ["ngay", "ten_cv", "ng_nhan", "trang_thai", "bao_cao", "xac_nhan"] }
         };
 
         const HEADER_MAPPING = {
@@ -1226,11 +1083,7 @@
             // Task module
             'ngay': 'Ngày', 'cong_viec': 'Loại công việc', 'ng_giao': 'Người giao việc', 'ng_nhan': 'Người nhận',
             'ng_hoan_thanh': 'Ngày hoàn thành', 'han_hoan_thanh': 'Hạn hoàn thành', 'ten_cv': 'Tên công việc',
-            'bao_cao': 'Báo cáo / tiến độ', 'xac_nhan': 'Người giao xác nhận',
-            // Customer module
-            'ten_kh': 'Tên khách hàng', 'dia_chi': 'Địa chỉ', 'ngay_cap_nhat': 'Ngày CN', 'nv_quan_ly': 'NV quản lý',
-            // Product module
-            'ten_sp': 'Tên sản phẩm', 'model': 'Model', 'ncc': 'Nhà cung cấp', 'gia_nhap': 'Giá nhập', 'gia_ban': 'Giá bán', 'anh_sp': 'Ảnh sản phẩm', 'thong_so': 'Thông số'
+            'bao_cao': 'Báo cáo', 'xac_nhan': 'Xác nhận'
         };
 
         const GIOI_TINH_OPTS = ["Nam", "Nữ", "Khác"];
@@ -2536,7 +2389,7 @@
             btnDel.classList.remove('hidden');
 
             const drawerTitle = document.querySelector('#detailDrawer h2');
-            drawerTitle.textContent = currentActiveTab === 'PHONG_BAN' ? "Chi tiết Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Chi tiết giao việc" : (currentActiveTab === 'DS_KHACH_HANG' ? "Chi tiết khách hàng" : (currentActiveTab === 'DS_SAN_PHAM' ? "Chi tiết sản phẩm" : "Hồ sơ nhân viên")));
+            drawerTitle.textContent = currentActiveTab === 'PHONG_BAN' ? "Chi tiết Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Chi tiết giao việc" : "Hồ sơ nhân viên");
 
             const grid = document.getElementById('detailDrawerGrid');
             const h3s = document.querySelectorAll('#detailDrawer h3');
@@ -2551,16 +2404,6 @@
                 grid.classList.remove('grid-cols-1');
                 if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Chi tiết giao việc`;
                 if (h3s[1]) h3s[1].parentElement.classList.add('hidden');
-            } else if (currentActiveTab === 'DS_KHACH_HANG') {
-                grid.classList.add('md:grid-cols-2');
-                grid.classList.remove('grid-cols-1');
-                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin chung`;
-                if (h3s[1]) { h3s[1].parentElement.classList.remove('hidden'); h3s[1].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Liên hệ & khác`; }
-            } else if (currentActiveTab === 'DS_SAN_PHAM') {
-                grid.classList.add('md:grid-cols-2');
-                grid.classList.remove('grid-cols-1');
-                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin sản phẩm`;
-                if (h3s[1]) { h3s[1].parentElement.classList.remove('hidden'); h3s[1].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Giá & Thông số`; }
             } else {
                 grid.classList.add('md:grid-cols-2');
                 grid.classList.remove('grid-cols-1');
@@ -2578,10 +2421,8 @@
                 const allowedColsNV = ['ho_ten', 'hinh_anh', 'gioi_tinh', 'ngay_sinh', 'quyen', 'email', 'dien_thoai', 'chuc_vu', 'phong_ban', 'trang_thai', 'ngay_vao_lam', 'file_ho_so', 'id'];
                 const allowedColsPB = ['ten_phong_ban', 'phong_ban_cap_tren', 'mo_ta', 'cap_do', 'thu_tu', 'trang_thai', 'id'];
                 const allowedColsGV = ['id', 'ngay', 'cong_viec', 'ng_giao', 'ng_nhan', 'ng_hoan_thanh', 'han_hoan_thanh', 'ten_cv', 'trang_thai'];
-                const allowedColsKH = ['id', 'ten_kh', 'dien_thoai', 'email', 'dia_chi', 'ngay_cap_nhat', 'nv_quan_ly'];
-                const allowedColsSP = ['id', 'ten_sp', 'model', 'ncc', 'gia_nhap', 'gia_ban', 'anh_sp', 'thong_so'];
 
-                const allowedCols = currentActiveTab === 'PHONG_BAN' ? allowedColsPB : (currentActiveTab === 'GIAO_VIEC' ? allowedColsGV : (currentActiveTab === 'DS_KHACH_HANG' ? allowedColsKH : (currentActiveTab === 'DS_SAN_PHAM' ? allowedColsSP : allowedColsNV)));
+                const allowedCols = currentActiveTab === 'PHONG_BAN' ? allowedColsPB : (currentActiveTab === 'GIAO_VIEC' ? allowedColsGV : allowedColsNV);
                 if (!allowedCols.includes(lower)) return;
 
                 const val = row[i] || "";
@@ -2631,12 +2472,6 @@
                     page1.appendChild(item);
                 } else if (currentActiveTab === 'GIAO_VIEC') {
                     page1.appendChild(item);
-                } else if (currentActiveTab === 'DS_KHACH_HANG') {
-                    if (['ten_kh', 'dien_thoai', 'email', 'id'].includes(lower)) page1.appendChild(item);
-                    else page2.appendChild(item);
-                } else if (currentActiveTab === 'DS_SAN_PHAM') {
-                    if (['anh_sp', 'ten_sp', 'model', 'ncc', 'id'].includes(lower)) page1.appendChild(item);
-                    else page2.appendChild(item);
                 } else {
                     if (['hinh_anh', 'ho_ten', 'gioi_tinh', 'ngay_sinh', 'email', 'dien_thoai', 'id'].includes(lower)) page1.appendChild(item);
                     else page2.appendChild(item);
@@ -2719,24 +2554,22 @@
 
         function switchTab(tabId) {
             currentActiveTab = tabId;
-            ['nav-home', 'nav-kinh-doanh', 'nav-ds-nhan-vien', 'nav-phong-ban', 'nav-giao-viec'].forEach(id => {
+            ['nav-home', 'nav-ds-nhan-vien', 'nav-phong-ban', 'nav-giao-viec'].forEach(id => {
                 const nav = document.getElementById(id);
                 if (nav) { nav.classList.remove('bg-muted/60', 'text-foreground'); nav.classList.add('text-muted-foreground'); }
             });
 
             let activeNavId = tabId === 'HOME'
                 ? 'nav-home'
-                : (tabId === 'KINH_DOANH' ? 'nav-kinh-doanh'
-                    : (tabId === 'DS_NHAN_VIEN' ? 'nav-ds-nhan-vien' : (tabId === 'PHONG_BAN' ? 'nav-phong-ban' : 'nav-giao-viec')));
+                : (tabId === 'DS_NHAN_VIEN' ? 'nav-ds-nhan-vien' : (tabId === 'PHONG_BAN' ? 'nav-phong-ban' : 'nav-giao-viec'));
             const activeNav = document.getElementById(activeNavId);
             if (activeNav) { activeNav.classList.remove('text-muted-foreground'); activeNav.classList.add('bg-muted/60', 'text-foreground'); }
 
             const viewHome = document.getElementById('view-home');
-            const viewKinhDoanh = document.getElementById('view-kinh-doanh');
             const viewTable = document.getElementById('view-table');
             const pageTitle = document.getElementById('pageTitle');
 
-            [viewHome, viewKinhDoanh, viewTable].forEach(v => { if (v) { v.classList.add('hidden'); v.classList.remove('block', 'flex'); } });
+            [viewHome, viewTable].forEach(v => { if (v) { v.classList.add('hidden'); v.classList.remove('block', 'flex'); } });
 
             const filterNvWrapper = document.getElementById('filter-nv-wrapper');
             const filterPbWrapper = document.getElementById('filter-pb-wrapper');
@@ -2749,15 +2582,6 @@
 
             if (tabId === 'HOME') {
                 viewHome.classList.remove('hidden'); viewHome.classList.add('block'); pageTitle.textContent = "Trang chủ";
-                filterNvWrapper.classList.add('hidden');
-                filterPbWrapper.classList.add('hidden');
-                filterGvWrapper.classList.add('hidden');
-                giaoViecPanel.classList.add('hidden');
-                btnKanbanView.classList.add('hidden');
-                btnScopeView.classList.add('hidden');
-                btnAddRow.classList.add('hidden');
-            } else if (tabId === 'KINH_DOANH') {
-                viewKinhDoanh.classList.remove('hidden'); viewKinhDoanh.classList.add('block'); pageTitle.textContent = "Kinh doanh";
                 filterNvWrapper.classList.add('hidden');
                 filterPbWrapper.classList.add('hidden');
                 filterGvWrapper.classList.add('hidden');
@@ -2791,32 +2615,6 @@
                     btnScopeView.classList.add('hidden');
                     btnAddRow.classList.remove('hidden');
                     if (currentViewMode === 'kanban' || currentViewMode === 'scope') currentViewMode = 'table';
-                } else if (tabId === 'DS_KHACH_HANG') {
-                    pageTitle.textContent = "Danh sách Khách hàng";
-                    filterNvWrapper.classList.add('hidden');
-                    filterPbWrapper.classList.add('hidden');
-                    filterGvWrapper.classList.add('hidden');
-                    giaoViecPanel.classList.add('hidden');
-                    btnTreeView.classList.add('hidden');
-                    btnKanbanView.classList.add('hidden');
-                    btnScopeView.classList.add('hidden');
-                    btnAddRow.classList.remove('hidden');
-                    const btnAddRowLabel = document.getElementById('btn-add-row-label');
-                    if (btnAddRowLabel) btnAddRowLabel.textContent = '+ Thêm mới';
-                    if (currentViewMode === 'tree' || currentViewMode === 'kanban' || currentViewMode === 'scope') currentViewMode = 'table';
-                } else if (tabId === 'DS_SAN_PHAM') {
-                    pageTitle.textContent = "Danh sách Sản phẩm";
-                    filterNvWrapper.classList.add('hidden');
-                    filterPbWrapper.classList.add('hidden');
-                    filterGvWrapper.classList.add('hidden');
-                    giaoViecPanel.classList.add('hidden');
-                    btnTreeView.classList.add('hidden');
-                    btnKanbanView.classList.add('hidden');
-                    btnScopeView.classList.add('hidden');
-                    btnAddRow.classList.remove('hidden');
-                    const btnAddRowLabel = document.getElementById('btn-add-row-label');
-                    if (btnAddRowLabel) btnAddRowLabel.textContent = '+ Thêm mới';
-                    if (currentViewMode === 'tree' || currentViewMode === 'kanban' || currentViewMode === 'scope') currentViewMode = 'table';
                 } else if (tabId === 'GIAO_VIEC') {
                     pageTitle.textContent = "Công việc";
                     filterNvWrapper.classList.add('hidden');
@@ -3270,10 +3068,10 @@
         function openFormDrawer(editIndex) {
             if (editIndex !== undefined) {
                 editingRowIndex = editIndex; isAddingNewRow = false;
-                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Sửa Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Sửa giao việc" : (currentActiveTab === 'DS_KHACH_HANG' ? "Sửa khách hàng" : (currentActiveTab === 'DS_SAN_PHAM' ? "Sửa sản phẩm" : "Sửa hồ sơ nhân viên")));
+                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Sửa Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Sửa giao việc" : "Sửa hồ sơ nhân viên");
             } else {
                 editingRowIndex = null; isAddingNewRow = true;
-                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Thêm Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Thêm giao việc" : (currentActiveTab === 'DS_KHACH_HANG' ? "Thêm khách hàng" : (currentActiveTab === 'DS_SAN_PHAM' ? "Thêm sản phẩm" : "Thêm nhân viên")));
+                document.querySelector('#formDrawer h2').textContent = currentActiveTab === 'PHONG_BAN' ? "Thêm Phòng ban" : (currentActiveTab === 'GIAO_VIEC' ? "Thêm giao việc" : "Thêm nhân viên");
             }
 
             const grid = document.getElementById('formDrawerGrid');
@@ -3287,14 +3085,6 @@
                 grid.classList.remove('md:grid-cols-2'); grid.classList.add('grid-cols-1');
                 if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin giao việc`;
                 if (h3s[1]) h3s[1].parentElement.classList.add('hidden');
-            } else if (currentActiveTab === 'DS_KHACH_HANG') {
-                grid.classList.add('md:grid-cols-2'); grid.classList.remove('grid-cols-1');
-                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Chi tiết khách hàng`;
-                if (h3s[1]) { h3s[1].parentElement.classList.remove('hidden'); h3s[1].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Địa chỉ & Liên hệ`; }
-            } else if (currentActiveTab === 'DS_SAN_PHAM') {
-                grid.classList.add('md:grid-cols-2'); grid.classList.remove('grid-cols-1');
-                if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin Sản phẩm`;
-                if (h3s[1]) { h3s[1].parentElement.classList.remove('hidden'); h3s[1].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">2</span> Giá & Thông số`; }
             } else {
                 grid.classList.add('md:grid-cols-2'); grid.classList.remove('grid-cols-1');
                 if (h3s[0]) h3s[0].innerHTML = `<span class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">1</span> Thông tin cá nhân`;
@@ -3325,7 +3115,7 @@
 
                 let input;
 
-                if (['gioi_tinh', 'quyen', 'chuc_vu', 'phong_ban', 'trang_thai', 'phong_ban_cap_tren', 'ng_nhan', 'ng_giao', 'xac_nhan', 'nv_quan_ly'].includes(lower)) {
+                if (['gioi_tinh', 'quyen', 'chuc_vu', 'phong_ban', 'trang_thai', 'phong_ban_cap_tren', 'ng_nhan', 'ng_giao', 'xac_nhan'].includes(lower)) {
                     if (lower === 'trang_thai' && currentActiveTab === 'GIAO_VIEC') {
                         // Nhóm nút bấm cho trạng thái Giao việc
                         input = document.createElement('div');
@@ -3417,57 +3207,53 @@
                         });
                     }
 
-                } else if (isDate) {
+                }
+                else if (isDate) {
                     input = document.createElement('input'); input.type = "date";
-                    input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background";
+                    input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right";
                     if (currentActiveTab === 'GIAO_VIEC' && isAddingNewRow && lower === 'ngay') {
                         input.value = formatTodayIso();
                     }
-                } else if (isMultiLine) {
-                    input = document.createElement('textarea');
-                    input.className = "w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary bg-background resize-y min-h-[80px]";
                 } else {
-                    input = document.createElement('input');
-                    if (lower === 'email') input.type = "email";
-                    else if (lower.includes('dien_thoai') || lower.includes('id')) input.type = "text";
-                    else input.type = "text";
-                    input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background";
+                    if (isMultiLine) {
+                        input = document.createElement('textarea');
+                        input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background text-right min-h-[80px] pt-2";
+                    } else {
+                        input = document.createElement('input'); input.type = "text";
+                        input.className = "w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-primary bg-background pr-10 text-right";
+                    }
+                    input.placeholder = `Nhập...`;
 
                     if (lower === 'id' && isAddingNewRow) {
                         let prefix = 'nv_';
                         if (currentActiveTab === 'PHONG_BAN') prefix = 'pb_';
                         if (currentActiveTab === 'GIAO_VIEC') prefix = 'gv_';
-                        if (currentActiveTab === 'DS_KHACH_HANG') prefix = 'kh_';
-                        if (currentActiveTab === 'DS_SAN_PHAM') prefix = 'sp_';
-                        input.value = prefix + generateId(8).toLowerCase();
+                        input.value = prefix + generateId(8).toLowerCase(); input.readOnly = true; input.classList.add('bg-muted/30');
                     }
                     if (currentActiveTab === 'GIAO_VIEC' && isAddingNewRow) {
                         if (lower === 'ng_giao') input.value = (currentUser && (currentUser.name || currentUser.id)) || "";
                         if (lower === 'ngay') input.value = formatDateToDisplay(formatTodayIso());
                     }
                     if (currentActiveTab === 'PHONG_BAN') {
-                        if (lower === 'cap_do' && isAddingNewRow) input.value = "1";
-                        if (lower === 'thu_tu' && isAddingNewRow) {
-                            let max = 0; currentData.slice(1).forEach(r => { let v = parseInt(r[i]) || 0; if (v > max) max = v; });
-                            input.value = max + 1;
+                        if (lower === 'cap_do') {
+                            input.readOnly = true; input.classList.add('bg-muted/30');
+                            if (isAddingNewRow) input.value = "1";
+                        }
+                        if (lower === 'thu_tu') {
+                            input.readOnly = true; input.classList.add('bg-muted/30');
+                            if (isAddingNewRow) {
+                                let max = 0;
+                                currentData.slice(1).forEach(r => { let v = parseInt(r[i]) || 0; if (v > max) max = v; });
+                                input.value = max + 1;
+                            }
                         }
                     }
                 }
 
-                if (editRow && input.tagName !== 'DIV' && editRow[i] !== undefined) {
-                    let cellVal = String(editRow[i]).replace(/\\n/g, '\n');
-                    if (isDate && cellVal) {
-                        if (cellVal.includes('/')) {
-                            const parts = cellVal.split('/');
-                            if (parts.length === 3) cellVal = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-                        }
-                    }
-                    input.value = cellVal;
-                }
-
-                if (lower === 'id' || lower === 'cap_do' || lower === 'thu_tu' || (lower === 'ngay_cap_nhat' && currentActiveTab === 'DS_KHACH_HANG')) {
-                    input.readOnly = true;
-                    input.classList.add('bg-muted', 'cursor-not-allowed', 'opacity-70');
+                if (editRow && input.tagName !== 'DIV') {
+                    let cellVal = editRow[i] || "";
+                    if (isDate) input.value = formatDateToISO(cellVal);
+                    else input.value = cellVal;
                 }
 
                 if (input.tagName !== 'DIV') {
@@ -3495,14 +3281,8 @@
                     page1.appendChild(rowDiv);
                 } else if (currentActiveTab === 'GIAO_VIEC') {
                     page1.appendChild(rowDiv);
-                } else if (currentActiveTab === 'DS_KHACH_HANG') {
-                    if (['ten_kh', 'dien_thoai', 'email', 'id'].includes(lower)) page1.appendChild(rowDiv);
-                    else page2.appendChild(rowDiv);
-                } else if (currentActiveTab === 'DS_SAN_PHAM') {
-                    if (['anh_sp', 'ten_sp', 'model', 'ncc', 'id'].includes(lower)) page1.appendChild(rowDiv);
-                    else page2.appendChild(rowDiv);
                 } else {
-                    if (['hinh_anh', 'ho_ten', 'gioi_tinh', 'ngay_sinh', 'email', 'dien_thoai', 'id'].includes(lower)) page1.appendChild(rowDiv);
+                    if (['hinh_anh', 'ho_ten', 'gioi_tinh', 'ngay_sinh', 'email', 'dien_thoai', 'mat_khau', 'id'].includes(lower)) page1.appendChild(rowDiv);
                     else page2.appendChild(rowDiv);
                 }
             });
@@ -3524,12 +3304,14 @@
                 };
 
                 if (congEl) {
-                    congEl.readOnly = true; congEl.classList.add('bg-muted/30', 'cursor-not-allowed');
+                    congEl.readOnly = true;
+                    congEl.classList.add('bg-muted/30');
                     updateCongViec();
                     if (ngNhanEl) ngNhanEl.addEventListener('change', updateCongViec);
                 }
-            }
 
+            }
+            // Mở drawer cho tất cả các tab
             document.getElementById('formDrawerOverlay').classList.remove('hidden');
             document.getElementById('formDrawer').classList.remove('translate-x-full');
             document.getElementById('formDrawer').classList.add('translate-x-0');
