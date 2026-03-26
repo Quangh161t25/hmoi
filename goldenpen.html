@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn Đặt Hàng - Golden Pen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            padding: 2rem;
+        }
+
+        .page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 20mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-right: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        /* Chỉ kẻ viền cho th và td có nội dung */
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: left;
+        }
+
+        /* Ẩn viền cho các dòng trống hoàn toàn */
+        .empty-row td {
+            border: none !important;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .label-width {
+            width: 140px;
+            font-weight: 600;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; margin: 0; padding: 15mm; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        <!-- Header Section -->
+        <div class="flex items-center mb-4">
+            <img src="https://goldenpen.com.vn/wp-content/uploads/2025/01/LOGO-WEB-1-1024x1024.png" 
+                 alt="Golden Pen Logo" 
+                 class="header-logo">
+            <div class="flex-1">
+                <h1 class="font-bold text-lg uppercase">CÔNG TY CỔ PHẦN GOLDEN PEN</h1>
+                <p class="text-sm text-gray-600 mt-1">Tầng 19, Tòa nhà Nam Cường, Hà Đông, Hà Nội</p>
+                <p class="text-sm text-gray-600">024.3553.9266 / 024.3553.9268</p>
+                <p class="text-sm text-blue-600 italic">www.goldenpen.com.vn</p>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold tracking-widest uppercase">ĐƠN ĐẶT HÀNG</h2>
+        </div>
+
+        <!-- Information Grid -->
+        <div class="grid grid-cols-2 gap-y-3 text-sm mb-8">
+            <div class="flex">
+                <span class="label-width">Ngày đơn hàng:</span>
+                <span id="display-ngay">---</span>
+            </div>
+            <div class="flex">
+                <span class="label-width text-right pr-4">Mã đơn hàng:</span>
+                <span id="display-ma-don" class="font-semibold text-red-600">---</span>
+            </div>
+            <div class="flex">
+                <span class="label-width">Tên Khách hàng:</span>
+                <span id="display-khach-hang">---</span>
+            </div>
+            <div class="flex">
+                <span class="label-width text-right pr-4">Nhân viên:</span>
+                <span id="display-nhan-vien">---</span>
+            </div>
+            <div class="flex">
+                <span class="label-width">Địa chỉ:</span>
+                <span id="display-dia-chi">---</span>
+            </div>
+            <div class="flex">
+                <span class="label-width text-right pr-4">Ghi chú:</span>
+                <span id="display-ghi-chu">---</span>
+            </div>
+            <div class="flex">
+                <span class="label-width">CK Thương mại:</span>
+                <span id="display-ck-tm">---</span>
+            </div>
+            <div class="flex">
+                <span class="label-width text-right pr-4">CK Khuyến mại:</span>
+                <span id="display-ck-km">---</span>
+            </div>
+        </div>
+
+        <!-- Order Table -->
+        <table id="order-table" class="mb-12">
+            <thead>
+                <tr>
+                    <th class="w-24 text-center">Mã vật tư</th>
+                    <th>Tên hàng</th>
+                    <th class="w-20 text-center">%CK</th>
+                    <th class="w-24 text-center">Số lượng</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Dữ liệu sản phẩm sẽ được render ở đây -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Cập nhật thông tin chung
+            document.getElementById('display-ngay').innerText = params.get('ngay') || '---';
+            document.getElementById('display-ma-don').innerText = params.get('ma_don') || '---';
+            document.getElementById('display-khach-hang').innerText = params.get('khach_hang') || '---';
+            document.getElementById('display-nhan-vien').innerText = params.get('nhan_vien') || '---';
+            document.getElementById('display-dia-chi').innerText = params.get('dia_chi') || '---';
+            document.getElementById('display-ghi-chu').innerText = params.get('ghi_chu') || '---';
+            document.getElementById('display-ck-tm').innerText = params.get('ck_tm') || '---';
+            document.getElementById('display-ck-km').innerText = params.get('ck_km') || '---';
+
+            // Xử lý danh sách sản phẩm
+            const vattus = (params.get('vattu') || '').split(',').filter(v => v.trim() !== '');
+            const tenhangs = (params.get('tenhang') || '').split(',').filter(t => t.trim() !== '');
+            const cksps = (params.get('ck_sp') || '').split(',');
+            const soluongs = (params.get('soluong') || '').split(',');
+
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+
+            const rowCount = Math.max(vattus.length, tenhangs.length);
+
+            // Chỉ kẻ dòng nếu có vật tư hoặc tên hàng
+            if (rowCount > 0) {
+                for (let i = 0; i < rowCount; i++) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="text-center font-mono text-xs">${vattus[i] || ''}</td>
+                        <td class="text-sm leading-relaxed font-semibold">${tenhangs[i] || ''}</td>
+                        <td class="text-center">${cksps[i] || ''}</td>
+                        <td class="text-center font-semibold text-lg">${soluongs[i] || ''}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+            } else {
+                // Nếu không có sản phẩm nào, hiển thị các dòng trống không kẻ viền
+                for (let i = 0; i < 5; i++) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.className = 'empty-row';
+                    emptyRow.style.height = '40px';
+                    emptyRow.innerHTML = '<td></td><td></td><td></td><td></td>';
+                    tableBody.appendChild(emptyRow);
+                }
+            }
+        }
+
+        window.onload = getQueryParams;
+    </script>
+</body>
+</html>
