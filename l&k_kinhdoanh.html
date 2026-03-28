@@ -1227,8 +1227,9 @@
     }
 
     const computeCustomerDebt = (customerId) => appState.CONG_NO.filter((row) => row.id_khach_hang === customerId).reduce((sum, row) => sum + (row.thu_chi === "thu" ? -Number(row.so_tien || 0) : Number(row.so_tien || 0)), 0);
-    const getCustomerName = (customerId) => (appState.KHACH_HANG.find((item) => item.id === customerId) || {}).ten_kh || "";
-    const getProductName = (productId) => (appState.DS_SP.find((item) => item.id === productId) || {}).ten_sp || "";
+    const getCustomerName = (customerId) => (appState.KHACH_HANG.find((item) => item.id === customerId) || {}).ten_kh || customerId;
+    const getProductName = (productId) => (appState.DS_SP.find((item) => item.id === productId) || {}).ten_sp || productId;
+    const getNvN = (id) => { const u = (window.usersData || []).find(x => x.id === id); return u ? u.ho_ten : id; };
 
     async function fetchAuthUsers() {
       el.loginLoading.classList.remove("hidden");
@@ -1351,14 +1352,35 @@
 
     function renderSalesDashboard() {
       // Data helpers
-      const nvArr = [...new Set([
-        ...usersData.map(user => user.id).filter(Boolean),
-        ...appState.DH.map(d => d.id_nv).filter(Boolean),
-        ...appState.CONG_NO.map(row => row.id_nv).filter(Boolean)
-      ])];
-      const khArr = [...new Set(appState.DH.map(d => d.npp).filter(Boolean))];
-      const getKhN = id => (appState.KHACH_HANG.find(c => c.id === id) || { ten_kh: id }).ten_kh;
-      const getNvN = id => { const u = usersData && usersData.find(x => x.id === id); return u ? u.ho_ten : id; };
+      const nvArr = [...new Set(usersData.map(user => ({ value: user.id, label: user.ho_ten })).filter(u => u.value))];
+      const khArr = [...new Set(appState.KHACH_HANG.map(c => ({ value: c.id, label: c.ten_kh })).filter(k => k.value))];
+
+      const styleTag = document.getElementById("multiSelectStyle");
+      if (!styleTag) {
+        const s = document.createElement("style");
+        s.id = "multiSelectStyle";
+        s.textContent = `
+          .ms-container { position: relative; min-width: 160px; font-size: 13px; font-family: inherit; }
+          .ms-btn { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 0 12px; height: 36px; text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+          .ms-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-weight: 500; }
+          .ms-btn:after { content: ""; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #66789b; }
+          .ms-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); z-index: 100; margin-top: 4px; display: none; width: max-content; min-width: 100%; }
+          .ms-dropdown.show { display: block; }
+          .ms-search-box { padding: 8px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 1; }
+          .ms-search-box input { width: 100%; border: 1px solid var(--line); padding: 6px 10px; border-radius: 6px; font-size: 13px; outline: none; }
+          .ms-options-wrap { max-height: 240px; overflow-y: auto; padding: 4px 0; }
+          .ms-option { padding: 8px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background .12s; }
+          .ms-option:hover { background: var(--soft); }
+          .ms-option input { cursor: pointer; width: 14px; height: 14px; accent-color: var(--brand); }
+          .ms-option label { cursor: pointer; flex: 1; white-space: nowrap; font-weight: 500; }
+          .ms-footer { padding: 8px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; background: #fff; position: sticky; bottom: 0; }
+          .ms-footer label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; color: var(--brand); }
+          .ms-footer label input { accent-color: var(--brand); width: 14px; height: 14px; }
+          .ms-btn-clear { border: none; background: transparent; color: #ef4444; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+          .ms-btn-clear:hover { background: #fef2f2; }
+        `;
+        document.head.appendChild(s);
+      }
 
       document.getElementById("sales_dashboard").innerHTML = `
         <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap;">
@@ -1369,21 +1391,47 @@
              <button id="dashTimeClr" style="border:none; background:none; cursor:pointer; font-size:16px; color:#ef4444; display:none">&times;</button>
           </div>
           
-           <select id="dashNv" style="border:1px solid var(--line); border-radius:8px; padding:0 12px; height:36px; font-size:13px; min-width:180px;">
-              <option value="">Tất cả nhân viên (Mã)</option>
-              ${nvArr.map(n => `<option value="${safeText(n)}">${safeText(n)}</option>`).join("")}
-           </select>
-          
-          <select id="dashKh" style="border:1px solid var(--line); border-radius:8px; padding:0 12px; height:36px; font-size:13px; max-width:200px;">
-             <option value="">Tất cả khách hàng</option>
-             ${khArr.map(k => `<option value="${safeText(k)}">${safeText(getKhN(k))}</option>`).join("")}
-          </select>
+          <div class="ms-container" id="dashNvPicker">
+             <button type="button" class="ms-btn" id="dashNvBtn"><span>ID Nhân viên</span></button>
+             <div class="ms-dropdown" id="dashNvMenu">
+                <div class="ms-search-box"><input type="text" id="dashNvSearch" placeholder="Tìm ID nhân viên..." autocomplete="off"></div>
+                <div class="ms-options-wrap" id="dashNvList"></div>
+                <div class="ms-footer">
+                   <label><input type="checkbox" id="dashNvAll"> Chọn tất cả</label>
+                   <button type="button" class="ms-btn-clear" id="dashNvClear">Xóa chọn</button>
+                </div>
+             </div>
+          </div>
+
+          <div class="ms-container" id="dashKhPicker">
+             <button type="button" class="ms-btn" id="dashKhBtn"><span>ID Khách hàng</span></button>
+             <div class="ms-dropdown" id="dashKhMenu">
+                <div class="ms-search-box"><input type="text" id="dashKhSearch" placeholder="Tìm ID khách hàng..." autocomplete="off"></div>
+                <div class="ms-options-wrap" id="dashKhList"></div>
+                <div class="ms-footer">
+                   <label><input type="checkbox" id="dashKhAll"> Chọn tất cả</label>
+                   <button type="button" class="ms-btn-clear" id="dashKhClear">Xóa chọn</button>
+                </div>
+             </div>
+          </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin-bottom:20px;">
+        <div style="display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:16px; margin-bottom:20px;" id="dashSummaryRow">
           <div class="card" style="padding:18px; border:none; box-shadow:0 4px 16px rgba(0,0,0,.04);">
              <small style="color:var(--muted);font-weight:700">TỔNG DOANH SỐ</small>
              <strong id="dTotalS" style="display:block;font-size:24px;color:#2d5bff;margin-top:6px">-</strong>
+          </div>
+          <div class="card" style="padding:18px; border:none; box-shadow:0 4px 16px rgba(0,0,0,.04);">
+             <small style="color:var(--muted);font-weight:700">TỔNG NỢ PHÁT SINH</small>
+             <strong id="dTotalChi" style="display:block;font-size:24px;color:#ef4444;margin-top:6px">-</strong>
+          </div>
+          <div class="card" style="padding:18px; border:none; box-shadow:0 4px 16px rgba(0,0,0,.04);">
+             <small style="color:var(--muted);font-weight:700">TỔNG NỢ ĐÃ THU</small>
+             <strong id="dTotalThu" style="display:block;font-size:24px;color:#16a34a;margin-top:6px">-</strong>
+          </div>
+          <div class="card" style="padding:18px; border:none; box-shadow:0 4px 16px rgba(0,0,0,.04);">
+             <small style="color:var(--muted);font-weight:700">NỢ CÒN LẠI</small>
+             <strong id="dTotalRem" style="display:block;font-size:24px;color:#8b5cf6;margin-top:6px">-</strong>
           </div>
           <div class="card" style="padding:18px; border:none; box-shadow:0 4px 16px rgba(0,0,0,.04);">
              <small style="color:var(--muted);font-weight:700">SỐ ĐƠN HÀNG</small>
@@ -1403,10 +1451,48 @@
         </div>
       `;
 
+      const setupMultiSelect = (btnId, menuId, listId, searchId, allId, clearId, items, onUpdate, label) => {
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        const list = document.getElementById(listId);
+        const search = document.getElementById(searchId);
+        const all = document.getElementById(allId);
+        const clear = document.getElementById(clearId);
+        let selected = new Set();
+        const renderList = () => {
+          const q = search.value.toLowerCase();
+          const filtered = items.filter(it => it.label.toLowerCase().includes(q) || it.value.toLowerCase().includes(q));
+          list.innerHTML = filtered.map(it => `<div class="ms-option"><input type="checkbox" value="${safeText(it.value)}" ${selected.has(it.value) ? 'checked' : ''}><label>${safeText(it.label)} <small>(${safeText(it.value)})</small></label></div>`).join("");
+          list.querySelectorAll(".ms-option").forEach(opt => {
+            opt.onclick = (e) => {
+              const cb = opt.querySelector("input");
+              if (e.target !== cb) cb.checked = !cb.checked;
+              if (cb.checked) selected.add(cb.value); else selected.delete(cb.value);
+              updateUI();
+            };
+          });
+        };
+        const updateUI = () => {
+          if (selected.size === 0) { btn.querySelector("span").textContent = label; all.checked = false; }
+          else if (selected.size === items.length) { btn.querySelector("span").textContent = "Tất cả " + label; all.checked = true; }
+          else { btn.querySelector("span").textContent = `Đã chọn (${selected.size})`; all.checked = false; }
+          onUpdate();
+        };
+        btn.onclick = (e) => { e.stopPropagation(); menu.classList.toggle("show"); };
+        document.addEventListener("click", (e) => { if (!menu.contains(e.target) && e.target !== btn) menu.classList.remove("show"); });
+        search.oninput = renderList;
+        all.onchange = () => { if (all.checked) items.forEach(it => selected.add(it.value)); else selected.clear(); renderList(); updateUI(); };
+        clear.onclick = () => { selected.clear(); search.value = ""; all.checked = false; renderList(); updateUI(); };
+        renderList();
+        return { getSelected: () => Array.from(selected) };
+      };
+
+      let msNv, msKh;
+
       const draw = () => {
         const fT = document.getElementById("dashTime").value;
-        const fN = document.getElementById("dashNv").value;
-        const fK = document.getElementById("dashKh").value;
+        const fNs = msNv ? msNv.getSelected() : [];
+        const fKs = msKh ? msKh.getSelected() : [];
         document.getElementById("dashTimeClr").style.display = fT ? "block" : "none";
 
         const data = appState.DH.filter(d => {
@@ -1415,8 +1501,8 @@
             const ym = d.ngay.includes("-") ? d.ngay.slice(0, 7) : (d.ngay.split("/").length >= 3 ? d.ngay.split("/")[2] + "-" + d.ngay.split("/")[1].padStart(2, "0") : "");
             if (ym !== fT) return false;
           }
-          if (fN && d.id_nv !== fN) return false;
-          if (fK && d.npp !== fK) return false;
+          if (fNs.length > 0 && !fNs.includes(d.id_nv)) return false;
+          if (fKs.length > 0 && !fKs.includes(d.npp)) return false;
           return true;
         });
 
@@ -1458,16 +1544,16 @@
 
         const debtByMon = {};
         appState.CONG_NO.forEach(c => {
-          if (fK) {
+          if (fKs.length > 0) {
             let nppMatched = false;
-            if (c.id_khach_hang === fK) nppMatched = true;
+            if (fKs.includes(c.id_khach_hang)) nppMatched = true;
             if (!nppMatched && c.id_dh) {
               const matchedDH = appState.DH.find(dh => dh.id === c.id_dh);
-              if (matchedDH && matchedDH.npp === fK) nppMatched = true;
+              if (matchedDH && fKs.includes(matchedDH.npp)) nppMatched = true;
             }
             if (!nppMatched) return;
           }
-          if (fN && c.id_nv !== fN) return;
+          if (fNs.length > 0 && !fNs.includes(c.id_nv)) return;
 
           let m = getM(c.ngay);
           if (!debtByMon[m]) debtByMon[m] = { chi: 0, thu: 0 };
@@ -1529,6 +1615,16 @@
           displayMonKs = displayMonKs.filter(m => m === fTm);
         }
 
+        let totalIncurred = 0;
+        let totalCollected = 0;
+        displayMonKs.forEach(m => {
+          totalIncurred += monStats[m].chi;
+          totalCollected += monStats[m].thu;
+        });
+        document.getElementById("dTotalChi").textContent = money(totalIncurred);
+        document.getElementById("dTotalThu").textContent = money(totalCollected);
+        document.getElementById("dTotalRem").textContent = money(totalIncurred - totalCollected);
+
         displayMonKs.sort((a, b) => sortM(b).localeCompare(sortM(a)));
 
         document.getElementById("dTMonth").innerHTML = displayMonKs.length ? displayMonKs.map(k => {
@@ -1585,7 +1681,7 @@
         document.getElementById("dTNv").innerHTML = nKs.map(k => buildNvRowHTML(k, nvStats[k])).join("") || '<tr class="empty"><td colspan="6">Trống</td></tr>';
 
         const kKs = Object.keys(khStats).sort((a, b) => sortStats(khStats, a, b)).filter(k => k !== "N/A" || khStats[k].s > 0 || khStats[k].luyKe !== 0);
-        document.getElementById("dTKh").innerHTML = kKs.map(k => buildRowHTML(k, getKhN(k), khStats[k])).join("") || '<tr class="empty"><td colspan="8">Trống</td></tr>';
+        document.getElementById("dTKh").innerHTML = kKs.map(k => buildRowHTML(k, getCustomerName(k), khStats[k])).join("") || '<tr class="empty"><td colspan="8">Trống</td></tr>';
 
 
         const bNcc = {};
@@ -1600,9 +1696,10 @@
         document.getElementById("dTNcc").innerHTML = nccKs.map(k => `<tr><td>${safeText(k)}</td><td style="text-align:right;color:#0f172a"><strong>${money(bNcc[k].s)}</strong></td></tr>`).join("") || '<tr class="empty"><td colspan="2">Trống</td></tr>';
       };
 
+      msNv = setupMultiSelect("dashNvBtn", "dashNvMenu", "dashNvList", "dashNvSearch", "dashNvAll", "dashNvClear", nvArr, draw, "ID Nhân viên");
+      msKh = setupMultiSelect("dashKhBtn", "dashKhMenu", "dashKhList", "dashKhSearch", "dashKhAll", "dashKhClear", khArr, draw, "ID Khách hàng");
+
       document.getElementById("dashTime").addEventListener("change", draw);
-      document.getElementById("dashNv").addEventListener("change", draw);
-      document.getElementById("dashKh").addEventListener("change", draw);
       document.getElementById("dashTimeClr").addEventListener("click", () => { document.getElementById("dashTime").value = ""; draw(); });
 
       if (typeof Chart === 'undefined') {
@@ -1930,8 +2027,8 @@
             <div class="toolbar">
               <div class="toolbar-search">
                 <input id="orderSearchInput" type="text" placeholder="Tìm kiếm dữ liệu..." />
-                <select id="orderStaffFilter"><option value="">-- Nhân viên --</option>${[...new Set(appState.DH.map((item) => item.id_nv).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(val)}</option>`).join("")}</select>
-                <select id="orderCustomerFilter"><option value="">-- NPP/Khách hàng --</option>${[...new Set(appState.DH.map((item) => item.npp).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(val)}</option>`).join("")}</select>
+                <select id="orderStaffFilter"><option value="">-- Nhân viên --</option>${[...new Set(appState.DH.map((item) => item.id_nv).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(getNvN(val))}</option>`).join("")}</select>
+                <select id="orderCustomerFilter"><option value="">-- NPP/Khách hàng --</option>${[...new Set(appState.DH.map((item) => item.npp).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(getCustomerName(val))}</option>`).join("")}</select>
               </div>
               <div class="toolbar-right">
                 <button class="icon-btn" type="button">☰</button>
@@ -1961,7 +2058,7 @@
           const matchCustomer = !customer || order.npp === customer;
           return matchKeyword && matchStaff && matchCustomer;
         });
-        document.getElementById("ordersTableBody").innerHTML = rows.length ? rows.map((order, index) => `<tr data-action="view-order" data-id="${safeText(order.id)}" style="cursor: pointer" onclick="openOrderViewDrawer('${safeText(order.id)}')"><td>${index + 1}</td><td>${safeText(order.ngay)}</td><td>${safeText(order.npp)}</td><td>${safeText(order.id_nv)}</td><td><strong style="color:var(--brand)">${money(order.thanh_tien || 0)}</strong></td></tr>`).join("") : '<tr><td colspan="5" class="empty">Chưa có đơn hàng.</td></tr>';
+        document.getElementById("ordersTableBody").innerHTML = rows.length ? rows.map((order, index) => `<tr data-action="view-order" data-id="${safeText(order.id)}" style="cursor: pointer" onclick="openOrderViewDrawer('${safeText(order.id)}')"><td>${index + 1}</td><td>${safeText(order.ngay)}</td><td>${safeText(getCustomerName(order.npp))}</td><td>${safeText(getNvN(order.id_nv))}</td><td><strong style="color:var(--brand)">${money(order.thanh_tien || 0)}</strong></td></tr>`).join("") : '<tr><td colspan="5" class="empty">Chưa có đơn hàng.</td></tr>';
       };
 
       document.getElementById("orderSearchInput").addEventListener("input", renderFilteredOrders);
@@ -2009,8 +2106,8 @@
         <div style="display:flex; flex-direction:column; gap:8px;">
            <div class="field"><label>ID Đơn hàng</label><input value="${safeText(order.id)}" readonly style="background:var(--soft)"/></div>
            <div class="field"><label>Ngày lên đơn</label><input value="${safeText(formatDateVi(order.ngay))}" readonly style="background:var(--soft)"/></div>
-           <div class="field"><label>Khách hàng/NPP</label><input value="${safeText(order.npp)}" readonly style="background:var(--soft)"/></div>
-           <div class="field"><label>Nhân viên lên đơn</label><input value="${safeText(order.id_nv)}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>Khách hàng/NPP</label><input value="${safeText(getCustomerName(order.npp))}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>Nhân viên lên đơn</label><input value="${safeText(getNvN(order.id_nv))}" readonly style="background:var(--soft)"/></div>
            <div class="field full"><label>Tổng tiền</label><input value="${money(order.thanh_tien)}" readonly style="background:var(--brand-soft); font-weight:800; color:var(--brand); font-size:16px"/></div>
         </div>
         <div style="margin-top:20px;">
@@ -2801,8 +2898,13 @@
     async function loadBusinessDataFromSheets() {
       const loaded = {};
       for (const [sheetName, headers] of Object.entries(CONFIG.sheets)) {
-        const values = await fetchSheetValues(sheetName);
-        loaded[sheetName] = rowsToObjects(values.length ? values : [headers], headers);
+        try {
+          const values = await fetchSheetValues(sheetName);
+          loaded[sheetName] = rowsToObjects(values.length ? values : [headers], headers);
+        } catch (err) {
+          console.warn(`Bỏ qua lỗi tải sheet ${sheetName}:`, err);
+          loaded[sheetName] = []; // Cho phép chạy tiếp nếu thiếu một số sheet
+        }
       }
       appState = normalizeState(loaded);
       syncMeta.lastLoadedAt = new Date().toLocaleString("vi-VN");
@@ -2856,11 +2958,6 @@
       bindStaticEvents();
       updateClock();
       setInterval(updateClock, 1000);
-      setInterval(async () => {
-        if (document.getElementById("drawerBackdrop")?.classList.contains("open") ||
-          document.getElementById("modalBackdrop")?.classList.contains("open")) return;
-        try { await loadBusinessDataFromSheets(); } catch (e) { }
-      }, 180000); // Tự động load 3 phút / lần
       loadCachedState();
       renderAll();
       try {
