@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
       --bg: #f5f7fb;
@@ -766,7 +767,7 @@
     }
 
     .drawer {
-      width: min(420px, 100vw);
+      width: calc(100% - 252px);
       height: 100vh;
       background: #fff;
       box-shadow: -4px 0 24px rgba(0, 0, 0, .15);
@@ -825,6 +826,10 @@
       .sidebar {
         position: static;
         height: auto
+      }
+
+      .drawer {
+        width: 100%;
       }
 
       .content {
@@ -907,40 +912,90 @@
 
           <!-- Notification bell -->
           <div style="position:relative;">
-            <button id="reloadBellBtn" title="Tải lại dữ liệu" style="width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:#fff;cursor:pointer;display:grid;place-items:center;color:#6d7fa0;position:relative;">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <button id="reloadBellBtn" title="Tải lại dữ liệu"
+              style="width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:#fff;cursor:pointer;display:grid;place-items:center;color:#6d7fa0;position:relative;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
             </button>
           </div>
 
           <!-- User avatar dropdown -->
           <div id="userMenuWrap" style="position:relative;">
-            <button id="userMenuToggle" style="display:flex;align-items:center;gap:10px;border:none;background:transparent;cursor:pointer;padding:4px 8px 4px 4px;border-radius:10px;transition:background .15s" onmouseenter="this.style.background='#f3f5fb'" onmouseleave="this.style.background='transparent'">
-              <div id="userAvatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#9b7bff,#6d8fff);color:#fff;font-weight:800;font-size:15px;display:grid;place-items:center;position:relative;">?<span style="position:absolute;bottom:1px;right:1px;width:9px;height:9px;background:#22c55e;border-radius:50%;border:2px solid #fff;"></span></div>
+            <button id="userMenuToggle"
+              style="display:flex;align-items:center;gap:10px;border:none;background:transparent;cursor:pointer;padding:4px 8px 4px 4px;border-radius:10px;transition:background .15s"
+              onmouseenter="this.style.background='#f3f5fb'" onmouseleave="this.style.background='transparent'">
+              <div id="userAvatar"
+                style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#9b7bff,#6d8fff);color:#fff;font-weight:800;font-size:15px;display:grid;place-items:center;position:relative;">
+                ?<span
+                  style="position:absolute;bottom:1px;right:1px;width:9px;height:9px;background:#22c55e;border-radius:50%;border:2px solid #fff;"></span>
+              </div>
               <div style="text-align:left;line-height:1.2;">
-                <strong id="userDisplayName" style="font-size:14px;color:var(--text);display:block;">Chưa đăng nhập</strong>
+                <strong id="userDisplayName" style="font-size:14px;color:var(--text);display:block;">Chưa đăng
+                  nhập</strong>
                 <small id="userRole" style="font-size:11px;color:var(--muted);text-transform:uppercase;"></small>
               </div>
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#aaa" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#aaa" stroke-width="2.5">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
             </button>
 
-            <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:200px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:50;overflow:hidden;">
+            <div id="userDropdown"
+              style="display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:200px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:50;overflow:hidden;">
               <div style="padding:12px 16px;border-bottom:1px solid var(--line);">
                 <strong id="userDropName" style="font-size:14px;display:block;">--</strong>
                 <small id="userDropRole" style="color:var(--muted);font-size:12px;">--</small>
               </div>
               <div style="padding:6px 0;">
-                <button class="user-menu-item" onclick="showToast('Chức năng đang phát triển')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Hồ sơ cá nhân</button>
-                <button class="user-menu-item" onclick="showToast('Chức năng đang phát triển')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Cài đặt hệ thống</button>
-                <button class="user-menu-item" onclick="showToast('Chức năng đang phát triển')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Đổi mật khẩu</button>
+                <button class="user-menu-item" onclick="showToast('Chức năng đang phát triển')"><svg viewBox="0 0 24 24"
+                    width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg> Hồ sơ cá nhân</button>
+                <button class="user-menu-item" onclick="showToast('Chức năng đang phát triển')"><svg viewBox="0 0 24 24"
+                    width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                  </svg> Cài đặt hệ thống</button>
+                <button class="user-menu-item" onclick="showToast('Chức năng đang phát triển')"><svg viewBox="0 0 24 24"
+                    width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg> Đổi mật khẩu</button>
                 <hr style="margin:4px 0;border:none;border-top:1px solid var(--line);">
-                <button class="user-menu-item" id="logoutBtn" style="color:#ef4444;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ef4444" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Đăng xuất</button>
+                <button class="user-menu-item" id="logoutBtn" style="color:#ef4444;"><svg viewBox="0 0 24 24" width="16"
+                    height="16" fill="none" stroke="#ef4444" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg> Đăng xuất</button>
               </div>
             </div>
           </div>
 
           <style>
-            .user-menu-item{display:flex;align-items:center;gap:10px;width:100%;border:none;background:transparent;padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;color:var(--text);text-align:left;transition:background .12s}
-            .user-menu-item:hover{background:#f3f5fb}
+            .user-menu-item {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              width: 100%;
+              border: none;
+              background: transparent;
+              padding: 10px 16px;
+              font-size: 14px;
+              font-weight: 500;
+              cursor: pointer;
+              color: var(--text);
+              text-align: left;
+              transition: background .12s
+            }
+
+            .user-menu-item:hover {
+              background: #f3f5fb
+            }
           </style>
         </div>
       </header>
@@ -950,6 +1005,7 @@
         <section id="customers" class="section"></section>
         <section id="products" class="section"></section>
         <section id="orders" class="section"></section>
+        <section id="order_details" class="section"></section>
         <section id="debts" class="section"></section>
         <section id="kpi" class="section"></section>
         <section id="sync" class="section"></section>
@@ -1007,6 +1063,7 @@
       { id: "dashboard", label: "Trang chủ", subtitle: "MENU CHÍNH", icon: "home", color: "#2d5bff" },
       { id: "sales_dashboard", label: "Dashboard Kinh doanh", subtitle: "KINH DOANH", icon: "chart", color: "#ff7a1a" },
       { id: "orders", label: "Quản lý Đơn hàng", subtitle: "KINH DOANH", icon: "bag", color: "#2d5bff" },
+      { id: "order_details", label: "Đơn hàng Chi tiết", subtitle: "KINH DOANH", icon: "file", color: "#0ea5e9" },
       { id: "products", label: "Danh sách Sản phẩm", subtitle: "KINH DOANH", icon: "box", color: "#8f53ff" },
       { id: "customers", label: "Khách hàng", subtitle: "KINH DOANH", icon: "users", color: "#00b894" },
       { id: "debts", label: "Công nợ", subtitle: "KINH DOANH", icon: "coin", color: "#ff4d6d" }
@@ -1260,10 +1317,12 @@
       document.getElementById("drawerSubtitle").textContent = subtitle;
       document.getElementById("drawerBody").innerHTML = html;
       document.getElementById("drawerBackdrop").classList.add("open");
+      document.body.style.overflow = "hidden";
     }
 
     function closeDrawer() {
       document.getElementById("drawerBackdrop").classList.remove("open");
+      document.body.style.overflow = "";
       setTimeout(() => { document.getElementById("drawerBody").innerHTML = ""; }, 300);
     }
 
@@ -1289,7 +1348,7 @@
       // Data helpers
       const nvArr = [...new Set(appState.DH.map(d => d.id_nv).filter(Boolean))];
       const khArr = [...new Set(appState.DH.map(d => d.ncc_npp).filter(Boolean))];
-      const getKhN = id => (appState.KHACH_HANG.find(c => c.id === id) || {ten_kh: id}).ten_kh;
+      const getKhN = id => (appState.KHACH_HANG.find(c => c.id === id) || { ten_kh: id }).ten_kh;
       const getNvN = id => { const u = usersData && usersData.find(x => x.id === id); return u ? u.ho_ten : id; };
 
       document.getElementById("sales_dashboard").innerHTML = `
@@ -1317,7 +1376,8 @@
              <option value="dang_xu_ly">Đang xử lý</option>
           </select>
 
-          <button class="btn btn-secondary" style="height:36px">Xuất Excel</button>
+          <button class="btn btn-secondary" style="height:36px" onclick="exportDashboard('excel')">Xuất Excel</button>
+          <button class="btn btn-secondary" style="height:36px" onclick="exportDashboard('csv')">Xuất CSV</button>
           <button class="btn btn-secondary" style="height:36px" onclick="window.print()">In PDF</button>
         </div>
 
@@ -1354,67 +1414,67 @@
       `;
 
       const draw = () => {
-         const fT = document.getElementById("dashTime").value;
-         const fN = document.getElementById("dashNv").value;
-         const fK = document.getElementById("dashKh").value;
-         const fS = document.getElementById("dashSt").value;
-         document.getElementById("dashTimeClr").style.display = fT ? "block" : "none";
+        const fT = document.getElementById("dashTime").value;
+        const fN = document.getElementById("dashNv").value;
+        const fK = document.getElementById("dashKh").value;
+        const fS = document.getElementById("dashSt").value;
+        document.getElementById("dashTimeClr").style.display = fT ? "block" : "none";
 
-         const data = appState.DH.filter(d => {
-            if (d.nhap_xuat && d.nhap_xuat.toLowerCase() !== "xuat") return false;
-            if (fT) {
-               const ym = d.ngay.includes("-") ? d.ngay.slice(0, 7) : (d.ngay.split("/").length >= 3 ? d.ngay.split("/")[2] + "-" + d.ngay.split("/")[1].padStart(2, "0") : "");
-               if (ym !== fT) return false;
-            }
-            if (fN && d.id_nv !== fN) return false;
-            if (fK && d.ncc_npp !== fK) return false;
-            if (fS && d.trang_thai && d.trang_thai !== fS) return false;
-            return true;
-         });
+        const data = appState.DH.filter(d => {
+          if (d.nhap_xuat && d.nhap_xuat.toLowerCase() !== "xuat") return false;
+          if (fT) {
+            const ym = d.ngay.includes("-") ? d.ngay.slice(0, 7) : (d.ngay.split("/").length >= 3 ? d.ngay.split("/")[2] + "-" + d.ngay.split("/")[1].padStart(2, "0") : "");
+            if (ym !== fT) return false;
+          }
+          if (fN && d.id_nv !== fN) return false;
+          if (fK && d.ncc_npp !== fK) return false;
+          if (fS && d.trang_thai && d.trang_thai !== fS) return false;
+          return true;
+        });
 
-         const tS = data.reduce((s, d) => s + Number(d.thanh_tien || 0), 0);
-         const tC = data.length;
-         document.getElementById("dTotalS").textContent = money(tS);
-         document.getElementById("dTotalO").textContent = tC;
-         document.getElementById("dAvgO").textContent = money(tC ? tS/tC : 0);
+        const tS = data.reduce((s, d) => s + Number(d.thanh_tien || 0), 0);
+        const tC = data.length;
+        document.getElementById("dTotalS").textContent = money(tS);
+        document.getElementById("dTotalO").textContent = tC;
+        document.getElementById("dAvgO").textContent = money(tC ? tS / tC : 0);
 
-         const bMon = {}; const bNv = {}; const bKh = {}; const bDay = {};
-         data.forEach(d => {
-            let m = "N/A";
-            if(d.ngay.includes("-")){ m = d.ngay.split("-").slice(0,2).reverse().join("/"); }
-            else if(d.ngay.includes("/") && d.ngay.split("/").length>=3){ m = d.ngay.split("/")[1].padStart(2,"0")+"/"+d.ngay.split("/")[2]; }
-            
-            if(!bMon[m]) bMon[m] = {c:0, s:0}; bMon[m].c++; bMon[m].s += Number(d.thanh_tien || 0);
-            
-            const n = d.id_nv||"N/A"; if(!bNv[n]) bNv[n] = {c:0, s:0}; bNv[n].c++; bNv[n].s += Number(d.thanh_tien||0);
-            const k = d.ncc_npp||"N/A"; if(!bKh[k]) bKh[k] = {c:0, s:0}; bKh[k].c++; bKh[k].s += Number(d.thanh_tien||0);
-            
-            const dy = d.ngay||"N/A"; if(!bDay[dy]) bDay[dy] = 0; bDay[dy] += Number(d.thanh_tien||0);
-         });
+        const bMon = {}; const bNv = {}; const bKh = {}; const bDay = {};
+        data.forEach(d => {
+          let m = "N/A";
+          if (d.ngay.includes("-")) { m = d.ngay.split("-").slice(0, 2).reverse().join("/"); }
+          else if (d.ngay.includes("/") && d.ngay.split("/").length >= 3) { m = d.ngay.split("/")[1].padStart(2, "0") + "/" + d.ngay.split("/")[2]; }
 
-         const monKs = Object.keys(bMon).sort((a,b)=>{ if(a==="N/A")return 1;if(b==="N/A")return -1; return a.localeCompare(b);});
-         document.getElementById("dTMonth").innerHTML = monKs.map(k => `<tr><td>${k}</td><td style="text-align:right">${bMon[k].c}</td><td style="text-align:right"><strong>${money(bMon[k].s)}</strong></td><td style="text-align:right">${money(bMon[k].c?bMon[k].s/bMon[k].c:0)}</td></tr>`).join("") || '<tr><td colspan="4" class="empty">Trống</td></tr>';
+          if (!bMon[m]) bMon[m] = { c: 0, s: 0 }; bMon[m].c++; bMon[m].s += Number(d.thanh_tien || 0);
 
-         if(salesChartMonth) salesChartMonth.destroy();
-         salesChartMonth = new Chart(document.getElementById('cMonth'), {
-             type: 'bar', data: { labels: monKs, datasets: [{ data: monKs.map(k => bMon[k].s), backgroundColor: '#2d5bff', borderRadius: 4 }] },
-             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display:false } } }
-         });
+          const n = d.id_nv || "N/A"; if (!bNv[n]) bNv[n] = { c: 0, s: 0 }; bNv[n].c++; bNv[n].s += Number(d.thanh_tien || 0);
+          const k = d.ncc_npp || "N/A"; if (!bKh[k]) bKh[k] = { c: 0, s: 0 }; bKh[k].c++; bKh[k].s += Number(d.thanh_tien || 0);
 
-         const dayKs = Object.keys(bDay).filter(d=>d!=="N/A").sort((a,b)=>parseDateSort(a).localeCompare(parseDateSort(b))).slice(-30);
-         if(salesChartDay) salesChartDay.destroy();
-         salesChartDay = new Chart(document.getElementById('cDay'), {
-             type: 'line', data: { labels: dayKs.map(d=>d.slice(0,5)), datasets: [{ data: dayKs.map(k=>bDay[k]), borderColor: '#f59e0b', tension: 0.3, fill: true, backgroundColor:'rgba(245,158,11,.1)'}] },
-             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display:false } }, scales: { x: { display:false }, y: { display:false } } }
-         });
+          const dy = d.ngay || "N/A"; if (!bDay[dy]) bDay[dy] = 0; bDay[dy] += Number(d.thanh_tien || 0);
+        });
 
-         const nKs = Object.keys(bNv).sort((a,b)=>bNv[b].s - bNv[a].s);
-         document.getElementById("dTNv").innerHTML = nKs.map(k => `<tr><td class="mono">${k}</td><td>${safeText(getNvN(k))}</td><td style="text-align:right">${bNv[k].c}</td><td style="text-align:right;color:#0f172a"><strong>${money(bNv[k].s)}</strong></td><td style="text-align:right">${money(bNv[k].c?bNv[k].s/bNv[k].c:0)}</td></tr>`).join("") || '<tr class="empty"><td colspan="5">Trống</td></tr>';
-         document.getElementById("dTopN").innerHTML = nKs.slice(0,5).map((k,i) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><div><strong>#${i+1}</strong> <span style="margin-left:8px">${safeText(getNvN(k))}</span></div><strong style="color:var(--brand)">${money(bNv[k].s)}</strong></div>`).join("") || '<span class="empty">Trống</span>';
+        const monKs = Object.keys(bMon).sort((a, b) => { if (a === "N/A") return 1; if (b === "N/A") return -1; return a.localeCompare(b); });
+        document.getElementById("dTMonth").innerHTML = monKs.map(k => `<tr><td>${k}</td><td style="text-align:right">${bMon[k].c}</td><td style="text-align:right"><strong>${money(bMon[k].s)}</strong></td><td style="text-align:right">${money(bMon[k].c ? bMon[k].s / bMon[k].c : 0)}</td></tr>`).join("") || '<tr><td colspan="4" class="empty">Trống</td></tr>';
 
-         const kKs = Object.keys(bKh).sort((a,b)=>bKh[b].s - bKh[a].s);
-         document.getElementById("dTKh").innerHTML = kKs.map(k => `<tr><td class="mono">${k}</td><td>${safeText(getKhN(k))}</td><td style="text-align:right">${bKh[k].c}</td><td style="text-align:right;color:#0f172a"><strong>${money(bKh[k].s)}</strong></td><td style="text-align:right">${money(bKh[k].c?bKh[k].s/bKh[k].c:0)}</td></tr>`).join("") || '<tr class="empty"><td colspan="5">Trống</td></tr>';
-         document.getElementById("dTopK").innerHTML = kKs.slice(0,5).map((k,i) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${safeText(getKhN(k))}"><strong>#${i+1}</strong> <span style="margin-left:8px">${safeText(getKhN(k))}</span></div><strong style="color:var(--brand)">${money(bKh[k].s)}</strong></div>`).join("") || '<span class="empty">Trống</span>';
+        if (salesChartMonth) salesChartMonth.destroy();
+        salesChartMonth = new Chart(document.getElementById('cMonth'), {
+          type: 'bar', data: { labels: monKs, datasets: [{ data: monKs.map(k => bMon[k].s), backgroundColor: '#2d5bff', borderRadius: 4 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const dayKs = Object.keys(bDay).filter(d => d !== "N/A").sort((a, b) => parseDateSort(a).localeCompare(parseDateSort(b))).slice(-30);
+        if (salesChartDay) salesChartDay.destroy();
+        salesChartDay = new Chart(document.getElementById('cDay'), {
+          type: 'line', data: { labels: dayKs.map(d => d.slice(0, 5)), datasets: [{ data: dayKs.map(k => bDay[k]), borderColor: '#f59e0b', tension: 0.3, fill: true, backgroundColor: 'rgba(245,158,11,.1)' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+        });
+
+        const nKs = Object.keys(bNv).sort((a, b) => bNv[b].s - bNv[a].s);
+        document.getElementById("dTNv").innerHTML = nKs.map(k => `<tr><td class="mono">${k}</td><td>${safeText(getNvN(k))}</td><td style="text-align:right">${bNv[k].c}</td><td style="text-align:right;color:#0f172a"><strong>${money(bNv[k].s)}</strong></td><td style="text-align:right">${money(bNv[k].c ? bNv[k].s / bNv[k].c : 0)}</td></tr>`).join("") || '<tr class="empty"><td colspan="5">Trống</td></tr>';
+        document.getElementById("dTopN").innerHTML = nKs.slice(0, 5).map((k, i) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><div><strong>#${i + 1}</strong> <span style="margin-left:8px">${safeText(getNvN(k))}</span></div><strong style="color:var(--brand)">${money(bNv[k].s)}</strong></div>`).join("") || '<span class="empty">Trống</span>';
+
+        const kKs = Object.keys(bKh).sort((a, b) => bKh[b].s - bKh[a].s);
+        document.getElementById("dTKh").innerHTML = kKs.map(k => `<tr><td class="mono">${k}</td><td>${safeText(getKhN(k))}</td><td style="text-align:right">${bKh[k].c}</td><td style="text-align:right;color:#0f172a"><strong>${money(bKh[k].s)}</strong></td><td style="text-align:right">${money(bKh[k].c ? bKh[k].s / bKh[k].c : 0)}</td></tr>`).join("") || '<tr class="empty"><td colspan="5">Trống</td></tr>';
+        document.getElementById("dTopK").innerHTML = kKs.slice(0, 5).map((k, i) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${safeText(getKhN(k))}"><strong>#${i + 1}</strong> <span style="margin-left:8px">${safeText(getKhN(k))}</span></div><strong style="color:var(--brand)">${money(bKh[k].s)}</strong></div>`).join("") || '<span class="empty">Trống</span>';
       };
 
       document.getElementById("dashTime").addEventListener("change", draw);
@@ -1424,8 +1484,8 @@
       document.getElementById("dashTimeClr").addEventListener("click", () => { document.getElementById("dashTime").value = ""; draw(); });
 
       if (typeof Chart === 'undefined') {
-         const s = document.createElement('script'); s.src = "https://cdn.jsdelivr.net/npm/chart.js";
-         s.onload = draw; document.head.appendChild(s);
+        const s = document.createElement('script'); s.src = "https://cdn.jsdelivr.net/npm/chart.js";
+        s.onload = draw; document.head.appendChild(s);
       } else { draw(); }
     }
     function getCustomerStats(customerId) {
@@ -1754,13 +1814,15 @@
               <div class="toolbar-right">
                 <button class="icon-btn" type="button">☰</button>
                 <button class="btn btn-secondary" type="button" id="refreshOrderListBtn">Làm mới</button>
-                <button class="btn btn-primary" type="button" id="addOrderBtn">+ Thêm mới</button>
               </div>
             </div>
           </div>
           <div class="table-wrap">
+            <style>
+              tbody tr[data-action="view-order"]:hover { background: var(--brand-soft); }
+            </style>
             <table>
-              <thead><tr><th>#</th><th>Ngày</th><th>NPP</th><th>ID Nhân viên</th><th>Thành tiền</th><th></th></tr></thead>
+              <thead><tr><th>#</th><th>Ngày</th><th>NPP</th><th>ID Nhân viên</th><th>Thành tiền</th></tr></thead>
               <tbody id="ordersTableBody"></tbody>
             </table>
           </div>
@@ -1777,78 +1839,70 @@
           const matchCustomer = !customer || order.ncc_npp === customer;
           return matchKeyword && matchStaff && matchCustomer;
         });
-        document.getElementById("ordersTableBody").innerHTML = rows.length ? rows.map((order, index) => `<tr><td>${index + 1}</td><td>${safeText(order.ngay)}</td><td>${safeText(order.ncc_npp)}</td><td>${safeText(order.id_nv)}</td><td>${money(order.thanh_tien || 0)}</td><td><div class="button-row"><button class="btn btn-secondary" type="button" data-action="edit-order" data-id="${safeText(order.id)}">Sửa</button><button class="btn btn-danger" type="button" data-action="delete-order" data-id="${safeText(order.id)}">Xóa</button></div></td></tr>`).join("") : '<tr><td colspan="6" class="empty">Chưa có đơn hàng.</td></tr>';
-        document.querySelectorAll('[data-action="edit-order"]').forEach((button) => button.addEventListener("click", () => openOrderModal(button.dataset.id)));
-        document.querySelectorAll('[data-action="delete-order"]').forEach((button) => button.addEventListener("click", () => deleteOrder(button.dataset.id)));
+        document.getElementById("ordersTableBody").innerHTML = rows.length ? rows.map((order, index) => `<tr data-action="view-order" data-id="${safeText(order.id)}" style="cursor: pointer" onclick="openOrderViewDrawer('${safeText(order.id)}')"><td>${index + 1}</td><td>${safeText(order.ngay)}</td><td>${safeText(order.ncc_npp)}</td><td>${safeText(order.id_nv)}</td><td><strong style="color:var(--brand)">${money(order.thanh_tien || 0)}</strong></td></tr>`).join("") : '<tr><td colspan="5" class="empty">Chưa có đơn hàng.</td></tr>';
       };
 
       document.getElementById("orderSearchInput").addEventListener("input", renderFilteredOrders);
       document.getElementById("orderStaffFilter").addEventListener("change", renderFilteredOrders);
       document.getElementById("orderCustomerFilter").addEventListener("change", renderFilteredOrders);
       document.getElementById("refreshOrderListBtn").addEventListener("click", renderFilteredOrders);
-      document.getElementById("addOrderBtn").addEventListener("click", () => openOrderModal());
       renderFilteredOrders();
     }
-    function openOrderModal(orderId = "") {
-      const order = appState.DH.find((row) => row.id === orderId) || {};
-      const details = orderId ? appState.DH_CT.filter((row) => row.id_dh === orderId) : [{ id: randomId("CT"), id_sp: "", don_gia: 0, slg: 1, thanh_tien: 0 }];
-      openModal(orderId ? "Sửa đơn hàng" : "Thêm đơn hàng", "Mỗi dòng chi tiết đang tương ứng 1 sản phẩm và 1 đơn giá.", `
-        <form id="orderForm" class="grid-2">
-          <div class="field"><label>ID đơn hàng</label><input name="id" value="${safeText(order.id || randomId("DH"))}" ${orderId ? "readonly" : ""} required /></div>
-          <div class="field"><label>Ngày</label><input name="ngay" type="date" value="${safeText(order.ngay || todayInput())}" required /></div>
-          <div class="field"><label>NCC/NPP hoặc khách hàng</label><input name="ncc_npp" list="customerList" value="${safeText(order.ncc_npp || "")}" required /><datalist id="customerList">${appState.KHACH_HANG.map((item) => `<option value="${safeText(item.ten_kh)}">${safeText(item.id)}</option>`).join("")}</datalist></div>
-          <div class="field"><label>ID nhân viên</label><input name="id_nv" value="${safeText(order.id_nv || (currentUser ? currentUser.id : ""))}" required /></div>
-          <div class="field full"><label>Tự tạo công nợ cho đơn này</label><select name="auto_debt"><option value="yes">Có, tạo bút toán chi</option><option value="no">Không</option></select></div>
-          <div class="field full"><label>Chi tiết sản phẩm</label><div id="orderLines" class="line-items">${details.map((item) => buildOrderLine(item)).join("")}</div></div>
-          <div class="button-row full"><button class="btn btn-secondary" type="button" id="addOrderLineBtn">Thêm dòng sản phẩm</button><button class="btn btn-primary" type="submit">Lưu đơn hàng</button></div>
-        </form>`);
-      const linesContainer = document.getElementById("orderLines");
-      bindOrderLineEvents(linesContainer);
-      document.getElementById("addOrderLineBtn").onclick = () => { linesContainer.insertAdjacentHTML("beforeend", buildOrderLine()); bindOrderLineEvents(linesContainer); };
-      document.getElementById("orderForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const data = Object.fromEntries(new FormData(event.target).entries());
-        const detailRows = Array.from(linesContainer.querySelectorAll(".line-item")).map((line) => ({
-          id: line.querySelector(".order-line-id").value || randomId("CT"),
-          id_sp: line.querySelector(".order-line-product").value,
-          don_gia: Number(line.querySelector(".order-line-price").value || 0),
-          slg: Number(line.querySelector(".order-line-qty").value || 1),
-          thanh_tien: Number(line.querySelector(".order-line-total").value || 0)
-        })).filter((row) => row.id_sp);
-        if (!detailRows.length) return alert("Đơn hàng cần ít nhất 1 sản phẩm.");
-        const orderRecord = { id: String(data.id).trim(), ngay: String(data.ngay), ncc_npp: String(data.ncc_npp).trim(), id_nv: String(data.id_nv).trim(), thanh_tien: detailRows.reduce((sum, row) => sum + Number(row.thanh_tien || 0), 0) };
-        const orderIndex = appState.DH.findIndex((row) => row.id === orderRecord.id);
-        if (orderIndex >= 0) appState.DH[orderIndex] = orderRecord; else appState.DH.push(orderRecord);
-        appState.DH_CT = appState.DH_CT.filter((row) => row.id_dh !== orderRecord.id);
-        detailRows.forEach((row) => appState.DH_CT.push({
-          id: row.id,
-          id_dh: orderRecord.id,
-          ngay: orderRecord.ngay,
-          ncc_npp: orderRecord.ncc_npp,
-          id_nv: orderRecord.id_nv,
-          id_sp: row.id_sp,
-          don_gia: Number(row.don_gia || 0),
-          slg: Number(row.slg || 1),
-          thanh_tien: Number(row.thanh_tien || 0)
-        }));
-        if (String(data.auto_debt) === "yes") {
-          const customer = appState.KHACH_HANG.find((item) => item.ten_kh.toLowerCase() === orderRecord.ncc_npp.toLowerCase());
-          if (customer) {
-            appState.CONG_NO = appState.CONG_NO.filter((row) => !(row.id_dh === orderRecord.id && row.thu_chi === "chi"));
-            appState.CONG_NO.push({ id: randomId("CN"), ngay: orderRecord.ngay, id_khach_hang: customer.id, id_dh: orderRecord.id, thu_chi: "chi", so_tien: orderRecord.thanh_tien, cong_no: 0 });
-          }
-        }
-        await persistAllSheets("Đã lưu đơn hàng.");
-        closeModal();
-      });
+    function exportDashboard(type) {
+      const getTblData = (id) => {
+        const res = [];
+        const rows = document.getElementById(id).querySelectorAll("tr");
+        rows.forEach(r => {
+          if (r.querySelector(".empty")) return;
+          const cells = Array.from(r.querySelectorAll("td")).map(c => `"${c.innerText.trim().replace(/"/g, '""')}"`);
+          if (cells.length) res.push(cells.join(","));
+        });
+        return res;
+      };
+
+      let csv = "\ufeff"; // BOM
+      csv += "Tháng,Số đơn,Tổng doanh số,Đơn trung bình\n";
+      csv += getTblData("dTMonth").join("\n") + "\n\n";
+      csv += "Mã NV,Tên nhân viên,Số đơn,Tổng doanh số,Đơn trung bình\n";
+      csv += getTblData("dTNv").join("\n") + "\n\n";
+      csv += "Mã KH,Tên khách hàng,Số đơn,Tổng doanh số,Đơn trung bình\n";
+      csv += getTblData("dTKh").join("\n");
+
+      const blob = new Blob([csv], { type: type === 'excel' ? 'application/vnd.ms-excel;charset=utf-8;' : 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `dashboard_kinh_doanh.${type === 'excel' ? 'xls' : 'csv'}`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
-    async function deleteOrder(orderId) {
-      if (!confirm("Xóa đơn hàng này?")) return;
-      appState.DH = appState.DH.filter((row) => row.id !== orderId);
-      appState.DH_CT = appState.DH_CT.filter((row) => row.id_dh !== orderId);
-      appState.CONG_NO = appState.CONG_NO.filter((row) => row.id_dh !== orderId);
-      await persistAllSheets("Đã xóa đơn hàng.");
+    function openOrderViewDrawer(orderId) {
+      const order = appState.DH.find((row) => row.id === orderId);
+      if (!order) return;
+      const details = appState.DH_CT.filter((row) => row.id_dh === orderId);
+      openDrawer("Chi tiết Đơn hàng", "Thông tin đơn hàng (Chỉ xem)", `
+        <div style="display:flex; flex-direction:column; gap:8px;">
+           <div class="field"><label>ID Đơn hàng</label><input value="${safeText(order.id)}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>Ngày lên đơn</label><input value="${safeText(formatDateVi(order.ngay))}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>Khách hàng/NPP</label><input value="${safeText(order.ncc_npp)}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>Nhân viên lên đơn</label><input value="${safeText(order.id_nv)}" readonly style="background:var(--soft)"/></div>
+           <div class="field full"><label>Tổng tiền</label><input value="${money(order.thanh_tien)}" readonly style="background:var(--brand-soft); font-weight:800; color:var(--brand); font-size:16px"/></div>
+        </div>
+        <div style="margin-top:20px;">
+           <h4 style="margin:0 0 10px; font-size:13px; color:var(--muted)">DANH SÁCH SẢN PHẨM (${details.length})</h4>
+           <div class="table-wrap" style="border:1px solid var(--line); border-radius:8px">
+             <table style="width:100%; font-size:12px; min-width: 0;">
+               <thead style="background:#f8fafc"><tr><th>Sản phẩm</th><th style="text-align:right">Đơn giá</th><th style="text-align:center">SL</th><th style="text-align:right">Thành tiền</th></tr></thead>
+               <tbody>
+                  ${details.length ? details.map(d => `<tr><td><strong style="color:var(--text)">${safeText(getProductName(d.id_sp) || d.id_sp)}</strong><br><small style="color:var(--muted)">Mã: ${safeText(d.id_sp)}</small></td><td style="text-align:right">${money(d.don_gia)}</td><td style="text-align:center">${d.slg}</td><td style="text-align:right"><strong>${money(d.thanh_tien)}</strong></td></tr>`).join("") : '<tr><td colspan="4" class="empty">Không có sản phẩm</td></tr>'}
+               </tbody>
+             </table>
+           </div>
+        </div>
+      `);
     }
 
     function getVirtualDebtMap() {
@@ -1869,7 +1923,11 @@
         <div class="card panel">
           <div class="toolbar" style="align-items:flex-end">
             <div><h2>Công nợ</h2><p class="subtle">Sheet CONG_NO: Quản lý chi tiết Thu/Chi.</p></div>
-            <button class="btn btn-primary" type="button" id="addDebtBtn">Thêm phiếu</button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-accent" type="button" id="uploadDebtExcelBtn">+ Tải Excel</button>
+              <input type="file" id="debtUploadExcelInput" accept=".xlsx, .xls" style="display:none;" />
+              <button class="btn btn-primary" type="button" id="addDebtBtn">Thêm phiếu</button>
+            </div>
           </div>
           <div class="toolbar" style="margin-top:-6px; padding-bottom:14px; border-bottom:1px solid var(--line);">
             <div class="toolbar-search">
@@ -1985,6 +2043,123 @@
         renderFilteredDebts();
       });
       document.getElementById("addDebtBtn").addEventListener("click", () => openDebtFormDrawer());
+
+      // Excel Import cho Công Nợ
+      document.getElementById("uploadDebtExcelBtn").addEventListener("click", () => {
+        document.getElementById("debtUploadExcelInput").click();
+      });
+
+      document.getElementById("debtUploadExcelInput").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        el.toast.textContent = "Đang xử lý file Excel Công nợ...";
+        el.toast.style.background = "#ca8a04";
+        el.toast.classList.add("show");
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const data = new Uint8Array(event.target.result);
+            if (typeof XLSX === "undefined") throw new Error("Thư viện XLSX chưa tải xong, thử lại.");
+            const workbook = XLSX.read(data, { type: 'array' });
+            if (!workbook.SheetNames.includes("Công nợ")) {
+              alert("Không tìm thấy Sheet 'Công nợ' trong file Excel.");
+              el.toast.classList.remove("show");
+              e.target.value = "";
+              return;
+            }
+
+            const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets["Công nợ"], { header: 1 });
+
+            let newDebtCount = 0;
+            let newCustCount = 0;
+            const existingCustMap = new Set(appState.KHACH_HANG.map(c => String(c.id || "").trim().toLowerCase()));
+
+            for (let i = 4; i < sheetData.length; i++) {
+              const row = sheetData[i];
+              if (!row || row.length === 0) continue;
+
+              const id_kh = String(row[0] || "").trim(); // Cột A
+              const ten_kh = String(row[1] || "").trim(); // Cột B
+
+              // Chỉ import nếu Cột A và Cột B có dữ liệu, và Cột A không phải dòng Tổng hợp/Header
+              if (!id_kh || !ten_kh || id_kh.toLowerCase() === "id" || id_kh.toLowerCase().includes("khách hàng") || id_kh.toLowerCase().includes("Số dòng")) continue;
+
+              const tien_chi = Number(String(row[5] || "0").replace(/[^0-9.-]+/g, "")); // Cột F
+              const tien_thu = Number(String(row[6] || "0").replace(/[^0-9.-]+/g, "")); // Cột G
+
+              // Kiểm tra và thêm khách hàng
+              if (!existingCustMap.has(id_kh.toLowerCase())) {
+                appState.KHACH_HANG.push({
+                  id: id_kh,
+                  ten_kh: ten_kh || id_kh,
+                  dien_thoai: "",
+                  email: "",
+                  dia_chi: "",
+                  ngay_cap_nhat: todayInput(),
+                  nv_quan_ly: "Công ty Vũ Gia"
+                });
+                existingCustMap.add(id_kh.toLowerCase());
+                newCustCount++;
+              }
+
+              // Phát sinh Tăng Nợ (Chi)
+              if (tien_chi > 0) {
+                appState.CONG_NO.push({
+                  id: randomId("CN"),
+                  ngay: todayInput(),
+                  id_khach_hang: id_kh,
+                  id_dh: "",
+                  thu_chi: "chi",
+                  so_tien: tien_chi,
+                  cong_no: 0
+                });
+                newDebtCount++;
+              }
+
+              // Phát sinh Giảm Nợ (Thu)
+              if (tien_thu > 0) {
+                appState.CONG_NO.push({
+                  id: randomId("CN"),
+                  ngay: todayInput(),
+                  id_khach_hang: id_kh,
+                  id_dh: "",
+                  thu_chi: "thu",
+                  so_tien: tien_thu,
+                  cong_no: 0
+                });
+                newDebtCount++;
+              }
+            }
+
+            if (newDebtCount > 0 || newCustCount > 0) {
+              recalcState(appState);
+              if (newCustCount > 0) {
+                await clearSheet("KHACH_HANG");
+                await updateSheet("KHACH_HANG", objectsToRows(appState.KHACH_HANG, CONFIG.sheets.KHACH_HANG));
+              }
+              if (newDebtCount > 0) {
+                await clearSheet("CONG_NO");
+                await updateSheet("CONG_NO", objectsToRows(appState.CONG_NO, CONFIG.sheets.CONG_NO));
+              }
+              syncMeta.lastLoadedAt = new Date().toLocaleString("vi-VN");
+              renderAll();
+              alert(`Import thành công: Tạo mới ${newCustCount} khách hàng, ${newDebtCount} dòng công nợ.`);
+            } else {
+              alert("Import thất bại: Không tìm thấy dữ liệu hợp lệ (Cần có mã khách hàng và số tiền ở cột F hoặc G).");
+            }
+          } catch (error) {
+            console.error(error);
+            alert("Lỗi xử lý Excel: " + error.message);
+          } finally {
+            el.toast.classList.remove("show");
+            e.target.value = "";
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
       renderFilteredDebts();
     }
 
@@ -2110,6 +2285,318 @@
       closeDrawer();
     }
 
+    function renderOrderDetails() {
+      const spList = [...new Set(appState.DH_CT.map(d => d.id_sp).filter(Boolean))];
+      const dhList = [...new Set(appState.DH_CT.map(d => d.id_dh).filter(Boolean))];
+      const nppList = [...new Set(appState.DH_CT.map(d => d.ncc_npp).filter(Boolean))];
+
+      document.getElementById("order_details").innerHTML = `
+        <div class="card panel">
+          <div class="toolbar" style="align-items:flex-end">
+             <div><h2>Chi tiết Đơn hàng</h2><p class="subtle">Sheet DH_CT: Liệt kê chi tiết từng sản phẩm được bán ra trong kho.</p></div>
+          </div>
+          <div class="toolbar" style="margin-top:-6px; padding-bottom:14px; border-bottom:1px solid var(--line);">
+            <div class="toolbar-search" style="flex-wrap:wrap; align-items:center; flex:1">
+              <input type="text" id="odSearch" placeholder="Tìm ID đơn, sản phẩm, NPP, NV..." style="min-width:250px;" />
+              
+              <div class="dropdown-search" id="odNvBox" style="min-width:180px; position:relative;">
+                <input type="text" id="odNvFilter" placeholder="Lọc Nhân viên..." autocomplete="off" style="padding-right:24px;" />
+                <span id="odNvClear" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:16px; cursor:pointer; color:#999; display:none; z-index:2;">&times;</span>
+                <div class="dropdown-menu" id="odNvMenu" style="max-height:220px;"></div>
+              </div>
+
+              <div class="dropdown-search" id="odSpBox" style="min-width:180px; position:relative;">
+                <input type="text" id="odSpFilter" placeholder="Lọc ID Sản phẩm..." autocomplete="off" style="padding-right:24px;" />
+                <span id="odSpClear" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:16px; cursor:pointer; color:#999; display:none; z-index:2;">&times;</span>
+                <div class="dropdown-menu" id="odSpMenu" style="max-height:220px;"></div>
+              </div>
+
+              <div class="dropdown-search" id="odNppBox" style="min-width:180px; position:relative;">
+                <input type="text" id="odNppFilter" placeholder="Lọc Nhà phân phối..." autocomplete="off" style="padding-right:24px;" />
+                <span id="odNppClear" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:16px; cursor:pointer; color:#999; display:none; z-index:2;">&times;</span>
+                <div class="dropdown-menu" id="odNppMenu" style="max-height:220px;"></div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button class="btn btn-primary" type="button" id="odUploadExcelBtn">+ Tải Excel</button>
+              <input type="file" id="odUploadExcelInput" accept=".xlsx, .xls" style="display:none;" />
+              <button class="btn btn-secondary" type="button" id="resetOdFilterBtn">Bỏ lọc</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <style>
+               tbody tr[data-action="view-order-detail"]:hover{background:var(--brand-soft)}
+            </style>
+            <table>
+              <thead><tr><th>ID</th><th>ID đơn hàng</th><th>Ngày</th><th>Nhà phân phối</th><th>ID nhân viên</th><th>ID sản phẩm</th><th style="text-align:right">Đơn giá</th><th style="text-align:center">Số lượng</th><th style="text-align:right">Thành tiền</th></tr></thead>
+              <tbody id="odTableBody"></tbody>
+              <tfoot id="odTableFoot" style="font-weight:bold; background:#f8fafc"></tfoot>
+            </table>
+          </div>
+        </div>`;
+
+      const tbody = document.getElementById("odTableBody");
+      const tfoot = document.getElementById("odTableFoot");
+
+      const renderFiltered = () => {
+        const spMap = {}; appState.DS_SP.forEach(sp => spMap[sp.id] = sp.ten_sp);
+        const khMap = {}; appState.KHACH_HANG.forEach(kh => khMap[kh.id] = kh.ten_kh);
+        const nvMap = {}; (window.usersData || []).forEach(u => nvMap[u.id] = u.ho_ten);
+
+        const q = (document.getElementById("odSearch").value || "").toLowerCase();
+        const fNv = (document.getElementById("odNvFilter").dataset.realVal || "").toLowerCase();
+        const fSp = (document.getElementById("odSpFilter").dataset.realVal || "").toLowerCase();
+        const fNpp = (document.getElementById("odNppFilter").dataset.realVal || "").toLowerCase();
+
+        let rows = appState.DH_CT.filter(item => {
+          if (fNv && !(item.id_nv || "").toLowerCase().includes(fNv)) return false;
+          if (fSp && !(item.id_sp || "").toLowerCase().includes(fSp)) return false;
+          if (fNpp && !(item.ncc_npp || "").toLowerCase().includes(fNpp)) return false;
+          if (q && ![item.id, item.id_dh, item.id_sp, item.ncc_npp, item.id_nv].join(" ").toLowerCase().includes(q)) return false;
+          return true;
+        });
+
+        rows.sort((a, b) => parseDateSort(b.ngay).localeCompare(parseDateSort(a.ngay)));
+
+        let sumQty = 0;
+        let sumTotal = 0;
+        rows.forEach(r => {
+          sumQty += Number(r.slg || 0);
+          sumTotal += Number(r.thanh_tien || 0);
+        });
+
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="9" class="empty">Không tìm thấy chi tiết đơn hàng.</td></tr>';
+          tfoot.innerHTML = '';
+          return;
+        }
+
+        const renderRows = rows.slice(0, 150);
+        tbody.innerHTML = renderRows.map(item => `
+          <tr data-action="view-order-detail" data-id="${safeText(item.id)}" style="cursor: pointer;" onclick="openOrderDetailViewDrawer('${safeText(item.id)}')">
+             <td class="mono">${safeText(item.id)}</td>
+             <td class="mono"><span class="badge" style="background:#e0f2fe; color:#0284c7">${safeText(item.id_dh)}</span></td>
+             <td>${safeText(formatDateVi(item.ngay))}</td>
+             <td>${safeText(khMap[item.ncc_npp] || item.ncc_npp)}</td>
+             <td>${safeText(nvMap[item.id_nv] || item.id_nv)}</td>
+             <td style="font-weight:600; color:var(--text)">${safeText(spMap[item.id_sp] || item.id_sp)}</td>
+             <td style="text-align:right">${money(item.don_gia)}</td>
+             <td style="text-align:center">${item.slg}</td>
+             <td style="text-align:right"><strong style="color:var(--brand)">${money(item.thanh_tien)}</strong></td>
+          </tr>`).join("");
+
+        if (rows.length > 150) tbody.innerHTML += `<tr><td colspan="9" style="text-align:center; padding:12px; color:var(--muted); font-size:13px; background:#f9fafb;">... và <strong>${rows.length - 150}</strong> dòng khác (Hãy lọc chi tiết hơn)</td></tr>`;
+
+        tfoot.innerHTML = `<tr><td colspan="7" style="text-align:right"><strong>TỔNG CỘNG:</strong></td><td style="text-align:center; color:var(--brand)">${sumQty}</td><td style="text-align:right; color:var(--brand)">${money(sumTotal)}</td></tr>`;
+      };
+
+      const setupDropdownObj = (inputEl, menuEl, clearEl, sourceList, boxId) => {
+        const renderList = (query) => {
+          const q = query.toLowerCase();
+          const matches = sourceList.filter(n => (n.text || "").toLowerCase().includes(q) || (n.id || "").toLowerCase().includes(q)).slice(0, 50);
+          menuEl.innerHTML = matches.map(n => `<div class="dropdown-item" data-val="${safeText(n.id)}">${safeText(n.text)}</div>`).join("");
+          if (!matches.length) menuEl.innerHTML = '<div style="padding:10px; color:#aaa; font-size:12px">Không tìm thấy.</div>';
+
+          menuEl.querySelectorAll('.dropdown-item').forEach(el => {
+            el.onclick = () => {
+              inputEl.value = el.innerText;
+              inputEl.dataset.realVal = el.dataset.val;
+              menuEl.classList.remove("show");
+              clearEl.style.display = "block";
+              renderFiltered();
+            };
+          });
+        };
+
+        inputEl.addEventListener("focus", () => { renderList(inputEl.value); menuEl.classList.add("show"); });
+        inputEl.addEventListener("input", (e) => {
+          renderList(e.target.value);
+          menuEl.classList.add("show");
+          clearEl.style.display = e.target.value ? "block" : "none";
+          if (!e.target.value) inputEl.dataset.realVal = "";
+          renderFiltered();
+        });
+
+        clearEl.addEventListener("click", () => {
+          inputEl.value = "";
+          inputEl.dataset.realVal = "";
+          clearEl.style.display = "none";
+          menuEl.classList.remove("show");
+          renderFiltered();
+        });
+
+        document.addEventListener("click", (e) => { if (!document.getElementById(boxId).contains(e.target)) menuEl.classList.remove("show"); });
+      };
+
+      const spObjList = [...new Set(appState.DH_CT.map(d => d.id_sp).filter(Boolean))].map(id => ({ id, text: appState.DS_SP.find(x => x.id === id)?.ten_sp || id }));
+      const nvObjList = [...new Set(appState.DH_CT.map(d => d.id_nv).filter(Boolean))].map(id => ({ id, text: (window.usersData || []).find(x => x.id === id)?.ho_ten || id }));
+      const nppObjList = [...new Set(appState.DH_CT.map(d => d.ncc_npp).filter(Boolean))].map(id => ({ id, text: appState.KHACH_HANG.find(x => x.id === id)?.ten_kh || id }));
+
+      setupDropdownObj(document.getElementById("odNvFilter"), document.getElementById("odNvMenu"), document.getElementById("odNvClear"), nvObjList, "odNvBox");
+      setupDropdownObj(document.getElementById("odSpFilter"), document.getElementById("odSpMenu"), document.getElementById("odSpClear"), spObjList, "odSpBox");
+      setupDropdownObj(document.getElementById("odNppFilter"), document.getElementById("odNppMenu"), document.getElementById("odNppClear"), nppObjList, "odNppBox");
+
+      document.getElementById("odSearch").addEventListener("input", renderFiltered);
+      document.getElementById("resetOdFilterBtn").addEventListener("click", () => {
+        document.getElementById("odSearch").value = "";
+
+        const resetDrop = (idStr) => {
+          const el = document.getElementById(idStr + "Filter");
+          if (el) { el.value = ""; el.dataset.realVal = ""; }
+          const clearEl = document.getElementById(idStr + "Clear");
+          if (clearEl) clearEl.style.display = "none";
+        };
+        resetDrop("odNv"); resetDrop("odSp"); resetDrop("odNpp");
+
+        renderFiltered();
+      });
+
+      document.getElementById("odUploadExcelBtn").addEventListener("click", () => document.getElementById("odUploadExcelInput").click());
+      document.getElementById("odUploadExcelInput").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        el.toast.textContent = "Đang xử lý file Excel...";
+        el.toast.style.background = "#ca8a04";
+        el.toast.classList.add("show");
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const data = new Uint8Array(event.target.result);
+            if (typeof XLSX === "undefined") throw new Error("Thư viện XLSX chưa tải xong, thử lại.");
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            if (!workbook.SheetNames.includes("Báo cáo")) {
+              alert("Không tìm thấy Sheet 'Báo cáo' trong file Excel.");
+              el.toast.classList.remove("show");
+              e.target.value = "";
+              return;
+            }
+
+            const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets["Báo cáo"], { header: 1 });
+            let importedCount = 0;
+            // Track new DH order headers to add (key = id_dh, value = {ngay, ncc_npp})
+            const newDhMap = {};
+
+            for (let i = 3; i < sheetData.length; i++) {
+              const row = sheetData[i];
+              if (!row || row.length === 0) continue;
+
+              const id_dh = String(row[2] || "").trim();
+              if (!id_dh) continue;
+
+              const ngay_raw = row[1];
+              let ngay_str = String(ngay_raw || "").trim();
+              if (typeof ngay_raw === "number") {
+                const excelEpoc = new Date(Math.round((ngay_raw - 25569) * 86400 * 1000));
+                ngay_str = `${excelEpoc.getUTCDate().toString().padStart(2, '0')}/${(excelEpoc.getUTCMonth() + 1).toString().padStart(2, '0')}/${excelEpoc.getUTCFullYear()}`;
+              }
+
+              const ncc_npp = String(row[7] || "").trim();
+              const id_sp = String(row[9] || "").trim();
+
+              const don_gia = Number(String(row[13] || "0").replace(/[^0-9.-]+/g, ""));
+              const slg = Number(String(row[12] || "0").replace(/[^0-9.-]+/g, ""));
+              const thanh_tien = Number(String(row[14] || "0").replace(/[^0-9.-]+/g, ""));
+
+              const newRow = {
+                id: randomId().toLowerCase() + randomId().toLowerCase().substring(0, 2),
+                id_dh: id_dh,
+                ngay: ngay_str,
+                ncc_npp: ncc_npp,
+                id_nv: "",
+                id_sp: id_sp,
+                don_gia: don_gia,
+                slg: slg,
+                thanh_tien: thanh_tien
+              };
+
+              appState.DH_CT.push(newRow);
+              importedCount++;
+
+              // Ghi nhớ đơn hàng tổng (chỉ lần đầu gặp mỗi id_dh)
+              if (!newDhMap[id_dh]) {
+                newDhMap[id_dh] = { ngay: ngay_str, ncc_npp: ncc_npp };
+              }
+            }
+
+            // Tự tạo / cập nhật đơn hàng tổng vào sheet DH (không trùng id)
+            let newDhCount = 0;
+            const existingDhIds = new Set(appState.DH.map(d => String(d.id || "").trim()));
+            for (const [id_dh, info] of Object.entries(newDhMap)) {
+              if (!existingDhIds.has(id_dh)) {
+                appState.DH.push({
+                  id: id_dh,
+                  ngay: info.ngay,
+                  ncc_npp: info.ncc_npp,
+                  id_nv: "",
+                  thanh_tien: 0
+                });
+                newDhCount++;
+              }
+            }
+
+            if (importedCount > 0) {
+              recalcState(appState);
+              await clearSheet("DH_CT");
+              await updateSheet("DH_CT", objectsToRows(appState.DH_CT, CONFIG.sheets.DH_CT));
+              await clearSheet("DH");
+              await updateSheet("DH", objectsToRows(appState.DH, CONFIG.sheets.DH));
+              syncMeta.lastLoadedAt = new Date().toLocaleString("vi-VN");
+              renderAll();
+              alert(`Import thành công: ${importedCount} dòng chi tiết, ${newDhCount} đơn hàng mới thêm vào DH.`);
+            } else {
+              alert("Import thất bại: Không có dữ liệu hợp lệ.");
+            }
+          } catch (error) {
+            console.error(error);
+            alert("Lỗi xử lý Excel: " + error.message);
+          } finally {
+            el.toast.classList.remove("show");
+            e.target.value = "";
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      renderFiltered();
+    }
+
+    function openOrderDetailViewDrawer(detailId) {
+      const item = appState.DH_CT.find(r => r.id === detailId);
+      if (!item) return;
+
+      const spMap = {}; appState.DS_SP.forEach(sp => spMap[sp.id] = sp.ten_sp);
+      const khMap = {}; appState.KHACH_HANG.forEach(kh => khMap[kh.id] = kh.ten_kh);
+      const nvMap = {}; (window.usersData || []).forEach(u => nvMap[u.id] = u.ho_ten);
+
+      const spName = spMap[item.id_sp] || "";
+      const khName = khMap[item.ncc_npp] || item.ncc_npp;
+      const nvName = nvMap[item.id_nv] || item.id_nv;
+
+      openDrawer("Thông tin Chi tiết Đơn hàng", "Xem thông tin chi tiết từng sản phẩm được bán ra.", `
+        <div style="display:flex; flex-direction:column; gap:10px;">
+           <div class="field"><label>ID Chi tiết</label><input value="${safeText(item.id)}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>ID Đơn hàng</label><input value="${safeText(item.id_dh)}" readonly style="background:var(--brand-soft); color:var(--brand); font-weight:600"/></div>
+           <div class="field"><label>Ngày</label><input value="${safeText(formatDateVi(item.ngay))}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>Nhà phân phối (Khách hàng)</label><input value="${safeText(khName)}" readonly style="background:var(--soft)"/></div>
+           <div class="field"><label>Nhân viên</label><input value="${safeText(nvName)}" readonly style="background:var(--soft)"/></div>
+           
+           <hr style="border:0; border-top:1px dashed var(--line); margin: 8px 0" />
+           
+           <div class="field"><label>Sản phẩm</label><input value="${safeText(spName ? `${item.id_sp} - ${spName}` : item.id_sp)}" readonly style="background:var(--soft); font-weight:600"/></div>
+           
+           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px">
+             <div class="field"><label>Đơn giá</label><input value="${money(item.don_gia)}" readonly style="background:var(--soft)"/></div>
+             <div class="field"><label>Số lượng</label><input value="${safeText(item.slg)}" readonly style="background:var(--soft)"/></div>
+           </div>
+           
+           <div class="field full"><label>Thành tiền</label><input value="${money(item.thanh_tien)}" readonly style="background:#f0fdf4; font-weight:800; color:#16a34a; font-size:18px"/></div>
+        </div>
+      `);
+    }
+
     function renderKpi() {
       document.getElementById("kpi").innerHTML = `
         <div class="card panel">
@@ -2154,6 +2641,7 @@
       renderCustomers();
       renderProducts();
       renderOrders();
+      renderOrderDetails();
       renderDebts();
       renderKpi();
       renderSync();
@@ -2233,6 +2721,11 @@
       bindStaticEvents();
       updateClock();
       setInterval(updateClock, 1000);
+      setInterval(async () => {
+        if (document.getElementById("drawerBackdrop")?.classList.contains("open") ||
+          document.getElementById("modalBackdrop")?.classList.contains("open")) return;
+        try { await loadBusinessDataFromSheets(); } catch (e) { }
+      }, 180000); // Tự động load 3 phút / lần
       loadCachedState();
       renderAll();
       try {
