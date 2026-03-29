@@ -2944,6 +2944,15 @@
         return matchMonth && matchNv;
       });
 
+      const formatThangKpi = (val) => {
+        if (!val) return "";
+        if (val.includes("-")) {
+           const p = val.split("-");
+           if (p.length === 2) return `${p[1]}/${p[0]}`;
+        }
+        return val;
+      };
+
       container.innerHTML = `
         <div class="section-shell">
           <div class="section-header">
@@ -2965,11 +2974,10 @@
           
           <div class="panel">
             <div class="table-wrap" style="max-height: calc(100vh - 280px); overflow: auto;">
-              <table style="min-width: 1500px; border-collapse: separate; border-spacing: 0;">
+              <table style="min-width: 1400px; border-collapse: separate; border-spacing: 0;">
                 <thead style="position: sticky; top: 0; z-index: 10; background: #f8fafc; box-shadow: 0 1px 0 var(--line);">
                   <tr>
-                    <th style="width: 80px">ID</th>
-                    <th style="width: 100px">THÁNG</th>
+                    <th style="width: 120px">THÁNG</th>
                     <th style="width: 120px">ID NV</th>
                     <th style="text-align: right">DOANH SỐ CHÍNH</th>
                     <th style="text-align: right">DOANH SỐ THƯỞNG</th>
@@ -2984,8 +2992,7 @@
                 <tbody>
                   ${filtered.length ? filtered.map(item => `
                     <tr>
-                      <td class="mono">${safeText(item.id)}</td>
-                      <td>${safeText(item.thang)}</td>
+                      <td style="font-weight:600">${safeText(formatThangKpi(item.thang))}</td>
                       <td class="mono" style="font-weight:600; color:var(--brand)">${safeText(item.id_nv)}</td>
                       <td style="text-align: right">${money(item.ds_chinh)}</td>
                       <td style="text-align: right">${money(item.ds_thuong)}</td>
@@ -2996,7 +3003,7 @@
                       <td style="text-align: right">${money(item.tong_tien_thuong)}</td>
                       <td style="text-align: right; font-weight:800; color:#16a34a; background: #f0fdf4;">${money(item.tong_tien_thuong_thuc)}</td>
                     </tr>
-                  `).join("") : '<tr><td colspan="11" class="empty">Không tìm thấy dữ liệu KPI phù hợp.</td></tr>'}
+                  `).join("") : '<tr><td colspan="10" class="empty">Không tìm thấy dữ liệu KPI phù hợp.</td></tr>'}
                 </tbody>
               </table>
             </div>
