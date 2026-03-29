@@ -1101,7 +1101,7 @@
         DS_SP: ["id", "ten_sp", "model", "ncc", "gia_ban"],
         DH: ["id", "ngay", "npp", "id_nv", "thanh_tien"],
         DH_CT: ["id", "id_dh", "ngay", "npp", "id_nv", "id_sp", "don_gia", "slg", "thanh_tien", "ncc"],
-        KPI: ["id", "id_nv", "doanh_thu"],
+        KPI: ["id", "thang", "id_nv", "ds_chinh", "ds_thuong", "tien_thuong_ds_chinh", "tien_thuong_ds_thuong", "tien_thuong_ds", "ti_le_thu_con_no", "tong_tien_thuong", "tong_tien_thuong_thuc"],
         CONG_NO: ["id", "ngay", "id_khach_hang", "id_dh", "thu_chi", "so_tien", "cong_no", "id_nv"]
       }
     };
@@ -1112,7 +1112,8 @@
       { id: "order_details", label: "Đơn hàng Chi tiết", subtitle: "KINH DOANH", icon: "file", color: "#0ea5e9" },
       { id: "products", label: "Danh sách Sản phẩm", subtitle: "KINH DOANH", icon: "box", color: "#8f53ff" },
       { id: "customers", label: "Khách hàng", subtitle: "KINH DOANH", icon: "users", color: "#00b894" },
-      { id: "debts", label: "Công nợ", subtitle: "KINH DOANH", icon: "coin", color: "#ff4d6d" }
+      { id: "debts", label: "Công nợ", subtitle: "KINH DOANH", icon: "coin", color: "#ff4d6d" },
+      { id: "kpi", label: "KPI", subtitle: "KINH DOANH", icon: "chart", color: "#f59e0b" }
     ];
     const DEFAULT_STATE = { KHACH_HANG: [], DS_SP: [], DH: [], DH_CT: [], KPI: [], CONG_NO: [] };
     let accessToken = "", tokenExpiry = 0, usersData = [], currentUser = null, activeTab = "dashboard";
@@ -1264,9 +1265,6 @@
           .reduce((sum, row) => sum + Number(row.thanh_tien || (Number(row.don_gia || 0) * Number(row.slg || 1))), 0);
         return { id: order.id || randomId("DH"), ngay: order.ngay || todayInput(), npp: order.npp || "", id_nv: order.id_nv || "", thanh_tien: thanhTien };
       });
-      const revenueByStaff = {};
-      state.DH.forEach((order) => { if (order.id_nv) revenueByStaff[order.id_nv] = (revenueByStaff[order.id_nv] || 0) + Number(order.thanh_tien || 0); });
-      state.KPI = Object.entries(revenueByStaff).map(([id_nv, doanh_thu], index) => ({ id: "KPI" + String(index + 1).padStart(3, "0"), id_nv, doanh_thu }));
       state.CONG_NO = state.CONG_NO.map((row) => {
         return { id: row.id || randomId("CN"), ngay: row.ngay || todayInput(), id_khach_hang: row.id_khach_hang || "", id_dh: row.id_dh || "", thu_chi: row.thu_chi === "thu" ? "thu" : "chi", so_tien: Number(row.so_tien || 0), cong_no: Number(row.cong_no || 0), id_nv: row.id_nv || "" };
       });
@@ -2934,14 +2932,96 @@
     }
 
     function renderKpi() {
-      document.getElementById("kpi").innerHTML = `
-        <div class="card panel">
-          <h2>KPI theo nhân viên</h2>
-          <p class="subtle">Sheet KPI được tính tự động từ tổng thanh_tien của bảng DH, cấu trúc: id, id_nv, doanh_thu.</p>
-          <div class="table-wrap"><table><thead><tr><th>ID</th><th>ID NV</th><th>Doanh thu</th></tr></thead><tbody>
-            ${appState.KPI.length ? appState.KPI.map((item) => `<tr><td class="mono">${safeText(item.id)}</td><td>${safeText(item.id_nv)}</td><td>${money(item.doanh_thu)}</td></tr>`).join("") : '<tr><td colspan="3" class="empty">Chưa có KPI.</td></tr>'}
-          </tbody></table></div>
-        </div>`;
+      const container = document.getElementById("kpi");
+      
+      // Khởi tạo giá trị lọc nếu chưa có
+      if (window.kpiFilterMonth === undefined) window.kpiFilterMonth = "";
+      if (window.kpiFilterNv === undefined) window.kpiFilterNv = "";
+
+      const filtered = appState.KPI.filter(item => {
+        const matchMonth = !window.kpiFilterMonth || String(item.thang).includes(window.kpiFilterMonth);
+        const matchNv = !window.kpiFilterNv || String(item.id_nv).toLowerCase().includes(window.kpiFilterNv.toLowerCase());
+        return matchMonth && matchNv;
+      });
+
+      container.innerHTML = `
+        <div class="section-shell">
+          <div class="section-header">
+            <div class="section-title"><span class="title-dot"></span><span>QUẢN LÝ KPI NHÂN VIÊN</span></div>
+            <div class="section-actions">
+               <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                  <div class="filter-group" style="display:flex; align-items:center; background:#fff; border:1px solid var(--line); border-radius:8px; padding:0 10px; height:38px;">
+                     <label style="font-size:12px; color:var(--muted); font-weight:600; margin-right:8px;">THÁNG:</label>
+                     <input type="month" id="kpiMonthFilter" value="${window.kpiFilterMonth}" style="border:none; outline:none; font-size:13px; background:transparent;">
+                  </div>
+                  <div class="filter-group" style="display:flex; align-items:center; background:#fff; border:1px solid var(--line); border-radius:8px; padding:0 10px; height:38px;">
+                     <label style="font-size:12px; color:var(--muted); font-weight:600; margin-right:8px;">MÃ NV:</label>
+                     <input type="text" id="kpiNvFilter" value="${window.kpiFilterNv}" placeholder="Tìm mã NV..." style="border:none; outline:none; font-size:13px; width:100px; background:transparent;">
+                  </div>
+                  <button class="btn btn-secondary" id="kpiResetBtn" title="Xóa bộ lọc" style="height:38px">Xóa lọc</button>
+               </div>
+            </div>
+          </div>
+          
+          <div class="panel">
+            <div class="table-wrap" style="max-height: calc(100vh - 280px); overflow: auto;">
+              <table style="min-width: 1500px; border-collapse: separate; border-spacing: 0;">
+                <thead style="position: sticky; top: 0; z-index: 10; background: #f8fafc; box-shadow: 0 1px 0 var(--line);">
+                  <tr>
+                    <th style="width: 80px">ID</th>
+                    <th style="width: 100px">THÁNG</th>
+                    <th style="width: 120px">ID NV</th>
+                    <th style="text-align: right">DOANH SỐ CHÍNH</th>
+                    <th style="text-align: right">DOANH SỐ THƯỞNG</th>
+                    <th style="text-align: right">THƯỞNG DS CHÍNH</th>
+                    <th style="text-align: right">THƯỞNG DS THƯỞNG</th>
+                    <th style="text-align: right">TIỀN THƯỞNG DS</th>
+                    <th style="text-align: right; width: 120px">TỈ LỆ THU NỢ (%)</th>
+                    <th style="text-align: right">TỔNG THƯỞNG</th>
+                    <th style="text-align: right; background: #f0fdf4; font-weight: 700;">TỔNG THỰC NHẬN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${filtered.length ? filtered.map(item => `
+                    <tr>
+                      <td class="mono">${safeText(item.id)}</td>
+                      <td>${safeText(item.thang)}</td>
+                      <td class="mono" style="font-weight:600; color:var(--brand)">${safeText(item.id_nv)}</td>
+                      <td style="text-align: right">${money(item.ds_chinh)}</td>
+                      <td style="text-align: right">${money(item.ds_thuong)}</td>
+                      <td style="text-align: right">${money(item.tien_thuong_ds_chinh)}</td>
+                      <td style="text-align: right">${money(item.tien_thuong_ds_thuong)}</td>
+                      <td style="text-align: right">${money(item.tien_thuong_ds)}</td>
+                      <td style="text-align: right; font-weight:700; color:#0ea5e9">${Number(item.ti_le_thu_con_no || 0).toLocaleString("vi-VN")}%</td>
+                      <td style="text-align: right">${money(item.tong_tien_thuong)}</td>
+                      <td style="text-align: right; font-weight:800; color:#16a34a; background: #f0fdf4;">${money(item.tong_tien_thuong_thuc)}</td>
+                    </tr>
+                  `).join("") : '<tr><td colspan="11" class="empty">Không tìm thấy dữ liệu KPI phù hợp.</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top: 12px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; align-items: center;">
+              <span>Hiển thị <strong>${filtered.length}</strong> dòng kết quả.</span>
+              <span style="font-style: italic;">* Dữ liệu được đọc trực tiếp từ Google Sheets (Sheet KPI)</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Event listeners
+      document.getElementById("kpiMonthFilter").addEventListener("change", (e) => {
+        window.kpiFilterMonth = e.target.value;
+        renderKpi();
+      });
+      document.getElementById("kpiNvFilter").addEventListener("input", (e) => {
+        window.kpiFilterNv = e.target.value;
+        renderKpi();
+      });
+      document.getElementById("kpiResetBtn").addEventListener("click", () => {
+        window.kpiFilterMonth = "";
+        window.kpiFilterNv = "";
+        renderKpi();
+      });
     }
 
     function renderSync() {
