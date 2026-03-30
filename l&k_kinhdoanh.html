@@ -3865,6 +3865,35 @@
       // 5. Sắp xếp theo Doanh thu giảm dần
       rows.sort((a, b) => b.doanh_thu - a.doanh_thu);
 
+      // 5.1 Tính Tổng doanh thu theo lọc
+      const ds_loc = rows.reduce((sum, r) => sum + r.doanh_thu, 0);
+
+      // 5.2 Tính Tổng hợp theo Nhân viên (Dựa trên danh sách đã lọc)
+      const nv_map = {};
+      rows.forEach(r => {
+        const nv = r.nv_quan_ly || "Chưa phân công";
+        if (!nv_map[nv]) nv_map[nv] = { nv, ds: 0, tt_tong: 0, kpi: 0, kpi_thang: 0 };
+        nv_map[nv].ds += r.doanh_thu;
+        nv_map[nv].tt_tong += r.ti_trong;
+        nv_map[nv].kpi += r.kpi_2026;
+        nv_map[nv].kpi_thang += r.kpi_thang_2026;
+      });
+
+      const nv_summary = Object.values(nv_map).map(s => {
+        const ds_con_thieu = s.kpi - s.ds;
+        return {
+          ...s,
+          ds_con_thieu
+        };
+      }).sort((a, b) => b.ds - a.ds);
+
+      // 5.3 Tính Tổng cộng của tất cả dựa trên lọc
+      const tong_ds_loc = rows.reduce((sum, r) => sum + r.doanh_thu, 0);
+      const tong_kpi_loc = rows.reduce((sum, r) => sum + r.kpi_2026, 0);
+      const ty_le_dat_tong = tong_kpi_loc > 0 ? (tong_ds_loc / tong_kpi_loc) : 0;
+      const ty_le_con_tong = 1 - ty_le_dat_tong;
+      const tong_thieu_loc = tong_kpi_loc - tong_ds_loc;
+
       // 6. Render HTML
       container.innerHTML = `
         <style>
@@ -3876,6 +3905,9 @@
           .ti-trong-item:last-child { border-bottom:none; }
           .ti-trong-item:hover { background:var(--brand-soft); }
           .ti-trong-item b { color:var(--brand); font-family:var(--mono); font-size:12px; }
+          .summary-card-wrap { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:20px; }
+          .summary-card-inner { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+          .summary-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         </style>
         <div class="section-shell">
           <div class="section-header">
@@ -3906,18 +3938,68 @@
           </div>
 
           <div class="panel">
-            <div style="margin-bottom:16px; display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+            <!-- TỔNG HỢP CARDS TẤT CẢ -->
+            <div class="summary-card-wrap">
               <div class="card" style="padding:16px; background:#f0f9ff; border:1px solid #bae6fd;">
-                <small style="color:#0369a1; font-weight:700; text-transform:uppercase;">Tổng Doanh thu Công ty (Lock&king + Takin)</small>
-                <strong style="display:block; font-size:24px; margin-top:4px; color:#0284c7;">${money(ds_tong)}</strong>
+                <small style="color:#0369a1; font-weight:700; text-transform:uppercase; font-size:11px;">Tổng DT Công ty (Lock&king + Takin)</small>
+                <strong style="display:block; font-size:20px; margin-top:4px; color:#0284c7;">${money(ds_tong)}</strong>
+              </div>
+              <div class="card" style="padding:16px; background:#f0fdf4; border:1px solid #bbf7d0;">
+                <small style="color:#16a34a; font-weight:700; text-transform:uppercase; font-size:11px;">Tổng Doanh thu theo lọc</small>
+                <strong style="display:block; font-size:20px; margin-top:4px; color:#16a34a;">${money(tong_ds_loc)}</strong>
+              </div>
+              <div class="card" style="padding:16px; background:#fff7ed; border:1px solid #fed7aa;">
+                <small style="color:#c2410c; font-weight:700; text-transform:uppercase; font-size:11px;">Tỉ lệ đạt của tất cả (%)</small>
+                <strong style="display:block; font-size:20px; margin-top:4px; color:#ea580c;">${(ty_le_dat_tong * 100).toFixed(1)}%</strong>
+              </div>
+              <div class="card" style="padding:16px; background:#faf5ff; border:1px solid #e9d5ff;">
+                <small style="color:#7e22ce; font-weight:700; text-transform:uppercase; font-size:11px;">Tỉ lệ còn lại (Tất cả)</small>
+                <strong style="display:block; font-size:20px; margin-top:4px; color:#9333ea;">${(Math.max(0, ty_le_con_tong) * 100).toFixed(1)}%</strong>
+              </div>
+              <div class="card" style="padding:16px; background:#fff1f2; border:1px solid #fecdd3;">
+                <small style="color:#be123c; font-weight:700; text-transform:uppercase; font-size:11px;">Tổng DT còn thiếu</small>
+                <strong style="display:block; font-size:20px; margin-top:4px; color:#e11d48;">${money(tong_thieu_loc)}</strong>
               </div>
             </div>
 
-            <div style="background:#fff7ed; border:1px solid #ffedd5; padding:10px 14px; border-radius:10px; font-size:12px; color:#9a3412; margin-bottom:16px;">
+            <div style="background:#fff7ed; border:1px solid #ffedd5; padding:10px 14px; border-radius:10px; font-size:12px; color:#9a3412; margin-bottom:20px;">
               <strong>Điều kiện tính toán:</strong> Chỉ tính doanh thu của các đơn hàng có Nhà cung cấp (NCC) là <strong>Lock&king</strong> hoặc <strong>Takin</strong>.
             </div>
 
-            <div class="table-wrap" style="max-height:calc(100vh - 360px); overflow:auto;">
+            <!-- BẢNG TỔNG HỢP THEO NHÂN VIÊN -->
+            <div class="summary-card-inner" style="margin-bottom:24px;">
+              <div class="summary-title"><div style="width:4px;height:14px;background:#6366f1;border-radius:2px;"></div>TỔNG HỢP THEO NHÂN VIÊN (KPI 2026)</div>
+              <div class="table-wrap">
+                <table style="font-size:12px; border-collapse: collapse;">
+                  <thead>
+                    <tr style="background:#f8fafc; border-bottom: 2px solid var(--line);">
+                      <th style="padding:10px 8px;">NHÂN VIÊN QUẢN LÝ</th>
+                      <th style="text-align:right; padding:10px 8px;">DOANH THU ĐẠT</th>
+                      <th style="text-align:right; padding:10px 8px;">TỈ TRỌNG KPI (%)</th>
+                      <th style="text-align:right; padding:10px 8px;">KPI NĂM 2026</th>
+                      <th style="text-align:right; padding:10px 8px;">KPI TB THÁNG</th>
+                      <th style="text-align:right; padding:10px 8px; color:#ef4444;">D.THU CÒN THIẾU</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${nv_summary.map(s => `
+                      <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="font-weight:700; color:#475569; padding:10px 8px;">${safeText(s.nv)}</td>
+                        <td style="text-align:right; font-weight:600; padding:10px 8px;">${money(s.ds)}</td>
+                        <td style="text-align:right; color:#6366f1; font-weight:700; padding:10px 8px;">${(s.tt_tong * 100).toFixed(2)}%</td>
+                        <td style="text-align:right; font-weight:600; padding:10px 8px;">${money(s.kpi)}</td>
+                        <td style="text-align:right; font-weight:600; padding:10px 8px;">${money(s.kpi_thang)}</td>
+                        <td style="text-align:right; color:${s.ds_con_thieu > 0 ? '#ef4444' : '#16a34a'}; font-weight:700; padding:10px 8px;">${money(s.ds_con_thieu)}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- BẢNG CHI TIẾT KHÁCH HÀNG -->
+            <div class="summary-title" style="margin-left:4px;"><div style="width:4px;height:14px;background:#00b894;border-radius:2px;"></div>CHI TIẾT THEO KHÁCH HÀNG</div>
+            <div class="table-wrap" style="max-height:calc(100vh - 450px); overflow:auto;">
               <table style="min-width:1200px; border-collapse:separate; border-spacing:0;">
                 <thead style="position:sticky; top:0; z-index:10; background:#f8fafc; box-shadow:0 1px 0 var(--line);">
                   <tr>
