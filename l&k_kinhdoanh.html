@@ -3945,11 +3945,11 @@
                 <strong style="display:block; font-size:20px; margin-top:4px; color:#16a34a;">${money(tong_ds_loc)}</strong>
               </div>
               <div class="card" style="padding:16px; background:#fff7ed; border:1px solid #fed7aa;">
-                <small style="color:#c2410c; font-weight:700; text-transform:uppercase; font-size:11px;">Tỉ lệ đạt của tất cả (%)</small>
+                <small style="color:#c2410c; font-weight:700; text-transform:uppercase; font-size:11px;">Tỉ lệ đạt</small>
                 <strong style="display:block; font-size:20px; margin-top:4px; color:#ea580c;">${(ty_le_dat_tong * 100).toFixed(1)}%</strong>
               </div>
               <div class="card" style="padding:16px; background:#faf5ff; border:1px solid #e9d5ff;">
-                <small style="color:#7e22ce; font-weight:700; text-transform:uppercase; font-size:11px;">Tỉ lệ còn lại (Tất cả)</small>
+                <small style="color:#7e22ce; font-weight:700; text-transform:uppercase; font-size:11px;">Tỉ lệ còn lại</small>
                 <strong style="display:block; font-size:20px; margin-top:4px; color:#9333ea;">${(Math.max(0, ty_le_con_tong) * 100).toFixed(1)}%</strong>
               </div>
               <div class="card" style="padding:16px; background:#fff1f2; border:1px solid #fecdd3;">
@@ -4036,7 +4036,7 @@
 
       const renderKhList = (query) => {
         const q = (query || "").toLowerCase().trim();
-        const matches = appState.KHACH_HANG.filter(kh => 
+        const matches = appState.KHACH_HANG.filter(kh =>
           (`${kh.id} ${kh.ten_kh}`).toLowerCase().includes(q)
         ).slice(0, 50); // Giới hạn 50 gợi ý
 
@@ -4048,7 +4048,7 @@
         `).join("");
 
         if (!matches.length) khMenu.innerHTML = '<div style="padding:10px; color:#aaa; font-size:12px">Không tìm thấy khách hàng.</div>';
-        
+
         khMenu.querySelectorAll('.ti-trong-item').forEach(el => {
           el.onclick = () => {
             window.tiTrongFilterKh = el.dataset.id;
@@ -4066,13 +4066,13 @@
         renderKhList(e.target.value);
         khMenu.classList.add("show");
         if (!e.target.value) {
-            window.tiTrongFilterKh = "";
-            window.tiTrongFilterKhText = "";
-            khClear.style.display = "none";
-            renderTiTrong();
+          window.tiTrongFilterKh = "";
+          window.tiTrongFilterKhText = "";
+          khClear.style.display = "none";
+          renderTiTrong();
         }
       });
-      
+
       khClear.addEventListener("click", () => {
         window.tiTrongFilterKh = "";
         window.tiTrongFilterKhText = "";
