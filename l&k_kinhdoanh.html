@@ -1141,6 +1141,7 @@
         <section id="debts" class="section"></section>
         <section id="kpi" class="section"></section>
         <section id="thuong" class="section"></section>
+        <section id="ti_trong" class="section"></section>
         <section id="sync" class="section"></section>
       </main>
     </div>
@@ -1184,7 +1185,7 @@
       tokenUrl: "https://oauth2.googleapis.com/token",
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
       sheets: {
-        KHACH_HANG: ["id", "ten_kh", "dien_thoai", "email", "dia_chi", "ngay_cap_nhat", "nv_quan_ly"],
+        KHACH_HANG: ["id", "ten_kh", "dien_thoai", "email", "dia_chi", "ngay_cap_nhat", "nv_quan_ly", "kenh", "tt"],
         DS_SP: ["id", "ten_sp", "model", "ncc", "gia_ban"],
         DH: ["id", "ngay", "npp", "id_nv", "thanh_tien"],
         DH_CT: ["id", "id_dh", "ngay", "npp", "id_nv", "id_sp", "don_gia", "slg", "thanh_tien", "ncc", "sp_chinh_thuong"],
@@ -1202,7 +1203,8 @@
       { id: "customers", label: "Khách hàng", subtitle: "KINH DOANH", icon: "users", color: "#00b894" },
       { id: "debts", label: "Công nợ", subtitle: "KINH DOANH", icon: "coin", color: "#ff4d6d" },
       { id: "kpi", label: "KPI", subtitle: "KINH DOANH", icon: "chart", color: "#f59e0b" },
-      { id: "thuong", label: "Thưởng Nhân Viên", subtitle: "KINH DOANH", icon: "gift", color: "#e11d48" }
+      { id: "thuong", label: "Thưởng Nhân Viên", subtitle: "KINH DOANH", icon: "gift", color: "#e11d48" },
+      { id: "ti_trong", label: "TỈ TRỌNG", subtitle: "KINH DOANH", icon: "chart", color: "#6366f1" }
     ];
     const DEFAULT_STATE = { KHACH_HANG: [], DS_SP: [], DH: [], DH_CT: [], KPI: [], CONG_NO: [], DK_THUONG: [] };
     const STAFF_SCOPED_SHEETS = ["DH", "DH_CT", "CONG_NO", "KPI"];
@@ -2130,7 +2132,7 @@
              .dropdown-item { padding:8px 12px; cursor:pointer; font-size:13px; white-space:nowrap; }
              .dropdown-item:hover { background:var(--brand-soft); }
           </style>
-          <table><thead><tr><th>ID</th><th>Tên KH</th><th>Điện thoại</th><th>Email</th><th>NV quản lý</th><th>Tiền bán hàng</th><th>Tiền thu nợ</th><th>Công nợ</th><th>Trạng thái</th></tr></thead>
+          <table><thead><tr><th>ID</th><th>Tên KH</th><th>Điện thoại</th><th>Email</th><th>NV quản lý</th><th title="KÊNH">KÊNH</th><th title="Tỷ trọng mục tiêu">TT</th><th>Tiền bán hàng</th><th>Tiền thu nợ</th><th>Công nợ</th><th>Trạng thái</th></tr></thead>
           <tbody id="custTableBody"></tbody></table></div></div>`;
 
       const tbody = document.getElementById("custTableBody");
@@ -2151,7 +2153,7 @@
           const { banHang, thuNo, congNo } = item._stats;
           const highDebt = congNo > 10000000;
           const badge = congNo === 0 ? '<span class="badge-status bs-paid">Đã TT</span>' : congNo > 0 ? '<span class="badge-status bs-owe">Còn nợ</span>' : '<span class="badge-status bs-credit">Dư tiền</span>';
-          return `<tr data-action="view-customer" data-id="${safeText(item.id)}" class="${highDebt ? 'row-debt-high' : ''}" style="cursor:pointer" onclick="openCustomerDrawer('${safeText(item.id)}')"><td class="mono">${safeText(item.id)}</td><td style="${highDebt ? 'color:#dc2626;font-weight:700' : ''}">${safeText(item.ten_kh)}</td><td>${safeText(item.dien_thoai || "")}</td><td>${safeText(item.email || "")}</td><td>${safeText(item.nv_quan_ly || "")}</td><td>${money(banHang)}</td><td>${money(thuNo)}</td><td><strong style="color:${congNo > 0 ? '#ef4444' : congNo < 0 ? '#0284c7' : '#16a34a'}">${money(congNo)}</strong></td><td>${badge}</td></tr>`;
+          return `<tr data-action="view-customer" data-id="${safeText(item.id)}" class="${highDebt ? 'row-debt-high' : ''}" style="cursor:pointer" onclick="openCustomerDrawer('${safeText(item.id)}')"><td class="mono">${safeText(item.id)}</td><td style="${highDebt ? 'color:#dc2626;font-weight:700' : ''}">${safeText(item.ten_kh)}</td><td>${safeText(item.dien_thoai || "")}</td><td>${safeText(item.email || "")}</td><td>${safeText(item.nv_quan_ly || "")}</td><td style="font-weight:600">${safeText(item.kenh || "")}</td><td style="font-weight:600; text-align:center">${safeText(item.tt || "")}</td><td>${money(banHang)}</td><td>${money(thuNo)}</td><td><strong style="color:${congNo > 0 ? '#ef4444' : congNo < 0 ? '#0284c7' : '#16a34a'}">${money(congNo)}</strong></td><td>${badge}</td></tr>`;
         }).join("");
       };
 
@@ -2217,6 +2219,8 @@
             <div class="field"><label>Điện thoại</label><input value="${safeText(item.dien_thoai || "")}" readonly style="background:var(--soft)"/></div>
             <div class="field"><label>Email</label><input value="${safeText(item.email || "")}" readonly style="background:var(--soft)"/></div>
             <div class="field"><label>NV quản lý</label><input value="${safeText(item.nv_quan_ly || "")}" readonly style="background:var(--soft)"/></div>
+            <div class="field"><label>Kênh</label><input value="${safeText(item.kenh || "")}" readonly style="background:var(--soft)"/></div>
+            <div class="field"><label>TT (Tỉ trọng mục tiêu)</label><input value="${safeText(item.tt || "")}" readonly style="background:var(--soft)"/></div>
             <div class="field full"><label>Địa chỉ</label><textarea readonly style="background:var(--soft); min-height:60px;">${safeText(item.dia_chi || "")}</textarea></div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
@@ -3802,7 +3806,219 @@
       document.getElementById("thuongNvFilter").addEventListener("change", e => { window.thuongFilterNv = e.target.value; renderThuong(); });
       document.getElementById("thuongResetBtn").addEventListener("click", () => { window.thuongFilterMonth = ""; window.thuongFilterNv = ""; renderThuong(); });
     }
-    // ===== END MODULE THƯỞNG =====
+    function renderTiTrong() {
+      const container = document.getElementById("ti_trong");
+      if (!container) return;
+
+      const isAllowedNcc = (ncc) => {
+        const n = String(ncc || "").trim().toLowerCase();
+        return n === "lock&king" || n === "takin";
+      };
+
+      // 1. Tính Doanh thu toàn công ty (Chỉ Lock&king và Takin)
+      const ds_tong = appState.DH_CT
+        .filter(row => isAllowedNcc(row.ncc))
+        .reduce((sum, row) => sum + Number(row.thanh_tien || 0), 0);
+
+      // 2. Tính Doanh thu từng khách hàng (Chỉ Lock&king và Takin)
+      const ds_kh_map = {};
+      appState.DH_CT
+        .filter(row => isAllowedNcc(row.ncc))
+        .forEach(row => {
+          const npp = String(row.npp || "").trim();
+          if (!npp) return;
+          ds_kh_map[npp] = (ds_kh_map[npp] || 0) + Number(row.thanh_tien || 0);
+        });
+
+      // 3. Lấy danh sách unique cho filter
+      const uniqueNvs = [...new Set(appState.KHACH_HANG.map(kh => kh.nv_quan_ly).filter(Boolean))].sort();
+      const uniqueKenhs = [...new Set(appState.KHACH_HANG.map(kh => kh.kenh).filter(Boolean))].sort();
+
+      // 4. Chuẩn bị dữ liệu hiển thị (có lọc)
+      let rows = appState.KHACH_HANG.map(kh => {
+        const doanh_thu = ds_kh_map[kh.id] || 0;
+        const ti_trong = ds_tong > 0 ? (doanh_thu / ds_tong) : 0;
+        const tt_value = parseLooseNumber(kh.tt);
+        const kpi_2026 = Math.round(ti_trong * tt_value);
+        const kpi_thang_2026 = Math.round(kpi_2026 / 12);
+
+        return {
+          id: kh.id,
+          ten_kh: kh.ten_kh,
+          nv_quan_ly: kh.nv_quan_ly,
+          kenh: kh.kenh,
+          doanh_thu,
+          ti_trong,
+          kpi_2026,
+          kpi_thang_2026
+        };
+      });
+
+      // Áp dụng bộ lọc
+      rows = rows.filter(r => {
+        if (window.tiTrongFilterKh && !(`${r.id} ${r.ten_kh}`).toLowerCase().includes(window.tiTrongFilterKh.toLowerCase())) return false;
+        if (window.tiTrongFilterNv && r.nv_quan_ly !== window.tiTrongFilterNv) return false;
+        if (window.tiTrongFilterKenh && r.kenh !== window.tiTrongFilterKenh) return false;
+        return true;
+      });
+
+      // 5. Sắp xếp theo Doanh thu giảm dần
+      rows.sort((a, b) => b.doanh_thu - a.doanh_thu);
+
+      // 6. Render HTML
+      container.innerHTML = `
+        <style>
+          .ti-trong-dropdown { position:relative; min-width:180px; }
+          .ti-trong-dropdown input { width:100%; border:none; outline:none; font-size:13px; background:transparent; padding:0; height:100%; }
+          .ti-trong-menu { position:absolute; top:calc(100% + 8px); left:-10px; right:-10px; background:#fff; border:1px solid var(--line); border-radius:8px; overflow-y:auto; z-index:1000; display:none; box-shadow:0 8px 24px rgba(0,0,0,0.12); max-height:280px; }
+          .ti-trong-menu.show { display:block; }
+          .ti-trong-item { padding:10px 14px; cursor:pointer; font-size:13px; border-bottom:1px solid #f1f5f9; transition:background 0.1s; display:flex; flex-direction:column; gap:2px; }
+          .ti-trong-item:last-child { border-bottom:none; }
+          .ti-trong-item:hover { background:var(--brand-soft); }
+          .ti-trong-item b { color:var(--brand); font-family:var(--mono); font-size:12px; }
+        </style>
+        <div class="section-shell">
+          <div class="section-header">
+            <div class="section-title"><span class="title-dot"></span><span>PHÂN TÍCH TỈ TRỌNG DOANH THU</span></div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <div class="ti-trong-dropdown" id="tiTrongKhBox" style="display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:0 10px;height:38px; min-width:200px;">
+                <label style="font-size:12px;color:var(--muted);font-weight:600;margin-right:8px;">KHÁCH HÀNG:</label>
+                <input type="text" id="tiTrongKhFilter" placeholder="Gõ để tìm..." value="${safeText(window.tiTrongFilterKhText || "")}" autocomplete="off" />
+                <span id="tiTrongKhClear" style="font-size:16px; cursor:pointer; color:#999; margin-left:5px; display:${window.tiTrongFilterKh ? 'block' : 'none'};">&times;</span>
+                <div class="ti-trong-menu" id="tiTrongKhMenu"></div>
+              </div>
+              <div style="display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:0 10px;height:38px;">
+                <label style="font-size:12px;color:var(--muted);font-weight:600;margin-right:8px;">NV QUẢN LÝ:</label>
+                <select id="tiTrongNvFilter" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer;min-width:110px;">
+                  <option value="">Tất cả</option>
+                  ${uniqueNvs.map(nv => `<option value="${safeText(nv)}" ${window.tiTrongFilterNv === nv ? 'selected' : ''}>${safeText(nv)}</option>`).join("")}
+                </select>
+              </div>
+              <div style="display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:0 10px;height:38px;">
+                <label style="font-size:12px;color:var(--muted);font-weight:600;margin-right:8px;">KÊNH:</label>
+                <select id="tiTrongKenhFilter" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer;min-width:90px;">
+                  <option value="">Tất cả</option>
+                  ${uniqueKenhs.map(k => `<option value="${safeText(k)}" ${window.tiTrongFilterKenh === k ? 'selected' : ''}>${safeText(k)}</option>`).join("")}
+                </select>
+              </div>
+              <button class="btn btn-secondary" id="tiTrongResetBtn" style="height:38px;">Xóa lọc</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div style="margin-bottom:16px; display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+              <div class="card" style="padding:16px; background:#f0f9ff; border:1px solid #bae6fd;">
+                <small style="color:#0369a1; font-weight:700; text-transform:uppercase;">Tổng Doanh thu Công ty (Lock&king + Takin)</small>
+                <strong style="display:block; font-size:24px; margin-top:4px; color:#0284c7;">${money(ds_tong)}</strong>
+              </div>
+            </div>
+
+            <div style="background:#fff7ed; border:1px solid #ffedd5; padding:10px 14px; border-radius:10px; font-size:12px; color:#9a3412; margin-bottom:16px;">
+              <strong>Điều kiện tính toán:</strong> Chỉ tính doanh thu của các đơn hàng có Nhà cung cấp (NCC) là <strong>Lock&king</strong> hoặc <strong>Takin</strong>.
+            </div>
+
+            <div class="table-wrap" style="max-height:calc(100vh - 360px); overflow:auto;">
+              <table style="min-width:1200px; border-collapse:separate; border-spacing:0;">
+                <thead style="position:sticky; top:0; z-index:10; background:#f8fafc; box-shadow:0 1px 0 var(--line);">
+                  <tr>
+                    <th style="width:100px;">ID</th>
+                    <th>KHÁCH HÀNG</th>
+                    <th style="width:180px;">NV QUẢN LÝ</th>
+                    <th style="width:120px;">KÊNH</th>
+                    <th style="text-align:right;">DOANH THU</th>
+                    <th style="text-align:right;">TỈ TRỌNG (%)</th>
+                    <th style="text-align:right;">KPI 2026</th>
+                    <th style="text-align:right;">KPI THÁNG 2026</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.map(r => `
+                    <tr>
+                      <td class="mono">${safeText(r.id)}</td>
+                      <td style="font-weight:600;">${safeText(r.ten_kh)}</td>
+                      <td>${safeText(r.nv_quan_ly)}</td>
+                      <td><span class="badge" style="background:${r.kenh === 'ONLINE' ? '#e0f2fe' : '#f1f5f9'}; color:${r.kenh === 'ONLINE' ? '#0369a1' : '#475569'}">${safeText(r.kenh)}</span></td>
+                      <td style="text-align:right; font-weight:600;">${money(r.doanh_thu)}</td>
+                      <td style="text-align:right; color:var(--brand); font-weight:700;">${(r.ti_trong * 100).toFixed(2)}%</td>
+                      <td style="text-align:right; color:#16a34a; font-weight:600;">${money(r.kpi_2026)}</td>
+                      <td style="text-align:right; color:#16a34a; font-weight:600;">${money(r.kpi_thang_2026)}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Event listeners & Dropdown logic
+      const khInput = document.getElementById("tiTrongKhFilter");
+      const khMenu = document.getElementById("tiTrongKhMenu");
+      const khClear = document.getElementById("tiTrongKhClear");
+
+      const renderKhList = (query) => {
+        const q = (query || "").toLowerCase().trim();
+        const matches = appState.KHACH_HANG.filter(kh => 
+          (`${kh.id} ${kh.ten_kh}`).toLowerCase().includes(q)
+        ).slice(0, 50); // Giới hạn 50 gợi ý
+
+        khMenu.innerHTML = matches.map(kh => `
+          <div class="ti-trong-item" data-id="${safeText(kh.id)}" data-name="${safeText(kh.ten_kh)}">
+            <b>${safeText(kh.id)}</b>
+            <span>${safeText(kh.ten_kh)}</span>
+          </div>
+        `).join("");
+
+        if (!matches.length) khMenu.innerHTML = '<div style="padding:10px; color:#aaa; font-size:12px">Không tìm thấy khách hàng.</div>';
+        
+        khMenu.querySelectorAll('.ti-trong-item').forEach(el => {
+          el.onclick = () => {
+            window.tiTrongFilterKh = el.dataset.id;
+            window.tiTrongFilterKhText = el.dataset.name;
+            khInput.value = el.dataset.name;
+            khMenu.classList.remove("show");
+            khClear.style.display = "block";
+            renderTiTrong();
+          };
+        });
+      };
+
+      khInput.addEventListener("focus", () => { renderKhList(khInput.value); khMenu.classList.add("show"); });
+      khInput.addEventListener("input", (e) => {
+        renderKhList(e.target.value);
+        khMenu.classList.add("show");
+        if (!e.target.value) {
+            window.tiTrongFilterKh = "";
+            window.tiTrongFilterKhText = "";
+            khClear.style.display = "none";
+            renderTiTrong();
+        }
+      });
+      
+      khClear.addEventListener("click", () => {
+        window.tiTrongFilterKh = "";
+        window.tiTrongFilterKhText = "";
+        khInput.value = "";
+        khClear.style.display = "none";
+        khMenu.classList.remove("show");
+        renderTiTrong();
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!document.getElementById("tiTrongKhBox").contains(e.target)) khMenu.classList.remove("show");
+      });
+
+      document.getElementById("tiTrongNvFilter").addEventListener("change", e => { window.tiTrongFilterNv = e.target.value; renderTiTrong(); });
+      document.getElementById("tiTrongKenhFilter").addEventListener("change", e => { window.tiTrongFilterKenh = e.target.value; renderTiTrong(); });
+      document.getElementById("tiTrongResetBtn").addEventListener("click", () => {
+        window.tiTrongFilterKh = "";
+        window.tiTrongFilterKhText = "";
+        window.tiTrongFilterNv = "";
+        window.tiTrongFilterKenh = "";
+        renderTiTrong();
+      });
+    }
+    // ===== END MODULE TỈ TRỌNG =====
 
     function renderSync() {
       document.getElementById("sync").innerHTML = `
@@ -3842,6 +4058,7 @@
       renderDebts();
       renderKpi();
       renderThuong();
+      renderTiTrong();
       renderSync();
       switchTab(activeTab);
       cacheState();
