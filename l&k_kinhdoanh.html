@@ -2482,7 +2482,7 @@
         } else {
           let pagerHtml = `<span style="font-size:13px; color:var(--muted)">Trang ${currentPage} / ${totalPages} (Tổng ${totalRows} đơn)</span><div class="pager">`;
           pagerHtml += `<div class="page-box ${currentPage === 1 ? 'disabled' : ''}" onclick="${currentPage > 1 ? `window.setOrdersPage(${currentPage - 1})` : ''}">‹</div>`;
-          
+
           for (let p = 1; p <= totalPages; p++) {
             if (p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)) {
               pagerHtml += `<div class="page-box ${p === currentPage ? 'active' : ''}" onclick="window.setOrdersPage(${p})">${p}</div>`;
@@ -2490,7 +2490,7 @@
               pagerHtml += `<div class="page-box-dots">...</div>`;
             }
           }
-          
+
           pagerHtml += `<div class="page-box ${currentPage === totalPages ? 'disabled' : ''}" onclick="${currentPage < totalPages ? `window.setOrdersPage(${currentPage + 1})` : ''}">›</div>`;
           pagerHtml += `</div>`;
           pagin.innerHTML = pagerHtml;
@@ -2504,7 +2504,7 @@
       document.getElementById("orderCustomerFilter").addEventListener("change", () => { currentPage = 1; renderFilteredOrders(); });
       document.getElementById("orderFilterStart").addEventListener("change", () => { currentPage = 1; renderFilteredOrders(); });
       document.getElementById("orderFilterEnd").addEventListener("change", () => { currentPage = 1; renderFilteredOrders(); });
-      
+
       document.getElementById("resetOrderFilterBtn").addEventListener("click", () => {
         document.getElementById("orderSearchInput").value = "";
         document.getElementById("orderStaffFilter").value = "";
@@ -3699,12 +3699,21 @@
           </div>
 
           <div class="panel" style="padding-top:16px;">
-            <div style="margin-bottom:10px;padding:10px 12px;background:#fef3c7;border-radius:8px;border:1px solid #fde68a;font-size:12px;color:#92400e;">
-              <strong>Quy tắc thưởng theo tỉ lệ thu nợ:</strong>
-              &nbsp;❌ &lt;50% → Không thưởng &nbsp;|&nbsp;
-              ⚠️ 50–89% → Thưởng × tỉ lệ thu nợ &nbsp;|&nbsp;
-              ✅ ≥90% → Hưởng 100% thưởng
-            </div>
+            ${canManageData() ? `
+            <div style="margin-bottom:12px;padding:12px 14px;background:#fef3c7;border-radius:10px;border:1px solid #fde68a;font-size:12px;color:#92400e;line-height:1.6;">
+              <div style="margin-bottom:6px;">
+                <strong>Quy tắc thưởng theo tỉ lệ thu nợ:</strong><br/>
+                ❌ <strong>&lt;50%</strong> → Không thưởng | 
+                ⚠️ <strong>50–89%</strong> → Thưởng × tỉ lệ thu nợ | 
+                ✅ <strong>≥90%</strong> → Hưởng 100% thưởng
+              </div>
+              <div style="border-top:1px dashed rgba(146, 64, 14, 0.2); padding-top:6px;">
+                <strong>Ghi chú áp dụng Tỉ lệ:</strong><br/>
+                • <strong>Đoàn Văn Quang, Trần Doãn Sáng:</strong> Dùng TỈ LỆ THÁNG NÀY (Thu tháng này / Phát sinh tháng này).<br/>
+                • <strong>Ngô Tuấn Anh, Vũ Công Tâm:</strong> Dùng TỈ LỆ THÁNG TRC (Thu tháng này / Phát sinh tháng trước).<br/>
+                <span style="font-style:italic; opacity:0.8;">* Ngô Tuấn Anh chia 50% tiền thưởng cho Vũ Công Tâm. Cột TỔNG THỰC NHẬN thể hiện số tiền cuối cùng.</span>
+              </div>
+            </div>` : ""}
             <div class="table-wrap" style="max-height:calc(100vh - 400px);overflow:auto;">
               <table style="min-width:1200px;border-collapse:separate;border-spacing:0;">
                 <thead style="position:sticky;top:0;z-index:10;background:#f8fafc;box-shadow:0 1px 0 var(--line);">
@@ -3729,13 +3738,13 @@
         if (r.ti_le_thu_no >= 90) { tiLeBadge = "thuong-badge-full"; tiLeBg = "#f0fdf4"; }
         else if (r.ti_le_thu_no >= 50) { tiLeBadge = "thuong-badge-partial"; tiLeBg = "#fefce8"; }
         else { tiLeBadge = "thuong-badge-none"; tiLeBg = "#fff1f2"; }
-        
+
         const tiLeStrTrc = r.ti_le_thu_no_trc.toFixed(0) + "%";
         let tiLeBadgeTrc;
         if (r.ti_le_thu_no_trc >= 90) tiLeBadgeTrc = "thuong-badge-full";
         else if (r.ti_le_thu_no_trc >= 50) tiLeBadgeTrc = "thuong-badge-partial";
         else tiLeBadgeTrc = "thuong-badge-none";
-        
+
         return `
                     <tr>
                       <td style="font-weight:600;">${safeText(r.thang)}</td>
