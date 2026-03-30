@@ -1017,8 +1017,9 @@
       <header class="topbar">
         <div class="page-head">
           <button class="menu-toggle" type="button" id="menuToggleBtn" title="Đóng/Mở menu">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M15 6L9 12L15 18"/>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 6L9 12L15 18" />
             </svg>
           </button>
           <div>
@@ -1139,6 +1140,7 @@
         <section id="order_details" class="section"></section>
         <section id="debts" class="section"></section>
         <section id="kpi" class="section"></section>
+        <section id="thuong" class="section"></section>
         <section id="sync" class="section"></section>
       </main>
     </div>
@@ -1199,7 +1201,8 @@
       { id: "products", label: "Danh sách Sản phẩm", subtitle: "KINH DOANH", icon: "box", color: "#8f53ff" },
       { id: "customers", label: "Khách hàng", subtitle: "KINH DOANH", icon: "users", color: "#00b894" },
       { id: "debts", label: "Công nợ", subtitle: "KINH DOANH", icon: "coin", color: "#ff4d6d" },
-      { id: "kpi", label: "KPI", subtitle: "KINH DOANH", icon: "chart", color: "#f59e0b" }
+      { id: "kpi", label: "KPI", subtitle: "KINH DOANH", icon: "chart", color: "#f59e0b" },
+      { id: "thuong", label: "Thưởng Nhân Viên", subtitle: "KINH DOANH", icon: "gift", color: "#e11d48" }
     ];
     const DEFAULT_STATE = { KHACH_HANG: [], DS_SP: [], DH: [], DH_CT: [], KPI: [], CONG_NO: [], DK_THUONG: [] };
     const STAFF_SCOPED_SHEETS = ["DH", "DH_CT", "CONG_NO", "KPI"];
@@ -1374,7 +1377,10 @@
     }
 
     function objectsToRows(items, headers) {
-      return [headers].concat((items || []).map((item) => headers.map((header) => item[header] == null ? "" : item[header])));
+      return [headers].concat((items || []).map((item) => headers.map((header) => {
+        if (item[header] === null) return null;
+        return item[header] === undefined ? "" : item[header];
+      })));
     }
 
     function normalizeState(input) {
@@ -1384,7 +1390,8 @@
         DH: Array.isArray(input.DH) ? input.DH : [],
         DH_CT: Array.isArray(input.DH_CT) ? input.DH_CT : [],
         KPI: Array.isArray(input.KPI) ? input.KPI : [],
-        CONG_NO: Array.isArray(input.CONG_NO) ? input.CONG_NO : []
+        CONG_NO: Array.isArray(input.CONG_NO) ? input.CONG_NO : [],
+        DK_THUONG: Array.isArray(input.DK_THUONG) ? input.DK_THUONG : []
       };
       recalcState(state);
       return state;
@@ -1402,6 +1409,68 @@
       });
     }
 
+    const removeDiacritics = (value) => String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
+    const normalizeBonusKey = (value) => removeDiacritics(value).toLowerCase().replace(/[\s_\-]/g, "");
+    const parseLooseNumber = (value) => {
+      if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+      let text = String(value ?? "").trim();
+      if (!text) return 0;
+      text = text.replace(/\s+/g, "").replace(/[^0-9,.\-]/g, "");
+      if (!text || text === "-" || text === "," || text === ".") return 0;
+
+      const hasDot = text.includes(".");
+      const hasComma = text.includes(",");
+
+      if (hasDot && hasComma) {
+        if (text.lastIndexOf(",") > text.lastIndexOf(".")) {
+          text = text.replace(/\./g, "").replace(",", ".");
+        } else {
+          text = text.replace(/,/g, "");
+        }
+      } else if (hasComma) {
+        const commaCount = (text.match(/,/g) || []).length;
+        if (commaCount > 1) text = text.replace(/,/g, "");
+        else text = text.replace(",", ".");
+      } else if (hasDot) {
+        const dotCount = (text.match(/\./g) || []).length;
+        if (dotCount > 1) {
+          text = text.replace(/\./g, "");
+        } else {
+          const parts = text.split(".");
+          if (parts.length === 2 && parts[1].length === 3 && parts[0].length > 0) text = parts.join("");
+        }
+      }
+
+      const parsed = Number(text);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+    const normalizeProductType = (value) => {
+      const normalized = normalizeBonusKey(value);
+      if (normalized === "chinh") return "chinh";
+      if (normalized === "thuong") return "thuong";
+      return "";
+    };
+    const normalizeMonthKey = (value) => {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      if (/^\d{4}-\d{1,2}$/.test(text)) {
+        const [year, month] = text.split("-");
+        return `${year}-${month.padStart(2, "0")}`;
+      }
+      if (/^\d{1,2}\/\d{4}$/.test(text)) {
+        const [month, year] = text.split("/");
+        return `${year}-${month.padStart(2, "0")}`;
+      }
+      if (/^\d{4}\/\d{1,2}$/.test(text)) {
+        const [year, month] = text.split("/");
+        return `${year}-${month.padStart(2, "0")}`;
+      }
+      return text;
+    };
     const computeCustomerDebt = (customerId) => appState.CONG_NO.filter((row) => row.id_khach_hang === customerId).reduce((sum, row) => sum + (row.thu_chi === "thu" ? -Number(row.so_tien || 0) : Number(row.so_tien || 0)), 0);
     const getCustomerName = (customerId) => (appState.KHACH_HANG.find((item) => item.id === customerId) || {}).ten_kh || customerId;
     const getProductName = (productId) => (appState.DS_SP.find((item) => item.id === productId) || {}).ten_sp || productId;
@@ -1449,7 +1518,8 @@
         file: `<svg viewBox="0 0 24 24"><path d="M8 3h6l4 4v14H8z"></path><path d="M14 3v5h5"></path></svg>`,
         box: `<svg viewBox="0 0 24 24"><path d="m12 3 8 4.5-8 4.5L4 7.5 12 3Z"></path><path d="M4 7.5V16.5L12 21l8-4.5V7.5"></path><path d="M12 12v9"></path></svg>`,
         users: `<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><path d="M9.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"></path><path d="M21 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
-        coin: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M9.5 9.5c.3-1 1.2-1.5 2.5-1.5 1.7 0 2.5.8 2.5 1.9 0 2.7-5 1.3-5 4 0 1.2 1 2.1 2.8 2.1 1.4 0 2.4-.6 2.7-1.7"></path><path d="M12 7v10"></path></svg>`
+        coin: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M9.5 9.5c.3-1 1.2-1.5 2.5-1.5 1.7 0 2.5.8 2.5 1.9 0 2.7-5 1.3-5 4 0 1.2 1 2.1 2.8 2.1 1.4 0 2.4-.6 2.7-1.7"></path><path d="M12 7v10"></path></svg>`,
+        gift: `<svg viewBox="0 0 24 24"><path d="M20 12v10H4V12"></path><path d="M22 7H2v5h20V7z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>`
       };
       return icons[name] || icons.home;
     }
@@ -1742,8 +1812,8 @@
           if (fKs.length > 0 && !fKs.includes(item.npp)) return false;
           return true;
         });
-        const spChinhTotal = filteredDetails.reduce((sum, item) => (String(item.sp_chinh_thuong || "").toUpperCase() === "CHÍNH" ? sum + Number(item.thanh_tien || 0) : sum), 0);
-        const spThuongTotal = filteredDetails.reduce((sum, item) => (String(item.sp_chinh_thuong || "").toUpperCase() === "THƯỜNG" ? sum + Number(item.thanh_tien || 0) : sum), 0);
+        const spChinhTotal = filteredDetails.reduce((sum, item) => (normalizeProductType(item.sp_chinh_thuong) === "chinh" ? sum + Number(item.thanh_tien || 0) : sum), 0);
+        const spThuongTotal = filteredDetails.reduce((sum, item) => (normalizeProductType(item.sp_chinh_thuong) === "thuong" ? sum + Number(item.thanh_tien || 0) : sum), 0);
         document.getElementById("dTotalSpChinh").textContent = money(spChinhTotal);
         document.getElementById("dTotalSpThuong").textContent = money(spThuongTotal);
 
@@ -2341,15 +2411,17 @@
         <div class="section-shell">
           <div class="section-header"><div class="section-title"><span class="title-dot"></span><span>QUẢN LÝ ĐƠN HÀNG</span></div></div>
           <div class="panel sticky-filter" style="padding-bottom:12px; border-bottom: none;">
-            <div class="toolbar">
-              <div class="toolbar-search">
-                <input id="orderSearchInput" type="text" placeholder="Tìm kiếm dữ liệu..." />
-                <select id="orderStaffFilter"><option value="">-- Nhân viên --</option>${[...new Set(appState.DH.map((item) => item.id_nv).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(getNvN(val))}</option>`).join("")}</select>
-                <select id="orderCustomerFilter"><option value="">-- NPP/Khách hàng --</option>${[...new Set(appState.DH.map((item) => item.npp).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(getCustomerName(val))}</option>`).join("")}</select>
+            <div class="toolbar" style="flex-wrap: nowrap; gap: 10px;">
+              <div class="toolbar-search" style="flex: 1; display: flex; gap: 8px; flex-wrap: wrap;">
+                <input id="orderSearchInput" type="text" placeholder="Tìm ID, NPP..." style="width: 180px;" />
+                <input type="date" id="orderFilterStart" title="Từ ngày" style="width: 135px;" />
+                <input type="date" id="orderFilterEnd" title="Đến ngày" style="width: 135px;" />
+                <select id="orderStaffFilter" style="width: 150px;"><option value="">-- Nhân viên --</option>${[...new Set(appState.DH.map((item) => item.id_nv).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(getNvN(val))}</option>`).join("")}</select>
+                <select id="orderCustomerFilter" style="width: 180px;"><option value="">-- NPP/Khách hàng --</option>${[...new Set(appState.DH.map((item) => item.npp).filter(Boolean))].map((val) => `<option value="${safeText(val)}">${safeText(getCustomerName(val))}</option>`).join("")}</select>
               </div>
-              <div class="toolbar-right">
-                <button class="icon-btn" type="button">☰</button>
-                <button class="btn btn-secondary" type="button" id="refreshOrderListBtn">Làm mới</button>
+              <div class="toolbar-right" style="display: flex; gap: 8px;">
+                <button class="btn btn-accent" type="button" id="exportOrdersBtn">Xuất Excel</button>
+                <button class="btn btn-secondary" type="button" id="resetOrderFilterBtn">Bỏ lọc</button>
               </div>
             </div>
           </div>
@@ -2358,30 +2430,127 @@
               tbody tr[data-action="view-order"]:hover { background: var(--brand-soft); }
             </style>
             <table>
-              <thead><tr><th>#</th><th>Ngày</th><th>NPP</th><th>ID Nhân viên</th><th>Thành tiền</th></tr></thead>
+              <thead><tr><th style="width:50px">#</th><th style="width:110px">Ngày</th><th>NPP / Khách hàng</th><th>ID Nhân viên</th><th style="text-align:right">Thành tiền</th></tr></thead>
               <tbody id="ordersTableBody"></tbody>
             </table>
           </div>
-          <div class="pagination"><span id="ordersPageInfo">Trang 1 / 1</span><div class="pager"><div class="page-box">‹</div><div class="page-box active">1</div><div class="page-box">›</div></div></div>
+          <div class="pagination" id="ordersPagination"></div>
         </div>`;
+
+      let currentPage = 1;
+      const pageSize = 100;
 
       const renderFilteredOrders = () => {
         const keyword = (document.getElementById("orderSearchInput").value || "").trim().toLowerCase();
         const staff = document.getElementById("orderStaffFilter").value;
         const customer = document.getElementById("orderCustomerFilter").value;
-        const rows = appState.DH.filter((order) => {
-          const matchKeyword = !keyword || [order.id, order.ngay, order.npp, order.id_nv, order.thanh_tien].join(" ").toLowerCase().includes(keyword);
-          const matchStaff = !staff || order.id_nv === staff;
-          const matchCustomer = !customer || order.npp === customer;
-          return matchKeyword && matchStaff && matchCustomer;
+        const start = document.getElementById("orderFilterStart").value;
+        const end = document.getElementById("orderFilterEnd").value;
+
+        let rows = appState.DH.filter((order) => {
+          if (staff && order.id_nv !== staff) return false;
+          if (customer && order.npp !== customer) return false;
+          if (start && parseDateSort(order.ngay) < parseDateSort(start)) return false;
+          if (end && parseDateSort(order.ngay) > parseDateSort(end)) return false;
+          if (keyword && ![order.id, order.ngay, order.npp, order.id_nv, order.thanh_tien].join(" ").toLowerCase().includes(keyword)) return false;
+          return true;
         });
-        document.getElementById("ordersTableBody").innerHTML = rows.length ? rows.map((order, index) => `<tr data-action="view-order" data-id="${safeText(order.id)}" style="cursor: pointer" onclick="openOrderViewDrawer('${safeText(order.id)}')"><td>${index + 1}</td><td>${safeText(order.ngay)}</td><td>${safeText(getCustomerName(order.npp))}</td><td>${safeText(getNvN(order.id_nv))}</td><td><strong style="color:var(--brand)">${money(order.thanh_tien || 0)}</strong></td></tr>`).join("") : '<tr><td colspan="5" class="empty">Chưa có đơn hàng.</td></tr>';
+
+        // Sắp xếp ngày lớn tới bé
+        rows.sort((a, b) => parseDateSort(b.ngay).localeCompare(parseDateSort(a.ngay)));
+
+        const totalRows = rows.length;
+        const totalPages = Math.ceil(totalRows / pageSize) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const startIdx = (currentPage - 1) * pageSize;
+        const pageRows = rows.slice(startIdx, startIdx + pageSize);
+
+        document.getElementById("ordersTableBody").innerHTML = pageRows.length ? pageRows.map((order, index) => `
+          <tr data-action="view-order" data-id="${safeText(order.id)}" style="cursor: pointer" onclick="openOrderViewDrawer('${safeText(order.id)}')">
+            <td>${startIdx + index + 1}</td>
+            <td>${safeText(formatDateVi(order.ngay))}</td>
+            <td>${safeText(getCustomerName(order.npp))}</td>
+            <td>${safeText(getNvN(order.id_nv))}</td>
+            <td style="text-align:right"><strong style="color:var(--brand)">${money(order.thanh_tien || 0)}</strong></td>
+          </tr>`).join("") : '<tr><td colspan="5" class="empty">Chưa có đơn hàng phù hợp.</td></tr>';
+
+        // Render Pagination
+        const pagin = document.getElementById("ordersPagination");
+        if (totalRows <= pageSize) {
+          pagin.innerHTML = `<span style="font-size:13px; color:var(--muted)">Hiển thị ${totalRows} đơn hàng.</span>`;
+        } else {
+          let pagerHtml = `<span style="font-size:13px; color:var(--muted)">Trang ${currentPage} / ${totalPages} (Tổng ${totalRows} đơn)</span><div class="pager">`;
+          pagerHtml += `<div class="page-box ${currentPage === 1 ? 'disabled' : ''}" onclick="${currentPage > 1 ? `window.setOrdersPage(${currentPage - 1})` : ''}">‹</div>`;
+          
+          for (let p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)) {
+              pagerHtml += `<div class="page-box ${p === currentPage ? 'active' : ''}" onclick="window.setOrdersPage(${p})">${p}</div>`;
+            } else if (p === currentPage - 3 || p === currentPage + 3) {
+              pagerHtml += `<div class="page-box-dots">...</div>`;
+            }
+          }
+          
+          pagerHtml += `<div class="page-box ${currentPage === totalPages ? 'disabled' : ''}" onclick="${currentPage < totalPages ? `window.setOrdersPage(${currentPage + 1})` : ''}">›</div>`;
+          pagerHtml += `</div>`;
+          pagin.innerHTML = pagerHtml;
+        }
       };
 
-      document.getElementById("orderSearchInput").addEventListener("input", renderFilteredOrders);
-      document.getElementById("orderStaffFilter").addEventListener("change", renderFilteredOrders);
-      document.getElementById("orderCustomerFilter").addEventListener("change", renderFilteredOrders);
-      document.getElementById("refreshOrderListBtn").addEventListener("click", renderFilteredOrders);
+      window.setOrdersPage = (p) => { currentPage = p; renderFilteredOrders(); };
+
+      document.getElementById("orderSearchInput").addEventListener("input", () => { currentPage = 1; renderFilteredOrders(); });
+      document.getElementById("orderStaffFilter").addEventListener("change", () => { currentPage = 1; renderFilteredOrders(); });
+      document.getElementById("orderCustomerFilter").addEventListener("change", () => { currentPage = 1; renderFilteredOrders(); });
+      document.getElementById("orderFilterStart").addEventListener("change", () => { currentPage = 1; renderFilteredOrders(); });
+      document.getElementById("orderFilterEnd").addEventListener("change", () => { currentPage = 1; renderFilteredOrders(); });
+      
+      document.getElementById("resetOrderFilterBtn").addEventListener("click", () => {
+        document.getElementById("orderSearchInput").value = "";
+        document.getElementById("orderStaffFilter").value = "";
+        document.getElementById("orderCustomerFilter").value = "";
+        document.getElementById("orderFilterStart").value = "";
+        document.getElementById("orderFilterEnd").value = "";
+        currentPage = 1;
+        renderFilteredOrders();
+      });
+
+      document.getElementById("exportOrdersBtn").addEventListener("click", () => {
+        const keyword = (document.getElementById("orderSearchInput").value || "").trim().toLowerCase();
+        const staff = document.getElementById("orderStaffFilter").value;
+        const customer = document.getElementById("orderCustomerFilter").value;
+        const start = document.getElementById("orderFilterStart").value;
+        const end = document.getElementById("orderFilterEnd").value;
+
+        const rows = appState.DH.filter((order) => {
+          if (staff && order.id_nv !== staff) return false;
+          if (customer && order.npp !== customer) return false;
+          if (start && parseDateSort(order.ngay) < parseDateSort(start)) return false;
+          if (end && parseDateSort(order.ngay) > parseDateSort(end)) return false;
+          if (keyword && ![order.id, order.ngay, order.npp, order.id_nv, order.thanh_tien].join(" ").toLowerCase().includes(keyword)) return false;
+          return true;
+        }).sort((a, b) => parseDateSort(b.ngay).localeCompare(parseDateSort(a.ngay)));
+
+        if (!rows.length) return alert("Không có dữ liệu để xuất.");
+
+        // Dùng thư viện XLSX đã có sẵn trong file
+        const exportData = rows.map((r, i) => ({
+          "STT": i + 1,
+          "Ngày": formatDateVi(r.ngay),
+          "ID Đơn": r.id,
+          "NPP / Khách hàng": getCustomerName(r.npp),
+          "Mã NV": r.id_nv,
+          "Nhân viên": getNvN(r.id_nv),
+          "Thành tiền (VNĐ)": r.thanh_tien
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Orders");
+        XLSX.writeFile(wb, `danh_sach_don_hang_${new Date().getTime()}.xlsx`);
+        showToast("Đã tải xuống file Excel!");
+      });
+
       renderFilteredOrders();
     }
     function exportDashboard(type) {
@@ -3041,6 +3210,7 @@
             let importedCount = 0;
             // Track new DH order headers to add (key = id_dh, value = {ngay, npp})
             const newDhMap = {};
+            const newDhCtRows = []; // Dòng mới để append
 
             for (let i = 3; i < sheetData.length; i++) {
               const row = sheetData[i];
@@ -3068,44 +3238,53 @@
                 id_dh: id_dh,
                 ngay: ngay_str,
                 npp: npp,
-                id_nv: "",
+                id_nv: null, // Không ghi đè để bảo toàn công thức mảng trên sheet
                 id_sp: id_sp,
                 don_gia: don_gia,
                 slg: slg,
-                thanh_tien: thanh_tien
+                thanh_tien: thanh_tien,
+                ncc: null,
+                sp_chinh_thuong: null
               };
 
               appState.DH_CT.push(newRow);
+              newDhCtRows.push(newRow);
               importedCount++;
 
-              // Ghi nhớ đơn hàng tổng (chỉ lần đầu gặp mỗi id_dh)
+              // Ghi nhớ đơn hàng tổng
               if (!newDhMap[id_dh]) {
-                newDhMap[id_dh] = { ngay: ngay_str, npp: npp };
+                newDhMap[id_dh] = { ngay: ngay_str, npp: npp, thanh_tien: 0 };
               }
+              newDhMap[id_dh].thanh_tien += thanh_tien;
             }
 
             // Tự tạo / cập nhật đơn hàng tổng vào sheet DH (không trùng id)
             let newDhCount = 0;
             const existingDhIds = new Set(appState.DH.map(d => String(d.id || "").trim()));
+            const newDhRows = []; // Dòng mới để append DH
             for (const [id_dh, info] of Object.entries(newDhMap)) {
               if (!existingDhIds.has(id_dh)) {
-                appState.DH.push({
+                const dhRow = {
                   id: id_dh,
                   ngay: info.ngay,
                   npp: info.npp,
-                  id_nv: "",
-                  thanh_tien: 0
-                });
+                  id_nv: null,
+                  thanh_tien: info.thanh_tien
+                };
+                appState.DH.push(dhRow);
+                newDhRows.push(dhRow);
                 newDhCount++;
               }
             }
 
             if (importedCount > 0) {
               recalcState(appState);
-              await clearSheet("DH_CT");
-              await updateSheet("DH_CT", objectsToRows(appState.DH_CT, CONFIG.sheets.DH_CT));
-              await clearSheet("DH");
-              await updateSheet("DH", objectsToRows(appState.DH, CONFIG.sheets.DH));
+              if (newDhCtRows.length > 0) {
+                await appendSheetRow("DH_CT", objectsToRows(newDhCtRows, CONFIG.sheets.DH_CT).slice(1));
+              }
+              if (newDhRows.length > 0) {
+                await appendSheetRow("DH", objectsToRows(newDhRows, CONFIG.sheets.DH).slice(1));
+              }
               syncMeta.lastLoadedAt = new Date().toLocaleString("vi-VN");
               renderAll();
               alert(`Import thành công: ${importedCount} dòng chi tiết, ${newDhCount} đơn hàng mới thêm vào DH.`);
@@ -3246,7 +3425,7 @@
                 <thead style="position: sticky; top: 0; z-index: 10; background: #f8fafc; box-shadow: 0 1px 0 var(--line);">
                   <tr>
                     <th style="width: 120px">THÁNG</th>
-                    <th style="width: 120px">ID NV</th>
+                    <th style="width: 180px">ID NV</th>
                     <th style="text-align: right">DOANH SỐ CHÍNH</th>
                     <th style="text-align: right">DOANH SỐ THƯỞNG</th>
                     <th style="text-align: right">THƯỞNG DS CHÍNH</th>
@@ -3304,6 +3483,318 @@
       });
     }
 
+    // ===== MODULE THƯỞNG NHÂN VIÊN =====
+    function renderThuong() {
+      const container = document.getElementById("thuong");
+      if (!container) return;
+
+      // Khởi tạo filter
+      if (window.thuongFilterMonth === undefined) window.thuongFilterMonth = "";
+      if (window.thuongFilterNv === undefined) window.thuongFilterNv = "";
+
+      // --- Helper: parse tháng từ ngày (dd/mm/yyyy hoặc yyyy-mm-dd) ---
+      const parseThangFromDate = (dateStr) => {
+        if (!dateStr) return "";
+        if (dateStr.includes("-")) {
+          const p = dateStr.split("-"); // yyyy-mm-dd
+          return p.length >= 2 ? `${p[0]}-${p[1].padStart(2, "0")}` : "";
+        }
+        if (dateStr.includes("/")) {
+          const p = dateStr.split("/"); // dd/mm/yyyy
+          return p.length >= 3 ? `${p[2]}-${p[1].padStart(2, "0")}` : "";
+        }
+        return "";
+      };
+
+      // --- Helper: tra cứu điều kiện thưởng từ DK_THUONG ---
+      // Hỗ trợ CỘNG DỒN nhiều rule khớp cùng khoảng doanh số.
+      // Các kieu: "codinh" | "phantram" | "phantramvuot"
+      // Ưu tiên: nếu có rule riêng cho NV thì dùng rule NV, bỏ rule chung cùng kieu
+      const normString = (str) => normalizeBonusKey(str); // Xóa dấu, space, _ và -
+
+      const lookupBonus = (loai, amount, nvId, thang) => {
+        const rules = (fullAppState.DK_THUONG || appState.DK_THUONG || []);
+        const targetLoai = normString(loai);
+        const targetThang = normalizeMonthKey(thang);
+
+        // Bước 1: lọc các rule khớp loại, NV, tháng, khoảng DS
+        const matched = rules.filter(r => {
+          if (normString(r.loai) !== targetLoai) return false;
+          const rNv = (r.id_nv || "").trim();
+          if (rNv && rNv !== nvId) return false;
+          const rThang = normalizeMonthKey(r.thang);
+          if (rThang && rThang !== targetThang) return false;
+          const from = parseLooseNumber(r.muc_tu);
+          const to = parseLooseNumber(r.muc_den);
+          if (amount < from) return false;
+          if (to > 0 && amount > to) return false;
+          return true;
+        });
+        if (!matched.length) return 0;
+
+        // Bước 2: với mỗi kieu, nếu có rule riêng NV thì bỏ rule chung cùng kieu
+        const hasSpecific = (kieuNorm) => matched.some(r =>
+          (r.id_nv || "").trim() === nvId &&
+          normString(r.kieu) === kieuNorm
+        );
+        const effectiveRules = matched.filter(r => {
+          const kieuNorm = normString(r.kieu);
+          const isGeneral = (r.id_nv || "").trim() === "";
+          return !(isGeneral && hasSpecific(kieuNorm));
+        });
+
+        // Bước 3: cộng dồn tất cả rule còn lại
+        return effectiveRules.reduce((sum, rule) => {
+          const gia_tri = parseLooseNumber(rule.gia_tri);
+          const kieu = normString(rule.kieu); // "co_dinh"→"codinh", "phan_tram"→"phantram", "phan_tram_vuot"→"phantramvuot"
+          const muc_tu = parseLooseNumber(rule.muc_tu);
+          if (kieu === "phantram" || kieu === "%" || kieu === "phantramtong") {
+            return sum + amount * gia_tri / 100;
+          }
+          if (kieu === "phantramvuot") {
+            // % tính trên phần DS vượt quá muc_tu
+            const phan_vuot = Math.max(0, amount - muc_tu);
+            return sum + phan_vuot * gia_tri / 100;
+          }
+          // codinh hoặc thuongnong hoặc mặc định → dùng gia_tri cố định
+          if (kieu === "khong") return sum; // không thưởng
+          return sum + gia_tri;
+        }, 0);
+      };
+
+      // --- Tổng hợp dữ liệu DH_CT theo (thang, id_nv) ---
+      const mapKey = (thang, nvId) => `${thang}||${nvId}`;
+      const salesMap = {}; // key => { ds_chinh, ds_thuong }
+      (appState.DH_CT || []).forEach(row => {
+        const nvId = (row.id_nv || "").trim();
+        if (!nvId) return;
+        const thang = parseThangFromDate(row.ngay || "");
+        if (!thang) return;
+        const key = mapKey(thang, nvId);
+        if (!salesMap[key]) salesMap[key] = { thang, nvId, ds_chinh: 0, ds_thuong: 0 };
+        const loaiSp = normalizeProductType(row.sp_chinh_thuong);
+        const tt = Number(row.thanh_tien || 0);
+        if (loaiSp === "chinh") salesMap[key].ds_chinh += tt;
+        else if (loaiSp === "thuong") salesMap[key].ds_thuong += tt;
+      });
+
+      // --- Tổng hợp công nợ theo (thang, id_nv) ---
+      const debtMap = {}; // key => { phat_sinh, da_thu }
+      (appState.CONG_NO || []).forEach(row => {
+        const nvId = (row.id_nv || "").trim();
+        if (!nvId) return;
+        const thang = parseThangFromDate(row.ngay || "");
+        if (!thang) return;
+        const key = mapKey(thang, nvId);
+        if (!debtMap[key]) debtMap[key] = { phat_sinh: 0, da_thu: 0 };
+        const st = Number(row.so_tien || 0);
+        if ((row.thu_chi || "") === "chi") debtMap[key].phat_sinh += st;
+        else if ((row.thu_chi || "") === "thu") debtMap[key].da_thu += st;
+      });
+
+      // --- Tính bảng thưởng ---
+      const rows = Object.values(salesMap).map(entry => {
+        const { thang, nvId, ds_chinh, ds_thuong } = entry;
+        const thuong_sp_chinh = Math.round(lookupBonus("sp_chinh", ds_chinh, nvId, thang));
+        const thuong_sp_thuong = Math.round(lookupBonus("sp_thuong", ds_thuong, nvId, thang));
+        const thuong_doanh_so = thuong_sp_chinh + thuong_sp_thuong;
+
+        const debt = debtMap[mapKey(thang, nvId)] || { phat_sinh: 0, da_thu: 0 };
+        const ti_le_thu_no = debt.phat_sinh > 0 ? (debt.da_thu / debt.phat_sinh * 100) : 100;
+
+        let prevThang = "";
+        if (thang && thang.includes("-")) {
+          let [yyyy, mm] = thang.split("-").map(Number);
+          mm -= 1;
+          if (mm === 0) { mm = 12; yyyy -= 1; }
+          prevThang = `${yyyy}-${String(mm).padStart(2, "0")}`;
+        }
+        const prevDebt = debtMap[mapKey(prevThang, nvId)] || { phat_sinh: 0, da_thu: 0 };
+        // TỈ LỆ THU NỢ THÁNG TRC = Nợ đã thu THÁNG NÀY / Nợ phát sinh THÁNG TRƯỚC
+        const ti_le_thu_no_trc = prevDebt.phat_sinh > 0 ? (debt.da_thu / prevDebt.phat_sinh * 100) : 100;
+
+        let selected_ti_le = ti_le_thu_no; // Mặc định là tháng này
+        const nvIdLower = String(nvId || "").trim().toLowerCase();
+        if (nvIdLower === "ngô tuấn anh" || nvIdLower === "vũ công tâm") {
+          selected_ti_le = ti_le_thu_no_trc;
+        } else if (nvIdLower === "đoàn văn quang" || nvIdLower === "trần doãn sáng") {
+          selected_ti_le = ti_le_thu_no;
+        }
+
+        let tong_tien_thuong = 0;
+        if (selected_ti_le < 50) {
+          tong_tien_thuong = 0;
+        } else if (selected_ti_le < 90) {
+          tong_tien_thuong = Math.round(thuong_doanh_so * selected_ti_le / 100);
+        } else {
+          tong_tien_thuong = thuong_doanh_so;
+        }
+
+        return { thang, nvId, ds_chinh, ds_thuong, thuong_sp_chinh, thuong_sp_thuong, thuong_doanh_so, ti_le_thu_no, ti_le_thu_no_trc, no_phat_sinh: debt.phat_sinh, no_da_thu: debt.da_thu, tong_tien_thuong };
+      });
+
+      // --- Tính TỔNG THỰC NHẬN (Secondary pass cho các NV đặc biệt) ---
+      rows.forEach(r => {
+        const nvIdLower = String(r.nvId || "").trim().toLowerCase();
+        if (nvIdLower === "ngô tuấn anh") {
+          r.tong_thuc_nhan = Math.round(r.tong_tien_thuong / 2);
+        } else if (nvIdLower === "vũ công tâm") {
+          const nta = rows.find(x => x.thang === r.thang && String(x.nvId || "").trim().toLowerCase() === "ngô tuấn anh");
+          const nta_bonus_half = nta ? Math.round(nta.tong_tien_thuong / 2) : 0;
+          r.tong_thuc_nhan = r.tong_tien_thuong + nta_bonus_half;
+        } else {
+          r.tong_thuc_nhan = r.tong_tien_thuong;
+        }
+      });
+
+      // Sắp xếp: tháng mới nhất trước, sau đó theo id_nv
+      rows.sort((a, b) => b.thang.localeCompare(a.thang) || a.nvId.localeCompare(b.nvId));
+
+      // --- Lọc ---
+      const uniqueMonths = [...new Set(rows.map(r => r.thang))].sort().reverse();
+      const uniqueNvs = [...new Set(rows.map(r => r.nvId))].sort();
+
+      const filtered = rows.filter(r => {
+        if (window.thuongFilterMonth && r.thang !== window.thuongFilterMonth) return false;
+        if (window.thuongFilterNv && r.nvId !== window.thuongFilterNv) return false;
+        return true;
+      });
+
+      const totalThuong = filtered.reduce((s, r) => s + r.tong_tien_thuong, 0);
+      const totalThucNhan = filtered.reduce((s, r) => s + r.tong_thuc_nhan, 0);
+      const totalDs = filtered.reduce((s, r) => s + r.ds_chinh + r.ds_thuong, 0);
+
+      // --- Debug info ---
+      const dkData = (fullAppState.DK_THUONG || appState.DK_THUONG || []);
+      const dkLoaiValues = [...new Set(dkData.map(r => JSON.stringify({ loai: r.loai, kieu: r.kieu })))];
+      const spLoaiValues = [...new Set((appState.DH_CT || []).map(r => r.sp_chinh_thuong || "(trống)"))];
+
+      // --- Render HTML ---
+      container.innerHTML = `
+        <style>
+          .thuong-badge-full { background:#dcfce7; color:#16a34a; }
+          .thuong-badge-partial { background:#fef9c3; color:#a16207; }
+          .thuong-badge-none { background:#fee2e2; color:#dc2626; }
+        </style>
+        <div class="section-shell">
+          <div class="section-header">
+            <div class="section-title"><span class="title-dot"></span><span>THƯỞNG NHÂN VIÊN THEO THÁNG</span></div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <div style="display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:0 10px;height:38px;">
+                <label style="font-size:12px;color:var(--muted);font-weight:600;margin-right:8px;">THÁNG:</label>
+                <select id="thuongMonthFilter" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer;min-width:110px;">
+                  <option value="">Tất cả</option>
+                  ${uniqueMonths.map(m => `<option value="${safeText(m)}" ${window.thuongFilterMonth === m ? 'selected' : ''}>${safeText(m)}</option>`).join("")}
+                </select>
+              </div>
+              <div style="display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:0 10px;height:38px;">
+                <label style="font-size:12px;color:var(--muted);font-weight:600;margin-right:8px;">MÃ NV:</label>
+                <select id="thuongNvFilter" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer;min-width:110px;">
+                  <option value="">Tất cả</option>
+                  ${uniqueNvs.map(nv => `<option value="${safeText(nv)}" ${window.thuongFilterNv === nv ? 'selected' : ''}>${safeText(nv)}</option>`).join("")}
+                </select>
+              </div>
+              <button class="btn btn-secondary" id="thuongResetBtn" style="height:38px;">Xóa lọc</button>
+            </div>
+          </div>
+
+          <div class="panel" style="padding-top:16px;">
+            <div style="margin-bottom:10px;padding:10px 12px;background:#fef3c7;border-radius:8px;border:1px solid #fde68a;font-size:12px;color:#92400e;">
+              <strong>Quy tắc thưởng theo tỉ lệ thu nợ:</strong>
+              &nbsp;❌ &lt;50% → Không thưởng &nbsp;|&nbsp;
+              ⚠️ 50–89% → Thưởng × tỉ lệ thu nợ &nbsp;|&nbsp;
+              ✅ ≥90% → Hưởng 100% thưởng
+            </div>
+            <div class="table-wrap" style="max-height:calc(100vh - 400px);overflow:auto;">
+              <table style="min-width:1200px;border-collapse:separate;border-spacing:0;">
+                <thead style="position:sticky;top:0;z-index:10;background:#f8fafc;box-shadow:0 1px 0 var(--line);">
+                  <tr>
+                    <th style="width:110px;">THÁNG</th>
+                    <th style="width:180px;">ID NV</th>
+                    <th style="text-align:right;">DS SP CHÍNH</th>
+                    <th style="text-align:right;">DS SP THƯỜNG</th>
+                    <th style="text-align:right;">THƯỞNG SP CHÍNH</th>
+                    <th style="text-align:right;">THƯỞNG SP THƯỜNG</th>
+                    <th style="text-align:right;">THƯỞNG DOANH SỐ</th>
+                    <th style="text-align:right;width:130px;">TỈ LỆ THU NỢ THÁNG TRC</th>
+                    <th style="text-align:right;width:130px;">TỈ LỆ THÁNG NÀY</th>
+                    <th style="text-align:right;background:#fff7ed;font-weight:700;">TỔNG TIỀN THƯỞNG</th>
+                    <th style="text-align:right;background:#f0fdf4;font-weight:700;">TỔNG THỰC NHẬN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${filtered.length ? filtered.map(r => {
+        const tiLeStr = r.ti_le_thu_no.toFixed(0) + "%";
+        let tiLeBadge, tiLeBg;
+        if (r.ti_le_thu_no >= 90) { tiLeBadge = "thuong-badge-full"; tiLeBg = "#f0fdf4"; }
+        else if (r.ti_le_thu_no >= 50) { tiLeBadge = "thuong-badge-partial"; tiLeBg = "#fefce8"; }
+        else { tiLeBadge = "thuong-badge-none"; tiLeBg = "#fff1f2"; }
+        
+        const tiLeStrTrc = r.ti_le_thu_no_trc.toFixed(0) + "%";
+        let tiLeBadgeTrc;
+        if (r.ti_le_thu_no_trc >= 90) tiLeBadgeTrc = "thuong-badge-full";
+        else if (r.ti_le_thu_no_trc >= 50) tiLeBadgeTrc = "thuong-badge-partial";
+        else tiLeBadgeTrc = "thuong-badge-none";
+        
+        return `
+                    <tr>
+                      <td style="font-weight:600;">${safeText(r.thang)}</td>
+                      <td class="mono" style="font-weight:600;color:var(--brand);">${safeText(r.nvId)}</td>
+                      <td style="text-align:right;">${money(r.ds_chinh)}</td>
+                      <td style="text-align:right;">${money(r.ds_thuong)}</td>
+                      <td style="text-align:right;color:#2563eb;">${money(r.thuong_sp_chinh)}</td>
+                      <td style="text-align:right;color:#7c3aed;">${money(r.thuong_sp_thuong)}</td>
+                      <td style="text-align:right;font-weight:700;">${money(r.thuong_doanh_so)}</td>
+                      <td style="text-align:right;">
+                        <span class="badge ${tiLeBadgeTrc}" style="font-size:12px;">${tiLeStrTrc}</span>
+                      </td>
+                      <td style="text-align:right;">
+                        <span class="badge ${tiLeBadge}" style="font-size:12px;">${tiLeStr}</span>
+                      </td>
+                      <td style="text-align:right;font-weight:700;background:${tiLeBg};">${money(r.tong_tien_thuong)}</td>
+                      <td style="text-align:right;font-weight:800;background:#f0fdf4;color:#16a34a;">${money(r.tong_thuc_nhan)}</td>
+                    </tr>`;
+      }).join("") : '<tr><td colspan="11" class="empty">Không có dữ liệu thưởng. Vui lòng kiểm tra dữ liệu DH_CT và DK_THUONG.</td></tr>'}
+                </tbody>
+                ${filtered.length ? `<tfoot style="background:#f8fafc;font-weight:700;position:sticky;bottom:0;">
+                  <tr>
+                    <td colspan="2" style="text-align:right;color:var(--muted);">TỔNG CỘNG:</td>
+                    <td style="text-align:right;">${money(filtered.reduce((s, r) => s + r.ds_chinh, 0))}</td>
+                    <td style="text-align:right;">${money(filtered.reduce((s, r) => s + r.ds_thuong, 0))}</td>
+                    <td style="text-align:right;color:#2563eb;">${money(filtered.reduce((s, r) => s + r.thuong_sp_chinh, 0))}</td>
+                    <td style="text-align:right;color:#7c3aed;">${money(filtered.reduce((s, r) => s + r.thuong_sp_thuong, 0))}</td>
+                    <td style="text-align:right;">${money(filtered.reduce((s, r) => s + r.thuong_doanh_so, 0))}</td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align:right;color:#e11d48;background:#fff7ed;">${money(totalThuong)}</td>
+                    <td style="text-align:right;color:#16a34a;background:#f0fdf4;">${money(totalThucNhan)}</td>
+                  </tr>
+                </tfoot>` : ""}
+              </table>
+            </div>
+            <div style="margin-top:12px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;">
+              <span>Hiển thị <strong>${filtered.length}</strong> dòng kết quả.</span>
+              <span style="font-style:italic;">* Dữ liệu tính từ DH_CT (doanh số) + CONG_NO (thu nợ) + DK_THUONG (điều kiện).</span>
+            </div>
+          </div>
+          <div style="margin:12px 16px 16px;padding:12px 14px;background:#f1f5f9;border-radius:10px;border:1px solid #cbd5e1;font-size:12px;font-family:Consolas,monospace;">
+            <strong style="color:#334155;font-size:11px;text-transform:uppercase;letter-spacing:.04em;">🔍 DEBUG – Trạng thái dữ liệu</strong>
+            <div style="margin-top:8px;display:grid;gap:4px;">
+              <div><b>DK_THUONG:</b> <span style="color:${dkData.length ? '#16a34a' : '#dc2626'}">${dkData.length} rule đã tải</span>
+                ${dkData.length ? `<span style="color:#64748b"> | loai+kieu: ${dkLoaiValues.map(v => `<code style="background:#e2e8f0;padding:1px 4px;border-radius:3px;">${safeText(v)}</code>`).join(" ")}</span>` : '<span style="color:#dc2626"> ← Chưa có dữ liệu trong sheet DK_THUONG!</span>'}</div>
+              <div><b>DH_CT sp_chinh_thuong:</b> ${spLoaiValues.map(v => `<code style="background:#e2e8f0;padding:1px 4px;border-radius:3px;">${safeText(v)}</code>`).join(" ")} <span style="color:#94a3b8">(code nhận: "chính"/"chinh" và "thường"/"thuong")</span></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Event listeners
+      document.getElementById("thuongMonthFilter").addEventListener("change", e => { window.thuongFilterMonth = e.target.value; renderThuong(); });
+      document.getElementById("thuongNvFilter").addEventListener("change", e => { window.thuongFilterNv = e.target.value; renderThuong(); });
+      document.getElementById("thuongResetBtn").addEventListener("click", () => { window.thuongFilterMonth = ""; window.thuongFilterNv = ""; renderThuong(); });
+    }
+    // ===== END MODULE THƯỞNG =====
+
     function renderSync() {
       document.getElementById("sync").innerHTML = `
         <div class="layout-2">
@@ -3341,6 +3832,7 @@
       renderOrderDetails();
       renderDebts();
       renderKpi();
+      renderThuong();
       renderSync();
       switchTab(activeTab);
       cacheState();
