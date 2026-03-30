@@ -25,7 +25,10 @@
       --danger: #ff5b6e;
       --warn: #ff9f43;
       --shadow: 0 12px 28px rgba(24, 44, 86, .08);
-      --radius: 16px
+      --radius: 16px;
+      --sidebar-width: 252px;
+      --sidebar-collapsed-width: 78px;
+      --sidebar-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * {
@@ -193,7 +196,12 @@
     .app {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 252px minmax(0, 1fr)
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      transition: grid-template-columns var(--sidebar-transition);
+    }
+
+    .app.collapsed {
+      grid-template-columns: var(--sidebar-collapsed-width) minmax(0, 1fr);
     }
 
     .sidebar {
@@ -202,21 +210,30 @@
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow: auto;
-      padding: 0
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 0;
+      transition: width var(--sidebar-transition);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
     }
 
     .brand {
       padding: 14px 20px 16px;
       border-bottom: 1px solid var(--line);
-      text-align: center
+      text-align: center;
+      transition: padding var(--sidebar-transition);
+      overflow: hidden;
+      flex-shrink: 0;
     }
 
     .brand img {
       width: 165px;
-      max-width: 100%;
+      max-width: none;
       display: block;
-      margin: 0 auto 4px
+      margin: 0 auto 4px;
+      transition: width var(--sidebar-transition), transform var(--sidebar-transition);
     }
 
     .brand p {
@@ -224,7 +241,57 @@
       color: #94a3bf;
       font-size: 10px;
       letter-spacing: .22em;
-      text-transform: uppercase
+      text-transform: uppercase;
+      transition: opacity var(--sidebar-transition), height var(--sidebar-transition);
+      white-space: nowrap;
+    }
+
+    /* COLLAPSED SIDEBAR STATES */
+    .app.collapsed .brand {
+      padding: 14px 10px;
+    }
+
+    .app.collapsed .brand img {
+      width: 40px;
+      transform: scale(1);
+    }
+
+    .app.collapsed .brand p {
+      opacity: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .app.collapsed .nav-text,
+    .app.collapsed .menu-title,
+    .app.collapsed .helper {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      pointer-events: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .app.collapsed .nav-btn {
+      justify-content: center;
+      padding: 10px 0;
+      margin-left: 10px;
+      margin-right: 10px;
+      width: calc(100% - 20px);
+    }
+
+    .app.collapsed .nav-icon {
+      margin: 0;
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .app.collapsed .nav-icon svg {
+      width: 22px;
+      height: 22px;
     }
 
     .menu-group {
@@ -318,13 +385,27 @@
     }
 
     .menu-toggle {
-      width: 28px;
-      height: 28px;
-      border: 0;
-      background: transparent;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
       color: #6d7fa0;
       font-size: 18px;
-      cursor: pointer
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, transform 0.3s;
+    }
+
+    .menu-toggle:hover {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .app.collapsed .menu-toggle {
+      transform: rotateY(180deg);
     }
 
     .page-head h1 {
@@ -935,7 +1016,11 @@
     <div class="main">
       <header class="topbar">
         <div class="page-head">
-          <button class="menu-toggle" type="button">?</button>
+          <button class="menu-toggle" type="button" id="menuToggleBtn" title="Đóng/Mở menu">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 6L9 12L15 18"/>
+            </svg>
+          </button>
           <div>
             <h1 id="pageTitle">Tổng quan</h1>
             <p id="pageSubtitle">Quản lý khách hàng, sản phẩm, đơn hàng, công nợ và KPI.</p>
@@ -1102,7 +1187,8 @@
         DH: ["id", "ngay", "npp", "id_nv", "thanh_tien"],
         DH_CT: ["id", "id_dh", "ngay", "npp", "id_nv", "id_sp", "don_gia", "slg", "thanh_tien", "ncc", "sp_chinh_thuong"],
         KPI: ["id", "thang", "id_nv", "ds_chinh", "ds_thuong", "tien_thuong_ds_chinh", "tien_thuong_ds_thuong", "tien_thuong_ds", "ti_le_thu_con_no", "tong_tien_thuong", "tong_tien_thuong_thuc"],
-        CONG_NO: ["id", "ngay", "id_khach_hang", "id_dh", "thu_chi", "so_tien", "cong_no", "id_nv"]
+        CONG_NO: ["id", "ngay", "id_khach_hang", "id_dh", "thu_chi", "so_tien", "cong_no", "id_nv"],
+        DK_THUONG: ["id", "thang", "id_nv", "loai", "muc_tu", "muc_den", "gia_tri", "kieu", "ghi_chu"]
       }
     };
     const NAV_ITEMS = [
@@ -1115,7 +1201,7 @@
       { id: "debts", label: "Công nợ", subtitle: "KINH DOANH", icon: "coin", color: "#ff4d6d" },
       { id: "kpi", label: "KPI", subtitle: "KINH DOANH", icon: "chart", color: "#f59e0b" }
     ];
-    const DEFAULT_STATE = { KHACH_HANG: [], DS_SP: [], DH: [], DH_CT: [], KPI: [], CONG_NO: [] };
+    const DEFAULT_STATE = { KHACH_HANG: [], DS_SP: [], DH: [], DH_CT: [], KPI: [], CONG_NO: [], DK_THUONG: [] };
     const STAFF_SCOPED_SHEETS = ["DH", "DH_CT", "CONG_NO", "KPI"];
     let accessToken = "", tokenExpiry = 0, usersData = [], currentUser = null, activeTab = "dashboard";
     let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -1389,6 +1475,22 @@
       // Reload bell
       document.getElementById("reloadBellBtn").onclick = () => document.getElementById("reloadSheetsBtn").click();
     }
+
+    function toggleSidebar() {
+      const app = el.mainApp;
+      app.classList.toggle("collapsed");
+      localStorage.setItem("sidebar_collapsed", app.classList.contains("collapsed") ? "1" : "0");
+    }
+
+    function initSidebarToggle() {
+      const btn = document.getElementById("menuToggleBtn");
+      if (btn) btn.addEventListener("click", toggleSidebar);
+      // Restore saved state
+      if (localStorage.getItem("sidebar_collapsed") === "1") {
+        el.mainApp.classList.add("collapsed");
+      }
+    }
+
 
     function renderNav() {
       const groups = {};
@@ -3318,6 +3420,7 @@
       el.modalBackdrop.addEventListener("click", (event) => { if (event.target === el.modalBackdrop) closeModal(); });
       document.getElementById("closeDrawerBtn").addEventListener("click", closeDrawer);
       document.getElementById("drawerBackdrop").addEventListener("click", (event) => { if (event.target === document.getElementById("drawerBackdrop")) closeDrawer(); });
+      initSidebarToggle();
     }
 
     async function bootstrap() {
