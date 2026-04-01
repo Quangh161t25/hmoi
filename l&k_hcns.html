@@ -1317,9 +1317,13 @@
         </div>
       </header>
       <main class="content">
-        <section id="dashboard" class="section active"></section>
-        <section id="sync" class="section"></section>
-        <section id="work_management" class="section"></section>
+      <section id="dashboard" class="section active"></section>
+      <section id="sync" class="section"></section>
+      <section id="work_management" class="section"></section>
+      <section id="work_details" class="section"></section>
+      <section id="staff_list" class="section"></section>
+      <section id="department_list" class="section"></section>
+      <section id="report_list" class="section"></section>
       </main>
     </div>
   </div>
@@ -1445,17 +1449,21 @@
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
       sheets: {
         CONG_VIEC: ["id", "ngay", "han_hoan_thanh", "cong_viec", "ng_giao", "ng_nhan", "phong_ban", "truong"],
-        CONG_VIEC_CT: ["id", "id_cv", "ngay", "han_hoan_thanh", "cong_viec", "ng_giao", "ng_nhan", "phong_ban", "truong", "ten_cv", "muc_tieu", "ket_qua", "tien_do", "trang_thai", "xac_nhan"],
+        CONG_VIEC_CT: ["id", "id_cv", "ngay", "han_hoan_thanh", "cong_viec", "ng_giao", "ng_nhan", "phong_ban", "truong", "ten_cv", "muc_tieu", "ket_qua", "tien_do", "trang_thai", "xac_nhan", "khach_hang", "hoat_dong", "so_luong_cuoc_goi_gap", "ghi_chu"],
         PHONG_BAN: ["ten_phong_ban", "phong_ban_cap_tren", "mo_ta", "cap_do", "thu_tu", "trang_thai"],
         LIST_CV: ["id", "ten_phong_ban"]
       }
     };
     const NAV_ITEMS = [
-      { id: "dashboard", label: "Trang chủ", subtitle: "MENU CHÍNH", icon: "home", color: "#2d5bff" },
-      { id: "work_management", label: "Quản lý Công việc", subtitle: "TÁC VỤ", icon: "task", color: "#8b5cf6" }
+      { id: "dashboard", label: "Trang chu", subtitle: "MENU CHINH", icon: "home", color: "#2d5bff" },
+      { id: "work_management", label: "Quan ly Cong viec", subtitle: "TAC VU", icon: "task", color: "#8b5cf6" },
+      { id: "work_details", label: "Cong viec chi tiet", subtitle: "TAC VU", icon: "task", color: "#0f766e" },
+      { id: "report_list", label: "Bao cao", subtitle: "BAO CAO", icon: "file", color: "#ef4444" },
+      { id: "staff_list", label: "Danh sach nhan vien", subtitle: "DANH MUC", icon: "users", color: "#0ea5e9" },
+      { id: "department_list", label: "Danh sach phong ban", subtitle: "DANH MUC", icon: "box", color: "#f59e0b" }
     ];
     const DEFAULT_STATE = { CONG_VIEC: [], CONG_VIEC_CT: [], PHONG_BAN: [], LIST_CV: [] };
-    const STAFF_SCOPED_SHEETS = ["CONG_VIEC"];
+    const STAFF_SCOPED_SHEETS = ["CONG_VIEC", "CONG_VIEC_CT"];
     let accessToken = "", tokenExpiry = 0, usersData = [], currentUser = null, activeTab = "dashboard";
     let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
     let fullAppState = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -1834,7 +1842,7 @@
         muc_tieu: mucTieu,
         ket_qua: ketQua,
         tien_do: formatProgressPercent(ketQua, mucTieu),
-        trang_thai: String(input.trang_thai || "\u0111\u00e3 nh\u1eadn").trim(),
+        trang_thai: String(input.trang_thai || "đã nhận").trim(),
         xac_nhan: String(input.xac_nhan || "").trim()
       };
     }
@@ -1963,6 +1971,551 @@
           <td><span class="badge" style="background:${item.cong_viec === 'Công việc cá nhân' ? '#f0f9ff' : '#f5f3ff'}; color:${item.cong_viec === 'Công việc cá nhân' ? '#0369a1' : '#6d28d9'}">${safeText(item.cong_viec)}</span></td>
         </tr>
       `).join("") || '<tr><td colspan="8" class="empty">Trống</td></tr>';
+    }
+
+    function normalizeUserIdentity(value) {
+      return removeDiacritics(String(value || "").trim()).toLowerCase();
+    }
+
+    function getCurrentUserIdentitySet() {
+      return new Set([
+        currentUser?.id,
+        currentUser?.ho_ten,
+        currentUser?.name
+      ].map(normalizeUserIdentity).filter(Boolean));
+    }
+
+    function matchesCurrentUser(value) {
+      const normalized = normalizeUserIdentity(value);
+      if (!normalized) return false;
+      return getCurrentUserIdentitySet().has(normalized);
+    }
+
+    function matchesWorkDetailView(item, viewMode) {
+      const mine = matchesCurrentUser(item.ng_nhan);
+      const delegated = matchesCurrentUser(item.ng_giao);
+      if (viewMode === "mine") return mine;
+      if (viewMode === "delegated") return delegated;
+      return mine || delegated;
+    }
+
+    function isDateInRange(rawDate, startDate, endDate) {
+      const normalized = formatDateInput(rawDate || "");
+      if (!normalized) return !startDate && !endDate;
+      if (startDate && normalized < startDate) return false;
+      if (endDate && normalized > endDate) return false;
+      return true;
+    }
+
+    function getQuickDateRange(preset) {
+      const toInputDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+      const now = new Date();
+      const today = toInputDate(now);
+      if (preset === "today") return { start: today, end: today };
+      if (preset === "week") {
+        const day = now.getDay();
+        const diffToMonday = day === 0 ? -6 : 1 - day;
+        const start = new Date(now);
+        start.setDate(now.getDate() + diffToMonday);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        return { start: toInputDate(start), end: toInputDate(end) };
+      }
+      if (preset === "month") {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        return { start: toInputDate(start), end: toInputDate(end) };
+      }
+      return { start: "", end: "" };
+    }
+
+    function setWorkDetailQuickRange(preset) {
+      const startInput = document.getElementById("workDetailStart");
+      const endInput = document.getElementById("workDetailEnd");
+      if (!startInput || !endInput) return;
+      const range = getQuickDateRange(preset);
+      startInput.value = range.start;
+      endInput.value = range.end;
+      filterWorkDetailTable();
+    }
+
+    function getUserDisplayName(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      const user = usersData.find(item =>
+        String(item.id || "").trim() === raw ||
+        normalizeUserIdentity(item.ho_ten) === normalizeUserIdentity(raw)
+      );
+      if (!user) return raw;
+      const fullName = String(user.ho_ten || "").trim();
+      const userId = String(user.id || "").trim();
+      return fullName && userId && fullName !== userId ? `${fullName} (${userId})` : (fullName || userId || raw);
+    }
+
+    function getWorkDetailStatusBadge(status) {
+      const normalized = normalizeUserIdentity(status);
+      if (normalized === "hoan thanh") return "background:#dcfce7;color:#166534";
+      if (normalized === "dang lam") return "background:#dbeafe;color:#1d4ed8";
+      if (normalized === "da nhan") return "background:#ede9fe;color:#6d28d9";
+      if (normalized === "huy") return "background:#fee2e2;color:#b91c1c";
+      return "background:#e2e8f0;color:#475569";
+    }
+
+    function getWorkDetailById(detailId) {
+      return (fullAppState.CONG_VIEC_CT || []).find(item => String(item.id || "").trim() === String(detailId || "").trim()) || null;
+    }
+
+    function openWorkDetailDrawer(detailId) {
+      const item = getWorkDetailById(detailId);
+      if (!item) {
+        showToast("Khong tim thay cong viec chi tiet.", true);
+        return;
+      }
+
+      const statusOptions = ["đã nhận", "đang làm", "hoàn thành", "hủy"];
+      const confirmOptions = ["", "hoan thanh", "lam lai", "huy"];
+
+      openDrawer(
+        "Chi tiet cong viec",
+        `ID: ${safeText(item.id || "")}`,
+        `
+          <form id="workDetailDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0; display:grid; gap:16px;">
+            <input type="hidden" name="id" value="${safeText(item.id || "")}" />
+            <div class="field"><label>Ngay</label><input type="text" value="${safeText(formatDateVi(item.ngay))}" readonly></div>
+            <div class="field"><label>Han hoan thanh</label><input type="text" value="${safeText(formatDateVi(item.han_hoan_thanh))}" readonly></div>
+            <div class="field"><label>Nguoi giao</label><input type="text" value="${safeText(getUserDisplayName(item.ng_giao))}" readonly></div>
+            <div class="field"><label>Nguoi nhan</label><input type="text" value="${safeText(getUserDisplayName(item.ng_nhan))}" readonly></div>
+            <div class="field"><label>Ten cong viec</label><input type="text" value="${safeText(item.ten_cv)}" readonly></div>
+            <div class="field"><label>Muc tieu</label><input name="muc_tieu" type="number" min="0" step="any" value="${safeText(item.muc_tieu || 0)}" required></div>
+            <div class="field"><label>Ket qua</label><input name="ket_qua" type="number" min="0" step="any" value="${safeText(item.ket_qua || 0)}" required></div>
+            <div class="field"><label>Tien do</label><input id="drawerProgressPreview" type="text" value="${safeText(item.tien_do || "0%")}" readonly></div>
+            <div class="field"><label>Trang thai</label>
+              <select name="trang_thai">
+                ${statusOptions.map(status => `<option value="${status}" ${normalizeUserIdentity(item.trang_thai) === status ? 'selected' : ''}>${safeText(status)}</option>`).join("")}
+              </select>
+            </div>
+            <div class="field"><label>Xac nhan</label>
+              <select name="xac_nhan">
+                ${confirmOptions.map(status => `<option value="${status}" ${normalizeUserIdentity(item.xac_nhan) === status ? 'selected' : ''}>${safeText(status || "-- Chon --")}</option>`).join("")}
+              </select>
+            </div>
+            <div class="button-row full" style="margin-top:4px">
+              <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Dong</button>
+              <button class="btn btn-primary" type="submit">Luu cap nhat</button>
+            </div>
+          </form>
+        `
+      );
+
+      const form = document.getElementById("workDetailDrawerForm");
+      if (!form) return;
+      const targetInput = form.querySelector('[name="muc_tieu"]');
+      const resultInput = form.querySelector('[name="ket_qua"]');
+      const progressPreview = document.getElementById("drawerProgressPreview");
+      const syncPreview = () => {
+        progressPreview.value = formatProgressPercent(parseLooseNumber(resultInput.value), parseLooseNumber(targetInput.value));
+      };
+      targetInput.addEventListener("input", syncPreview);
+      resultInput.addEventListener("input", syncPreview);
+      form.addEventListener("submit", saveWorkDetailDrawer);
+      syncPreview();
+    }
+
+    async function saveWorkDetailDrawer(event) {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(event.target).entries());
+      const existing = getWorkDetailById(data.id);
+      if (!existing) {
+        showToast("Khong tim thay du lieu de cap nhat.", true);
+        return;
+      }
+
+      const mucTieu = parseLooseNumber(data.muc_tieu);
+      const ketQua = parseLooseNumber(data.ket_qua);
+      const updated = {
+        ...existing,
+        muc_tieu: mucTieu,
+        ket_qua: ketQua,
+        tien_do: formatProgressPercent(ketQua, mucTieu),
+        trang_thai: String(data.trang_thai || existing.trang_thai || "da nhan").trim(),
+        xac_nhan: String(data.xac_nhan || "").trim()
+      };
+
+      try {
+        const records = Array.isArray(fullAppState.CONG_VIEC_CT) ? [...fullAppState.CONG_VIEC_CT] : [];
+        const index = records.findIndex(item => String(item.id || "").trim() === String(updated.id || "").trim());
+        if (index === -1) throw new Error("Khong tim thay dong du lieu trong sheet.");
+        records[index] = updated;
+        fullAppState.CONG_VIEC_CT = records;
+        syncWorkStateViews();
+        await updateSheet("CONG_VIEC_CT", objectsToRows(fullAppState.CONG_VIEC_CT, CONFIG.sheets.CONG_VIEC_CT));
+        filterWorkDetailTable();
+        closeDrawer();
+        showToast("Da cap nhat cong viec chi tiet.");
+      } catch (error) {
+        showToast("Loi cap nhat cong viec chi tiet: " + error.message, true);
+      }
+    }
+
+    function renderWorkDetails() {
+      const container = document.getElementById("work_details");
+      const statusOptions = [...new Set((appState.CONG_VIEC_CT || []).map(item => String(item.trang_thai || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "vi"));
+      container.innerHTML = `
+        <div class="card panel">
+          <div class="toolbar">
+            <div><h2>Cong viec chi tiet</h2><p class="subtle">Du lieu lay tu sheet CONG_VIEC_CT, hien thi theo nguoi giao, nguoi nhan va cac bo loc.</p></div>
+            <span class="badge" id="workDetailCount">0</span>
+          </div>
+          <div class="toolbar sticky-filter" style="border-bottom:none">
+            <div class="toolbar-search">
+              <select id="workDetailView" onchange="filterWorkDetailTable()">
+                <option value="all">Tat ca cong viec</option>
+                <option value="mine">Cong viec cua toi</option>
+                <option value="delegated">Cong viec toi giao</option>
+              </select>
+              <input type="text" id="workDetailSearch" placeholder="Tim theo ten viec, nguoi giao, nguoi nhan..." oninput="filterWorkDetailTable()" />
+              <input type="date" id="workDetailStart" title="Tu ngay" onchange="filterWorkDetailTable()" />
+              <input type="date" id="workDetailEnd" title="Den ngay" onchange="filterWorkDetailTable()" />
+              <select id="workDetailStatus" onchange="filterWorkDetailTable()">
+                <option value="">Tat ca trang thai</option>
+                ${statusOptions.map(status => `<option value="${safeText(status)}">${safeText(status)}</option>`).join("")}
+              </select>
+            </div>
+            <div class="toolbar-right">
+              <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('today')">Hom nay</button>
+              <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('week')">Tuan nay</button>
+              <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('month')">Thang nay</button>
+              <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('')">Bo loc ngay</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table style="min-width:1400px">
+              <thead>
+                <tr>
+                  <th>Ngay</th>
+                  <th>Han hoan thanh</th>
+                  <th>Nguoi giao</th>
+                  <th>Nguoi nhan</th>
+                  <th>Ten cong viec</th>
+                  <th>Muc tieu</th>
+                  <th>Ket qua</th>
+                  <th>Tien do</th>
+                  <th>Trang thai</th>
+                  <th>Xac nhan</th>
+                </tr>
+              </thead>
+              <tbody id="workDetailTableBody"></tbody>
+            </table>
+          </div>
+        </div>`;
+      filterWorkDetailTable();
+    }
+
+    function filterWorkDetailTable() {
+      const tbody = document.getElementById("workDetailTableBody");
+      if (!tbody) return;
+
+      const search = normalizeUserIdentity(document.getElementById("workDetailSearch")?.value || "");
+      const startDate = document.getElementById("workDetailStart")?.value || "";
+      const endDate = document.getElementById("workDetailEnd")?.value || "";
+      const status = normalizeUserIdentity(document.getElementById("workDetailStatus")?.value || "");
+      const viewMode = document.getElementById("workDetailView")?.value || "all";
+
+      const rows = (appState.CONG_VIEC_CT || [])
+        .filter(item => matchesWorkDetailView(item, viewMode))
+        .filter(item => !status || normalizeUserIdentity(item.trang_thai) === status)
+        .filter(item => isDateInRange(item.ngay, startDate, endDate))
+        .filter(item => {
+          if (!search) return true;
+          const haystack = [
+            item.ngay,
+            item.han_hoan_thanh,
+            item.ng_giao,
+            getUserDisplayName(item.ng_giao),
+            item.ng_nhan,
+            getUserDisplayName(item.ng_nhan),
+            item.ten_cv,
+            item.muc_tieu,
+            item.ket_qua,
+            item.tien_do,
+            item.trang_thai,
+            item.xac_nhan
+          ].map(normalizeUserIdentity).join(" ");
+          return haystack.includes(search);
+        })
+        .sort((a, b) => {
+          const byDate = parseDateSort(b.ngay) - parseDateSort(a.ngay);
+          if (byDate !== 0) return byDate;
+          return parseDateSort(b.han_hoan_thanh) - parseDateSort(a.han_hoan_thanh);
+        });
+
+      const countChip = document.getElementById("workDetailCount");
+      if (countChip) countChip.textContent = `${rows.length} dong`;
+
+      tbody.innerHTML = rows.map(item => `
+        <tr style="cursor:pointer" onclick="openWorkDetailDrawer('${safeText(item.id)}')">
+          <td>${safeText(formatDateVi(item.ngay))}</td>
+          <td>${safeText(formatDateVi(item.han_hoan_thanh))}</td>
+          <td>${safeText(getUserDisplayName(item.ng_giao))}</td>
+          <td>${safeText(getUserDisplayName(item.ng_nhan))}</td>
+          <td class="font-bold">${safeText(item.ten_cv)}</td>
+          <td>${safeText(item.muc_tieu)}</td>
+          <td>${safeText(item.ket_qua)}</td>
+          <td><span class="badge" style="background:#f3e8ff;color:#7e22ce">${safeText(item.tien_do || "0%")}</span></td>
+          <td><span class="badge" style="${getWorkDetailStatusBadge(item.trang_thai)}">${safeText(item.trang_thai || "Chua co")}</span></td>
+          <td>${safeText(item.xac_nhan || "--")}</td>
+        </tr>
+      `).join("") || '<tr><td colspan="10" class="empty">Khong co cong viec chi tiet phu hop bo loc.</td></tr>';
+    }
+
+    function renderStaffList() {
+      const container = document.getElementById("staff_list");
+      const rows = [...(usersData || [])].sort((a, b) => String(a.ho_ten || "").localeCompare(String(b.ho_ten || ""), "vi"));
+      container.innerHTML = `
+        <div class="card panel">
+          <div class="toolbar">
+            <div><h2>Danh sach nhan vien</h2><p class="subtle">Du lieu lay tu sheet DSNV.</p></div>
+            <span class="badge">${rows.length}</span>
+          </div>
+          <div class="table-wrap">
+            <table style="min-width:900px">
+              <thead>
+                <tr>
+                  <th>Ho ten</th>
+                  <th>Gioi tinh</th>
+                  <th>Quyen</th>
+                  <th>Chuc vu</th>
+                  <th>Phong ban</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map(item => `
+                  <tr>
+                    <td class="font-bold">${safeText(item.ho_ten || "")}</td>
+                    <td>${safeText(item.gioi_tinh || "")}</td>
+                    <td>${safeText(item.quyen || "")}</td>
+                    <td>${safeText(item.chuc_vu || "")}</td>
+                    <td>${safeText(item.phong_ban || "")}</td>
+                  </tr>
+                `).join("") || '<tr><td colspan="5" class="empty">Khong co nhan vien.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function renderDepartmentList() {
+      const container = document.getElementById("department_list");
+      const rows = [...(appState.PHONG_BAN || [])].sort((a, b) => {
+        const orderA = parseLooseNumber(a.thu_tu);
+        const orderB = parseLooseNumber(b.thu_tu);
+        if (orderA !== orderB) return orderA - orderB;
+        return String(a.ten_phong_ban || "").localeCompare(String(b.ten_phong_ban || ""), "vi");
+      });
+      container.innerHTML = `
+        <div class="card panel">
+          <div class="toolbar">
+            <div><h2>Danh sach phong ban</h2><p class="subtle">Du lieu lay tu sheet PHONG_BAN.</p></div>
+            <span class="badge">${rows.length}</span>
+          </div>
+          <div class="table-wrap">
+            <table style="min-width:1200px">
+              <thead>
+                <tr>
+                  <th>Ten phong ban</th>
+                  <th>Phong ban cap tren</th>
+                  <th>Mo ta</th>
+                  <th>Cap do</th>
+                  <th>Thu tu</th>
+                  <th>Trang thai</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map(item => `
+                  <tr>
+                    <td class="font-bold">${safeText(item.ten_phong_ban || "")}</td>
+                    <td>${safeText(item.phong_ban_cap_tren || "")}</td>
+                    <td>${safeText(item.mo_ta || "")}</td>
+                    <td>${safeText(item.cap_do || "")}</td>
+                    <td>${safeText(item.thu_tu || "")}</td>
+                    <td>${safeText(item.trang_thai || "")}</td>
+                  </tr>
+                `).join("") || '<tr><td colspan="6" class="empty">Khong co phong ban.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function getReportRows() {
+      return [...(appState.CONG_VIEC_CT || [])]
+        .filter(item => String(item.khach_hang || "").trim() !== "")
+        .sort((a, b) => parseDateSort(b.ngay) - parseDateSort(a.ngay));
+    }
+
+    function getReportById(reportId) {
+      return (fullAppState.CONG_VIEC_CT || []).find(item => String(item.id || "").trim() === String(reportId || "").trim()) || null;
+    }
+
+    function openReportDrawer(reportId = "") {
+      const editing = reportId ? getReportById(reportId) : null;
+      const item = editing || {
+        id: randomId("BC"),
+        ngay: todayInput(),
+        ten_cv: "",
+        khach_hang: "",
+        hoat_dong: "",
+        so_luong_cuoc_goi_gap: "",
+        ghi_chu: "",
+        id_cv: "",
+        han_hoan_thanh: "",
+        cong_viec: "",
+        ng_giao: currentUser?.id || "",
+        ng_nhan: currentUser?.id || "",
+        phong_ban: currentUser?.phong_ban || "",
+        truong: "",
+        muc_tieu: "",
+        ket_qua: "",
+        tien_do: "",
+        trang_thai: "",
+        xac_nhan: ""
+      };
+
+      openDrawer(
+        editing ? "Sua bao cao" : "Them bao cao",
+        editing ? `ID: ${safeText(item.id)}` : "Nhap thong tin bao cao",
+        `
+          <form id="reportDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0; display:grid; gap:16px;">
+            <input type="hidden" name="id" value="${safeText(item.id || "")}" />
+            <div class="field"><label>Ngay</label><input name="ngay" type="date" value="${safeText(formatDateInput(item.ngay || todayInput()))}" required></div>
+            <div class="field"><label>Tên công việc</label><textarea name="ten_cv" rows="2" required>${safeText(item.ten_cv || "")}</textarea></div>
+            <div class="field"><label>Khách hàng</label><textarea name="khach_hang" rows="2" required>${safeText(item.khach_hang || "")}</textarea></div>
+            <div class="field"><label>Hoạt động</label><textarea name="hoat_dong" rows="2">${safeText(item.hoat_dong || "")}</textarea></div>
+            <div class="field"><label>Số lượng cuộc gọi/gặp</label><textarea name="so_luong_cuoc_goi_gap" rows="2">${safeText(item.so_luong_cuoc_goi_gap || "")}</textarea></div>
+            <div class="field"><label>Ghi chú</label><textarea name="ghi_chu" rows="4">${safeText(item.ghi_chu || "")}</textarea></div>
+            <div class="button-row full" style="margin-top:4px">
+              ${editing ? `<button class="btn btn-danger" type="button" onclick="deleteReportRow('${safeText(item.id)}')">Xoa</button>` : ''}
+              <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Dong</button>
+              <button class="btn btn-primary" type="submit">${editing ? 'Luu cap nhat' : 'Them bao cao'}</button>
+            </div>
+          </form>
+        `
+      );
+
+      const form = document.getElementById("reportDrawerForm");
+      if (form) form.addEventListener("submit", saveReportDrawer);
+    }
+
+    async function saveReportDrawer(event) {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(event.target).entries());
+      if (!String(data.khach_hang || "").trim()) {
+        showToast("Khach hang khong duoc de trong.", true);
+        return;
+      }
+      if (!String(data.ten_cv || "").trim()) {
+        showToast("Ten cong viec khong duoc de trong.", true);
+        return;
+      }
+
+      const existing = getReportById(data.id);
+      const record = {
+        ...(existing || {}),
+        id: String(data.id || randomId("BC")).trim(),
+        id_cv: String(existing?.id_cv || "").trim(),
+        ngay: String(data.ngay || todayInput()).trim(),
+        han_hoan_thanh: String(existing?.han_hoan_thanh || "").trim(),
+        cong_viec: String(existing?.cong_viec || "").trim(),
+        ng_giao: String(existing?.ng_giao || currentUser?.id || "").trim(),
+        ng_nhan: String(existing?.ng_nhan || currentUser?.id || "").trim(),
+        phong_ban: String(existing?.phong_ban || currentUser?.phong_ban || "").trim(),
+        truong: String(existing?.truong || "").trim(),
+        ten_cv: String(data.ten_cv || "").trim(),
+        muc_tieu: existing?.muc_tieu ?? "",
+        ket_qua: existing?.ket_qua ?? "",
+        tien_do: String(existing?.tien_do || "").trim(),
+        trang_thai: String(existing?.trang_thai || "").trim(),
+        xac_nhan: String(existing?.xac_nhan || "").trim(),
+        khach_hang: String(data.khach_hang || "").trim(),
+        hoat_dong: String(data.hoat_dong || "").trim(),
+        so_luong_cuoc_goi_gap: String(data.so_luong_cuoc_goi_gap || "").trim(),
+        ghi_chu: String(data.ghi_chu || "").trim()
+      };
+
+      try {
+        const records = Array.isArray(fullAppState.CONG_VIEC_CT) ? [...fullAppState.CONG_VIEC_CT] : [];
+        const index = records.findIndex(item => String(item.id || "").trim() === record.id);
+        if (index >= 0) records[index] = record;
+        else records.push(record);
+        fullAppState.CONG_VIEC_CT = records;
+        syncWorkStateViews();
+        await updateSheet("CONG_VIEC_CT", objectsToRows(fullAppState.CONG_VIEC_CT, CONFIG.sheets.CONG_VIEC_CT));
+        closeDrawer();
+        renderReportList();
+        showToast(index >= 0 ? "Da cap nhat bao cao." : "Da them bao cao.");
+      } catch (error) {
+        showToast("Loi luu bao cao: " + error.message, true);
+      }
+    }
+
+    async function deleteReportRow(reportId) {
+      if (!confirm("Xoa dong bao cao nay?")) return;
+      try {
+        fullAppState.CONG_VIEC_CT = (fullAppState.CONG_VIEC_CT || []).filter(item => String(item.id || "").trim() !== String(reportId || "").trim());
+        syncWorkStateViews();
+        await updateSheet("CONG_VIEC_CT", objectsToRows(fullAppState.CONG_VIEC_CT, CONFIG.sheets.CONG_VIEC_CT));
+        closeDrawer();
+        renderReportList();
+        showToast("Da xoa bao cao.");
+      } catch (error) {
+        showToast("Loi xoa bao cao: " + error.message, true);
+      }
+    }
+
+    function renderReportList() {
+      const container = document.getElementById("report_list");
+      const rows = getReportRows();
+      container.innerHTML = `
+        <div class="card panel">
+          <div class="toolbar">
+            <div><h2>Bao cao</h2><p class="subtle">Chi hien thi cac dong co du lieu cot khach_hang.</p></div>
+            <div class="toolbar-right">
+              <span class="badge">${rows.length}</span>
+              <button class="btn btn-primary" type="button" onclick="openReportDrawer()">+ Them bao cao</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table style="min-width:1200px">
+              <thead>
+                <tr>
+                  <th>Ngay</th>
+                  <th>Ten cong viec</th>
+                  <th>Khach hang</th>
+                  <th>Hoat dong</th>
+                  <th>So luong cuoc goi gap</th>
+                  <th>Ghi chu</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map(item => `
+                  <tr style="cursor:pointer" onclick="openReportDrawer('${safeText(item.id)}')">
+                    <td>${safeText(formatDateVi(item.ngay))}</td>
+                    <td class="font-bold">${safeText(item.ten_cv || "")}</td>
+                    <td>${safeText(item.khach_hang || "")}</td>
+                    <td>${safeText(item.hoat_dong || "")}</td>
+                    <td>${safeText(item.so_luong_cuoc_goi_gap || "")}</td>
+                    <td>${safeText(item.ghi_chu || "")}</td>
+                  </tr>
+                `).join("") || '<tr><td colspan="6" class="empty">Khong co du lieu bao cao.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
     }
 
     function openWorkDrawer(id) {
@@ -2401,7 +2954,7 @@
         muc_tieu: mucTieu,
         ket_qua: ketQua,
         tien_do: formatProgressPercent(ketQua, mucTieu),
-        trang_thai: String(input.trang_thai || "\u0111\u00e3 nh\u1eadn").trim(),
+        trang_thai: String(input.trang_thai || "đã nhận").trim(),
         xac_nhan: String(input.xac_nhan || "").trim()
       };
     }
@@ -2573,16 +3126,16 @@
       const editing = currentSubTaskId ? subTasks.find(item => item.id === currentSubTaskId) : null;
       
       const statusOptions = [
-        { value: "\u0111\u00e3 nh\u1eadn", label: "\u0110\u00e3 nh\u1eadn" },
-        { value: "\u0111ang l\u00e0m", label: "\u0110ang l\u00e0m" },
-        { value: "ho\u00e0n th\u00e0nh", label: "Ho\u00e0n th\u00e0nh" },
-        { value: "h\u1ee7y", label: "H\u1ee7y" }
+        { value: "đã nhận", label: "Đã nhận" },
+        { value: "đang làm", label: "Đang làm" },
+        { value: "hoàn thành", label: "Hoàn thành" },
+        { value: "hủy", label: "Hủy" }
       ];
       const confirmOptions = [
-        { value: "", label: "-- Ch\u1ecdn --" },
-        { value: "ho\u00e0n th\u00e0nh", label: "Ho\u00e0n th\u00e0nh" },
-        { value: "l\u00e0m l\u1ea1i", label: "L\u00e0m l\u1ea1i" },
-        { value: "h\u1ee7y", label: "H\u1ee7y" }
+        { value: "", label: "-- Chọn --" },
+        { value: "hoàn thành", label: "Hoàn thành" },
+        { value: "làm lại", label: "Làm lại" },
+        { value: "hủy", label: "Hủy" }
       ];
 
       const formHtml = `
@@ -3337,83 +3890,109 @@
       ];
 
       const formHtml = `
-        <form id="subTaskInlineForm" class="mb-4 rounded-2xl border border-purple-200 bg-gradient-to-br from-white via-purple-50/40 to-white p-3 shadow-sm">
-          <div class="flex items-center justify-between gap-3 mb-2">
+        <form id="subTaskInlineForm" class="mb-5 rounded-2xl border border-purple-200 bg-gradient-to-br from-white via-purple-50/40 to-white p-4 shadow-sm">
+          <div class="flex items-center justify-between gap-3 mb-4">
             <div class="text-sm font-bold text-slate-800">${editing ? 'Sửa tác vụ chi tiết' : 'Thêm tác vụ chi tiết'}</div>
             <div class="text-[11px] text-slate-500">${currentWorkId ? 'Lưu trực tiếp xuống sheet' : 'Sẽ lưu cùng công việc chính'}</div>
           </div>
-          <div class="overflow-x-auto">
-            <div class="flex items-end gap-2 min-w-[980px]">
-              <div class="field m-0 min-w-[110px]">
-                <label class="text-[10px]">ID</label>
-                <input name="id" value="${safeText(editing?.id || randomId("CT"))}" ${editing ? 'readonly' : ''} />
-              </div>
-              <div class="field m-0 min-w-[220px] flex-1">
-                <label class="text-[10px]">Tên tác vụ</label>
-                <input name="ten_cv" value="${safeText(editing?.ten_cv || '')}" required />
-              </div>
-              <div class="field m-0 min-w-[95px]">
-                <label class="text-[10px]">Mục tiêu</label>
-                <input name="muc_tieu" type="number" min="0" step="any" value="${safeText(editing?.muc_tieu || 0)}" required />
-              </div>
-              <div class="field m-0 min-w-[95px]">
-                <label class="text-[10px]">Kết quả</label>
-                <input name="ket_qua" type="number" min="0" step="any" value="${safeText(editing?.ket_qua || 0)}" required />
-              </div>
-              <div class="field m-0 min-w-[90px]">
-                <label class="text-[10px]">Tiến độ</label>
-                <input id="subTaskProgressPreview" value="${safeText(editing?.tien_do || '0%')}" readonly style="background:var(--soft); font-weight:700; color:var(--brand)" />
-              </div>
-              <div class="field m-0 min-w-[120px]">
-                <label class="text-[10px]">Trạng thái</label>
-                <select name="trang_thai" required>
-                  ${statusOptions.map(opt => `<option value="${opt.value}" ${String(editing?.trang_thai || "đã nhận").trim() === opt.value ? 'selected' : ''}>${opt.label}</option>`).join("")}
-                </select>
-              </div>
-              <div class="field m-0 min-w-[120px]">
-                <label class="text-[10px]">Xác nhận</label>
-                <select name="xac_nhan">
-                  ${confirmOptions.map(opt => `<option value="${opt.value}" ${String(editing?.xac_nhan || '').trim() === opt.value ? 'selected' : ''}>${opt.label}</option>`).join("")}
-                </select>
-              </div>
-              <div class="flex items-end gap-2 pb-[2px] ml-auto">
-                ${editing ? `<button class="btn btn-danger" type="button" onclick="deleteSubTask('${safeText(editing.id)}')">Xóa</button>` : ''}
-                <button class="btn btn-secondary" type="button" onclick="closeSubTaskModal()">Mới</button>
-                <button class="btn btn-primary" type="submit">${editing ? 'Cập nhật' : 'Lưu tác vụ'}</button>
-              </div>
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+            <div class="field m-0 md:col-span-2">
+              <label class="text-[10px]">ID</label>
+              <input name="id" value="${safeText(editing?.id || randomId("CT"))}" ${editing ? 'readonly' : ''} />
+            </div>
+            <div class="field m-0 md:col-span-4">
+              <label class="text-[10px]">Tên tác vụ</label>
+              <input name="ten_cv" value="${safeText(editing?.ten_cv || '')}" required />
+            </div>
+            <div class="field m-0 md:col-span-2">
+              <label class="text-[10px]">Mục tiêu</label>
+              <input name="muc_tieu" type="number" min="0" step="any" value="${safeText(editing?.muc_tieu || 0)}" required />
+            </div>
+            <div class="field m-0 md:col-span-2">
+              <label class="text-[10px]">Kết quả</label>
+              <input name="ket_qua" type="number" min="0" step="any" value="${safeText(editing?.ket_qua || 0)}" required />
+            </div>
+            <div class="field m-0 md:col-span-2">
+              <label class="text-[10px]">Tiến độ</label>
+              <input id="subTaskProgressPreview" value="${safeText(editing?.tien_do || '0%')}" readonly style="background:var(--soft); font-weight:700; color:var(--brand)" />
+            </div>
+            <div class="field m-0 md:col-span-3">
+              <label class="text-[10px]">Trạng thái</label>
+              <select name="trang_thai" required>
+                ${statusOptions.map(opt => `<option value="${opt.value}" ${String(editing?.trang_thai || "đã nhận").trim() === opt.value ? 'selected' : ''}>${opt.label}</option>`).join("")}
+              </select>
+            </div>
+            <div class="field m-0 md:col-span-3">
+              <label class="text-[10px]">Xác nhận</label>
+              <select name="xac_nhan">
+                ${confirmOptions.map(opt => `<option value="${opt.value}" ${String(editing?.xac_nhan || '').trim() === opt.value ? 'selected' : ''}>${opt.label}</option>`).join("")}
+              </select>
+            </div>
+            <div class="md:col-span-6 flex items-end justify-end gap-2">
+              ${editing ? `<button class="btn btn-danger" type="button" onclick="deleteSubTask('${safeText(editing.id)}')">Xóa</button>` : ''}
+              <button class="btn btn-secondary" type="button" onclick="closeSubTaskModal()">Mới</button>
+              <button class="btn btn-primary" type="submit">${editing ? 'Cập nhật' : 'Lưu tác vụ'}</button>
             </div>
           </div>
         </form>`;
 
-      const listHtml = subTasks.length ? subTasks.map((st, idx) => {
-        let progressVal = parsePercentValue(st.tien_do);
-        if (progressVal > 100) progressVal = 100;
-        let confirmBadge = "";
-        if (st.xac_nhan) {
-          confirmBadge = `<span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wide overflow-hidden whitespace-nowrap text-ellipsis max-w-[80px]" title="${safeText(st.xac_nhan)}">${safeText(st.xac_nhan)}</span>`;
-        }
-        return `
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 mb-4 shadow-sm relative overflow-hidden group cursor-pointer hover:border-purple-300 hover:shadow-md transition-all" onclick="openSubTaskModal('${safeText(st.id)}')">
-            <div class="absolute top-0 left-0 w-1 h-full bg-purple-400"></div>
-            <div class="flex justify-between items-start mb-3 pl-2">
-              <h4 class="font-bold text-slate-800 text-sm leading-tight flex-1 pr-3"><span class="text-slate-400 mr-1">#${idx + 1}</span> ${safeText(st.ten_cv)}</h4>
-              <div class="flex flex-col items-end gap-1 shrink-0">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 uppercase tracking-widest">${safeText(st.trang_thai)}</span>
-                ${confirmBadge}
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 pl-2 mb-3">
-              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100"><div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Mục tiêu</div><div class="text-sm font-bold text-slate-700 truncate">${safeText(st.muc_tieu)}</div></div>
-              <div class="bg-slate-50 p-2 rounded-lg border border-slate-100"><div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Kết quả</div><div class="text-sm font-bold text-slate-700 truncate">${safeText(st.ket_qua)}</div></div>
-            </div>
-            <div class="pl-2 mt-2">
-              <div class="flex justify-between items-end mb-1"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tiến độ</span><span class="text-xs font-bold text-purple-600">${st.tien_do || '0%'}</span></div>
-              <div class="w-full bg-slate-100 rounded-full h-1.5"><div class="bg-purple-500 h-1.5 rounded-full" style="width: ${progressVal}%"></div></div>
-            </div>
-          </div>`;
-      }).join("") : '<div class="empty text-center py-10 opacity-50">Chưa có tác vụ chi tiết.</div>';
+      const tableHtml = subTasks.length ? `
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[960px] border-collapse text-left">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                  <th class="px-4 py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center w-12">#</th>
+                  <th class="px-4 py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest min-w-[260px]">Tác vụ</th>
+                  <th class="px-4 py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center w-28">Mục tiêu</th>
+                  <th class="px-4 py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center w-28">Kết quả</th>
+                  <th class="px-4 py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest min-w-[180px]">Tiến độ</th>
+                  <th class="px-4 py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center w-36">Trạng thái</th>
+                  <th class="px-4 py-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center w-32">Xác nhận</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${subTasks.map((st, idx) => {
+                  let progressVal = parsePercentValue(st.tien_do);
+                  if (progressVal > 100) progressVal = 100;
+                  if (progressVal < 0) progressVal = 0;
+                  const badgeClass = getStatusBadgeClass(st.trang_thai);
+                  const confirmBadge = st.xac_nhan
+                    ? `<span class="inline-flex items-center justify-center px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide bg-indigo-50 text-indigo-600 border border-indigo-100">${safeText(st.xac_nhan)}</span>`
+                    : `<span class="text-[11px] text-slate-300">--</span>`;
 
-      container.innerHTML = `<button onclick="openSubTaskModal()" class="w-full py-3 mb-4 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 font-bold text-sm hover:border-purple-300 hover:text-purple-500 hover:bg-purple-50 transition-all flex items-center justify-center gap-2"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>THÊM TÁC VỤ CHI TIẾT</button>${formHtml}${listHtml}`;
+                  return `
+                    <tr class="cursor-pointer transition-colors hover:bg-slate-50/80" onclick="openSubTaskModal('${safeText(st.id)}')">
+                      <td class="px-4 py-4 text-center text-xs font-bold text-slate-400">${idx + 1}</td>
+                      <td class="px-4 py-4">
+                        <div class="text-sm font-bold text-slate-700">${safeText(st.ten_cv)}</div>
+                        <div class="text-[10px] font-medium text-slate-400 mt-1">ID: ${safeText(st.id)}</div>
+                      </td>
+                      <td class="px-4 py-4 text-center text-sm font-bold text-slate-700">${safeText(st.muc_tieu)}</td>
+                      <td class="px-4 py-4 text-center text-sm font-bold text-slate-700">${safeText(st.ket_qua)}</td>
+                      <td class="px-4 py-4">
+                        <div class="flex items-center gap-3">
+                          <div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                            <div class="h-full rounded-full bg-purple-500 transition-all duration-500" style="width: ${progressVal}%"></div>
+                          </div>
+                          <span class="w-10 text-right text-[11px] font-extrabold text-purple-600">${safeText(st.tien_do || '0%')}</span>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 text-center">
+                        <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${badgeClass}">
+                          ${safeText(st.trang_thai)}
+                        </span>
+                      </td>
+                      <td class="px-4 py-4 text-center">${confirmBadge}</td>
+                    </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>`
+        : '<div class="empty rounded-2xl border border-dashed border-slate-200 bg-white text-center py-10 text-slate-400">Chưa có tác vụ chi tiết.</div>';
+
+      container.innerHTML = `${formHtml}${tableHtml}`;
 
       const form = document.getElementById("subTaskInlineForm");
       const targetInput = form.querySelector('[name="muc_tieu"]');
@@ -3443,6 +4022,10 @@
       el.pageTitle.textContent = meta.label;
       el.pageSubtitle.textContent = meta.subtitle;
       if (tabId === 'work_management') renderWorkManagement();
+      if (tabId === 'work_details') renderWorkDetails();
+      if (tabId === 'report_list') renderReportList();
+      if (tabId === 'staff_list') renderStaffList();
+      if (tabId === 'department_list') renderDepartmentList();
       if (tabId === 'dashboard') renderDashboard();
     }
     function openModal(title, subtitle, html) {
@@ -5991,6 +6574,10 @@
       renderNav();
       renderDashboard();
       renderWorkManagement();
+      renderWorkDetails();
+      renderReportList();
+      renderStaffList();
+      renderDepartmentList();
       renderSync();
       switchTab(activeTab);
       cacheState();
