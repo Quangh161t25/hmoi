@@ -1157,6 +1157,108 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       pointer-events: none;
     }
+    .field-horizontal {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .field-horizontal label {
+      width: 140px !important;
+      flex-shrink: 0;
+      margin-bottom: 0 !important;
+      text-align: left;
+      font-weight: 700;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .field-horizontal input, .field-horizontal select, .field-horizontal textarea {
+      flex: 1;
+      min-width: 0;
+    }
+    textarea.auto-resize {
+      resize: none;
+      overflow: hidden;
+      min-height: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .field-horizontal {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px;
+      }
+      .field-horizontal label {
+        width: 100% !important;
+        text-align: left;
+      }
+    }
+    .btn-toggle-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-toggle {
+      padding: 6px 14px;
+      border: 1.5px solid #e2e8f0;
+      background: white;
+      color: #64748b;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-toggle:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+    .btn-toggle.active {
+      transform: translateY(0);
+      border-width: 2px;
+    }
+    .btn-toggle.active[data-group="trang_thai"] {
+      background: #ede9fe;
+      color: #6d28d9;
+      border-color: #7c3aed;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+    }
+    .btn-toggle.active[data-group="xac_nhan"] {
+      background: #ecfdf5;
+      color: #059669;
+      border-color: #10b981;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    }
+    /* Kanban View */
+    .kanban-board { display:flex; gap:16px; overflow-x:auto; padding:8px 16px 16px; align-items:flex-start; }
+    .kanban-col { min-width:230px; width:230px; background:#f8fafc; border-radius:12px; border:1.5px solid #e2e8f0; padding:12px; flex-shrink:0; }
+    .kanban-col-header { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+    .kanban-card { background:white; border-radius:8px; border:1px solid #e2e8f0; padding:10px 12px; margin-bottom:8px; cursor:pointer; transition:all 0.18s ease; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+    .kanban-card:hover { border-color:#a78bfa; box-shadow:0 4px 12px rgba(139,92,246,0.14); transform:translateY(-1px); }
+    .kanban-card-title { font-size:12px; font-weight:700; color:#1e293b; margin-bottom:5px; line-height:1.4; }
+    .kanban-card-meta { font-size:11px; color:#94a3b8; }
+    .kanban-card-progress { margin-top:7px; height:4px; background:#e2e8f0; border-radius:2px; }
+    .kanban-card-progress-bar { height:4px; border-radius:2px; background:linear-gradient(90deg,#8b5cf6,#06b6d4); }
+    /* Calendar View */
+    .calendar-nav { display:flex; align-items:center; gap:12px; padding:8px 16px 4px; }
+    .calendar-nav button { border:1.5px solid #e2e8f0; border-radius:8px; padding:4px 12px; font-size:13px; cursor:pointer; background:white; }
+    .calendar-nav button:hover { background:#f8fafc; }
+    .calendar-nav span { font-weight:800; font-size:14px; color:#1e293b; }
+    .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:#e2e8f0; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; margin:0 16px 16px; }
+    .calendar-header-cell { background:#f1f5f9; text-align:center; padding:7px 4px; font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; }
+    .calendar-cell { background:white; min-height:75px; padding:4px; }
+    .calendar-cell.other-month { background:#fafafa; }
+    .calendar-cell.today { background:#f5f3ff; }
+    .calendar-day-num { font-size:11px; font-weight:700; color:#94a3b8; margin-bottom:3px; }
+    .calendar-cell.today .calendar-day-num { color:#7c3aed; font-size:12px; }
+    .calendar-event { font-size:10px; font-weight:700; padding:2px 5px; border-radius:4px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; }
+    /* View toggle */
+    .view-toggle-group { display:flex; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden; }
+    .view-toggle-btn { padding:5px 14px; font-size:12px; font-weight:700; border:none; background:white; color:#64748b; cursor:pointer; transition:all 0.15s; }
+    .view-toggle-btn.active { background:#7c3aed; color:white; }
+    .view-toggle-btn:hover:not(.active) { background:#f8fafc; }
   </style>
 </head>
 
@@ -1417,13 +1519,7 @@
         <!-- Panel 2: Sub-tasks List -->
         <div id="workPanelRight" class="work-panel-right p-4 overflow-y-auto">
           <div class="flex items-center justify-between mb-6">
-            <h4 class="font-bold text-slate-800 flex items-center gap-2">
-              <svg class="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              Tác vụ chi tiết
-            </h4>
+            
             <span id="subTaskCount"
               class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">0</span>
           </div>
@@ -1857,8 +1953,7 @@
       const container = document.getElementById("work_management");
       container.innerHTML = `
         <div class="card panel">
-          <div class="toolbar">
-            <div><h2>Quản lý Công việc</h2><p class="subtle">Danh sách nhiệm vụ chính và tiến độ thực hiện.</p></div>
+          <div class="toolbar" style="justify-content: flex-end;">
             <button class="btn btn-primary" onclick="openWorkDrawer(null)">+ Thêm mới công việc</button>
           </div>
           <div class="toolbar sticky-filter" style="border-bottom:none">
@@ -1870,7 +1965,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th>ngay</th>
                   <th>Hạn HT</th>
                   <th>Công việc chính</th>
                   <th>Người giao</th>
@@ -1890,14 +1985,16 @@
     function filterWorkTable() {
       const q = (document.getElementById("workSearch")?.value || "").toLowerCase();
       const tbody = document.getElementById("workTableBody");
+      const isAdmin = isAdminUser();
       const rows = appState.CONG_VIEC.filter(item =>
-        (item.cong_viec || "").toLowerCase().includes(q) ||
-        (item.ng_nhan || "").toLowerCase().includes(q)
+        (isAdmin || matchesCurrentUser(item.ng_giao) || matchesCurrentUser(item.ng_nhan)) &&
+        ((item.cong_viec || "").toLowerCase().includes(q) ||
+        (item.ng_nhan || "").toLowerCase().includes(q))
       ).sort((a, b) => parseDateSort(b.han_hoan_thanh) - parseDateSort(a.han_hoan_thanh));
 
       tbody.innerHTML = rows.map(item => `
         <tr onclick="openWorkDrawer('${item.id}')" class="cursor-pointer hover:bg-slate-50 transition-colors">
-          <td class="mono">${safeText(item.id)}</td>
+          <td class="mono">${safeText(item.ngay)}</td>
           <td>${safeText(item.han_hoan_thanh)}</td>
           <td class="font-bold">${safeText(item.cong_viec)}</td>
           <td>${safeText(item.ng_giao)}</td>
@@ -2020,29 +2117,44 @@
         "Chi tiết công việc",
         `ID: ${safeText(item.id || "")}`,
         `
-          <form id="workDetailDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0; display:grid; gap:16px;">
+          <form id="workDetailDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0;">
             <input type="hidden" name="id" value="${safeText(item.id || "")}" />
-            <div class="field"><label>Ngày</label><input type="text" value="${safeText(formatDateVi(item.ngay))}" readonly></div>
-            <div class="field"><label>Han hoan thanh</label><input type="text" value="${safeText(formatDateVi(item.han_hoan_thanh))}" readonly></div>
-            <div class="field"><label>Người giao</label><input type="text" value="${safeText(getUserDisplayName(item.ng_giao))}" readonly></div>
-            <div class="field"><label>Người nhận</label><input type="text" value="${safeText(getUserDisplayName(item.ng_nhan))}" readonly></div>
-            <div class="field"><label>Tên công việc</label><input type="text" value="${safeText(item.ten_cv)}" readonly></div>
-            <div class="field"><label>Mục tiêu</label><input name="muc_tieu" type="number" min="0" step="any" value="${safeText(item.muc_tieu || 0)}" required></div>
-            <div class="field"><label>Kết quả</label><input name="ket_qua" type="number" min="0" step="any" value="${safeText(item.ket_qua || 0)}" required></div>
-            <div class="field"><label>Tiến độ</label><input id="drawerProgressPreview" type="text" value="${safeText(item.tien_do || "0%")}" readonly></div>
-            <div class="field"><label>Trạng thái</label>
-              <select name="trang_thai">
-                ${statusOptions.map(status => `<option value="${status}" ${normalizeUserIdentity(item.trang_thai) === status ? 'selected' : ''}>${safeText(status)}</option>`).join("")}
-              </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+              <div class="field-horizontal"><label>Ngày tạo</label><input type="text" value="${safeText(formatDateVi(item.ngay))}" readonly class="bg-slate-50"></div>
+              <div class="field-horizontal"><label>Hạn hoàn thành</label><input type="text" value="${safeText(formatDateVi(item.han_hoan_thanh))}" readonly class="bg-slate-50"></div>
+              <div class="field-horizontal"><label>Người giao</label><input type="text" value="${safeText(getUserDisplayName(item.ng_giao))}" readonly class="bg-slate-50"></div>
+              <div class="field-horizontal"><label>Người nhận</label><input type="text" value="${safeText(getUserDisplayName(item.ng_nhan))}" readonly class="bg-slate-50"></div>
+              <div class="field-horizontal"><label>Tên công việc</label><input type="text" value="${safeText(item.ten_cv)}" readonly class="bg-slate-50"></div>
+              <div class="field-horizontal"><label>Tiến độ (%)</label><input id="drawerProgressPreview" type="text" value="${safeText(item.tien_do || "0%")}" readonly class="bg-slate-100 font-extrabold text-purple-700"></div>
+              <div class="field-horizontal"><label>Mục tiêu</label><input name="muc_tieu" type="number" min="0" step="any" value="${safeText(item.muc_tieu || 0)}" required></div>
+              <div class="field-horizontal"><label>Kết quả</label><input name="ket_qua" type="number" min="0" step="any" value="${safeText(item.ket_qua || 0)}" required></div>
+              
+              <div class="field-horizontal md:col-span-2">
+                <label>Trạng thái</label>
+                <div class="btn-toggle-group" id="group_trang_thai">
+                  ${statusOptions.map(opt => `
+                    <button type="button" class="btn-toggle ${normalizeUserIdentity(item.trang_thai) === opt ? 'active' : ''}" 
+                            data-group="trang_thai" data-value="${safeText(opt)}">${safeText(opt)}</button>
+                  `).join("")}
+                </div>
+                <input type="hidden" name="trang_thai" value="${safeText(item.trang_thai || "đã nhận")}">
+              </div>
+
+              <div class="field-horizontal md:col-span-2">
+                <label>Xác nhận</label>
+                <div class="btn-toggle-group" id="group_xac_nhan">
+                  ${confirmOptions.map(opt => `
+                    <button type="button" class="btn-toggle ${normalizeUserIdentity(item.xac_nhan) === opt ? 'active' : ''}" 
+                            data-group="xac_nhan" data-value="${safeText(opt)}">${safeText(opt || "Chưa có")}</button>
+                  `).join("")}
+                </div>
+                <input type="hidden" name="xac_nhan" value="${safeText(item.xac_nhan || "")}">
+              </div>
             </div>
-            <div class="field"><label>Xác nhận</label>
-              <select name="xac_nhan">
-                ${confirmOptions.map(status => `<option value="${status}" ${normalizeUserIdentity(item.xac_nhan) === status ? 'selected' : ''}>${safeText(status || "-- Chọn --")}</option>`).join("")}
-              </select>
-            </div>
-            <div class="button-row full" style="margin-top:4px">
-              <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Đóng</button>
-              <button class="btn btn-primary" type="submit">Lưu cập nhật</button>
+            
+            <div class="button-row full" style="margin-top:24px; padding-top:20px; border-top:2px solid #f1f5f9;">
+              <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Hủy bỏ</button>
+              <button class="btn btn-primary" type="submit" style="min-width:180px; font-size:15px">Cập nhật công việc</button>
             </div>
           </form>
         `
@@ -2059,6 +2171,15 @@
       targetInput.addEventListener("input", syncPreview);
       resultInput.addEventListener("input", syncPreview);
       form.addEventListener("submit", saveWorkDetailDrawer);
+      form.querySelectorAll('.btn-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const group = btn.getAttribute('data-group');
+          const val = btn.getAttribute('data-value');
+          form.querySelectorAll(`.btn-toggle[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          form.querySelector(`input[name="${group}"]`).value = val;
+        });
+      });
       syncPreview();
     }
 
@@ -2097,24 +2218,40 @@
         showToast("Lỗi cập nhật công việc chi tiết: " + error.message, true);
       }
     }
+    let _workDetailViewMode = 'table';
+    let _calendarYear = new Date().getFullYear();
+    let _calendarMonth = new Date().getMonth();
 
     function renderWorkDetails() {
       const container = document.getElementById("work_details");
       const statusOptions = [...new Set((appState.CONG_VIEC_CT || []).map(item => String(item.trang_thai || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "vi"));
+      const allUsers = [...new Set([
+        ...(appState.CONG_VIEC_CT || []).map(i => String(i.ng_giao || "").trim()),
+        ...(appState.CONG_VIEC_CT || []).map(i => String(i.ng_nhan || "").trim()),
+      ].filter(Boolean))].sort((a, b) => a.localeCompare(b, "vi"));
+
+      const isTable = _workDetailViewMode === 'table';
+      const isKanban = _workDetailViewMode === 'kanban';
+      const isCalendar = _workDetailViewMode === 'calendar';
+
       container.innerHTML = `
         <div class="card panel">
-          <div class="toolbar">
-            <div><h2>CÔNG VIỆC CHI TIẾT</h2><p class="subtle">Dữ liệu lấy từ sheet CONG_VIEC_CT, hiển thị theo người giao, người nhận và các bộ lọc.</p></div>
-            <span class="badge" id="workDetailCount">0</span>
-          </div>
-          <div class="toolbar sticky-filter" style="border-bottom:none">
-            <div class="toolbar-search">
+          <div class="toolbar sticky-filter" style="border-bottom:none; flex-wrap:wrap; gap:8px;">
+            <div class="toolbar-search" style="flex-wrap:wrap; gap:6px;">
               <select id="workDetailView" onchange="filterWorkDetailTable()">
                 <option value="all">Tất cả công việc</option>
                 <option value="mine">Công việc của tôi</option>
                 <option value="delegated">Công việc tôi giao</option>
               </select>
-              <input type="text" id="workDetailSearch" placeholder="Tìm theo tên việc, người giao, người nhận..." oninput="filterWorkDetailTable()" />
+              <select id="workDetailFilterGiao" onchange="filterWorkDetailTable()">
+                <option value="">Người giao (tất cả)</option>
+                ${allUsers.map(u => `<option value="${safeText(u)}">${safeText(getUserDisplayName(u) || u)}</option>`).join("")}
+              </select>
+              <select id="workDetailFilterNhan" onchange="filterWorkDetailTable()">
+                <option value="">Người nhận (tất cả)</option>
+                ${allUsers.map(u => `<option value="${safeText(u)}">${safeText(getUserDisplayName(u) || u)}</option>`).join("")}
+              </select>
+              <input type="text" id="workDetailSearch" placeholder="Tìm theo tên việc..." oninput="filterWorkDetailTable()" />
               <input type="date" id="workDetailStart" title="Từ ngày" onchange="filterWorkDetailTable()" />
               <input type="date" id="workDetailEnd" title="Đến ngày" onchange="filterWorkDetailTable()" />
               <select id="workDetailStatus" onchange="filterWorkDetailTable()">
@@ -2122,15 +2259,23 @@
                 ${statusOptions.map(status => `<option value="${safeText(status)}">${safeText(status)}</option>`).join("")}
               </select>
             </div>
-            <div class="toolbar-right">
+            <div class="toolbar-right" style="gap:8px; flex-shrink:0;">
               <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('today')">Hôm nay</button>
               <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('week')">Tuần này</button>
               <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('month')">Tháng này</button>
               <button class="btn btn-secondary" type="button" style="min-height:34px;padding:6px 12px" onclick="setWorkDetailQuickRange('')">Bỏ lọc ngày</button>
+              <div class="view-toggle-group">
+                <button class="view-toggle-btn ${isTable?'active':''}" id="viewBtnTable" onclick="switchWorkDetailView('table')">☰ Bảng</button>
+                <button class="view-toggle-btn ${isKanban?'active':''}" id="viewBtnKanban" onclick="switchWorkDetailView('kanban')">⬛ Kanban</button>
+                <button class="view-toggle-btn ${isCalendar?'active':''}" id="viewBtnCalendar" onclick="switchWorkDetailView('calendar')">📅 Lịch</button>
+              </div>
             </div>
           </div>
+
           <div id="workDetailSummary" style="display:flex; gap:12px; padding:0 16px 16px; flex-wrap:wrap;"></div>
-          <div class="table-wrap">
+
+          <!-- Table View -->
+          <div id="workDetailTableView" class="table-wrap" style="display:${isTable?'':'none'}">
             <table style="min-width:1400px">
               <thead>
                 <tr>
@@ -2149,8 +2294,121 @@
               <tbody id="workDetailTableBody"></tbody>
             </table>
           </div>
+
+          <!-- Kanban View -->
+          <div id="workDetailKanbanView" class="kanban-board" style="display:${isKanban?'':'none'}"></div>
+
+          <!-- Calendar View -->
+          <div id="workDetailCalendarView" style="display:${isCalendar?'':'none'}">
+            <div class="calendar-nav">
+              <button onclick="moveWorkCalendar(-1)">&#8249;</button>
+              <span id="calendarMonthLabel"></span>
+              <button onclick="moveWorkCalendar(1)">&#8250;</button>
+            </div>
+            <div class="calendar-grid" id="workDetailCalendarGrid"></div>
+          </div>
+
         </div>`;
       filterWorkDetailTable();
+    }
+
+
+
+    function switchWorkDetailView(mode) {
+      _workDetailViewMode = mode;
+      document.getElementById('workDetailTableView').style.display = mode === 'table' ? '' : 'none';
+      document.getElementById('workDetailKanbanView').style.display = mode === 'kanban' ? '' : 'none';
+      document.getElementById('workDetailCalendarView').style.display = mode === 'calendar' ? '' : 'none';
+      ['table','kanban','calendar'].forEach(m => {
+        const btn = document.getElementById(`viewBtn${m.charAt(0).toUpperCase()+m.slice(1)}`);
+        if (btn) btn.classList.toggle('active', m === mode);
+      });
+      filterWorkDetailTable();
+    }
+
+    function moveWorkCalendar(delta) {
+      _calendarMonth += delta;
+      if (_calendarMonth > 11) { _calendarMonth = 0; _calendarYear++; }
+      if (_calendarMonth < 0) { _calendarMonth = 11; _calendarYear--; }
+      filterWorkDetailTable();
+    }
+
+    function renderWorkKanban(rows) {
+      const board = document.getElementById('workDetailKanbanView');
+      if (!board) return;
+      const cols = ['đã nhận', 'đang làm', 'hoàn thành', 'hủy'];
+      const colColors = { 'đã nhận': '#ede9fe', 'đang làm': '#dbeafe', 'hoàn thành': '#dcfce7', 'hủy': '#fef2f2' };
+      const colTextColors = { 'đã nhận': '#6d28d9', 'đang làm': '#1d4ed8', 'hoàn thành': '#15803d', 'hủy': '#dc2626' };
+      board.innerHTML = cols.map(col => {
+        const cards = rows.filter(item => normalizeUserIdentity(item.trang_thai) === normalizeUserIdentity(col));
+        const pct = v => { const n=parseFloat(v); return isNaN(n)?0:Math.min(100,Math.max(0,n)); };
+        return `
+          <div class="kanban-col">
+            <div class="kanban-col-header" style="color:${colTextColors[col]}">
+              ${safeText(col)} <span style="background:${colColors[col]};padding:2px 8px;border-radius:10px;font-size:11px;">${cards.length}</span>
+            </div>
+            ${cards.map(item => {
+              const progress = pct(parseFloat(item.tien_do));
+              return `<div class="kanban-card" onclick="openWorkDetailDrawer('${safeText(item.id)}')">
+                <div class="kanban-card-title">${safeText(item.ten_cv)}</div>
+                <div class="kanban-card-meta">
+                  <span>👤 ${safeText(getUserDisplayName(item.ng_nhan))}</span>
+                  <span>📅 ${safeText(formatDateVi(item.han_hoan_thanh))}</span>
+                </div>
+                <div class="kanban-card-progress">
+                  <div class="kanban-card-progress-bar" style="width:${progress}%"></div>
+                </div>
+              </div>`;
+            }).join("") || `<div style="font-size:12px;color:#94a3b8;text-align:center;padding:12px;">Không có</div>`}
+          </div>`;
+      }).join("");
+    }
+
+    function renderWorkCalendar(rows) {
+      const grid = document.getElementById('workDetailCalendarGrid');
+      const label = document.getElementById('calendarMonthLabel');
+      if (!grid || !label) return;
+      const months = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+      const days = ['CN','Th2','Th3','Th4','Th5','Th6','Th7'];
+      label.textContent = `${months[_calendarMonth]} ${_calendarYear}`;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const firstDay = new Date(_calendarYear, _calendarMonth, 1).getDay();
+      const daysInMonth = new Date(_calendarYear, _calendarMonth+1, 0).getDate();
+      const daysInPrev = new Date(_calendarYear, _calendarMonth, 0).getDate();
+      const parseItemDate = (item) => {
+        const d = item.han_hoan_thanh || item.ngay || '';
+        if (!d) return null;
+        const parts = d.split('/');
+        if (parts.length === 3) return new Date(+parts[2], +parts[1]-1, +parts[0]);
+        return new Date(d);
+      };
+      let cells = [];
+      days.forEach(d => cells.push(`<div class="calendar-header-cell">${d}</div>`));
+      for (let i = 0; i < firstDay; i++) {
+        cells.push(`<div class="calendar-cell other-month"><div class="calendar-day-num">${daysInPrev - firstDay + 1 + i}</div></div>`);
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const cellDate = new Date(_calendarYear, _calendarMonth, d);
+        const isTodayFlag = cellDate.getTime() === today.getTime();
+        const dayItems = rows.filter(item => {
+          const dt = parseItemDate(item);
+          return dt && dt.getFullYear() === _calendarYear && dt.getMonth() === _calendarMonth && dt.getDate() === d;
+        });
+        const eventsHtml = dayItems.slice(0,3).map(item => {
+          const bg = item.trang_thai === 'hoàn thành' ? '#dcfce7' : item.trang_thai === 'đang làm' ? '#dbeafe' : '#ede9fe';
+          const color = item.trang_thai === 'hoàn thành' ? '#15803d' : item.trang_thai === 'đang làm' ? '#1d4ed8' : '#6d28d9';
+          return `<div class="calendar-event" style="background:${bg};color:${color}" onclick="openWorkDetailDrawer('${safeText(item.id)}')" title="${safeText(item.ten_cv)}">${safeText(item.ten_cv)}</div>`;
+        }).join("");
+        const more = dayItems.length > 3 ? `<div style="font-size:10px;color:#94a3b8">+${dayItems.length-3} hơn</div>` : "";
+        cells.push(`<div class="calendar-cell${isTodayFlag?' today':''}"><div class="calendar-day-num">${d}</div>${eventsHtml}${more}</div>`);
+      }
+      const remaining = cells.length % 7;
+      if (remaining !== 0) {
+        for (let i = 1; i <= 7 - remaining; i++) {
+          cells.push(`<div class="calendar-cell other-month"><div class="calendar-day-num">${i}</div></div>`);
+        }
+      }
+      grid.innerHTML = cells.join("");
     }
 
     function filterWorkDetailTable() {
@@ -2162,9 +2420,16 @@
       const endDate = document.getElementById("workDetailEnd")?.value || "";
       const status = normalizeUserIdentity(document.getElementById("workDetailStatus")?.value || "");
       const viewMode = document.getElementById("workDetailView")?.value || "all";
+      const filterGiao = document.getElementById("workDetailFilterGiao")?.value || "";
+      const filterNhan = document.getElementById("workDetailFilterNhan")?.value || "";
 
+      const isAdmin = isAdminUser();
       const rows = (appState.CONG_VIEC_CT || [])
+        .filter(item => String(item.trang_thai || "").trim() !== "")
+        .filter(item => isAdmin || matchesCurrentUser(item.ng_giao) || matchesCurrentUser(item.ng_nhan))
         .filter(item => matchesWorkDetailView(item, viewMode))
+        .filter(item => !filterGiao || item.ng_giao === filterGiao)
+        .filter(item => !filterNhan || item.ng_nhan === filterNhan)
         .filter(item => !status || normalizeUserIdentity(item.trang_thai) === status)
         .filter(item => isDateInRange(item.ngay, startDate, endDate))
         .filter(item => {
@@ -2192,7 +2457,7 @@
         });
 
       const countChip = document.getElementById("workDetailCount");
-      if (countChip) countChip.textContent = `${rows.length} dòng`;
+      if (countChip) countChip.textContent = `${rows.length}`;
 
       const summaryEl = document.getElementById("workDetailSummary");
       if (summaryEl) {
@@ -2224,20 +2489,26 @@
         `;
       }
 
-      tbody.innerHTML = rows.map(item => `
-        <tr style="cursor:pointer" onclick="openWorkDetailDrawer('${safeText(item.id)}')">
-          <td>${safeText(formatDateVi(item.ngay))}</td>
-          <td>${safeText(formatDateVi(item.han_hoan_thanh))}</td>
-          <td>${safeText(getUserDisplayName(item.ng_giao))}</td>
-          <td>${safeText(getUserDisplayName(item.ng_nhan))}</td>
-          <td class="font-bold">${safeText(item.ten_cv)}</td>
-          <td>${safeText(item.muc_tieu)}</td>
-          <td>${safeText(item.ket_qua)}</td>
-          <td><span class="badge" style="background:#f3e8ff;color:#7e22ce">${safeText(item.tien_do || "0%")}</span></td>
-          <td><span class="badge" style="${getWorkDetailStatusBadge(item.trang_thai)}">${safeText(item.trang_thai || "Chua co")}</span></td>
-          <td>${safeText(item.xac_nhan || "--")}</td>
-        </tr>
-      `).join("") || '<tr><td colspan="10" class="empty">Khong co cong viec chi tiet phu hop bo loc.</td></tr>';
+      if (_workDetailViewMode === 'kanban') {
+        renderWorkKanban(rows);
+      } else if (_workDetailViewMode === 'calendar') {
+        renderWorkCalendar(rows);
+      } else {
+        tbody.innerHTML = rows.map(item => `
+          <tr style="cursor:pointer" onclick="openWorkDetailDrawer('${safeText(item.id)}')">
+            <td>${safeText(formatDateVi(item.ngay))}</td>
+            <td>${safeText(formatDateVi(item.han_hoan_thanh))}</td>
+            <td>${safeText(getUserDisplayName(item.ng_giao))}</td>
+            <td>${safeText(getUserDisplayName(item.ng_nhan))}</td>
+            <td class="font-bold">${safeText(item.ten_cv)}</td>
+            <td>${safeText(item.muc_tieu)}</td>
+            <td>${safeText(item.ket_qua)}</td>
+            <td><span class="badge" style="background:#f3e8ff;color:#7e22ce">${safeText(item.tien_do || "0%")}</span></td>
+            <td><span class="badge" style="${getWorkDetailStatusBadge(item.trang_thai)}">${safeText(item.trang_thai || "Chua co")}</span></td>
+            <td>${safeText(item.xac_nhan || "--")}</td>
+          </tr>
+        `).join("") || '<tr><td colspan="10" class="empty">Khong co cong viec chi tiet phu hop bo loc.</td></tr>';
+      }
     }
 
     function renderStaffList() {
@@ -2320,8 +2591,10 @@
     }
 
     function getReportRows() {
+      const isAdmin = isAdminUser();
       return [...(appState.CONG_VIEC_CT || [])]
         .filter(item => String(item.khach_hang || "").trim() !== "")
+        .filter(item => isAdmin || matchesCurrentUser(item.ng_giao) || matchesCurrentUser(item.ng_nhan))
         .sort((a, b) => parseDateSort(b.ngay) - parseDateSort(a.ngay));
     }
 
@@ -2357,25 +2630,40 @@
         editing ? "Sửa báo cáo" : "Thêm báo cáo",
         editing ? `ID: ${safeText(item.id)}` : "Nhập thông tin báo cáo",
         `
-          <form id="reportDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0; display:grid; gap:16px;">
+          <form id="reportDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0;">
             <input type="hidden" name="id" value="${safeText(item.id || "")}" />
-            <div class="field"><label>Ngày</label><input name="ngay" type="date" value="${safeText(formatDateInput(item.ngay || todayInput()))}" required></div>
-            <div class="field"><label>Tên công việc</label><textarea name="ten_cv" rows="2" required>${safeText(item.ten_cv || "")}</textarea></div>
-            <div class="field"><label>Khách hàng</label><textarea name="khach_hang" rows="2" required>${safeText(item.khach_hang || "")}</textarea></div>
-            <div class="field"><label>Hoạt động</label><textarea name="hoat_dong" rows="2">${safeText(item.hoat_dong || "")}</textarea></div>
-            <div class="field"><label>Số lượng cuộc gọi/gặp</label><textarea name="so_luong_cuoc_goi_gap" rows="2">${safeText(item.so_luong_cuoc_goi_gap || "")}</textarea></div>
-            <div class="field"><label>Ghi chú</label><textarea name="ghi_chu" rows="4">${safeText(item.ghi_chu || "")}</textarea></div>
-            <div class="button-row full" style="margin-top:4px">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              <div class="field-horizontal"><label>Ngày báo cáo</label><input name="ngay" type="date" value="${safeText(formatDateInput(item.ngay || todayInput()))}" required></div>
+              <div class="field-horizontal"><label>Tên công việc</label><textarea name="ten_cv" class="auto-resize" required>${safeText(item.ten_cv || "")}</textarea></div>
+              <div class="field-horizontal"><label>Khách hàng</label><textarea name="khach_hang" class="auto-resize" required>${safeText(item.khach_hang || "")}</textarea></div>
+              <div class="field-horizontal"><label>Hoạt động</label><textarea name="hoat_dong" class="auto-resize">${safeText(item.hoat_dong || "")}</textarea></div>
+              <div class="field-horizontal"><label>Số cuộc gọi/gặp</label><textarea name="so_luong_cuoc_goi_gap" class="auto-resize">${safeText(item.so_luong_cuoc_goi_gap || "")}</textarea></div>
+              <div class="field-horizontal"><label>Ghi chú</label><textarea name="ghi_chu" class="auto-resize">${safeText(item.ghi_chu || "")}</textarea></div>
+            </div>
+            <div class="button-row full" style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
               ${editing ? `<button class="btn btn-danger" type="button" onclick="deleteReportRow('${safeText(item.id)}')">Xóa</button>` : ''}
               <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Đóng</button>
-              <button class="btn btn-primary" type="submit">${editing ? 'Lưu cập nhật' : 'Thêm báo cáo'}</button>
+              <button class="btn btn-primary" type="submit" style="min-width:150px">${editing ? 'Lưu cập nhật' : 'Thêm báo cáo'}</button>
             </div>
           </form>
         `
       );
 
       const form = document.getElementById("reportDrawerForm");
-      if (form) form.addEventListener("submit", saveReportDrawer);
+      if (form) {
+        form.addEventListener("submit", saveReportDrawer);
+        
+        // Handle auto-resize
+        const textareas = form.querySelectorAll('textarea.auto-resize');
+        const adjustHeight = (el) => {
+          el.style.height = 'auto';
+          el.style.height = el.scrollHeight + 'px';
+        };
+        textareas.forEach(ta => {
+          ta.addEventListener('input', () => adjustHeight(ta));
+          setTimeout(() => adjustHeight(ta), 50); // Initial adjustment
+        });
+      }
     }
 
     async function saveReportDrawer(event) {
@@ -2449,10 +2737,9 @@
       const rows = getReportRows();
       container.innerHTML = `
         <div class="card panel">
-          <div class="toolbar">
-            <div><h2>Báo cáo</h2><p class="subtle">Chi hien thi cac dong co du lieu cot khach_hang.</p></div>
+          <div class="toolbar" style="justify-content: flex-end;">
             <div class="toolbar-right">
-              <span class="badge">${rows.length}</span>
+              <span class="badge" id="reportCountBadge">${rows.length}</span>
               <button class="btn btn-primary" type="button" onclick="openReportDrawer()">+ Thêm báo cáo</button>
             </div>
           </div>
@@ -2461,6 +2748,7 @@
               <thead>
                 <tr>
                   <th>Ngày</th>
+                  <th>Người nhận</th>
                   <th>Tên công việc</th>
                   <th>Khách hàng</th>
                   <th>Hoạt động</th>
@@ -2472,13 +2760,14 @@
                 ${rows.map(item => `
                   <tr style="cursor:pointer" onclick="openReportDrawer('${safeText(item.id)}')">
                     <td>${safeText(formatDateVi(item.ngay))}</td>
+                    <td>${safeText(item.ng_nhan || "")}</td>
                     <td class="font-bold">${safeText(item.ten_cv || "")}</td>
                     <td>${safeText(item.khach_hang || "")}</td>
                     <td>${safeText(item.hoat_dong || "")}</td>
                     <td>${safeText(item.so_luong_cuoc_goi_gap || "")}</td>
                     <td>${safeText(item.ghi_chu || "")}</td>
                   </tr>
-                `).join("") || '<tr><td colspan="6" class="empty">Khong co du lieu bao cao.</td></tr>'}
+                `).join("") || '<tr><td colspan="7" class="empty">Không có dữ liệu báo cáo.</td></tr>'}
               </tbody>
             </table>
           </div>
