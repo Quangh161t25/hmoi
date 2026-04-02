@@ -1426,6 +1426,7 @@
         <section id="staff_list" class="section"></section>
         <section id="department_list" class="section"></section>
         <section id="report_list" class="section"></section>
+        <section id="notification_list" class="section"></section>
       </main>
     </div>
   </div>
@@ -1547,18 +1548,20 @@
         CONG_VIEC: ["id", "ngay", "han_hoan_thanh", "cong_viec", "ng_giao", "ng_nhan", "phong_ban", "truong"],
         CONG_VIEC_CT: ["id", "id_cv", "ngay", "han_hoan_thanh", "cong_viec", "ng_giao", "ng_nhan", "phong_ban", "truong", "ten_cv", "muc_tieu", "ket_qua", "tien_do", "trang_thai", "xac_nhan", "khach_hang", "hoat_dong", "so_luong_cuoc_goi_gap", "ghi_chu"],
         PHONG_BAN: ["ten_phong_ban", "phong_ban_cap_tren", "mo_ta", "cap_do", "thu_tu", "trang_thai"],
-        LIST_CV: ["id", "ten_phong_ban"]
+        LIST_CV: ["id", "ten_phong_ban"],
+        THONG_BAO: ["id", "ngay", "thong_ban", "noi_dung", "anh", "file", "ghi_chu"]
       }
     };
     const NAV_ITEMS = [
       { id: "dashboard", label: "Trang chủ", subtitle: "MENU CHÍNH", icon: "home", color: "#2d5bff" },
       { id: "work_management", label: "QUẢN LÝ CÔNG VIỆC", subtitle: "TÁC VỤ", icon: "task", color: "#8b5cf6" },
       { id: "work_details", label: "CÔNG VIỆC CHI TIẾT", subtitle: "TÁC VỤ", icon: "task", color: "#0f766e" },
+      { id: "notification_list", label: "THÔNG BÁO", subtitle: "BÁO CÁO", icon: "bell", color: "#f43f5e" },
       { id: "report_list", label: "BÁO CÁO", subtitle: "BÁO CÁO", icon: "file", color: "#ef4444" },
       { id: "staff_list", label: "DANH SÁCH NHÂN VIÊN", subtitle: "DANH MỤC", icon: "users", color: "#0ea5e9" },
       { id: "department_list", label: "DANH SÁCH PHÒNG BAN", subtitle: "DANH MỤC", icon: "box", color: "#f59e0b" }
     ];
-    const DEFAULT_STATE = { CONG_VIEC: [], CONG_VIEC_CT: [], PHONG_BAN: [], LIST_CV: [] };
+    const DEFAULT_STATE = { CONG_VIEC: [], CONG_VIEC_CT: [], PHONG_BAN: [], LIST_CV: [], THONG_BAO: [] };
     const STAFF_SCOPED_SHEETS = ["CONG_VIEC", "CONG_VIEC_CT"];
     let accessToken = "", tokenExpiry = 0, usersData = [], currentUser = null, activeTab = "dashboard";
     let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -1849,7 +1852,8 @@
         users: `<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><path d="M9.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"></path><path d="M21 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
         coin: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M9.5 9.5c.3-1 1.2-1.5 2.5-1.5 1.7 0 2.5.8 2.5 1.9 0 2.7-5 1.3-5 4 0 1.2 1 2.1 2.8 2.1 1.4 0 2.4-.6 2.7-1.7"></path><path d="M12 7v10"></path></svg>`,
         gift: `<svg viewBox="0 0 24 24"><path d="M20 12v10H4V12"></path><path d="M22 7H2v5h20V7z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>`,
-        task: `<svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4" /></svg>`
+        task: `<svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4" /></svg>`,
+        bell: `<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>`
       };
       return icons[name] || icons.home;
     }
@@ -2533,7 +2537,7 @@
               </thead>
               <tbody>
                 ${rows.map(item => `
-                  <tr>
+                  <tr style="cursor:pointer" onclick="openStaffDrawer('${safeText(item.id)}')">
                     <td class="font-bold">${safeText(item.ho_ten || "")}</td>
                     <td>${safeText(item.gioi_tinh || "")}</td>
                     <td>${safeText(item.quyen || "")}</td>
@@ -2545,6 +2549,93 @@
             </table>
           </div>
         </div>`;
+    }
+
+    function openStaffDrawer(staffId) {
+      const item = usersData.find(u => String(u.id) === String(staffId));
+      if (!item) return;
+
+      openDrawer(
+        "Chi tiết nhân viên",
+        `ID: ${safeText(item.id)}`,
+        `
+          <form id="staffDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0;">
+            <input type="hidden" name="id" value="${safeText(item.id || "")}" />
+            
+            <div style="text-align: center; margin-bottom: 24px;">
+              ${item.hinh_anh ? '<img src="' + safeText(item.hinh_anh) + '" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--line); margin-bottom: 12px;">' : '<div style="width: 100px; height: 100px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); font-size: 36px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">' + (item.ho_ten || 'U')[0].toUpperCase() + '</div>'}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              <div class="field-horizontal full"><label>Họ tên</label><input name="ho_ten" type="text" value="${safeText(item.ho_ten || "")}" readonly style="background:var(--soft);"></div>
+              <div class="field-horizontal full"><label>Hình ảnh (URL)</label><input name="hinh_anh" type="text" value="${safeText(item.hinh_anh || "")}"></div>
+              <div class="field-horizontal"><label>Giới tính</label>
+                <select name="gioi_tinh">
+                  <option value="">-- Chọn --</option>
+                  <option value="Nam" ${item.gioi_tinh === 'Nam' ? 'selected' : ''}>Nam</option>
+                  <option value="Nữ" ${(item.gioi_tinh === 'Nữ' || item.gioi_tinh === 'Nu') ? 'selected' : ''}>Nữ</option>
+                </select>
+              </div>
+              <div class="field-horizontal"><label>Ngày sinh</label><input name="ngay_sinh" type="date" value="${safeText(formatDateInput(item.ngay_sinh || ""))}" ></div>
+              <div class="field-horizontal"><label>Email</label><input name="email" type="email" value="${safeText(item.email || "")}"></div>
+              <div class="field-horizontal"><label>Điện thoại</label><input name="dien_thoai" type="text" value="${safeText(item.dien_thoai || "")}"></div>
+              <div class="field-horizontal full"><label>Chi nhánh làm việc</label><input name="chi_nhanh_lam_viec" type="text" value="${safeText(item.chi_nhanh_lam_viec || "")}"></div>
+
+              <div class="field-horizontal full" style="margin-top: 16px; border-top: 1px solid var(--line); padding-top: 16px;"><label>Quyền hiện tại</label><input type="text" value="${safeText(item.quyen || "")}" readonly style="background:var(--soft);"></div>
+              <div class="field-horizontal"><label>Chức vụ</label><input type="text" value="${safeText(item.chuc_vu || "")}" readonly style="background:var(--soft);"></div>
+              <div class="field-horizontal"><label>Phòng ban</label><input type="text" value="${safeText(item.phong_ban || "")}" readonly style="background:var(--soft);"></div>
+            </div>
+            
+            <div class="button-row full" style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
+              <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Đóng</button>
+              <button class="btn btn-primary" type="submit" style="min-width:150px">Cập nhật thông tin</button>
+            </div>
+          </form>
+        `
+      );
+
+      const form = document.getElementById("staffDrawerForm");
+      if (form) {
+        form.addEventListener("submit", saveStaffDrawer);
+      }
+    }
+
+    async function saveStaffDrawer(event) {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(event.target).entries());
+      
+      const recordIndex = usersData.findIndex(u => String(u.id) === String(data.id));
+      if (recordIndex < 0) {
+        showToast("Không tìm thấy nhân viên", true);
+        return;
+      }
+
+      const updatedRecord = {
+        ...usersData[recordIndex],
+        hinh_anh: String(data.hinh_anh || ""),
+        gioi_tinh: String(data.gioi_tinh || ""),
+        ngay_sinh: String(data.ngay_sinh || ""),
+        email: String(data.email || ""),
+        dien_thoai: String(data.dien_thoai || ""),
+        chi_nhanh_lam_viec: String(data.chi_nhanh_lam_viec || "")
+      };
+
+      try {
+        usersData[recordIndex] = updatedRecord;
+        
+        if (typeof fullAppState !== 'undefined' && fullAppState.DSNV) {
+          const stateIndex = fullAppState.DSNV.findIndex(u => String(u.id) === String(data.id));
+          if (stateIndex >= 0) fullAppState.DSNV[stateIndex] = updatedRecord;
+        }
+
+        await updateSheet("DSNV", objectsToRows(usersData, CONFIG.sheets.DSNV));
+        
+        closeDrawer();
+        renderStaffList();
+        showToast("Đã cập nhật thông tin nhân viên.");
+      } catch (error) {
+        showToast("Lỗi lưu thông tin: " + error.message, true);
+      }
     }
 
     function renderDepartmentList() {
@@ -2772,6 +2863,162 @@
             </table>
           </div>
         </div>`;
+    }
+
+    // ===== MODULE THÔNG BÁO =====
+    function renderNotificationList() {
+      const container = document.getElementById("notification_list");
+      const rows = [...(appState.THONG_BAO || [])].sort((a, b) => parseDateSort(b.ngay) - parseDateSort(a.ngay));
+      const isAdmin = isAdminUser();
+
+      container.innerHTML = `
+        <div class="card panel">
+          <div class="toolbar">
+            <div><h2>Thông báo</h2><p class="subtle">Dữ liệu lấy từ sheet THONG_BAO.</p></div>
+            <div class="toolbar-right">
+              <span class="badge">${rows.length}</span>
+              ${isAdmin ? `<button class="btn btn-primary" type="button" onclick="openNotificationDrawer()">+ Thêm thông báo</button>` : ''}
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table style="min-width:1000px">
+              <thead>
+                <tr>
+                  <th style="width:120px">Ngày</th>
+                  <th style="width:250px">Thông báo</th>
+                  <th>Nội dung</th>
+                  <th style="width:100px">Ảnh</th>
+                  <th style="width:100px">File</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map(item => `
+                  <tr style="cursor:pointer" onclick="openNotificationDrawer('${safeText(item.id)}')">
+                    <td>${safeText(formatDateVi(item.ngay))}</td>
+                    <td class="font-bold">${safeText(item.thong_ban || "")}</td>
+                    <td>${safeText(item.noi_dung || "")}</td>
+                    <td>${item.anh ? `<a href="${safeText(item.anh)}" target="_blank" onclick="event.stopPropagation()">Xem ảnh</a>` : '--'}</td>
+                    <td>${item.file ? `<a href="${safeText(item.file)}" target="_blank" onclick="event.stopPropagation()">Tải file</a>` : '--'}</td>
+                    <td>${safeText(item.ghi_chu || "")}</td>
+                  </tr>
+                `).join("") || '<tr><td colspan="6" class="empty">Không có thông báo.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function openNotificationDrawer(id = "") {
+      const editing = id ? (appState.THONG_BAO || []).find(x => String(x.id) === String(id)) : null;
+      const isAdmin = isAdminUser();
+      
+      if (id && !editing) {
+        showToast("Không tìm thấy thông báo.", true);
+        return;
+      }
+
+      const item = editing || {
+        id: randomId("TB"),
+        ngay: todayInput(),
+        thong_ban: "",
+        noi_dung: "",
+        anh: "",
+        file: "",
+        ghi_chu: ""
+      };
+
+      openDrawer(
+        editing ? "Sửa thông báo" : "Thêm thông báo",
+        editing ? `ID: ${safeText(item.id)}` : "Nhập thông tin thông báo",
+        `
+          <form id="notificationDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0;">
+            <input type="hidden" name="id" value="${safeText(item.id || "")}" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              <div class="field-horizontal"><label>Ngày</label><input name="ngay" type="date" value="${safeText(formatDateInput(item.ngay))}" ${!isAdmin ? 'readonly' : ''} required></div>
+              <div class="field-horizontal full"><label>Tiêu đề</label><input name="thong_ban" type="text" value="${safeText(item.thong_ban || "")}" ${!isAdmin ? 'readonly' : ''} required></div>
+              <div class="field-horizontal full"><label>Nội dung</label><textarea name="noi_dung" class="auto-resize" ${!isAdmin ? 'readonly' : ''}>${safeText(item.noi_dung || "")}</textarea></div>
+              <div class="field-horizontal full"><label>Link ảnh</label><input name="anh" type="text" value="${safeText(item.anh || "")}" ${!isAdmin ? 'readonly' : ''}></div>
+              <div class="field-horizontal full"><label>Link file</label><input name="file" type="text" value="${safeText(item.file || "")}" ${!isAdmin ? 'readonly' : ''}></div>
+              <div class="field-horizontal full"><label>Ghi chú</label><textarea name="ghi_chu" class="auto-resize" ${!isAdmin ? 'readonly' : ''}>${safeText(item.ghi_chu || "")}</textarea></div>
+            </div>
+            <div class="button-row full" style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
+              ${editing && isAdmin ? `<button class="btn btn-danger" type="button" onclick="deleteNotificationRow('${safeText(item.id)}')">Xóa</button>` : ''}
+              <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Đóng</button>
+              ${isAdmin ? `<button class="btn btn-primary" type="submit" style="min-width:150px">${editing ? 'Lưu cập nhật' : 'Thêm thông báo'}</button>` : ''}
+            </div>
+          </form>
+        `
+      );
+
+      if (isAdmin) {
+        const form = document.getElementById("notificationDrawerForm");
+        if (form) {
+          form.addEventListener("submit", saveNotificationDrawer);
+          // Handle auto-resize
+          const textareas = form.querySelectorAll('textarea.auto-resize');
+          const adjustHeight = (el) => {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+          };
+          textareas.forEach(ta => {
+            ta.addEventListener('input', () => adjustHeight(ta));
+            setTimeout(() => adjustHeight(ta), 50);
+          });
+        }
+      }
+    }
+
+    async function saveNotificationDrawer(event) {
+      event.preventDefault();
+      if (!requireAdminAccess()) return;
+      
+      const data = Object.fromEntries(new FormData(event.target).entries());
+      const records = Array.isArray(fullAppState.THONG_BAO) ? [...fullAppState.THONG_BAO] : [];
+      const index = records.findIndex(item => String(item.id) === String(data.id));
+      
+      const record = {
+        ...(records[index] || {}),
+        id: String(data.id).trim(),
+        ngay: String(data.ngay).trim(),
+        thong_ban: String(data.thong_ban || "").trim(),
+        noi_dung: String(data.noi_dung || "").trim(),
+        anh: String(data.anh || "").trim(),
+        file: String(data.file || "").trim(),
+        ghi_chu: String(data.ghi_chu || "").trim()
+      };
+
+      try {
+        if (index >= 0) records[index] = record;
+        else records.push(record);
+        
+        fullAppState.THONG_BAO = records;
+        refreshVisibleState();
+        await updateSheet("THONG_BAO", objectsToRows(fullAppState.THONG_BAO, CONFIG.sheets.THONG_BAO));
+        
+        closeDrawer();
+        renderNotificationList();
+        showToast(index >= 0 ? "Đã cập nhật thông báo." : "Đã thêm thông báo.");
+      } catch (error) {
+        showToast("Lỗi lưu thông báo: " + error.message, true);
+      }
+    }
+
+    async function deleteNotificationRow(id) {
+      if (!requireAdminAccess()) return;
+      if (!confirm("Bạn có chắc chắn muốn xóa thông báo này?")) return;
+      
+      try {
+        fullAppState.THONG_BAO = (fullAppState.THONG_BAO || []).filter(item => String(item.id) !== String(id));
+        refreshVisibleState();
+        await updateSheet("THONG_BAO", objectsToRows(fullAppState.THONG_BAO, CONFIG.sheets.THONG_BAO));
+        
+        closeDrawer();
+        renderNotificationList();
+        showToast("Đã xóa thông báo.");
+      } catch (error) {
+        showToast("Lỗi xóa thông báo: " + error.message, true);
+      }
     }
 
 
@@ -3357,6 +3604,7 @@
       if (tabId === 'report_list') renderReportList();
       if (tabId === 'staff_list') renderStaffList();
       if (tabId === 'department_list') renderDepartmentList();
+      if (tabId === 'notification_list') renderNotificationList();
       if (tabId === 'dashboard') renderDashboard();
     }
     function openModal(title, subtitle, html) {
@@ -3488,6 +3736,7 @@
       renderReportList();
       renderStaffList();
       renderDepartmentList();
+      renderNotificationList();
       renderSync();
       switchTab(activeTab);
       cacheState();
