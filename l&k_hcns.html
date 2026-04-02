@@ -1731,12 +1731,10 @@
     }
 
     function normalizeState(input) {
-      const state = {
-        CONG_VIEC: Array.isArray(input.CONG_VIEC) ? input.CONG_VIEC : [],
-        CONG_VIEC_CT: Array.isArray(input.CONG_VIEC_CT) ? input.CONG_VIEC_CT : [],
-        PHONG_BAN: Array.isArray(input.PHONG_BAN) ? input.PHONG_BAN : [],
-        LIST_CV: Array.isArray(input.LIST_CV) ? input.LIST_CV : []
-      };
+      const state = {};
+      Object.keys(CONFIG.sheets).forEach(key => {
+        state[key] = Array.isArray(input?.[key]) ? input[key] : [];
+      });
       return state;
     }
 
