@@ -1427,6 +1427,7 @@
         <section id="department_list" class="section"></section>
         <section id="report_list" class="section"></section>
         <section id="notification_list" class="section"></section>
+        <section id="document_list" class="section"></section>
       </main>
     </div>
   </div>
@@ -1549,19 +1550,21 @@
         CONG_VIEC_CT: ["id", "id_cv", "ngay", "han_hoan_thanh", "cong_viec", "ng_giao", "ng_nhan", "phong_ban", "truong", "ten_cv", "muc_tieu", "ket_qua", "tien_do", "trang_thai", "xac_nhan", "khach_hang", "hoat_dong", "so_luong_cuoc_goi_gap", "ghi_chu"],
         PHONG_BAN: ["ten_phong_ban", "phong_ban_cap_tren", "mo_ta", "cap_do", "thu_tu", "trang_thai"],
         LIST_CV: ["id", "ten_phong_ban"],
-        THONG_BAO: ["id", "ngay", "thong_ban", "noi_dung", "anh", "file", "ghi_chu"]
+        THONG_BAO: ["id", "ngay", "thong_bao", "noi_dung", "anh", "file", "ghi_chu"],
+        TAI_LIEU: ["id", "phong_ban", "tai_lieu", "noi_dung", "anh", "file", "ghi_chu"]
       }
     };
     const NAV_ITEMS = [
       { id: "dashboard", label: "Trang chủ", subtitle: "MENU CHÍNH", icon: "home", color: "#2d5bff" },
-      { id: "work_management", label: "QUẢN LÝ CÔNG VIỆC", subtitle: "TÁC VỤ", icon: "task", color: "#8b5cf6" },
-      { id: "work_details", label: "CÔNG VIỆC CHI TIẾT", subtitle: "TÁC VỤ", icon: "task", color: "#0f766e" },
-      { id: "notification_list", label: "THÔNG BÁO", subtitle: "BÁO CÁO", icon: "bell", color: "#f43f5e" },
-      { id: "report_list", label: "BÁO CÁO", subtitle: "BÁO CÁO", icon: "file", color: "#ef4444" },
-      { id: "staff_list", label: "DANH SÁCH NHÂN VIÊN", subtitle: "DANH MỤC", icon: "users", color: "#0ea5e9" },
-      { id: "department_list", label: "DANH SÁCH PHÒNG BAN", subtitle: "DANH MỤC", icon: "box", color: "#f59e0b" }
+      { id: "work_management", label: "Quản lý công việc", subtitle: "TÁC VỤ", icon: "task", color: "#8b5cf6" },
+      { id: "work_details", label: "Công việc chi tiết", subtitle: "TÁC VỤ", icon: "task", color: "#0f766e" },
+      { id: "notification_list", label: "Thông báo", subtitle: "BÁO CÁO", icon: "bell", color: "#f43f5e" },
+      { id: "report_list", label: "Báo cáo", subtitle: "BÁO CÁO", icon: "file", color: "#ef4444" },
+      { id: "staff_list", label: "Danh sách nhân viên", subtitle: "DANH MỤC", icon: "users", color: "#0ea5e9" },
+      { id: "department_list", label: "Danh sách phòng ban", subtitle: "DANH MỤC", icon: "box", color: "#f59e0b" },
+      { id: "document_list", label: "Tài liệu", subtitle: "DANH MỤC", icon: "file", color: "#6366f1" }
     ];
-    const DEFAULT_STATE = { CONG_VIEC: [], CONG_VIEC_CT: [], PHONG_BAN: [], LIST_CV: [], THONG_BAO: [] };
+    const DEFAULT_STATE = { CONG_VIEC: [], CONG_VIEC_CT: [], PHONG_BAN: [], LIST_CV: [], THONG_BAO: [], TAI_LIEU: [] };
     const STAFF_SCOPED_SHEETS = ["CONG_VIEC", "CONG_VIEC_CT"];
     let accessToken = "", tokenExpiry = 0, usersData = [], currentUser = null, activeTab = "dashboard";
     let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -2875,7 +2878,7 @@
             <div><h2>Thông báo</h2><p class="subtle">Dữ liệu lấy từ sheet THONG_BAO.</p></div>
             <div class="toolbar-right">
               <span class="badge">${rows.length}</span>
-              ${isAdmin ? `<button class="btn btn-primary" type="button" onclick="openNotificationDrawer()">+ Thêm thông báo</button>` : ''}
+              <button class="btn btn-primary" type="button" onclick="openNotificationDrawer()">+ Thêm thông báo</button>
             </div>
           </div>
           <div class="table-wrap">
@@ -2883,22 +2886,22 @@
               <thead>
                 <tr>
                   <th style="width:120px">Ngày</th>
-                  <th style="width:250px">Thông báo</th>
-                  <th>Nội dung</th>
+                  <th style="width:200px">Thông báo</th>
+                  <th style="min-width:350px">Nội dung</th>
                   <th style="width:100px">Ảnh</th>
                   <th style="width:100px">File</th>
-                  <th>Ghi chú</th>
+                  <th style="min-width:300px">Ghi chú</th>
                 </tr>
               </thead>
               <tbody>
                 ${rows.map(item => `
                   <tr style="cursor:pointer" onclick="openNotificationDrawer('${safeText(item.id)}')">
                     <td>${safeText(formatDateVi(item.ngay))}</td>
-                    <td class="font-bold">${safeText(item.thong_ban || "")}</td>
-                    <td>${safeText(item.noi_dung || "")}</td>
+                    <td class="font-bold">${safeText(item.thong_bao || "")}</td>
+                    <td><div style="max-height:60px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; font-size:13px; color:#475569;">${safeText(item.noi_dung || "")}</div></td>
                     <td>${item.anh ? `<a href="${safeText(item.anh)}" target="_blank" onclick="event.stopPropagation()">Xem ảnh</a>` : '--'}</td>
                     <td>${item.file ? `<a href="${safeText(item.file)}" target="_blank" onclick="event.stopPropagation()">Tải file</a>` : '--'}</td>
-                    <td>${safeText(item.ghi_chu || "")}</td>
+                    <td><div style="max-height:60px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; font-size:13px; color:#64748b;">${safeText(item.ghi_chu || "")}</div></td>
                   </tr>
                 `).join("") || '<tr><td colspan="6" class="empty">Không có thông báo.</td></tr>'}
               </tbody>
@@ -2919,7 +2922,7 @@
       const item = editing || {
         id: randomId("TB"),
         ngay: todayInput(),
-        thong_ban: "",
+        thong_bao: "",
         noi_dung: "",
         anh: "",
         file: "",
@@ -2933,17 +2936,25 @@
           <form id="notificationDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0;">
             <input type="hidden" name="id" value="${safeText(item.id || "")}" />
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-              <div class="field-horizontal"><label>Ngày</label><input name="ngay" type="date" value="${safeText(formatDateInput(item.ngay))}" ${!isAdmin ? 'readonly' : ''} required></div>
-              <div class="field-horizontal full"><label>Tiêu đề</label><input name="thong_ban" type="text" value="${safeText(item.thong_ban || "")}" ${!isAdmin ? 'readonly' : ''} required></div>
-              <div class="field-horizontal full"><label>Nội dung</label><textarea name="noi_dung" class="auto-resize" ${!isAdmin ? 'readonly' : ''}>${safeText(item.noi_dung || "")}</textarea></div>
-              <div class="field-horizontal full"><label>Link ảnh</label><input name="anh" type="text" value="${safeText(item.anh || "")}" ${!isAdmin ? 'readonly' : ''}></div>
-              <div class="field-horizontal full"><label>Link file</label><input name="file" type="text" value="${safeText(item.file || "")}" ${!isAdmin ? 'readonly' : ''}></div>
-              <div class="field-horizontal full"><label>Ghi chú</label><textarea name="ghi_chu" class="auto-resize" ${!isAdmin ? 'readonly' : ''}>${safeText(item.ghi_chu || "")}</textarea></div>
+              <div class="field-horizontal full"><label>Ngày</label><input name="ngay" type="date" value="${safeText(formatDateInput(item.ngay))}" required></div>
+              <div class="field-horizontal full"><label>Tiêu đề</label><input name="thong_bao" type="text" value="${safeText(item.thong_bao || "")}" required style="font-weight:700; font-size:16px; color:#1e293b;"></div>
+              <div class="field-horizontal full" style="flex-direction:column; align-items:flex-start;">
+                <label style="margin-bottom:8px; font-weight:700; color:#64748b;">Nội dung thông báo</label>
+                <textarea name="noi_dung" class="auto-resize" 
+                  style="min-height:250px; width:100%; padding:15px; border-radius:12px; border:1px solid #e2e8f0; background:#f8fafc; font-size:15px; line-height:1.6; color:#334155; resize:vertical; overflow-y:auto;">${safeText(item.noi_dung || "")}</textarea>
+              </div>
+              <div class="field-horizontal full"><label>Link ảnh</label><input name="anh" type="text" value="${safeText(item.anh || "")}"></div>
+              <div class="field-horizontal full"><label>Link file</label><input name="file" type="text" value="${safeText(item.file || "")}"></div>
+              <div class="field-horizontal full" style="flex-direction:column; align-items:flex-start; margin-top:16px;">
+                <label style="margin-bottom:8px; font-weight:700; color:#64748b;">Ghi chú</label>
+                <textarea name="ghi_chu" class="auto-resize" 
+                  style="min-height:150px; width:100%; padding:15px; border-radius:12px; border:1px solid #e2e8f0; background:#f8fafc; font-size:15px; line-height:1.6; color:#64748b; resize:vertical; overflow-y:auto;">${safeText(item.ghi_chu || "")}</textarea>
+              </div>
             </div>
             <div class="button-row full" style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
-              ${editing && isAdmin ? `<button class="btn btn-danger" type="button" onclick="deleteNotificationRow('${safeText(item.id)}')">Xóa</button>` : ''}
+              ${editing ? `<button class="btn btn-danger" type="button" onclick="deleteNotificationRow('${safeText(item.id)}')">Xóa</button>` : ''}
               <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Đóng</button>
-              ${isAdmin ? `<button class="btn btn-primary" type="submit" style="min-width:150px">${editing ? 'Lưu cập nhật' : 'Thêm thông báo'}</button>` : ''}
+              <button class="btn btn-primary" type="submit" style="min-width:150px">${editing ? 'Lưu cập nhật' : 'Thêm thông báo'}</button>
             </div>
           </form>
         `
@@ -2969,7 +2980,6 @@
 
     async function saveNotificationDrawer(event) {
       event.preventDefault();
-      if (!requireAdminAccess()) return;
       
       const data = Object.fromEntries(new FormData(event.target).entries());
       const records = Array.isArray(fullAppState.THONG_BAO) ? [...fullAppState.THONG_BAO] : [];
@@ -2979,7 +2989,7 @@
         ...(records[index] || {}),
         id: String(data.id).trim(),
         ngay: String(data.ngay).trim(),
-        thong_ban: String(data.thong_ban || "").trim(),
+        thong_bao: String(data.thong_bao || "").trim(),
         noi_dung: String(data.noi_dung || "").trim(),
         anh: String(data.anh || "").trim(),
         file: String(data.file || "").trim(),
@@ -3003,7 +3013,6 @@
     }
 
     async function deleteNotificationRow(id) {
-      if (!requireAdminAccess()) return;
       if (!confirm("Bạn có chắc chắn muốn xóa thông báo này?")) return;
       
       try {
@@ -3020,6 +3029,197 @@
     }
 
 
+
+    // ===== MODULE TÀI LIỆU =====
+    function renderDocumentList() {
+      const container = document.getElementById("document_list");
+      const isAdmin = isAdminUser();
+      const pbOptions = [...new Set((appState.TAI_LIEU || []).map(i => i.phong_ban).filter(Boolean))].sort();
+
+      container.innerHTML = `
+        <div class="card panel">
+          <div class="toolbar">
+            <div><h2>Tài liệu</h2><p class="subtle">Quản lí hồ sơ, tài liệu hệ thống.</p></div>
+            <div class="toolbar-right">
+              <span class="badge" id="documentCountBadge">${(appState.TAI_LIEU || []).length}</span>
+              <button class="btn btn-primary" type="button" onclick="openDocumentDrawer()">+ Thêm tài liệu</button>
+            </div>
+          </div>
+          <div class="toolbar sticky-filter" style="border-bottom:none">
+            <div class="toolbar-search">
+              <input type="text" id="documentSearch" placeholder="Tìm tên tài liệu, nội dụng..." oninput="filterDocumentTable()" />
+              <select id="documentFilterPb" onchange="filterDocumentTable()">
+                <option value="">Tất cả phòng ban</option>
+                ${pbOptions.map(pb => `<option value="${safeText(pb)}">${safeText(pb)}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table style="min-width:1100px">
+              <thead>
+                <tr>
+                  <th style="width:150px">Phòng ban</th>
+                  <th style="width:250px">Tên tài liệu</th>
+                  <th>Nội dung</th>
+                  <th style="width:100px">Ảnh</th>
+                  <th style="width:100px">File</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody id="documentTableBody"></tbody>
+            </table>
+          </div>
+        </div>`;
+      filterDocumentTable();
+    }
+
+    function filterDocumentTable() {
+      const q = (document.getElementById("documentSearch")?.value || "").toLowerCase();
+      const pb = document.getElementById("documentFilterPb")?.value || "";
+      const tbody = document.getElementById("documentTableBody");
+      if (!tbody) return;
+
+      const rows = (appState.TAI_LIEU || []).filter(item => {
+        const haystack = [item.phong_ban, item.tai_lieu, item.noi_dung, item.ghi_chu].map(v => String(v || "").toLowerCase()).join(" ");
+        return (!pb || item.phong_ban === pb) && (haystack.includes(q));
+      }).sort((a, b) => String(a.phong_ban || "").localeCompare(String(b.phong_ban || ""), "vi"));
+
+      document.getElementById("documentCountBadge").textContent = rows.length;
+
+      tbody.innerHTML = rows.map(item => `
+        <tr style="cursor:pointer" onclick="openDocumentDrawer('${safeText(item.id)}')">
+          <td class="font-bold" style="color:var(--brand)">${safeText(item.phong_ban || "--")}</td>
+          <td class="font-bold">${safeText(item.tai_lieu || "")}</td>
+          <td><div style="max-height:60px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; font-size:13px; color:#475569;">${safeText(item.noi_dung || "")}</div></td>
+          <td>${item.anh ? `<a href="${safeText(item.anh)}" target="_blank" onclick="event.stopPropagation()">Xem ảnh</a>` : '--'}</td>
+          <td>${item.file ? `<a href="${safeText(item.file)}" target="_blank" onclick="event.stopPropagation()">Tải file</a>` : '--'}</td>
+          <td><div style="max-height:60px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; font-size:13px; color:#64748b;">${safeText(item.ghi_chu || "")}</div></td>
+        </tr>
+      `).join("") || '<tr><td colspan="6" class="empty">Không tìm thấy tài liệu phù hợp.</td></tr>';
+    }
+
+    function openDocumentDrawer(id = "") {
+      const editing = id ? (appState.TAI_LIEU || []).find(x => String(x.id) === String(id)) : null;
+      const isAdmin = isAdminUser();
+      
+      const item = editing || {
+        id: randomId("TL"),
+        phong_ban: "",
+        tai_lieu: "",
+        noi_dung: "",
+        anh: "",
+        file: "",
+        ghi_chu: ""
+      };
+
+      const pbOptions = (appState.PHONG_BAN || []).map(pb => pb.ten_phong_ban).sort();
+
+      openDrawer(
+        editing ? "Sửa tài liệu" : "Thêm tài liệu",
+        editing ? `ID: ${safeText(item.id)}` : "Nhập thông tin tài liệu",
+        `
+          <form id="documentDrawerForm" class="panel" style="border:none; box-shadow:none; padding:0;">
+            <input type="hidden" name="id" value="${safeText(item.id || "")}" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              <div class="field-horizontal full">
+                <label>Phòng ban</label>
+                <select name="phong_ban" required>
+                  <option value="">-- Chọn phòng ban --</option>
+                  ${pbOptions.map(pb => `<option value="${safeText(pb)}" ${item.phong_ban === pb ? 'selected' : ''}>${safeText(pb)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field-horizontal full"><label>Tên tài liệu</label><input name="tai_lieu" type="text" value="${safeText(item.tai_lieu || "")}" required style="font-weight:700;"></div>
+              
+              <div class="field-horizontal full" style="flex-direction:column; align-items:flex-start;">
+                <label style="margin-bottom:8px; font-weight:700; color:#64748b;">Nội dung tài liệu</label>
+                <textarea name="noi_dung" class="auto-resize" 
+                  style="min-height:250px; width:100%; padding:15px; border-radius:12px; border:1px solid #e2e8f0; background:#f8fafc; font-size:15px; line-height:1.6; color:#334155; resize:vertical; overflow-y:auto;">${safeText(item.noi_dung || "")}</textarea>
+              </div>
+
+              <div class="field-horizontal full"><label>Link ảnh</label><input name="anh" type="text" value="${safeText(item.anh || "")}"></div>
+              <div class="field-horizontal full"><label>Link file</label><input name="file" type="text" value="${safeText(item.file || "")}"></div>
+              
+              <div class="field-horizontal full" style="flex-direction:column; align-items:flex-start; margin-top:16px;">
+                <label style="margin-bottom:8px; font-weight:700; color:#64748b;">Ghi chú</label>
+                <textarea name="ghi_chu" class="auto-resize" 
+                  style="min-height:150px; width:100%; padding:15px; border-radius:12px; border:1px solid #e2e8f0; background:#f8fafc; font-size:15px; line-height:1.6; color:#64748b; resize:vertical; overflow-y:auto;">${safeText(item.ghi_chu || "")}</textarea>
+              </div>
+            </div>
+            <div class="button-row full" style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
+              ${editing ? `<button class="btn btn-danger" type="button" onclick="deleteDocumentRow('${safeText(item.id)}')">Xóa</button>` : ''}
+              <button class="btn btn-secondary" type="button" onclick="closeDrawer()">Đóng</button>
+              <button class="btn btn-primary" type="submit" style="min-width:150px">${editing ? 'Lưu cập nhật' : 'Thêm tài liệu'}</button>
+            </div>
+          </form>
+        `
+      );
+
+      if (isAdmin) {
+        const form = document.getElementById("documentDrawerForm");
+        if (form) {
+          form.addEventListener("submit", saveDocumentDrawer);
+          const textareas = form.querySelectorAll('textarea.auto-resize');
+          const adjustHeight = (el) => {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+          };
+          textareas.forEach(ta => {
+            ta.addEventListener('input', () => adjustHeight(ta));
+            setTimeout(() => adjustHeight(ta), 50);
+          });
+        }
+      }
+    }
+
+    async function saveDocumentDrawer(event) {
+      event.preventDefault();
+      
+      const data = Object.fromEntries(new FormData(event.target).entries());
+      const records = Array.isArray(fullAppState.TAI_LIEU) ? [...fullAppState.TAI_LIEU] : [];
+      const index = records.findIndex(item => String(item.id) === String(data.id));
+      
+      const record = {
+        ...(records[index] || {}),
+        id: String(data.id).trim(),
+        phong_ban: String(data.phong_ban || "").trim(),
+        tai_lieu: String(data.tai_lieu || "").trim(),
+        noi_dung: String(data.noi_dung || "").trim(),
+        anh: String(data.anh || "").trim(),
+        file: String(data.file || "").trim(),
+        ghi_chu: String(data.ghi_chu || "").trim()
+      };
+
+      try {
+        if (index >= 0) records[index] = record;
+        else records.push(record);
+        
+        fullAppState.TAI_LIEU = records;
+        refreshVisibleState();
+        await updateSheet("TAI_LIEU", objectsToRows(fullAppState.TAI_LIEU, CONFIG.sheets.TAI_LIEU));
+        
+        closeDrawer();
+        renderDocumentList();
+        showToast(index >= 0 ? "Đã cập nhật tài liệu." : "Đã thêm tài liệu.");
+      } catch (error) {
+        showToast("Lỗi lưu tài liệu: " + error.message, true);
+      }
+    }
+
+    async function deleteDocumentRow(id) {
+      if (!confirm("Bạn có chắc chắn muốn xóa tài liệu này?")) return;
+      
+      try {
+        fullAppState.TAI_LIEU = (fullAppState.TAI_LIEU || []).filter(item => String(item.id) !== String(id));
+        refreshVisibleState();
+        await updateSheet("TAI_LIEU", objectsToRows(fullAppState.TAI_LIEU, CONFIG.sheets.TAI_LIEU));
+        
+        closeDrawer();
+        renderDocumentList();
+        showToast("Đã xóa tài liệu.");
+      } catch (error) {
+        showToast("Lỗi xóa tài liệu: " + error.message, true);
+      }
+    }
 
     function closeWorkDrawer() {
       document.getElementById('workDrawerOverlay').classList.add('hidden');
@@ -3603,6 +3803,7 @@
       if (tabId === 'staff_list') renderStaffList();
       if (tabId === 'department_list') renderDepartmentList();
       if (tabId === 'notification_list') renderNotificationList();
+      if (tabId === 'document_list') renderDocumentList();
       if (tabId === 'dashboard') renderDashboard();
     }
     function openModal(title, subtitle, html) {
@@ -3634,14 +3835,65 @@
     function renderDashboard() {
       const totalTasks = appState.CONG_VIEC.length;
       const myTasks = appState.CONG_VIEC.filter(t => String(t.ng_nhan || '').trim() === String((currentUser || {}).id || '').trim()).length;
+      const isAdmin = isAdminUser();
+
+      const navModules = NAV_ITEMS.filter(item => item.id !== "dashboard");
+
       document.getElementById("dashboard").innerHTML = `
         <div class="section-shell">
           <div class="section-header"><div class="section-title"><span class="title-dot"></span><span>TRANG CHỦ</span></div></div>
-          <div class="panel">
-            <div class="stats">
-              <div class="stat-card"><small>Tổng công việc</small><strong>${totalTasks}</strong></div>
-              <div class="stat-card"><small>Việc của tôi</small><strong class="ok">${myTasks}</strong></div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="panel">
+              <div class="stats" style="flex-direction:column; align-items:flex-start;">
+                <small style="color:#64748b; font-weight:600;">Tổng công việc</small>
+                <strong style="font-size:32px; color:#1e293b;">${totalTasks}</strong>
+              </div>
             </div>
+            <div class="panel">
+              <div class="stats" style="flex-direction:column; align-items:flex-start;">
+                <small style="color:#64748b; font-weight:600;">Việc của tôi</small>
+                <strong class="ok" style="font-size:32px; color:var(--brand);">${myTasks}</strong>
+              </div>
+            </div>
+            <div class="panel" style="background:var(--brand-soft); border-color:var(--brand);">
+              <div class="stats" style="flex-direction:column; align-items:flex-start;">
+                <small style="color:var(--brand); font-weight:700;">Hành động nhanh</small>
+                <div style="display:flex; gap:8px; margin-top:8px; width:100%;">
+                  <button class="btn btn-primary" style="flex:1; padding:8px;" onclick="openWorkDrawer(null)">+ Việc</button>
+                  <button class="btn btn-primary" style="flex:1; padding:8px; background:#f43f5e;" onclick="openNotificationDrawer()">+ Thông báo</button>
+                  <button class="btn btn-primary" style="flex:1; padding:8px; background:#6366f1;" onclick="openDocumentDrawer()">+ Tài liệu</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header mb-4"><div class="section-title"><small style="font-weight:700; color:#64748b; letter-spacing:1px;">DANH MỤC MODULE</small></div></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            ${navModules.map(item => `
+              <div class="panel cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group" 
+                   onclick="switchTab('${item.id}')"
+                   style="position:relative; overflow:hidden; border-left:4px solid ${item.color};">
+                <div style="display:flex; align-items:center; gap:16px;">
+                  <div style="width:48px; height:48px; border-radius:12px; background:${item.color}15; display:flex; align-items:center; justify-content:center; color:${item.color}; flex-shrink:0;">
+                    <div style="width:24px; height:24px; display:flex;">${getNavIcon(item.icon)}</div>
+                  </div>
+                  <div>
+                    <div style="font-weight:700; color:#1e293b; font-size:15px; margin-bottom:2px;">${item.label}</div>
+                    <div style="font-[10px]; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">${item.subtitle}</div>
+                  </div>
+                </div>
+                <!-- Subtle indicator -->
+                <div style="position:absolute; right:-10px; bottom:-10px; opacity:0.05; transition:opacity 0.3s;" class="group-hover:opacity-10">
+                   <div style="width:80px; height:80px;">${getNavIcon(item.icon)}</div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+
+          <div class="panel" style="border-left:4px solid #22c55e;">
+             <h3 style="margin-bottom:8px; font-weight:700; color:#1e293b;">Chào mừng quay trở lại!</h3>
+             <p class="subtle" style="font-size:14px;">Hệ thống đang hoạt động ổn định. Bạn có ${myTasks} công việc đang chờ xử lý trên tổng số ${totalTasks} tác vụ chính.</p>
           </div>
         </div>`;
     }
@@ -3735,6 +3987,7 @@
       renderStaffList();
       renderDepartmentList();
       renderNotificationList();
+      renderDocumentList();
       renderSync();
       switchTab(activeTab);
       cacheState();
