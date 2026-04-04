@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="vi">
+ <!-- ?link=don_chi_tiet -> Mở Đơn chi tiết
+?link=san_pham -> Mở Sản phẩm PM
+?link=bao_cao -> Mở Báo cáo
+?link=upmisa  -->
+
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống quản lý - UPMISA</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- JSRSAsign for JWT -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+    <!-- SheetJS for Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#f8fafc',
+                        primary: { DEFAULT: '#2563eb', foreground: '#ffffff' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .login-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(37, 99, 235, 0.1);
+            border-left-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .sidebar-transition {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-collapsed {
+            width: 72px;
+        }
+
+        .sidebar-collapsed .sidebar-text,
+        .sidebar-collapsed .sidebar-header-text {
+            display: none;
+        }
+
+        .sidebar-collapsed .sidebar-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+
+        .sidebar-item {
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .sidebar-item.active {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-right-color: #2563eb;
+        }
+
+        .module-card {
+            transition: all 0.3s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .drop-zone {
+            transition: all 0.3s;
+        }
+
+        .drop-zone.drag-over {
+            background-color: #eff6ff;
+            border-color: #2563eb;
+            border-width: 2px;
+        }
+
+        /* Detail Drawer */
+        #detailDrawer {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+
+        #detailDrawer.open {
+            transform: translateX(0);
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50">
+    <!-- Login Screen Removed -->
+
+
+            <div id="loginLoading" class="hidden flex flex-col items-center py-6">
+                <div class="spinner mb-4"></div>
+                <p class="text-sm text-slate-600 font-medium">Đang xác thực dữ liệu...</p>
+            </div>
+
+
+
+    <div id="mainApp" class="fixed inset-0 bg-white flex">
+        <div id="sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 sidebar-transition relative">
+            <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                <div class="sidebar-header-text">
+                    <div class="font-bold text-xl text-slate-900">UPMISA</div>
+                    <div class="text-sm text-slate-500 mt-1">Hệ thống quản lý</div>
+                </div>
+                <button onclick="toggleSidebar()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+                    <svg id="sidebarToggleIcon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-1 py-6 overflow-y-auto">
+                <div onclick="switchModule('home')" id="sidebarHome"
+                    class="sidebar-item active px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 border-r-2 border-primary bg-blue-50 text-primary" title="Trang chủ">
+                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span class="font-medium sidebar-text">Trang chủ</span>
+                </div>
+                <div onclick="switchModule('donhang')" id="sidebarDonhang"
+                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50" title="Đơn chi tiết">
+                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span class="font-medium sidebar-text">Đơn chi tiết</span>
+                </div>
+                <div onclick="switchModule('sanpham')" id="sidebarSanpham"
+                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50" title="Sản phẩm PM">
+                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span class="font-medium sidebar-text">Sản phẩm PM</span>
+                </div>
+                <div onclick="switchModule('baocao')" id="sidebarBaocao"
+                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50" title="Báo cáo">
+                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2 2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span class="font-medium sidebar-text">Báo cáo</span>
+                </div>
+                <div onclick="switchModule('upmisa')" id="sidebarUpmisa"
+                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50" title="UPMISA">
+                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-medium sidebar-text">UPMISA</span>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200">
+                <div class="flex items-center justify-between overflow-hidden">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                            <span class="text-blue-600 font-semibold text-sm" id="userInitial">U</span>
+                        </div>
+                        <div class="sidebar-text truncate">
+                            <div class="text-sm font-semibold text-slate-900 truncate" id="sidebarUserName">User</div>
+                            <div class="text-xs text-slate-500">Nhân viên</div>
+                        </div>
+                    </div>
+                    <button onclick="handleLogout()" class="text-rose-600 hover:text-rose-700 shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+            </div>
+        </div>
+        </div><!-- /sidebar -->
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 border-b border-slate-200 flex items-center px-6 bg-white shrink-0">
+                <h1 class="text-xl font-bold text-slate-900" id="pageTitle">Trang chủ</h1>
+            </header>
+
+            <main class="flex-1 overflow-auto bg-slate-50">
+                <!-- Module Trang chủ -->
+                <div id="moduleHome" class="h-full p-6">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold text-slate-900">Xin chào, <span id="welcomeUserName"
+                                    class="text-primary"></span>!</h1>
+                            <p class="text-slate-500 mt-2">Chào mừng bạn đến với hệ thống quản lý</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div onclick="switchModule('donhang')"
+                                class="module-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 cursor-pointer hover:shadow-lg transition-all">
+                                <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                                    <svg class="w-7 h-7 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-900 mb-2">Đơn chi tiết</h3>
+                                <p class="text-sm text-slate-500">Quản lý thông tin đơn hàng chi tiết</p>
+                                <div class="mt-4 flex items-center text-primary text-sm font-medium">
+                                    <span>Truy cập ngay</span>
+                                    <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div onclick="switchModule('sanpham')"
+                                class="module-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 cursor-pointer hover:shadow-lg transition-all">
+                                <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                                    <svg class="w-7 h-7 text-green-600" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-900 mb-2">Sản phẩm phần mềm</h3>
+                                <p class="text-sm text-slate-500">Quản lý danh sách sản phẩm phần mềm</p>
+                                <div class="mt-4 flex items-center text-primary text-sm font-medium">
+                                    <span>Truy cập ngay</span>
+                                    <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div onclick="switchModule('upmisa')"
+                                class="module-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 cursor-pointer hover:shadow-lg transition-all">
+                                <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                                    <svg class="w-7 h-7 text-purple-600" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-900 mb-2">UPMISA</h3>
+                                <p class="text-sm text-slate-500">Xuất dữ liệu ra MISA</p>
+                                <div class="mt-4 flex items-center text-primary text-sm font-medium">
+                                    <span>Truy cập ngay</span>
+                                    <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Đơn chi tiết -->
+                <div id="moduleDonhang" class="h-full flex flex-col p-6" style="display: none;">
+                    <div
+                        class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
+                            <div class="hidden">
+                                <h2 class="text-lg font-bold text-slate-900">Danh sách đơn chi tiết</h2>
+                                <p class="text-sm text-slate-500 mt-1">Quản lý thông tin đơn hàng chi tiết từ sheet
+                                    UD_CT</p>
+                            </div>
+                            <div class="flex flex-wrap gap-3 items-center">
+                                <div class="flex flex-col">
+                                    <div class="flex gap-2 mb-2 items-center">
+                                        <span class="text-xs font-semibold text-slate-500 uppercase">Chọn nhanh:</span>
+                                        <button onclick="setUDCTQuickDate('today')" class="px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 hover:bg-slate-100">Hôm nay</button>
+                                        <button onclick="setUDCTQuickDate('thisWeek')" class="px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 hover:bg-slate-100">Tuần này</button>
+                                        <button onclick="setUDCTQuickDate('thisMonth')" class="px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 hover:bg-slate-100">Tháng này</button>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <label class="text-xs font-semibold text-slate-500 uppercase mr-1">Từ:</label>
+                                        <button onclick="changeUDCTDate('filterUDCTFrom', -1)" class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
+                                        <input type="date" id="filterUDCTFrom" onchange="filterUDCTTable()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
+                                        <button onclick="changeUDCTDate('filterUDCTFrom', 1)" class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➕</button>
+                                        
+                                        <label class="text-xs font-semibold text-slate-500 uppercase ml-3 mr-1">Đến:</label>
+                                        <button onclick="changeUDCTDate('filterUDCTTo', -1)" class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
+                                        <input type="date" id="filterUDCTTo" onchange="filterUDCTTable()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
+                                        <button onclick="changeUDCTDate('filterUDCTTo', 1)" class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➕</button>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="filterUDCTSan" value="">
+                                <div id="filterUDCTSanButtons" class="flex flex-wrap gap-1 items-center"></div>
+                                
+                                <input type="hidden" id="filterUDCTKhungH" value="">
+                                <div id="filterUDCTKhungHButtons" class="flex flex-wrap gap-1 items-center"></div>
+                                
+                                <select id="filterUDCTMaGian" onchange="filterUDCTTable()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
+                                    <option value="">Tất cả Mã gian</option>
+                                </select>
+                                
+                                <input type="hidden" id="filterUDCTTrangThai" value="">
+                                <div id="filterUDCTTrangThaiButtons" class="flex flex-wrap gap-1 items-center"></div>
+                                <input type="text" id="filterUDCTSearch" oninput="filterUDCTTable()" placeholder="Tìm kiếm nhanh..." class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-48">
+                                
+                                <button onclick="filterUDCTTable()" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium">
+                                    🔍 Lọc
+                                </button>
+                                <button onclick="updateAllPricesBatch()" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium">
+                                    💰 Up đơn giá full ngày
+                                </button>
+                                
+                                <label
+                                    class="cursor-pointer bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    📤 Tải Excel
+                                    <input type="file" id="excelUploadDonhang" accept=".xlsx, .xls" class="hidden"
+                                        onchange="handleExcelUploadDonhang(this.files)" multiple>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mx-4 mt-2 flex gap-2">
+                            <button onclick="setUDCTQuickTab('all')" id="udctTabAll" class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors">Tất cả các đơn</button>
+                            <button onclick="setUDCTQuickTab('cancelled')" id="udctTabCancelled" class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Đơn hủy</button>
+                        </div>
+                        <div id="dropZoneDonhang"
+                            class="mx-4 mt-2 border border-dashed border-slate-300 rounded-lg py-3 px-4 text-center cursor-pointer drop-zone hover:bg-slate-50 flex items-center justify-center gap-3"
+                            onclick="document.getElementById('excelUploadDonhang').click()">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p class="text-slate-600 text-sm font-medium">Kéo thả file Excel (Tổng đơn 1) vào đây hoặc click để chọn</p>
+                        </div>
+                        <div class="flex-1 overflow-auto table-container mt-2">
+                            <table class="w-full min-w-[1200px]">
+                                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Sàn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Khung H</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã gian</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MVD</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MDH</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">SKU Shop Up</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số lượng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID SP</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID SP CT</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên SP</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">SLG xuất</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Action</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Trạng thái</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="donhangTableBody">
+                                    <tr>
+                                        <td colspan="17" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- UDCT Pagination -->
+                        <div class="px-4 py-3 border-t border-slate-200 bg-white flex items-center justify-between mt-auto">
+                            <div class="text-sm text-slate-500" id="udctPageInfo">
+                                Đang hiển thị <span class="font-medium text-slate-900">0-0</span> trong số <span class="font-medium text-slate-900">0</span> đơn hàng
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="udctPrevPage" onclick="changeUDCTPage(-1)" class="px-3 py-1 border border-slate-200 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">Trước</button>
+                                <button id="udctNextPage" onclick="changeUDCTPage(1)" class="px-3 py-1 border border-slate-200 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">Sau</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Sản phẩm phần mềm -->
+                <div id="moduleSanpham" class="h-full flex flex-col p-6" style="display: none;">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Danh sách sản phẩm phần mềm</h2>
+                                <p class="text-sm text-slate-500 mt-1">Quản lý thông tin sản phẩm từ sheet DS_SP_PM (32 cột)</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <input type="text" id="spFilterMa" oninput="renderSanphamTable(1)" placeholder="Lọc theo Mã..." class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-36 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <input type="text" id="spFilterSearch" oninput="renderSanphamTable(1)" placeholder="Tìm kiếm..." class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-44 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <label class="cursor-pointer bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                                    📤 Tải Excel lên
+                                    <input type="file" id="excelUpload" accept=".xlsx, .xls" class="hidden" onchange="handleExcelUpload(this.files)">
+                                </label>
+                            </div>
+                        </div>
+                        <!-- Dropzone compact -->
+                        <div id="dropZone" class="mx-4 mt-2 border border-dashed border-slate-300 rounded-lg py-2 px-4 text-center cursor-pointer drop-zone hover:bg-slate-50 flex items-center justify-center gap-2" onclick="document.getElementById('excelUpload').click()">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p class="text-slate-500 text-sm">Kéo thả file Excel vào đây hoặc click để chọn</p>
+                        </div>
+                        <!-- Phân trang -->
+                        <div class="px-4 py-2 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                            <span id="spStatsText" class="text-xs font-medium text-slate-500">Hiển thị: 0/0 sản phẩm</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeSanphamPage(-1)" id="spPrevBtn" class="px-2 py-1 bg-white border border-slate-200 rounded text-xs hover:bg-slate-50 disabled:opacity-40">← Trước</button>
+                                <span id="spPageInfo" class="text-xs font-semibold text-slate-700">Trang 1 / 1</span>
+                                <button onclick="changeSanphamPage(1)" id="spNextBtn" class="px-2 py-1 bg-white border border-slate-200 rounded text-xs hover:bg-slate-50 disabled:opacity-40">Sau →</button>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-auto table-container">
+                            <table class="w-full min-w-[2800px]">
+                                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Sản phẩm cha</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá nhập</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá bán lẻ</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá đón gói</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá bán thấp nhất</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sanphamTableBody">
+                                    <tr>
+                                        <td colspan="32" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Báo cáo -->
+                <div id="moduleBaocao" class="h-full flex flex-col p-6" style="display: none;">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 bg-white hidden">
+                            <h2 class="text-lg font-bold text-slate-900">Báo cáo đơn chi tiết</h2>
+                            <p class="text-sm text-slate-500 mt-1">Thống kê đơn hàng theo khoảng thời gian</p>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 border-b border-slate-200">
+                            <!-- Nút chọn nhanh ngày -->
+                            <div class="flex gap-2 mb-3">
+                                <span class="text-sm font-semibold text-slate-600 self-center mr-2">Chọn nhanh:</span>
+                                <button onclick="setQuickDate('today')" class="px-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors">Hôm nay</button>
+                                <button onclick="setQuickDate('thisWeek')" class="px-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors">Tuần này</button>
+                                <button onclick="setQuickDate('thisMonth')" class="px-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors">Tháng này</button>
+                            </div>
+                            
+                            <div class="flex gap-4 items-end flex-wrap">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Từ ngày</label>
+                                    <div class="flex items-center gap-1">
+                                        <button onclick="changeReportDate('fromDate', -1)" class="px-2 py-1.5 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
+                                        <input type="date" id="fromDate" onchange="autoFilterReport()" class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                        <button onclick="changeReportDate('fromDate', 1)" class="px-2 py-1.5 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➕</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Đến ngày</label>
+                                    <div class="flex items-center gap-1">
+                                        <button onclick="changeReportDate('toDate', -1)" class="px-2 py-1.5 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
+                                        <input type="date" id="toDate" onchange="autoFilterReport()" class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                        <button onclick="changeReportDate('toDate', 1)" class="px-2 py-1.5 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➕</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Mã gian</label>
+                                    <input type="text" list="maGianList" id="filterMaGian" oninput="autoFilterReport()" placeholder="Tất cả" class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                    <datalist id="maGianList"></datalist>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">ID SP</label>
+                                    <input type="text" id="filterReportIdSp" oninput="autoFilterReport()" placeholder="Nhập ID SP..." class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 w-32">
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="filterReport()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">🔍 Lọc báo cáo</button>
+                                    <button onclick="exportReportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">📥 Xuất Excel</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 overflow-auto p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+                                    <div class="text-sm opacity-90">Tổng số đơn</div>
+                                    <div class="text-3xl font-bold" id="totalOrders">0</div>
+                                </div>
+                                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white">
+                                    <div class="text-sm opacity-90">Tổng doanh thu</div>
+                                    <div class="text-3xl font-bold" id="totalRevenue">0</div>
+                                </div>
+                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+                                    <div class="text-sm opacity-90">Số sàn</div>
+                                    <div class="text-3xl font-bold" id="totalSan">0</div>
+                                </div>
+                            </div>
+
+                            <!-- Thống kê 2 bảng song song -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <!-- Thống kê theo mã gian -->
+                                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                                    <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                                        <h3 class="font-semibold text-slate-900">Thống kê theo Mã gian</h3>
+                                    </div>
+                                    <div class="overflow-x-auto max-h-64">
+                                        <table class="w-full">
+                                            <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã gian</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số đơn</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Doanh thu</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="magianTableBody">
+                                                <tr><td colspan="3" class="text-center py-8 text-slate-500">Chọn ngày để xem báo cáo</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Thống kê theo ID SP -->
+                                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                                    <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                                        <h3 class="font-semibold text-slate-900">Thống kê theo ID SP</h3>
+                                        <button onclick="exportIdSPExcel()" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 flex items-center gap-1 rounded text-xs font-medium transition-colors" title="Xuất (ID SP, SL xuất) ra Excel">
+                                            📥 Tải Excel
+                                        </button>
+                                    </div>
+                                    <div class="overflow-x-auto max-h-64">
+                                        <table class="w-full">
+                                            <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID SP</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên SP</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">SL xuất</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Doanh thu</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="idspTableBody">
+                                                <tr><td colspan="4" class="text-center py-8 text-slate-500">Chọn ngày để xem báo cáo</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-semibold text-slate-900">Tóm tắt báo cáo văn bản</h3>
+                                    <button onclick="copyTextReport()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-md text-xs font-medium transition-colors flex items-center gap-1">
+                                        <span>📋 Sao chép</span>
+                                    </button>
+                                </div>
+                                <div id="textReportArea" class="bg-slate-50 p-4 rounded-lg text-sm font-mono whitespace-pre-wrap border border-slate-100">
+                                    Chọn ngày và lọc để xem tóm tắt...
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6">
+                                <h3 class="font-semibold text-slate-900 mb-4">Biểu đồ Doanh thu (Cột) & Số đơn (Đường) theo ngày</h3>
+                                <div class="h-96">
+                                    <canvas id="mergedChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                                <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                                    <h3 class="font-semibold text-slate-900">Chi tiết đơn hàng</h3>
+                                </div>
+                                <div class="overflow-x-auto max-h-96">
+                                    <table class="w-full min-w-[1000px]">
+                                        <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                                            <tr>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày</th>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Sàn</th>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MVD</th>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MDH</th>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên SP</th>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">SLG xuất</th>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá</th>
+                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Thành tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="detailTableBody">
+                                            <tr><td colspan="8" class="text-center py-8 text-slate-500">Chọn ngày để xem chi tiết</td</tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE UPMISA -->
+                <div id="moduleUpmisa" class="h-full flex flex-col p-6" style="display: none;">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 bg-white hidden">
+                            <h2 class="text-lg font-bold text-slate-900">Xuất dữ liệu UPMISA</h2>
+                            <p class="text-sm text-slate-500 mt-1">Chuyển đổi dữ liệu từ sheet UD_CT sang định dạng MISA</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-4 items-center">
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm font-semibold text-slate-700">Lọc ngày:</label>
+                                <button onclick="changeUpmisaDate(-1)" class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100 transition-colors" title="Lùi 1 ngày">➖</button>
+                                <input type="date" id="upmisaDateFilter" onchange="renderUpmisaTable(1)" class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm">
+                                <button onclick="changeUpmisaDate(1)" class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100 transition-colors" title="Tiến 1 ngày">➕</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm font-semibold text-slate-700">Tìm kiếm:</label>
+                                <input type="text" id="upmisaSearchInput" oninput="renderUpmisaTable(1)" placeholder="Tìm kiếm trong UPMISA..." class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm w-64">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm font-semibold text-slate-700">Dòng/Trang:</label>
+                                <select id="upmisaRowsPerPage" onchange="renderUpmisaTable(1)" class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm">
+                                    <option value="50">50</option>
+                                    <option value="100" selected>100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                    <option value="99999">Tất cả</option>
+                                </select>
+                            </div>
+                            <div class="flex gap-2 ml-auto">
+                                <button onclick="exportUpmisaToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    📥 Xuất Excel UPMISA
+                                </button>
+                                <button onclick="refreshUpmisaData()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    🔄 Làm mới
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Phân trang UPMISA -->
+                        <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                            <span id="upmisaStatsText" class="text-xs font-medium text-slate-500">Hiển thị: 0/0 dòng</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeUpmisaPage(-1)" id="upmisaPrevBtn" class="px-2 py-1 bg-white border border-slate-200 rounded text-xs hover:bg-slate-50 disabled:opacity-50">← Trước</button>
+                                <span id="upmisaPageInfo" class="text-xs font-semibold text-slate-700">Trang 1 / 1</span>
+                                <button onclick="changeUpmisaPage(1)" id="upmisaNextBtn" class="px-2 py-1 bg-white border border-slate-200 rounded text-xs hover:bg-slate-50 disabled:opacity-50">Sau →</button>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-auto table-container mt-2">
+                            <table class="w-full min-w-[1800px]">
+                                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hiển thị trên sổ</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hình thức bán hàng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Phương thức thanh toán</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Kiêm phiếu xuất kho</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Lập kèm hóa đơn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đã lập hóa đơn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày hạch toán (*)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày chứng từ (*)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số chứng từ (*)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số phiếu xuất</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Lý do xuất</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số hóa đơn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày hóa đơn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã đơn hàng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã thống kê</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã khách hàng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên khách hàng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Địa chỉ</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã số thuế</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Diễn giải</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Nộp vào TK</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">NV bán hàng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã hàng (*)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên hàng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hàng khuyến mại</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK Tiền/Chi phí/Nợ (*)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK Doanh thu/Có (*)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ĐVT</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số lượng</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá sau thuế</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Thành tiền</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tỷ lệ CK (%)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền chiết khấu</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK chiết khấu</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá tính thuế XK</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">% thuế XK</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền thuế XK</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK thuế XK</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">% thuế GTGT</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền thuế GTGT</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK thuế GTGT</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">HH không TH trên tờ khai thuế GTGT</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Kho</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK giá vốn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK Kho</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá vốn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền vốn</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hàng hóa giữ hộ/bán hộ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="upmisaTableBody">
+                                    <tr><td colspan="50" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Detail Drawer -->
+    <div id="detailDrawerOverlay" class="hidden fixed inset-0 bg-black/50 z-40 transition-opacity" onclick="closeDetailDrawer()"></div>
+    <div id="detailDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Chi tiết đơn hàng</h3>
+                <p class="text-xs text-slate-500 mt-1" id="drawerRowId">Row ID: -</p>
+            </div>
+            <button onclick="closeDetailDrawer()" class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tên SP</label>
+                    <div id="drawerTenSP" class="text-sm text-slate-900 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100 italic"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Số lượng</label>
+                    <input type="number" id="editSoLuong" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Đơn giá</label>
+                    <input type="number" id="editDonGia" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ID SP</label>
+                    <input type="text" id="editIdSP" list="idSpList" oninput="handleIdSPChange()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                    <datalist id="idSpList"></datalist>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ID SP CT</label>
+                    <input type="text" id="editIdSPCT" list="idSpCtList" oninput="handleIdSPCTChange()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                    <datalist id="idSpCtList"></datalist>
+                </div>
+                <div class="hidden">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tình trạng</label>
+                    <select id="editTinhTrang" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                        <option value="Chờ xác nhận">Chờ xác nhận</option>
+                        <option value="Đã xác nhận">Đã xác nhận</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="Đã hoàn thành">Đã hoàn thành</option>
+                        <option value="Đã hủy">Đã hủy</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Trạng thái</label>
+                    <select id="editTrangThai" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                        <option value="0 THAY THẾ">0 THAY THẾ</option>
+                        <option value="1 HỦY">1 HỦY</option>
+                        <option value="3 KHÁC">3 KHÁC</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ghi chú</label>
+                    <textarea id="editGhiChu" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 flex gap-3">
+                <button onclick="saveRowDetail()" class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-primary/25">
+                    Lưu thay đổi
+                </button>
+                <button onclick="closeDetailDrawer()" class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+            <div class="spinner mb-4"></div>
+            <p class="text-slate-700 font-medium">Đang xử lý dữ liệu...</p>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            spreadsheetId: "1cnA33cHHMhcOSaXa9l4Jeu6qw8QnXlUnEU4Bqtkj9wo",
+            authSheetName: "DSNV",
+            udctSheetName: "UD_CT",
+            sanphamSheetName: "DS_SP_PM",
+            serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
+            privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NN84hLTkQPZd\nLj7niXZTICq7nHsuTn3J6r2Paq12m70/lYSmrwh1i0EStr9bO19QM8cevGlslwGr\nWSVOLJlc6+w1HGPKvRXtA41kYV9MYIvpzIPQtkFE7Hxq71QyBARcv39Lfzze6Ioj\n3G8VBvAKFLAnCUr97GHRv+KbCTFxPZupd3PEB+xS5ZUlzdBCEZvDid3iXaaEJJ+l\nTd1apAGQHjtnDTLOkiTa8zf7X5ebALwnI9MziOdN8VyprHXGhkachPbKyrG0QwEs\n2jtiI6Y5ULsBPjNefoavH8MKU5DEAT9h0fZ7KfsKYVMDuXqmEKBs0D3B4Z6aDZQW\nwT2dDRZDAgMBAAECggEAEIuVoSzZVuFhaz1GI9ji0IacjvO50cIq7M8Zrj4/F756\nEw6PIhKENafAb7U4INm2AnzUMO8CqL9Jpxs85qUM3W4JysSByqLUiRW2184amIyb\nj7jCXfLBTQn8AbHgrUepl5d/vBmFYMgon/mqjbNiGDb4FZgEQSkie5o6fi/dWp5d\nNahbZl+WTOB/znhAfKh/zferHNxldR/ERmwOubZUerkqysWiBigc3ovpLSUof9ur\nz3hNPPp0CKQjF40xuQc6FYTHUHMLuMvp78PXuc/mYqQmZ8VOGhU+faGtZ4m+QJly\ndF5dS8U5cwKEF+ptuAUiWSahn6INb9yKn3+FcsW0UQKBgQDb8N4eWFvbgpRo/vxo\nwBN2u2TWubj6clcrq/1a+VR0njC28Can0ogJHhrFhPxVs5D/rugs3HlbyAXJFptY\nV0DZPCwBxGU5P5RbGjXWWEUXjp4ISKQD8WKfVlXNr79TqLdOg2NZBYQAi06Cpo/T\nPV9l7LSG2Tj/9WdvD7W2wvrpaQKBgQDVPjpJN6xh7+sHtSU0mjKvrqigpHbuSQ/o\nXpUaWSIpJffm5QpFPAOcTT5mHZCyllicJQIrfPSY+sH8n+sF03CUqVkV4Q2UqfOf\npFaLDB4P6SQ8iesZyF4VKFrj/cAvRJmp0e5W/DRnFkoEp+8c+nrru2+Dzm9kb7Uq\n0CiltqYAywKBgBtcfrV1to+7Ue0x84KwintV2rifyDRX7yI+tjkQFYKgf1zyyUxN\nc6D2vsvdvGqI+TvlrXqPPwW8/4NBrbeyux2LT8o0fYc+sp0WyKXOu2Gv21caelUH\nPYam/eultn6Y2Z0J2V0kw4Qx0GWOhQv5cZnDdb3k3iNxixmU8b03ynEpAoGBAKEA\n7O0fNe50QRZ+tOq0ihSPYQ55XrqnO3WNBDLynZJH8pbI1CpWF7vJrpVXOUs9rQWo\nA61mGR/wJMtiywaJEHWOL48PbzuR3jno0NcHfSMyOoPi9jlvSWncIFQH4TVPLF5F\n/Rh8L+ytrZE6YpWUoX6e9KGmGgDRPw5mQGpuL4RlAoGADe9n080SXlsUk4nHVjUz\nEfv7EBoBkgOpqb9T1foRfJl46NxmmTOYV3iGIhjwcDskEg284k4iq/gH6EEFyEBc\nVz13jzB1nBgjfezFesVQz7bA/+Wik6HZtxAxVg38BKMt+Q1tYw9wOjbGPqOn++VC\nsR2Sh8e3h3Knd6j1tceRIFU=\n-----END PRIVATE KEY-----\n",
+            tokenUrl: "https://oauth2.googleapis.com/token",
+            scopes: ["https://www.googleapis.com/auth/spreadsheets"]
+        };
+
+        let isLoggedIn = false;
+        let usersData = [];
+        let currentUser = null;
+        let accessToken = null;
+        let tokenExpiry = 0;
+        let udctData = [];
+        let sanphamData = [];
+        let reportData = [];
+        let mergedChart = null;
+        let upmisaData = [];
+        let currentEditRowIndex = -1;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('sidebarToggleIcon');
+            const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
+            if (isCollapsed) {
+                sidebar.classList.remove('sidebar-collapsed', 'w-16');
+                sidebar.classList.add('w-64');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />';
+            } else {
+                sidebar.classList.add('sidebar-collapsed', 'w-16');
+                sidebar.classList.remove('w-64');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
+            }
+        }
+
+        function openDetailDrawer(originalIndex) {
+            if (currentUser && currentUser.role === 'demo') {
+                return alert('Tài khoản dùng thử chỉ được xem, không được thao tác chỉnh sửa!');
+            }
+            currentEditRowIndex = originalIndex;
+            const item = udctData[originalIndex];
+            if (!item) return;
+            document.getElementById('drawerRowId').textContent = `Row ID: ${item.rowIndex}`;
+            document.getElementById('drawerTenSP').textContent = item.ten_sp || 'N/A';
+            document.getElementById('editSoLuong').value = item.so_luong || '';
+            document.getElementById('editDonGia').value = item.don_gia_1 || '';
+            document.getElementById('editIdSP').value = item.id_sp || '';
+            document.getElementById('editIdSPCT').value = item.id_sp_ct || '';
+            document.getElementById('editTinhTrang').value = item.tinh_trang || 'Chờ xác nhận';
+            document.getElementById('editTrangThai').value = item.trang_thai || 'Thành công';
+            document.getElementById('editGhiChu').value = item.ghi_chu || '';
+            
+            // Re-populate CT list based on the loaded ID SP
+            handleIdSPChange();
+            // Ensure name is synced correctly with the loaded ID SP CT
+            handleIdSPCTChange();
+            if (!document.getElementById('editIdSPCT').value) {
+                document.getElementById('drawerTenSP').textContent = item.ten_sp || 'N/A';
+            }
+            
+            document.getElementById('detailDrawerOverlay').classList.remove('hidden');
+            document.getElementById('detailDrawer').classList.add('open');
+        }
+
+        function closeDetailDrawer() {
+            document.getElementById('detailDrawerOverlay').classList.add('hidden');
+            document.getElementById('detailDrawer').classList.remove('open');
+            currentEditRowIndex = -1;
+        }
+
+        async function saveRowDetail() {
+            if (currentEditRowIndex === -1) return;
+            const item = udctData[currentEditRowIndex];
+            const newData = {
+                so_luong: document.getElementById('editSoLuong').value,
+                don_gia_1: document.getElementById('editDonGia').value,
+                id_sp: document.getElementById('editIdSP').value,
+                id_sp_ct: document.getElementById('editIdSPCT').value,
+                tinh_trang: document.getElementById('editTinhTrang').value,
+                trang_thai: document.getElementById('editTrangThai').value,
+                ghi_chu: document.getElementById('editGhiChu').value
+            };
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('hidden');
+            try {
+                const token = await getAccessToken();
+                // so_luong=O, id_sp=P, id_sp_ct=Q, tinh_trang=X, trang_thai=Y, ghi_chu=AA, don_gia=AD
+                const batchUpdates = [
+                    { range: `${CONFIG.udctSheetName}!O${item.rowIndex}`, values: [[newData.so_luong]] },
+                    { range: `${CONFIG.udctSheetName}!P${item.rowIndex}`, values: [[newData.id_sp]] },
+                    { range: `${CONFIG.udctSheetName}!Q${item.rowIndex}`, values: [[newData.id_sp_ct]] },
+                    { range: `${CONFIG.udctSheetName}!X${item.rowIndex}`, values: [[newData.tinh_trang]] },
+                    { range: `${CONFIG.udctSheetName}!Y${item.rowIndex}`, values: [[newData.trang_thai]] },
+                    { range: `${CONFIG.udctSheetName}!AA${item.rowIndex}`, values: [[newData.ghi_chu]] },
+                    { range: `${CONFIG.udctSheetName}!AD${item.rowIndex}`, values: [[newData.don_gia_1]] }
+                ];
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values:batchUpdate`;
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: batchUpdates })
+                });
+                if (resp.ok) {
+                    Object.assign(item, newData);
+                    renderUDCTTable(filteredUDCT);
+                    closeDetailDrawer();
+                    alert('Cập nhật thành công!');
+                } else {
+                    console.error('Save error:', await resp.text());
+                    alert('Lỗi khi lưu dữ liệu vào Google Sheet.');
+                }
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Đã xảy ra lỗi khi lưu.');
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        function handleIdSPChange() {
+            const idSpVal = document.getElementById('editIdSP').value.trim();
+            const idSpCtList = document.getElementById('idSpCtList');
+            if (!idSpCtList) return;
+            
+            let filteredMã = sanphamData.map(sp => sp.sku_con || '');
+            if (idSpVal) {
+                filteredMã = filteredMã.filter(ma => ma.startsWith(idSpVal));
+            }
+            const uniqueMã = [...new Set(filteredMã)].filter(Boolean);
+            idSpCtList.innerHTML = uniqueMã.map(ma => `<option value="${ma}">`).join('');
+            
+            // Clear current ID SP CT if it doesn't match the new prefix
+            const currentCt = document.getElementById('editIdSPCT').value.trim();
+            if (currentCt && idSpVal && !currentCt.startsWith(idSpVal)) {
+                document.getElementById('editIdSPCT').value = '';
+                document.getElementById('drawerTenSP').textContent = '';
+            }
+        }
+        
+        function handleIdSPCTChange() {
+            const currentCt = document.getElementById('editIdSPCT').value.trim();
+            if (!currentCt) return;
+            
+            const sp = sanphamData.find(item => (item.sku_con || '').toString() === currentCt);
+            if (sp) {
+                document.getElementById('drawerTenSP').textContent = sp.ten_sp || 'N/A';
+            }
+        }
+        
+        function populateSPLists() {
+            const idSpList = document.getElementById('idSpList');
+            if (idSpList && sanphamData) {
+                const uniqueIdSPs = [...new Set(sanphamData.map(sp => (sp.sku_con || '').substring(0, 4)))].filter(Boolean);
+                idSpList.innerHTML = uniqueIdSPs.map(id => `<option value="${id}">`).join('');
+            }
+        }
+
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function generateId(parts) {
+            return parts.join('|');
+        }
+
+        async function getAccessToken() {
+            if (accessToken && Date.now() < tokenExpiry - 300000) return accessToken;
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const payload = {
+                iss: CONFIG.serviceAccountEmail,
+                scope: CONFIG.scopes.join(" "),
+                aud: CONFIG.tokenUrl,
+                exp: now + 3600,
+                iat: now
+            };
+            const sJWT = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(payload), CONFIG.privateKey);
+
+            try {
+                const response = await fetch(CONFIG.tokenUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWT}`
+                });
+                const data = await response.json();
+                if (data.error) {
+                    console.error("Token error:", data);
+                    throw new Error(data.error_description || "Failed to get token");
+                }
+                accessToken = data.access_token;
+                tokenExpiry = Date.now() + (data.expires_in * 1000);
+                return accessToken;
+            } catch (err) { 
+                console.error("Token fetch error:", err);
+                alert("Không thể xác thực với Google API: " + err.message);
+            }
+        }
+
+        async function fetchSheetData(sheetName) {
+            try {
+                const token = await getAccessToken();
+                if (!token) return [];
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${sheetName}!A1:AF10000`;
+                const resp = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                if (!resp.ok) {
+                    console.error(`Fetch ${sheetName} failed:`, resp.status);
+                    return [];
+                }
+                const data = await resp.json();
+                return data.values || [];
+            } catch (err) {
+                console.error(`Fetch ${sheetName} error:`, err);
+                return [];
+            }
+        }
+
+        async function clearSheetData(sheetName) {
+            try {
+                const token = await getAccessToken();
+                if (!token) return false;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${sheetName}!A2:AF10000:clear`;
+                const resp = await fetch(url, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+                if (!resp.ok) {
+                    const errorText = await resp.text();
+                    console.error("Lỗi khi xóa dữ liệu:", errorText);
+                    return false;
+                }
+                console.log(`Đã xóa dữ liệu cũ trong ${sheetName}`);
+                return true;
+            } catch (err) {
+                console.error("Lỗi clearSheetData:", err);
+                return false;
+            }
+        }
+
+        async function appendSheetData(sheetName, values) {
+            try {
+                const token = await getAccessToken();
+                if (!token) return false;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${sheetName}!A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+                const resp = await fetch(url, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: values, majorDimension: "ROWS" })
+                });
+                if (!resp.ok) {
+                    const errorText = await resp.text();
+                    console.error("Lỗi khi ghi dữ liệu:", errorText);
+                    return false;
+                }
+                const result = await resp.json();
+                console.log("Ghi dữ liệu thành công:", result);
+                return true;
+            } catch (err) {
+                console.error("Lỗi appendSheetData:", err);
+                return false;
+            }
+        }
+
+        // fetchAuthData removed as login is disabled
+
+
+        function generateSkeletonRows(columnsCount, rowsCount = 10) {
+            let html = '';
+            for(let i=0; i<rowsCount; i++) {
+                let cols = '';
+                for(let j=0; j<columnsCount; j++) {
+                    cols += `<td class="px-4 py-4"><div class="h-4 bg-slate-200 animate-pulse rounded w-3/4"></div></td>`;
+                }
+                html += `<tr class="border-b border-slate-100 bg-white">${cols}</tr>`;
+            }
+            return html;
+        }
+
+        function saveFiltersToCache() {
+            const filters = {
+                filterUDCTFrom: document.getElementById('filterUDCTFrom')?.value || '',
+                filterUDCTTo: document.getElementById('filterUDCTTo')?.value || '',
+                filterUDCTSan: document.getElementById('filterUDCTSan')?.value || '',
+                filterUDCTKhungH: document.getElementById('filterUDCTKhungH')?.value || '',
+                filterUDCTTrangThai: document.getElementById('filterUDCTTrangThai')?.value || '',
+                filterUDCTMaGian: document.getElementById('filterUDCTMaGian')?.value || '',
+                fromDate: document.getElementById('fromDate')?.value || '',
+                toDate: document.getElementById('toDate')?.value || '',
+                filterMaGian: document.getElementById('filterMaGian')?.value || ''
+            };
+            localStorage.setItem('erp_filters', JSON.stringify(filters));
+        }
+
+        function loadFiltersFromCache() {
+            const filtersStr = localStorage.getItem('erp_filters');
+            if (filtersStr) {
+                try {
+                    const filters = JSON.parse(filtersStr);
+                    Object.keys(filters).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = filters[id];
+                    });
+                } catch(e) {}
+            } else {
+                const today = new Date();
+                const d = String(today.getDate()).padStart(2, '0');
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const y = today.getFullYear();
+                const strDate = `${y}-${m}-${d}`;
+                if(document.getElementById('fromDate')) document.getElementById('fromDate').value = strDate;
+                if(document.getElementById('toDate')) document.getElementById('toDate').value = strDate;
+            }
+        }
+
+        async function loadUDCTData() {
+            document.getElementById('donhangTableBody').innerHTML = generateSkeletonRows(16, 5);
+            try {
+                const data = await fetchSheetData(CONFIG.udctSheetName);
+                if (data.length <= 1) {
+                    document.getElementById('donhangTableBody').innerHTML = '<tr><td colspan="17" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
+                    return;
+                }
+                
+                udctData = data.slice(1).map((row, idx) => ({
+                    rowIndex: idx + 2,
+                    ngay: row[4] || '',
+                    san: row[8] || '',
+                    khung_h: row[9] || '',
+                    ma_gian: row[10] || '',
+                    mvd: row[11] || '',
+                    mdh: row[12] || '',
+                    sku_shop_up: row[13] || '',
+                    so_luong: row[14] || '',
+                    id_sp: row[15] || '',
+                    id_sp_ct: row[16] || '',
+                    ten_sp: row[17] || '',
+                    slg_xuat: row[18] || '',
+                    don_gia_1: row[29] || '',
+                    tinh_trang: row[23] || '',
+                    trang_thai: row[24] || '',
+                    ghi_chu: row[26] || '',
+                    mien: row[7] || ''
+                }));
+                
+                populateUDCTFilters();
+                setUDCTQuickDate('today'); // Sets default date to today and calls filterUDCTTable
+                buildUpmisaData();
+            } catch (error) {
+                console.error("Load UDCT error:", error);
+            }
+        }
+
+        function populateUDCTFilters() {
+            const sans = [...new Set(udctData.map(i => i.san))].filter(Boolean).sort();
+            const khungHs = [...new Set(udctData.map(i => i.khung_h))].filter(Boolean).sort();
+            const maGians = [...new Set(udctData.map(i => i.ma_gian))].filter(Boolean).sort();
+
+            const tt = [...new Set(udctData.map(i => i.trang_thai))].filter(Boolean).sort();
+
+            const fillSelect = (id, list, placeholder) => {
+                const select = document.getElementById(id);
+                if (!select) return;
+                select.innerHTML = `<option value="">${placeholder}</option>` +
+                    list.map(v => `<option value="${v}">${v}</option>`).join('');
+            };
+
+            const renderBtns = (id, options, currentVal) => {
+                const container = document.getElementById(id + 'Buttons');
+                if (!container) return;
+                let html = `<button onclick="setUDCTBtnFilter('${id}', '')" class="px-2 py-1.5 text-xs rounded-lg border font-medium transition-colors cursor-pointer ${currentVal === '' ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">Tất cả</button>`;
+                options.forEach(opt => {
+                    html += `<button onclick="setUDCTBtnFilter('${id}', '${opt}')" class="px-2 py-1.5 text-xs rounded-lg border font-medium transition-colors cursor-pointer ${currentVal === opt ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">${opt}</button>`;
+                });
+                container.innerHTML = html;
+            };
+
+            const sf = document.getElementById('filterUDCTSan');
+            if (sf) renderBtns('filterUDCTSan', sans, sf.value);
+            
+            const khf = document.getElementById('filterUDCTKhungH');
+            if (khf) renderBtns('filterUDCTKhungH', khungHs, khf.value);
+            
+            const ttf = document.getElementById('filterUDCTTrangThai');
+            if (ttf) renderBtns('filterUDCTTrangThai', tt, ttf.value);
+            
+            fillSelect('filterUDCTMaGian', maGians, 'Tất cả Mã gian');
+            
+            // Populate datalist for Report's Mã Gian
+            const mgList = document.getElementById('maGianList');
+            if (mgList) {
+                mgList.innerHTML = maGians.map(v => `<option value="${v}">`).join('');
+            }
+        }
+        
+        function setUDCTBtnFilter(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+            populateUDCTFilters();
+            filterUDCTTable();
+        }
+
+        let filteredUDCT = [];
+        let udctCurrentPage = 1;
+        const uitItemsPerPage = 200;
+        let udctQuickStatusTab = 'all'; // 'all' or 'cancelled'
+
+        function setUDCTQuickTab(tab) {
+            udctQuickStatusTab = tab;
+            const tabAll = document.getElementById('udctTabAll');
+            const tabCancelled = document.getElementById('udctTabCancelled');
+            
+            if (tab === 'all') {
+                tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
+                tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+            } else {
+                tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
+                tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+            }
+            filterUDCTTable();
+        }
+
+        function setUDCTQuickDate(type) {
+            const fromInput = document.getElementById('filterUDCTFrom');
+            const toInput = document.getElementById('filterUDCTTo');
+            const today = new Date();
+            let fromDate, toDate;
+
+            const format = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            if (type === 'today') {
+                fromDate = format(today);
+                toDate = format(today);
+            } else if (type === 'thisWeek') {
+                const day = today.getDay();
+                const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                const firstDay = new Date(today.setDate(diff));
+                fromDate = format(firstDay);
+                
+                const lastDay = new Date(firstDay);
+                lastDay.setDate(firstDay.getDate() + 6);
+                toDate = format(lastDay);
+            } else if (type === 'thisMonth') {
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                fromDate = format(firstDay);
+                toDate = format(lastDay);
+            }
+
+            fromInput.value = fromDate;
+            toInput.value = toDate;
+            filterUDCTTable();
+        }
+
+        function filterUDCTTable() {
+            const from = document.getElementById('filterUDCTFrom').value;
+            const to = document.getElementById('filterUDCTTo').value;
+            const san = document.getElementById('filterUDCTSan').value;
+            const kh = document.getElementById('filterUDCTKhungH').value;
+            const mg = document.getElementById('filterUDCTMaGian').value;
+            const tt = document.getElementById('filterUDCTTrangThai').value;
+            const search = document.getElementById('filterUDCTSearch').value.toLowerCase();
+
+            filteredUDCT = udctData.filter(item => {
+                const rawDate = item.ngay ? item.ngay.split(' ')[0] : '';
+                let itemDate = rawDate;
+                if (rawDate.includes('/')) {
+                    const [d, m, y] = rawDate.split('/');
+                    itemDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+                }
+                if (from && itemDate < from) return false;
+                if (to && itemDate > to) return false;
+                if (san && item.san !== san) return false;
+                if (kh && item.khung_h !== kh) return false;
+                if (mg && item.ma_gian !== mg) return false;
+                if (tt && item.trang_thai !== tt) return false;
+                
+                // Quick tab filter
+                if (udctQuickStatusTab === 'cancelled') {
+                    if (!(item.trang_thai || '').toLowerCase().includes('hủy') && !(item.tinh_trang || '').toLowerCase().includes('hủy')) {
+                        return false;
+                    }
+                }
+
+                if (search) {
+                    const rowText = `${item.mvd} ${item.mdh} ${item.ten_sp} ${item.id_sp_ct}`.toLowerCase();
+                    if (!rowText.includes(search)) return false;
+                }
+                return true;
+            });
+
+            saveFiltersToCache();
+            udctCurrentPage = 1;
+            renderUDCTTable();
+        }
+
+        function changeUDCTDate(id, delta) {
+            const input = document.getElementById(id);
+            if (!input.value) return;
+            const d = new Date(input.value);
+            d.setDate(d.getDate() + delta);
+            input.value = d.toISOString().split('T')[0];
+            filterUDCTTable();
+        }
+        
+        function changeReportDate(id, delta) {
+            const input = document.getElementById(id);
+            if (!input.value) return;
+            const d = new Date(input.value);
+            d.setDate(d.getDate() + delta);
+            input.value = d.toISOString().split('T')[0];
+            autoFilterReport();
+        }
+
+        function changeUDCTPage(step) {
+            const totalPages = Math.ceil(filteredUDCT.length / uitItemsPerPage);
+            udctCurrentPage += step;
+            if (udctCurrentPage < 1) udctCurrentPage = 1;
+            if (udctCurrentPage > totalPages) udctCurrentPage = totalPages;
+            renderUDCTTable();
+        }
+
+        function renderUDCTTable() {
+            const tbody = document.getElementById('donhangTableBody');
+            if (!tbody) return;
+            if (filteredUDCT.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="17" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
+                document.getElementById('udctPageInfo').innerHTML = 'Không có dữ liệu';
+                document.getElementById('udctPrevPage').disabled = true;
+                document.getElementById('udctNextPage').disabled = true;
+                return;
+            }
+
+            const totalItems = filteredUDCT.length;
+            const totalPages = Math.ceil(totalItems / uitItemsPerPage);
+            if (udctCurrentPage > totalPages) udctCurrentPage = totalPages;
+
+            const startIndex = (udctCurrentPage - 1) * uitItemsPerPage;
+            const endIndex = Math.min(startIndex + uitItemsPerPage, totalItems);
+            const pageData = filteredUDCT.slice(startIndex, endIndex);
+
+            document.getElementById('udctPageInfo').innerHTML = `Đang hiển thị <span class="font-medium text-slate-900">${startIndex + 1}-${endIndex}</span> trong số <span class="font-medium text-slate-900">${totalItems}</span> đơn hàng`;
+            document.getElementById('udctPrevPage').disabled = udctCurrentPage === 1;
+            document.getElementById('udctNextPage').disabled = udctCurrentPage === totalPages;
+
+            tbody.innerHTML = pageData.map((item) => `
+                <tr onclick="openDetailDrawer(${udctData.indexOf(item)})" class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer group">
+                    <td class="px-4 py-3 text-sm text-slate-900">${item.ngay || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900">${item.san || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900">${item.khung_h || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 font-medium">${item.ma_gian || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900">${item.mvd || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 font-medium text-blue-600">${item.mdh || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-500 font-mono">${item.sku_shop_up || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900">${item.so_luong || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-500">${item.id_sp || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-500">${item.id_sp_ct || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 max-w-xs truncate">${item.ten_sp || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 font-semibold">${item.slg_xuat || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900">${parseFloat(item.don_gia_1 || 0).toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <button onclick="event.stopPropagation(); updateUDCTPrice(${udctData.indexOf(item)})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Up đơn giá">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${item.trang_thai === '0 THAY THẾ' ? 'bg-green-100 text-green-700' : (item.trang_thai === '1 HỦY' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700')}">
+                            ${item.trang_thai || '-'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-slate-500 italic truncate max-w-[150px]">${item.ghi_chu || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateSheetValue(sheetName, range, value) {
+            try {
+                const token = await getAccessToken();
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${sheetName}!${range}?valueInputOption=USER_ENTERED`;
+                const resp = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [[value]] })
+                });
+                return resp.ok;
+            } catch (err) {
+                console.error("Update cell error:", err);
+                return false;
+            }
+        }
+
+        async function updateUDCTPrice(originalIndex, silent = false) {
+            const item = udctData[originalIndex];
+            if (!item) return;
+
+            const searchId = (item.id_sp_ct || item.id_sp || "").toString().trim().toLowerCase();
+            const sp = sanphamData.find(s => 
+                (s.sku_con || "").toString().trim().toLowerCase() === searchId
+            );
+
+            if (!sp) {
+                const sku = item.id_sp_ct || item.id_sp || "N/A";
+                console.warn(`[PriceUpdate] Không tìm thấy SKU match cho: "${searchId}" (Row ${item.rowIndex})`);
+                if (!silent) alert(`LỖI: Không tìm thấy SKU "${sku}" trong cột "Mã" của sheet Sản phẩm PM.`);
+                return false;
+            }
+
+            const newPrice = sp.gia_ban - sp.gia_dong_goi;
+            item.don_gia_1 = newPrice;
+
+            // Sheet index is rowIndex, column AD is index 30 (1-based for range)
+            const success = await updateSheetValue(CONFIG.udctSheetName, `AD${item.rowIndex}`, newPrice);
+            
+            if (success) {
+                if (!silent) {
+                    renderUDCTTable(filteredUDCT);
+                    console.log(`Updated row ${item.rowIndex} price to ${newPrice}`);
+                }
+            } else {
+                if (!silent) alert(`Lỗi khi cập nhật Google Sheet cho dòng ${item.rowIndex}`);
+            }
+            return success;
+        }
+
+        async function updateAllPricesBatch() {
+            if (!filteredUDCT.length) return alert("Không có dữ liệu đang hiển thị để cập nhật.");
+            if (!confirm(`Bạn có chắc muốn cập nhật đơn giá cho ${filteredUDCT.length} dòng đang hiển thị?`)) return;
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                const token = await getAccessToken();
+                const updates = [];
+                
+                for (const item of filteredUDCT) {
+                    const searchId = (item.id_sp_ct || item.id_sp || "").toString().trim().toLowerCase();
+                    const sp = sanphamData.find(s => (s.sku_con || "").toString().trim().toLowerCase() === searchId);
+                    
+                    if (sp) {
+                        const newPrice = sp.gia_ban - sp.gia_dong_goi;
+                        item.don_gia_1 = newPrice;
+                        updates.push({
+                            range: `${CONFIG.udctSheetName}!AD${item.rowIndex}`,
+                            values: [[newPrice]]
+                        });
+                    }
+                }
+
+                if (updates.length === 0) {
+                    alert("Không tìm thấy SKU phù hợp để cập nhật.");
+                    loadingOverlay.classList.add('hidden');
+                    return;
+                }
+
+                // Chunking để đảm bảo ổn định (500 dòng mỗi batch)
+                const chunkSize = 500;
+                let successCount = 0;
+                for (let i = 0; i < updates.length; i += chunkSize) {
+                    const chunk = updates.slice(i, i + chunkSize);
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values:batchUpdate`;
+                    const body = {
+                        valueInputOption: 'USER_ENTERED',
+                        data: chunk
+                    };
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    if (resp.ok) successCount += chunk.length;
+                    else console.error("Batch chunk failed:", await resp.text());
+                }
+
+                alert(`Đã cập nhật thành công đơn giá cho ${successCount}/${filteredUDCT.length} dòng.`);
+                renderUDCTTable(filteredUDCT);
+            } catch (err) {
+                console.error("Batch update error:", err);
+                alert("Có lỗi xảy ra khi cập nhật hàng loạt!");
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        let sanphamCurrentPage = 1;
+        const SP_PER_PAGE = 100;
+
+        async function loadSanphamData() {
+            const tbody = document.getElementById('sanphamTableBody');
+            if (tbody) tbody.innerHTML = generateSkeletonRows(7, 10);
+
+            const data = await fetchSheetData(CONFIG.sanphamSheetName);
+            if (data && data.length > 0) {
+                const headers = data[0].map(h => (h || "").toString().toLowerCase().trim());
+                
+                const findIdx = (names) => {
+                    for (const name of names) {
+                        const idx = headers.indexOf(name.toLowerCase());
+                        if (idx !== -1) return idx;
+                    }
+                    return -1;
+                };
+
+                const idxSkuCon = findIdx(['mã', 'sku_con', 'sku con']);
+                const idxGiaBan = findIdx(['giá bán lẻ', 'gia_ban', 'giá bán']);
+                const idxGiaDongGoi = findIdx(['giá đón gói', 'gia_dong_goi', 'giá đóng gói']);
+                const idxTen = findIdx(['tên', 'ten_sp', 'tên sản phẩm']);
+
+                sanphamData = data.slice(1).map((row, idx) => ({
+                    rowIndex: idx + 2,
+                    sku_con: idxSkuCon !== -1 ? row[idxSkuCon] : (row[5] || ""),
+                    gia_ban: parseFloat(idxGiaBan !== -1 ? row[idxGiaBan] : row[9]) || 0,
+                    gia_dong_goi: parseFloat(idxGiaDongGoi !== -1 ? row[idxGiaDongGoi] : row[11]) || 0,
+                    ten_sp: idxTen !== -1 ? row[idxTen] : (row[1] || ""),
+                    mapping: row
+                }));
+
+                renderSanphamTable(1);
+                populateSPLists();
+            } else {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="32" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
+            }
+        }
+
+        function renderSanphamTable(page = 1) {
+            saveFiltersToCache();
+            const tbody = document.getElementById('sanphamTableBody');
+            if (!tbody) return;
+
+            const maFilter = (document.getElementById('spFilterMa')?.value || '').toLowerCase().trim();
+            const search = (document.getElementById('spFilterSearch')?.value || '').toLowerCase().trim();
+
+            let filtered = sanphamData;
+            if (maFilter) filtered = filtered.filter(item => (item.sku_con || '').toLowerCase().includes(maFilter));
+            if (search) filtered = filtered.filter(item => 
+                item.mapping.some(c => (c || '').toString().toLowerCase().includes(search))
+            );
+
+            const totalRows = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalRows / SP_PER_PAGE));
+            sanphamCurrentPage = Math.min(page, totalPages);
+
+            const start = (sanphamCurrentPage - 1) * SP_PER_PAGE;
+            const paginated = filtered.slice(start, start + SP_PER_PAGE);
+
+            document.getElementById('spStatsText').textContent = `Hiển thị: ${paginated.length}/${totalRows} sản phẩm (Tổng: ${sanphamData.length})`;
+            document.getElementById('spPageInfo').textContent = `Trang ${sanphamCurrentPage} / ${totalPages}`;
+            document.getElementById('spPrevBtn').disabled = sanphamCurrentPage <= 1;
+            document.getElementById('spNextBtn').disabled = sanphamCurrentPage >= totalPages;
+
+            if (!paginated.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-500">Không tìm thấy sản phẩm phù hợp</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = paginated.map(item => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[1] || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[2] || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[5] || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[7] || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[9] || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[11] || '-'}</td>
+                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[31] || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function changeSanphamPage(delta) {
+            renderSanphamTable(sanphamCurrentPage + delta);
+        }
+
+        // Hàm xây dựng dữ liệu UPMISA từ udctData
+        function buildUpmisaData() {
+            if (!udctData.length) return;
+            
+            upmisaData = [];
+
+            const extraColumns = [
+                { name: "Hiển thị trên sổ", default: "0" }, { name: "Hình thức bán hàng", default: "0" }, { name: "Phương thức thanh toán", default: "0" },
+                { name: "Kiêm phiếu xuất kho", default: "1" }, { name: "Lập kèm hóa đơn", default: "0" }, { name: "Đã lập hóa đơn", default: "0" },
+                { name: "Ngày hạch toán (*)", default: "" }, { name: "Ngày chứng từ (*)", default: "" }, { name: "Số chứng từ (*)", default: "" },
+                { name: "Số phiếu xuất", default: "" }, { name: "Lý do xuất", default: "" }, { name: "Số hóa đơn", default: "" },
+                { name: "Ngày hóa đơn", default: "" }, { name: "Mã đơn hàng", default: "" }, { name: "Mã thống kê", default: "" },
+                { name: "Mã khách hàng", default: "" }, { name: "Tên khách hàng", default: "" }, { name: "Địa chỉ", default: "" },
+                { name: "Mã số thuế", default: "" }, { name: "Diễn giải", default: "" }, { name: "Nộp vào TK", default: "" },
+                { name: "NV bán hàng", default: "" }, { name: "Mã hàng (*)", default: "" }, { name: "Tên hàng", default: "" },
+                { name: "Hàng khuyến mại", default: "" }, { name: "TK Tiền/Chi phí/Nợ (*)", default: "131" }, { name: "TK Doanh thu/Có (*)", default: "5111" },
+                { name: "ĐVT", default: "" }, { name: "Số lượng", default: "" }, { name: "Đơn giá sau thuế", default: "" },
+                { name: "Đơn giá", default: "" }, { name: "Thành tiền", default: "" }, { name: "Tỷ lệ CK (%)", default: "" },
+                { name: "Tiền chiết khấu", default: "" }, { name: "TK chiết khấu", default: "" }, { name: "Giá tính thuế XK", default: "" },
+                { name: "% thuế XK", default: "" }, { name: "Tiền thuế XK", default: "" }, { name: "TK thuế XK", default: "" },
+                { name: "% thuế GTGT", default: "" }, { name: "Tiền thuế GTGT", default: "" }, { name: "TK thuế GTGT", default: "" },
+                { name: "HH không TH trên tờ khai thuế GTGT", default: "" }, { name: "Kho", default: "KMN" }, { name: "TK giá vốn", default: "632" },
+                { name: "TK Kho", default: "1561" }, { name: "Đơn giá vốn", default: "" }, { name: "Tiền vốn", default: "" }, { name: "Hàng hóa giữ hộ/bán hộ", default: "" }
+            ];
+
+            const formatDateShortFromStr = (dateStr) => {
+                if (!dateStr) return "";
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return "";
+                const d = date.getDate().toString().padStart(2, '0');
+                const m = (date.getMonth() + 1).toString().padStart(2, '0');
+                const y = date.getFullYear().toString().slice(-2);
+                return `${d}${m}${y}`;
+            };
+
+            const getCellValue = (item, colName) => {
+                const ngayStr = item.ngay ? item.ngay.split(' ')[0] : '';
+                const formatNgayVN = (s) => {
+                    if (!s) return '';
+                    const parts = s.split('-');
+                    if (parts.length !== 3) return s;
+                    const y = parts[0];
+                    const m = parts[1].padStart(2, '0');
+                    const d = parts[2].padStart(2, '0');
+                    return `${d}/${m}/${y}`;
+                };
+                const ngayVN = formatNgayVN(ngayStr);
+
+                if (colName === "Ngày hạch toán (*)" || colName === "Ngày chứng từ (*)") return ngayVN;
+                
+                if (colName === "Số chứng từ (*)" || colName === "Số phiếu xuất") {
+                    let prefix = "";
+                    const san = (item.san || "").toLowerCase().trim();
+                    const kh = (item.khung_h || "").toUpperCase().trim();
+
+                    if (san === "shopee") prefix = (kh === "10H" ? "N " : "") + "SPE";
+                    else if (san === "lazada") prefix = "LDZ";
+                    else if (san === "best") prefix = "BEST";
+                    else if (san === "tiktok") prefix = "TT";
+                    else if (san === "đơn ngoài") prefix = "XDN";
+
+                    const mg = (item.ma_gian || "").trim();
+                    const nf = formatDateShortFromStr(ngayStr);
+                    const suffix = (item.mien || "MN").toUpperCase();
+                    return prefix && mg && nf ? `${prefix}-${mg}-${nf}.${suffix}` : "";
+                }
+
+                if (colName === "Mã đơn hàng") return (item.mdh && item.mvd) ? `${item.mdh}/${item.mvd}` : (item.mdh || item.mvd || "");
+                if (colName === "Mã khách hàng") return item.ma_gian || "";
+                if (colName === "Diễn giải") {
+                    const san = (item.san || "").trim();
+                    const kh = (item.khung_h || "").toUpperCase().trim();
+                    const mien = (item.mien || "").trim();
+                    const p = (san === "ĐƠN NGOÀI") ? " " : (kh === "10H" ? " NOW " : " ");
+                    return `${mien}${p}${san} NGÀY ${ngayVN}`;
+                }
+                
+                if (colName === "Mã hàng (*)") return item.id_sp || "";
+                if (colName === "Số lượng") return item.slg_xuat || "";
+                if (colName === "Đơn giá") return (parseFloat(item.don_gia_1) || 0).toString();
+                if (colName === "Thành tiền") return ( (parseFloat(item.don_gia_1) || 0) * (parseFloat(item.slg_xuat) || 0) ).toString();
+                if (colName === "Kho") return "K" + (item.mien || "").toUpperCase();
+
+                const ex = extraColumns.find(c => c.name === colName);
+                return ex ? ex.default : "";
+            };
+            
+            upmisaData = [];
+            
+            // Sắp xếp udctData theo ngày giảm dần (mới nhất lên đầu) trước khi build
+            const sortedUdct = [...udctData].sort((a, b) => {
+                const da = a.ngay ? new Date(a.ngay) : new Date(0);
+                const db = b.ngay ? new Date(b.ngay) : new Date(0);
+                return db - da;
+            });
+
+            sortedUdct.forEach(item => {
+                if (item.trang_thai && item.trang_thai.toUpperCase().includes("HỦY")) return;
+
+                const upmisaRow = extraColumns.map(col => getCellValue(item, col.name));
+                upmisaData.push(upmisaRow);
+            });
+            
+            renderUpmisaTable();
+        }
+        
+        let upmisaCurrentPage = 1;
+        let filteredUpmisa = [];
+        
+        function renderUpmisaTable(page = 1) {
+            const tbody = document.getElementById('upmisaTableBody');
+            const searchVal = document.getElementById('upmisaSearchInput').value.toLowerCase();
+            const dateVal = document.getElementById('upmisaDateFilter').value;
+            const rowsPerPage = parseInt(document.getElementById('upmisaRowsPerPage').value);
+            
+            // 1. Filtering
+            let filtered = upmisaData;
+            if (dateVal) {
+                const [y, m, d] = dateVal.split('-');
+                const dateVN = `${d}/${m}/${y}`;
+                filtered = filtered.filter(row => row[6] === dateVN);
+            }
+            if (searchVal) {
+                filtered = filtered.filter(row => 
+                    row.some(cell => cell.toString().toLowerCase().includes(searchVal))
+                );
+            }
+            
+            // 2. Sorting (Date DESC -> Thành tiền ASC)
+            filtered.sort((a, b) => {
+                const parseDate = (dstr) => {
+                    if(!dstr) return '';
+                    const parts = dstr.split('/');
+                    if(parts.length === 3) return `${parts[2]}${parts[1].padStart(2,'0')}${parts[0].padStart(2,'0')}`;
+                    return dstr; 
+                };
+                const dateA = parseDate(a[6] || '');
+                const dateB = parseDate(b[6] || '');
+                if (dateA !== dateB) return dateB.localeCompare(dateA); 
+                
+                const ttA = parseFloat((a[31] || '').toString().replace(/,/g, '')) || 0;
+                const ttB = parseFloat((b[31] || '').toString().replace(/,/g, '')) || 0;
+                return ttA - ttB;
+            });
+            filteredUpmisa = filtered;
+            
+            // 3. Pagination
+            const totalRows = filteredUpmisa.length;
+            const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+            upmisaCurrentPage = Math.min(page, totalPages);
+            
+            const start = (upmisaCurrentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginated = filteredUpmisa.slice(start, end);
+            
+            // Update Stats
+            document.getElementById('upmisaStatsText').textContent = `Hiển thị: ${paginated.length}/${totalRows} dòng (Tổng: ${upmisaData.length})`;
+            document.getElementById('upmisaPageInfo').textContent = `Trang ${upmisaCurrentPage} / ${totalPages}`;
+            document.getElementById('upmisaPrevBtn').disabled = upmisaCurrentPage <= 1;
+            document.getElementById('upmisaNextBtn').disabled = upmisaCurrentPage >= totalPages;
+
+            if (!paginated.length) {
+                tbody.innerHTML = '<tr><td colspan="50" class="text-center py-8 text-slate-500">Không có dữ liệu phù hợp</td</tr>';
+                return;
+            }
+            
+            tbody.innerHTML = paginated.map(row => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    ${row.map(cell => `<td class="px-4 py-3 text-sm text-slate-900">${cell || '-'}</td>`).join('')}
+                </tr>
+            `).join('');
+        }
+
+        function changeUpmisaPage(delta) {
+            renderUpmisaTable(upmisaCurrentPage + delta);
+        }
+        
+        function refreshUpmisaData() {
+            buildUpmisaData();
+            alert('Đã làm mới dữ liệu UPMISA!');
+        }
+        
+        function exportUpmisaToExcel() {
+            if (!filteredUpmisa || !filteredUpmisa.length) {
+                alert('Không có dữ liệu hợp lệ để xuất!');
+                return;
+            }
+            
+            const headers = [
+                'Hiển thị trên sổ', 'Hình thức bán hàng', 'Phương thức thanh toán', 'Kiêm phiếu xuất kho',
+                'Lập kèm hóa đơn', 'Đã lập hóa đơn', 'Ngày hạch toán (*)', 'Ngày chứng từ (*)', 'Số chứng từ (*)',
+                'Số phiếu xuất', 'Lý do xuất', 'Số hóa đơn', 'Ngày hóa đơn', 'Mã đơn hàng', 'Mã thống kê',
+                'Mã khách hàng', 'Tên khách hàng', 'Địa chỉ', 'Mã số thuế', 'Diễn giải', 'Nộp vào TK',
+                'NV bán hàng', 'Mã hàng (*)', 'Tên hàng', 'Hàng khuyến mại', 'TK Tiền/Chi phí/Nợ (*)',
+                'TK Doanh thu/Có (*)', 'ĐVT', 'Số lượng', 'Đơn giá sau thuế', 'Đơn giá', 'Thành tiền',
+                'Tỷ lệ CK (%)', 'Tiền chiết khấu', 'TK chiết khấu', 'Giá tính thuế XK', '% thuế XK',
+                'Tiền thuế XK', 'TK thuế XK', '% thuế GTGT', 'Tiền thuế GTGT', 'TK thuế GTGT',
+                'HH không TH trên tờ khai thuế GTGT', 'Kho', 'TK giá vốn', 'TK Kho', 'Đơn giá vốn',
+                'Tiền vốn', 'Hàng hóa giữ hộ/bán hộ'
+            ];
+            
+            const excelData = [headers, ...filteredUpmisa];
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'UPMISA');
+            XLSX.writeFile(wb, `UPMISA_Export_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        }
+
+        function setQuickDate(type) {
+            const fromInput = document.getElementById('fromDate');
+            const toInput = document.getElementById('toDate');
+            const today = new Date();
+            let fromDate, toDate;
+
+            const format = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            if (type === 'today') {
+                fromDate = format(today);
+                toDate = format(today);
+            } else if (type === 'thisWeek') {
+                const day = today.getDay(); // 0 is Sunday
+                const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
+                const firstDay = new Date(today.setDate(diff));
+                fromDate = format(firstDay);
+                
+                // Reset today and set to Sunday
+                const lastDay = new Date(firstDay);
+                lastDay.setDate(firstDay.getDate() + 6);
+                toDate = format(lastDay);
+            } else if (type === 'thisMonth') {
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                fromDate = format(firstDay);
+                toDate = format(lastDay);
+            }
+
+            fromInput.value = fromDate;
+            toInput.value = toDate;
+            autoFilterReport(); // Tự động lọc sau khi đổi ngày
+        }
+
+        let filterTimeout;
+        function autoFilterReport() {
+            saveFiltersToCache();
+            filterReport();
+        }
+
+        async function filterReport() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const filterMaGian = document.getElementById('filterMaGian').value.trim().toLowerCase();
+            const filterIdSp = document.getElementById('filterReportIdSp').value.trim().toLowerCase();
+
+            if (!fromDate || !toDate) {
+                alert('Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc!');
+                return;
+            }
+
+            if (!udctData || udctData.length === 0) {
+                alert('Chưa có dữ liệu đơn chi tiết. Vui lòng vào module Đơn chi tiết để tải dữ liệu trước.');
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                // Helper: chuyển dd/mm/yyyy hoặc yyyy-mm-dd → yyyy-mm-dd để so sánh
+                const toIsoDate = (str) => {
+                    if (!str) return '';
+                    const s = str.split(' ')[0]; // bỏ phần giờ
+                    if (s.includes('/')) {
+                        // dd/mm/yyyy
+                        const [d, m, y] = s.split('/');
+                        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+                    }
+                    return s; // đã là yyyy-mm-dd
+                };
+
+                // Sử dụng udctData đã load sẵn thay vì fetch lại từ Sheets
+                const filtered = udctData.filter(item => {
+                    const ngayIso = toIsoDate(item.ngay);
+                    const matchDate = ngayIso >= fromDate && ngayIso <= toDate;
+                    const matchMaGian = !filterMaGian || (item.ma_gian || '').toLowerCase().includes(filterMaGian);
+                    const idSpValue = (item.id_sp || item.id_sp_ct || '').toString().toLowerCase();
+                    const matchIdSp = !filterIdSp || idSpValue.includes(filterIdSp);
+                    
+                    return matchDate && matchMaGian && matchIdSp;
+                }).map(item => ({
+                    ngay: item.ngay,
+                    ngayDon: toIsoDate(item.ngay),
+                    san: item.san || 'Khác',
+                    ma_gian: item.ma_gian || 'N/A',
+                    id_sp: item.id_sp || item.id_sp_ct || '',
+                    mvd: item.mvd || '',
+                    mdh: item.mdh || '',
+                    ten_sp: item.ten_sp || '',
+                    slg_xuat: parseFloat(item.slg_xuat) || 0,
+                    don_gia: parseFloat(item.don_gia_1) || 0
+                }));
+
+                reportData = filtered;
+                const totalOrders = filtered.length;
+
+                let totalRevenue = 0;
+                const sanStats = {};
+                const magianStats = {};
+                const idspStats = {};
+                const dailyStats = {};
+
+                for (const item of filtered) {
+                    const rev = item.don_gia * item.slg_xuat;
+                    totalRevenue += rev;
+
+                    if (!sanStats[item.san]) sanStats[item.san] = { so_don: 0, doanh_thu: 0 };
+                    sanStats[item.san].so_don++;
+                    sanStats[item.san].doanh_thu += rev;
+
+                    if (!magianStats[item.ma_gian]) magianStats[item.ma_gian] = { so_don: 0, doanh_thu: 0 };
+                    magianStats[item.ma_gian].so_don++;
+                    magianStats[item.ma_gian].doanh_thu += rev;
+
+                    const idKey = item.id_sp || 'N/A';
+                    if (!idspStats[idKey]) idspStats[idKey] = { ten_sp: item.ten_sp || '', slg: 0, doanh_thu: 0 };
+                    idspStats[idKey].slg += item.slg_xuat;
+                    idspStats[idKey].doanh_thu += rev;
+
+                    if (!dailyStats[item.ngayDon]) dailyStats[item.ngayDon] = { so_don: 0, doanh_thu: 0 };
+                    dailyStats[item.ngayDon].so_don++;
+                    dailyStats[item.ngayDon].doanh_thu += rev;
+                }
+
+                document.getElementById('totalOrders').textContent = totalOrders.toLocaleString('vi-VN');
+                document.getElementById('totalRevenue').textContent = totalRevenue.toLocaleString('vi-VN');
+                document.getElementById('totalSan').textContent = Object.keys(sanStats).length;
+
+                // Render bảng mã gian
+                document.getElementById('magianTableBody').innerHTML = Object.entries(magianStats)
+                    .sort((a, b) => b[1].doanh_thu - a[1].doanh_thu)
+                    .map(([mg, s]) => `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-3 text-sm font-medium text-slate-900">${mg}</td>
+                            <td class="px-4 py-3 text-sm text-slate-700">${s.so_don.toLocaleString('vi-VN')}</td>
+                            <td class="px-4 py-3 text-sm text-slate-700">${s.doanh_thu.toLocaleString('vi-VN')}</td>
+                        </tr>`).join('') || '<tr><td colspan="3" class="text-center py-4 text-slate-400">Không có dữ liệu</td></tr>';
+
+                // Render bảng ID SP — sắp xếp theo doanh thu giảm dần
+                document.getElementById('idspTableBody').innerHTML = Object.entries(idspStats)
+                    .sort((a, b) => b[1].doanh_thu - a[1].doanh_thu)
+                    .map(([idsp, s]) => `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-3 text-sm font-medium text-primary">${idsp}</td>
+                            <td class="px-4 py-3 text-sm text-slate-700 max-w-[160px] truncate" title="${s.ten_sp}">${s.ten_sp || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-slate-700">${s.slg.toLocaleString('vi-VN')}</td>
+                            <td class="px-4 py-3 text-sm text-slate-700">${s.doanh_thu.toLocaleString('vi-VN')}</td>
+                        </tr>`).join('') || '<tr><td colspan="4" class="text-center py-4 text-slate-400">Không có dữ liệu</td></tr>';
+
+                let textSummary = `BÁO CÁO NGÀY: ${fromDate} đến ${toDate}\n`;
+                textSummary += `====================================\n`;
+                textSummary += `TỔNG SỐ ĐƠN: ${totalOrders}\n`;
+                textSummary += `TỔNG DOANH THU: ${totalRevenue.toLocaleString('vi-VN')}\n\n`;
+                textSummary += `CHI TIẾT THEO SÀN:\n`;
+                Object.entries(sanStats).forEach(([san, stats]) => {
+                    textSummary += `- Sàn ${san}: ${stats.so_don} đơn - ${stats.doanh_thu.toLocaleString('vi-VN')}\n`;
+                });
+                if (filterMaGian) textSummary += `\nLỌC THEO MÃ GIAN: ${filterMaGian}\n`;
+                document.getElementById('textReportArea').textContent = textSummary;
+
+                renderCharts(dailyStats);
+
+                const detailBody = document.getElementById('detailTableBody');
+                if (filtered.length === 0) {
+                    detailBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-500">Không có dữ liệu</td</tr>';
+                } else {
+                    detailBody.innerHTML = filtered.map(item => `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-3 text-sm text-slate-900">${item.ngay || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-slate-900">${item.san || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-slate-900">${item.mvd || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-slate-900">${item.mdh || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-slate-900">${item.ten_sp || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-slate-900">${item.slg_xuat}</td>
+                            <td class="px-4 py-3 text-sm text-slate-900">${item.don_gia.toLocaleString('vi-VN')}</td>
+                            <td class="px-4 py-3 text-sm text-slate-900 font-medium">${(item.don_gia * item.slg_xuat).toLocaleString('vi-VN')}</td>
+                        </tr>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Filter error:', error);
+                alert('Có lỗi xảy ra khi lọc dữ liệu!');
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        function renderCharts(dailyStats) {
+            const labels = Object.keys(dailyStats).sort();
+            const revenueData = labels.map(l => dailyStats[l].doanh_thu);
+            const ordersData = labels.map(l => dailyStats[l].so_don);
+
+            if (mergedChart) mergedChart.destroy();
+
+            const ctx = document.getElementById('mergedChart').getContext('2d');
+            mergedChart = new Chart(ctx, {
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Doanh thu (đ)',
+                            data: revenueData,
+                            backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                            borderColor: '#2563eb',
+                            borderWidth: 1,
+                            yAxisID: 'yRev',
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Số đơn (đơn)',
+                            data: ordersData,
+                            borderColor: '#ef4444',
+                            backgroundColor: '#ef4444',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: false,
+                            tension: 0.3,
+                            yAxisID: 'yOrders',
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', align: 'end' },
+                        tooltip: { backgroundColor: 'rgba(0,0,0,0.8)', padding: 12 }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        yRev: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Doanh thu (vnđ)', color: '#2563eb' },
+                            grid: { color: '#f1f5f9' },
+                            beginAtZero: true
+                        },
+                        yOrders: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Số lượng đơn', color: '#ef4444' },
+                            grid: { drawOnChartArea: false },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function copyTextReport() {
+            const content = document.getElementById('textReportArea').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('Đã sao chép báo cáo vào bộ nhớ tạm!');
+            }).catch(err => {
+                console.error('Copy error:', err);
+                alert('Lỗi khi sao chép!');
+            });
+        }
+
+        function exportReportToExcel() {
+            if (reportData.length === 0) {
+                alert('Không có dữ liệu để xuất! Vui lòng chọn ngày và lọc trước.');
+                return;
+            }
+
+            const excelData = [
+                ['BÁO CÁO ĐƠN HÀNG CHI TIẾT'],
+                [`Từ ngày: ${document.getElementById('fromDate').value} đến ${document.getElementById('toDate').value}`],
+                [`Mã gian lọc: ${document.getElementById('filterMaGian').value || 'Toàn bộ'}`],
+                [],
+                ['1. THỐNG KÊ TỔNG QUAN'],
+                ['Tổng số đơn', document.getElementById('totalOrders').textContent],
+                ['Tổng doanh thu', document.getElementById('totalRevenue').textContent],
+                ['Số sàn', document.getElementById('totalSan').textContent],
+                [],
+                ['2. THỐNG KÊ THEO MÃ GIAN'],
+                ['Mã gian', 'Số đơn', 'Doanh thu']
+            ];
+
+            const magianRows = document.querySelectorAll('#magianTableBody tr');
+            magianRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 3) {
+                    excelData.push([cells[0].textContent, cells[1].textContent, cells[2].textContent]);
+                }
+            });
+
+            excelData.push([], ['3. CHI TIẾT ĐƠN HÀNG']);
+            excelData.push(['Ngày', 'Sàn', 'MVD', 'MDH', 'Tên SP', 'SLG xuất', 'Đơn giá', 'Thành tiền']);
+
+            const detailRows = document.querySelectorAll('#detailTableBody tr');
+            detailRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 8) {
+                    excelData.push(Array.from(cells).map(c => c.textContent));
+                }
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'BaoCao');
+            XLSX.writeFile(wb, `BaoCao_ERP_${document.getElementById('fromDate').value}_${document.getElementById('toDate').value}.xlsx`);
+        }
+
+        function exportIdSPExcel() {
+            const tbody = document.getElementById('idspTableBody');
+            if (!tbody || tbody.innerHTML.includes('Không lấy được dữ liệu') || tbody.innerHTML.includes('Chọn ngày')) {
+                alert('Không có dữ liệu để xuất! Vui lòng chọn ngày và lọc báo cáo trước.');
+                return;
+            }
+
+            const excelData = [['ID SP', 'SL xuất']];
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 4) { // ID SP, Tên SP, SL xuất, Doanh thu
+                    excelData.push([
+                        cells[0].textContent.trim(), 
+                        cells[2].textContent.replace(/,/g, '').replace(/\./g, '').trim() // Remove formatting
+                    ]);
+                }
+            });
+
+            if (excelData.length <= 1) {
+                alert('Không có dữ liệu hợp lệ để xuất!');
+                return;
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'ThongKe_ID_SP');
+            XLSX.writeFile(wb, `ThongKe_ID_SP_${document.getElementById('fromDate').value}_${document.getElementById('toDate').value}.xlsx`);
+        }
+
+        function parseFileName(fileName) {
+            const parts = fileName.replace('.xlsx', '').replace('.xls', '').split('_');
+            let mienRaw = parts[2] || '';
+            let sanRaw = parts[3] || '';
+            const ngay = parts[4] || '';
+            const khung_h = parts[6] || '';
+
+            // Mapping Miền (Region)
+            let mien = mienRaw;
+            const mienUpper = mienRaw.toUpperCase();
+            if (mienUpper === 'HCM') mien = 'MN';
+            else if (mienUpper === 'HN') mien = 'MB';
+
+            // Mapping Sàn (Platform)
+            let san = sanRaw;
+            const sanUpper = sanRaw.toUpperCase();
+            if (sanUpper === 'SHP') san = 'shopee';
+            else if (sanUpper === 'DN') san = 'đơn ngoài';
+            else if (sanUpper === 'BEST') san = 'best';
+            else if (sanUpper === 'TT') san = 'tiktok';
+
+            return { mien, san, ngay, khung_h };
+        }
+
+        async function handleExcelUploadDonhang(files) {
+            if (!files || files.length === 0) return;
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                const appendValues = [];
+                let filesProcessed = 0;
+
+                for (const file of files) {
+                    const fileNameInfo = parseFileName(file.name);
+                    const data = await file.arrayBuffer();
+                    const workbook = XLSX.read(data);
+                    const sheetName = workbook.SheetNames.find(name => name.includes('Tổng đơn') || name === 'Tổng đơn 1');
+                    const firstSheet = sheetName ? workbook.Sheets[sheetName] : workbook.Sheets[workbook.SheetNames[0]];
+                    const excelData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+
+                    if (!excelData || excelData.length < 2) {
+                        console.warn(`File ${file.name} không có dữ liệu!`);
+                        continue;
+                    }
+
+                    const rows = excelData.slice(1);
+                    for (const row of rows) {
+                        const san = fileNameInfo.san;
+                        const kh = (fileNameInfo.khung_h || "").toUpperCase();
+
+                        const c_b = (row[1] || '').toString();
+                        const c_c = (row[2] || '').toString();
+                        const c_f = fileNameInfo.ngay;
+                        const c_j = (row[9] || '').toString();
+
+                        let c_d = ''; // MDH
+                        let c_g = ''; // MVD
+                        let c_p = ''; // SLG xuất
+
+                        if (san === 'shopee') {
+                            if (kh === '10H') {
+                                c_d = (row[3] || '').toString();
+                                c_g = (row[3] || '').toString();
+                                c_p = (row[15] || '').toString();
+                            } else {
+                                c_d = (row[3] || '').toString();
+                                c_g = (row[6] || '').toString();
+                                c_p = (row[15] || '').toString();
+                            }
+                        } else if (san === 'tiktok' || san === 'best' || san === 'đơn ngoài') {
+                            c_d = (row[6] || '').toString();
+                            c_g = (row[6] || '').toString();
+                            c_p = (row[10] || '').toString();
+                        } else {
+                            c_d = (row[3] || '').toString();
+                            c_g = (row[6] || '').toString();
+                            c_p = (row[15] || '').toString();
+                        }
+
+                        if (!c_d && !c_g) continue;
+
+                        const sku_shop_up = c_j.substring(0, 10);
+                        const id_sp = c_c;
+                        let id_sp_ct = '';
+                        if (c_j.substring(0, 4) === c_c) {
+                            id_sp_ct = c_j.substring(0, 10);
+                        }
+
+                        const random8 = generateRandomString(8);
+                        const id_parts = [c_f, 'xuất', 'hằng ngày', fileNameInfo.mien, fileNameInfo.san, fileNameInfo.khung_h, c_b, c_d, c_g, sku_shop_up, c_p, random8];
+                        const id_up_don_parts = [c_f, 'xuất', 'hằng ngày', fileNameInfo.mien, fileNameInfo.san, fileNameInfo.khung_h, c_b, c_d, c_g];
+                        const id_dh_parts = [c_f, 'xuất', 'hằng ngày', fileNameInfo.mien];
+                        const id_dh_ct_parts = [c_f, 'xuất', 'hằng ngày', fileNameInfo.mien, id_sp];
+
+                        const newId = generateId(id_parts);
+                        const id_up_don = generateId(id_up_don_parts);
+                        const id_dh = generateId(id_dh_parts);
+                        const id_dh_ct = generateId(id_dh_ct_parts);
+
+                        appendValues.push([
+                            newId, id_up_don, id_dh, id_dh_ct,
+                            c_f, 'xuất', 'hằng ngày', fileNameInfo.mien,
+                            fileNameInfo.san, fileNameInfo.khung_h, c_b, c_d, c_g,
+                            sku_shop_up, c_p, id_sp, id_sp_ct,
+                            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '', '', '', ''
+                        ]);
+                    }
+                    filesProcessed++;
+                }
+
+                if (appendValues.length === 0) {
+                    alert("Không có dữ liệu hợp lệ để import!");
+                    return;
+                }
+
+                console.log(`Đang nạp ${appendValues.length} dòng từ ${filesProcessed} file vào ${CONFIG.udctSheetName}...`);
+                const success = await appendSheetData(CONFIG.udctSheetName, appendValues);
+
+                if (success) {
+                    alert(`Import thành công ${appendValues.length} dòng dữ liệu từ ${filesProcessed} file!`);
+                    await loadUDCTData();
+                } else {
+                    alert("Import thất bại! Vui lòng kiểm tra console hoặc quyền truy cập Sheet.");
+                }
+            } catch (error) {
+                console.error("Excel upload error:", error);
+                alert("Có lỗi xảy ra khi xử lý file Excel!");
+            } finally {
+                loadingOverlay.classList.add('hidden');
+                document.getElementById('excelUploadDonhang').value = '';
+            }
+        }
+
+        async function handleExcelUpload(files) {
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data);
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const excelData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+
+                if (!excelData || excelData.length < 2) {
+                    alert("File Excel không có dữ liệu!");
+                    return;
+                }
+
+                const rows = excelData.slice(1);
+                const sheetData = [];
+                
+                for (const row of rows) {
+                    const newRow = [];
+                    for (let i = 0; i < 32; i++) {
+                        let value = '';
+                        if (i < row.length && row[i] !== undefined && row[i] !== null) {
+                            value = row[i].toString();
+                        }
+                        newRow.push(value);
+                    }
+                    sheetData.push(newRow);
+                }
+
+                if (sheetData.length === 0) {
+                    alert("Không có dữ liệu để import!");
+                    return;
+                }
+
+                console.log(`Đang xử lý ${CONFIG.sanphamSheetName}: Xóa cũ và nạp mới...`);
+                const cleared = await clearSheetData(CONFIG.sanphamSheetName);
+                if (!cleared) {
+                    if (!confirm("Không thể xóa dữ liệu cũ, bạn có muốn tiếp tục ghi đè không?")) {
+                        return;
+                    }
+                }
+
+                const success = await appendSheetData(CONFIG.sanphamSheetName, sheetData);
+
+                if (success) {
+                    alert(`Import thành công ${sheetData.length} dòng dữ liệu vào ${CONFIG.sanphamSheetName}!`);
+                    await loadSanphamData();
+                } else {
+                    alert("Import thất bại! Vui lòng kiểm tra console để biết thêm chi tiết.");
+                }
+            } catch (error) {
+                console.error("Excel upload error:", error);
+                alert("Có lỗi xảy ra khi xử lý file Excel: " + error.message);
+            } finally {
+                loadingOverlay.classList.add('hidden');
+                document.getElementById('excelUpload').value = '';
+            }
+        }
+
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            if (!dropZone) return;
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && (files[0].name.endsWith('.xlsx') || files[0].name.endsWith('.xls'))) {
+                    handleExcelUpload(files);
+                } else {
+                    alert("Vui lòng kéo thả file Excel (.xlsx hoặc .xls)");
+                }
+            });
+        }
+
+        function setupDragAndDropDonhang() {
+            const dropZone = document.getElementById('dropZoneDonhang');
+            if (!dropZone) return;
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && (files[0].name.endsWith('.xlsx') || files[0].name.endsWith('.xls'))) {
+                    handleExcelUploadDonhang(files);
+                } else {
+                    alert("Vui lòng kéo thả file Excel (.xlsx hoặc .xls)");
+                }
+            });
+        }
+
+        function switchModule(module) {
+            const homeModule = document.getElementById('moduleHome');
+            const donhangModule = document.getElementById('moduleDonhang');
+            const sanphamModule = document.getElementById('moduleSanpham');
+            const baocaoModule = document.getElementById('moduleBaocao');
+            const upmisaModule = document.getElementById('moduleUpmisa');
+            const pageTitle = document.getElementById('pageTitle');
+            const sidebarHome = document.getElementById('sidebarHome');
+            const sidebarDonhang = document.getElementById('sidebarDonhang');
+            const sidebarSanpham = document.getElementById('sidebarSanpham');
+            const sidebarBaocao = document.getElementById('sidebarBaocao');
+            const sidebarUpmisa = document.getElementById('sidebarUpmisa');
+
+            homeModule.style.display = 'none';
+            donhangModule.style.display = 'none';
+            sanphamModule.style.display = 'none';
+            baocaoModule.style.display = 'none';
+            upmisaModule.style.display = 'none';
+
+            const resetSidebar = () => {
+                [sidebarHome, sidebarDonhang, sidebarSanpham, sidebarBaocao, sidebarUpmisa].forEach(s => {
+                    s.classList.remove('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
+                    s.classList.add('text-slate-600');
+                });
+            };
+
+            if (module === 'home') {
+                homeModule.style.display = 'block';
+                pageTitle.textContent = 'Trang chủ';
+                resetSidebar();
+                sidebarHome.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
+                sidebarHome.classList.remove('text-slate-600');
+            } else if (module === 'donhang') {
+                donhangModule.style.display = 'flex';
+                pageTitle.textContent = 'Đơn chi tiết';
+                resetSidebar();
+                sidebarDonhang.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
+                sidebarDonhang.classList.remove('text-slate-600');
+                setTimeout(() => setupDragAndDropDonhang(), 100);
+            } else if (module === 'sanpham') {
+                sanphamModule.style.display = 'flex';
+                pageTitle.textContent = 'Sản phẩm phần mềm';
+                resetSidebar();
+                sidebarSanpham.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
+                sidebarSanpham.classList.remove('text-slate-600');
+                setTimeout(() => setupDragAndDrop(), 100);
+            } else if (module === 'baocao') {
+                baocaoModule.style.display = 'flex';
+                pageTitle.textContent = 'Báo cáo';
+                resetSidebar();
+                sidebarBaocao.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
+                sidebarBaocao.classList.remove('text-slate-600');
+                setQuickDate('today');
+            } else if (module === 'upmisa') {
+                upmisaModule.style.display = 'flex';
+                pageTitle.textContent = 'UPMISA';
+                resetSidebar();
+                sidebarUpmisa.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
+                sidebarUpmisa.classList.remove('text-slate-600');
+                
+                const today = new Date();
+                const d = String(today.getDate()).padStart(2, '0');
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const y = today.getFullYear();
+                document.getElementById('upmisaDateFilter').value = `${y}-${m}-${d}`;
+                buildUpmisaData();
+            }
+        }
+        
+        function changeUpmisaDate(step) {
+            const dateInput = document.getElementById('upmisaDateFilter');
+            if (!dateInput.value) {
+                const today = new Date();
+                const y = today.getFullYear();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const d = String(today.getDate()).padStart(2, '0');
+                dateInput.value = `${y}-${m}-${d}`;
+            } else {
+                const parts = dateInput.value.split('-');
+                if (parts.length === 3) {
+                    const currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                    currentDate.setDate(currentDate.getDate() + step);
+                    const y = currentDate.getFullYear();
+                    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+                    const d = String(currentDate.getDate()).padStart(2, '0');
+                    dateInput.value = `${y}-${m}-${d}`;
+                }
+            }
+            renderUpmisaTable(1);
+        }
+
+        function applyRoleUI(role) {
+            const isDemo = role === 'demo';
+            const hideIds = ['sidebarUpmisa', 'sidebarBaocao', 'dropZoneDonhang', 'dropZone'];
+            hideIds.forEach(hid => {
+                const el = document.getElementById(hid);
+                if (el) el.style.display = isDemo ? 'none' : '';
+            });
+            ['excelUploadDonhang', 'excelUpload'].forEach(upId => {
+                const excelUp = document.getElementById(upId);
+                if (excelUp && excelUp.parentElement) {
+                    excelUp.parentElement.style.display = isDemo ? 'none' : '';
+                }
+            });
+            document.querySelectorAll("button[onclick='updateAllPricesBatch()']").forEach(b => {
+                b.style.display = isDemo ? 'none' : '';
+            });
+        }
+
+        // handleLogin removed as login is disabled
+
+
+        function handleLogout() {
+            if (confirm("Bạn có muốn tải lại trang không?")) {
+                window.location.reload();
+            }
+        }
+
+        function updateUserProfileUI() {
+            if (!currentUser) return;
+            const sidebarUserName = document.getElementById('sidebarUserName');
+            const userInitial = document.getElementById('userInitial');
+            if (sidebarUserName) sidebarUserName.textContent = currentUser.name;
+            if (userInitial && currentUser.name) userInitial.textContent = currentUser.name.charAt(0).toUpperCase();
+        }
+
+        window.onload = async () => {
+            // Bypass login - System Always On
+            isLoggedIn = true;
+            currentUser = { id: 'admin', name: 'Administrator', role: 'admin' };
+            updateUserProfileUI();
+            
+            // UI elements check
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) loginScreen.style.display = 'none';
+            
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('welcomeUserName').textContent = currentUser.name;
+            
+            applyRoleUI('admin');
+            
+            await loadUDCTData();
+            await loadSanphamData();
+            
+            loadFiltersFromCache();
+
+            // Handle deep linking via URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const link = urlParams.get('link');
+            const moduleMapping = {
+                'don_chi_tiet': 'donhang',
+                'san_pham': 'sanpham',
+                'bao_cao': 'baocao',
+                'upmisa': 'upmisa'
+            };
+            
+            if (link && moduleMapping[link]) {
+                switchModule(moduleMapping[link]);
+            }
+        };
+    </script>
+</body>
+
+</html>
