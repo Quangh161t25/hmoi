@@ -3370,8 +3370,8 @@
         const matchYear = !window.kpiFilterYear || getYear(item.thang) === window.kpiFilterYear;
         const matchMonth = !window.kpiFilterMonth || String(item.thang) === window.kpiFilterMonth;
         const matchNv = !window.kpiFilterNv || String(item.id_nv) === window.kpiFilterNv;
-        const hasValue = Number(item.tong_tien_thuong_thuc || 0) !== 0; // ẨN CỘT CÓ tong_tien_thuong_thuc = 0
-        return matchYear && matchMonth && matchNv && hasValue;
+        const hasValidNvId = (item.id_nv || "").toString().trim() !== "";
+        return matchYear && matchMonth && matchNv && hasValidNvId;
       });
 
       // SẮP XẾP CỘT thang lớn tới nhỏ
@@ -3460,7 +3460,7 @@
             </div>
             <div style="margin-top: 12px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; align-items: center;">
               <span>Hiển thị <strong>${filtered.length}</strong> dòng kết quả.</span>
-              <span style="font-style: italic;">* Đã ẩn các dòng có tổng thực nhận bằng 0. Dữ liệu từ Sheet KPI.</span>
+              <span style="font-style: italic;">* Dữ liệu từ Sheet KPI.</span>
             </div>
           </div>
         </div>
@@ -3552,8 +3552,13 @@
           const gia_tri = parseLooseNumber(rule.gia_tri);
           const kieu = normString(rule.kieu); // "co_dinh"→"codinh", "phan_tram"→"phantram", "phan_tram_vuot"→"phantramvuot"
           const muc_tu = parseLooseNumber(rule.muc_tu);
+          const muc_den = parseLooseNumber(rule.muc_den);
           if (kieu === "phantram" || kieu === "%" || kieu === "phantramtong") {
-            return sum + amount * gia_tri / 100;
+            if (muc_den > 0) {
+              return sum + amount * gia_tri / 100;
+            } else {
+              return sum + muc_tu * gia_tri / 100;
+            }
           }
           if (kieu === "phantramvuot") {
             // % tính trên phần DS vượt quá muc_tu
