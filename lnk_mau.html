@@ -750,13 +750,16 @@
 
                 <!-- Module: DHCT -->
                 <div id="module-dhct" class="hidden">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6 mobile-hide">
+                    <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
+                    <div class="flex justify-end mb-4">
                         <button onclick="openAddDHCTForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             Thêm Mới
                         </button>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6 mobile-hide">
                         <div id="dhct-admin-actions" class="hidden flex flex-wrap gap-3">
                             <button onclick="downloadDHCTTemplate()"
                                 class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition">
@@ -873,7 +876,7 @@
     <div id="dhctAddOverlay" onclick="closeAddDHCTForm()" class="fixed inset-0 bg-slate-900/50 z-40 hidden opacity-0 transition-opacity duration-300"></div>
     
     <!-- Offcanvas for Adding DHCT -->
-    <div id="dhctAddSidePanel" class="fixed inset-y-0 right-0 w-full md:w-[600px] bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div id="dhctAddSidePanel" class="fixed inset-0 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
         <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800">Thêm Mới Đơn Hàng</h2>
             <button onclick="closeAddDHCTForm()" class="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition">
@@ -899,31 +902,41 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Nhân viên *</label>
-                        <input list="nvList" id="addIdNv" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none" placeholder="ID NV...">
-                        <datalist id="nvList"></datalist>
+                        <select id="addIdNv" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                            <option value="">-- Chọn nhân viên --</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Nhà phân phối</label>
-                        <input list="nppList" id="addNpp" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none" placeholder="NPP...">
-                        <datalist id="nppList"></datalist>
+                        <select id="addNpp" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                            <option value="">-- Chọn NPP --</option>
+                        </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Nhà cung cấp</label>
-                        <input list="nccList" id="addNcc" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none" placeholder="NCC...">
-                        <datalist id="nccList"></datalist>
-                    </div>
+                    <input type="hidden" id="addNcc" value="">
                 </div>
             </div>
 
             <!-- Chi tiết sản phẩm -->
             <div>
-                <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
                     <h3 class="font-bold text-slate-700">Chi tiết sản phẩm</h3>
                     <button onclick="addDHCTProductRow()" class="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-200 transition">+ Thêm SP</button>
-                    <datalist id="spList"></datalist>
                 </div>
-                <div id="dhctProductList" class="space-y-4">
-                    <!-- Rows will be injected here -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm" id="dhctProductTable">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                <th class="px-3 py-2 w-[45%]">Sản phẩm</th>
+                                <th class="px-3 py-2 text-right w-[20%]">Đơn giá</th>
+                                <th class="px-3 py-2 text-center w-[12%]">SL</th>
+                                <th class="px-3 py-2 text-right w-[18%]">Thành tiền</th>
+                                <th class="px-3 py-2 text-center w-[5%]"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="dhctProductList">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
             
@@ -2176,26 +2189,26 @@
             const rowId = productRowIndex;
             const container = document.getElementById('dhctProductList');
             const rowHtml = `
-                <div id="dhctRow_${rowId}" class="p-3 bg-white border border-slate-200 rounded-xl relative group shadow-sm">
-                    <button onclick="removeDHCTProductRow(${rowId})" class="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full w-6 h-6 flex items-center justify-center text-lg hover:bg-red-200 transition opacity-0 group-hover:opacity-100 shadow-sm">&times;</button>
-                    <div class="grid grid-cols-12 gap-3">
-                        <div class="col-span-12">
-                            <input list="spList" id="addIdSp_${rowId}" onchange="onAddIdSpChange(${rowId})" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition text-sm outline-none" placeholder="Chọn hoặc nhập mã sản phẩm...">
-                        </div>
-                        <div class="col-span-4">
-                            <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Đơn giá</label>
-                            <input type="number" id="addPrice_${rowId}" oninput="calcAddTotal(${rowId})" class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition text-sm outline-none text-right" placeholder="0">
-                        </div>
-                        <div class="col-span-3">
-                            <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Số lượng</label>
-                            <input type="number" id="addQty_${rowId}" oninput="calcAddTotal(${rowId})" class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition text-sm outline-none text-center" placeholder="1" value="1">
-                        </div>
-                        <div class="col-span-5">
-                            <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Thành tiền</label>
-                            <input type="number" id="addTotal_${rowId}" readonly class="w-full px-2 py-1.5 bg-transparent border-none text-blue-600 font-bold text-right outline-none text-sm" placeholder="0" value="0">
-                        </div>
-                    </div>
-                </div>
+                <tr id="dhctRow_${rowId}" class="border-b border-slate-100 hover:bg-slate-50/50 group">
+                    <td class="px-2 py-2">
+                        <select id="addIdSp_${rowId}" onchange="onAddIdSpChange(${rowId})" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition text-sm outline-none">
+                            <option value="">-- Chọn SP --</option>
+                            ${productsData.map(p => `<option value="${p.id}">${p.id} - ${p.name}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="px-2 py-2">
+                        <input type="number" id="addPrice_${rowId}" oninput="calcAddTotal(${rowId})" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-sm outline-none text-right" placeholder="0">
+                    </td>
+                    <td class="px-2 py-2">
+                        <input type="number" id="addQty_${rowId}" oninput="calcAddTotal(${rowId})" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-sm outline-none text-center" placeholder="1" value="1">
+                    </td>
+                    <td class="px-2 py-2">
+                        <input type="number" id="addTotal_${rowId}" readonly class="w-full px-2 py-1.5 bg-transparent border-none text-blue-600 font-bold text-right outline-none text-sm" value="0">
+                    </td>
+                    <td class="px-1 py-2 text-center">
+                        <button onclick="removeDHCTProductRow(${rowId})" class="text-red-400 hover:text-red-600 transition text-lg opacity-0 group-hover:opacity-100" title="Xóa">&times;</button>
+                    </td>
+                </tr>
             `;
             container.insertAdjacentHTML('beforeend', rowHtml);
             updateTotalSum();
@@ -2245,20 +2258,21 @@
             const today = new Date();
             document.getElementById('addDate').value = today.toISOString().split('T')[0];
             document.getElementById('addDhId').value = '';
-            document.getElementById('addIdNv').value = currentUser ? currentUser.id : '';
-            document.getElementById('addNpp').value = '';
             document.getElementById('addNcc').value = '';
+
+            // Populate NV select
+            const nvSelect = document.getElementById('addIdNv');
+            nvSelect.innerHTML = '<option value="">-- Chọn nhân viên --</option>' + usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
+            nvSelect.value = currentUser ? currentUser.id : '';
+
+            // Populate NPP select
+            const nppSelect = document.getElementById('addNpp');
+            nppSelect.innerHTML = '<option value="">-- Chọn NPP --</option>' + nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
 
             // Reset Products List
             document.getElementById('dhctProductList').innerHTML = '';
             productRowIndex = 0;
             addDHCTProductRow();
-
-            // Populate Datalists
-            document.getElementById('spList').innerHTML = productsData.map(p => `<option value="${p.id}">${p.id} - ${p.name}</option>`).join('');
-            document.getElementById('nvList').innerHTML = usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
-            document.getElementById('nppList').innerHTML = nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
-            document.getElementById('nccList').innerHTML = nccData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
         }
 
         function closeAddDHCTForm() {
@@ -2272,7 +2286,9 @@
             try {
                 // Get Master values
                 const id_dh = document.getElementById('addDhId').value.trim();
-                const date = document.getElementById('addDate').value;
+                const rawDate = document.getElementById('addDate').value; // YYYY-MM-DD
+                const dateParts = rawDate.split('-');
+                const date = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : rawDate; // dd/mm/yyyy
                 const id_nv = document.getElementById('addIdNv').value.trim();
                 const npp = document.getElementById('addNpp').value.trim();
                 const ncc = document.getElementById('addNcc').value.trim();
