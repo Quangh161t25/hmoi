@@ -1534,6 +1534,10 @@
             const filterNv = document.getElementById('dhctFilterNv').value;
 
             filteredOrders = ordersData.filter(o => {
+                // Phân quyền: role "kd" chỉ xem đơn của mình
+                const isKD = currentUser && currentUser.role && currentUser.role.trim().toLowerCase() === 'kd';
+                if (isKD && o.id_nv !== currentUser.id) return false;
+
                 // Date inclusive check
                 let itemDate = parseDate(o.date);
                 if (itemDate) itemDate.setHours(0, 0, 0, 0);
