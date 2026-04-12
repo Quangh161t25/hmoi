@@ -244,6 +244,291 @@
         .mobile-show {
             display: none;
         }
+
+        /* --- INVOICE PRINT STYLES --- */
+        #invoiceModalContainer {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #invoiceModalContent {
+            background: white;
+            width: 90%;
+            max-width: 210mm;
+            height: 90vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .invoice-actions {
+            position: sticky;
+            top: 0;
+            right: 0;
+            background: #f8fafc;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .invoice-print-area {
+            padding: 10mm;
+            background: white;
+            font-family: 'Times New Roman', Times, serif;
+            color: black;
+            line-height: 1.3;
+        }
+
+        .invoice-print-area .container {
+            width: 100%;
+            margin: auto;
+        }
+
+        .invoice-print-area .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+        }
+
+        .invoice-print-area .header-logo {
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        .invoice-print-area .header-center {
+            flex: 1;
+            text-align: center;
+            padding: 0 5px;
+        }
+
+        .invoice-print-area .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .invoice-print-area .logo-box {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            flex-shrink: 0;
+            margin: 0 auto;
+        }
+
+        .invoice-print-area .logo-box span {
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 1px 4px;
+        }
+
+        .invoice-print-area .company-info h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: bold;
+            color: #000;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .invoice-print-area .slogan {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 4px 0;
+            text-transform: uppercase;
+        }
+
+        .invoice-print-area .address {
+            font-size: 13px;
+            margin: 2px 0;
+        }
+
+        .invoice-print-area .header-right {
+            width: 180px;
+            text-align: right;
+            flex-shrink: 0;
+            font-size: 11px;
+            padding-top: 5px;
+        }
+
+        .invoice-print-area .bank-info {
+            font-size: 10px;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+
+        .invoice-print-area .main-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .invoice-print-area .customer-section {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .invoice-print-area .label {
+            min-width: 80px;
+            display: inline-block;
+        }
+
+        .invoice-print-area table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .invoice-print-area table th,
+        .invoice-print-area table td {
+            border: 1px solid #000;
+            padding: 4px 2px;
+            text-align: center;
+        }
+
+        .invoice-print-area table th {
+            background-color: #f2f2f2;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .invoice-print-area .payment-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 5px;
+        }
+
+        .invoice-print-area .qr-section {
+            width: 35%;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        .invoice-print-area .qr-placeholder {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 4px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .invoice-print-area .totals-section {
+            width: 60%;
+        }
+
+        .invoice-print-area .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            font-size: 12px;
+        }
+
+        .invoice-print-area .total-row.main-sum {
+            font-weight: bold;
+            border-top: 1px solid #000;
+            margin-top: 3px;
+            padding-top: 4px;
+            font-size: 14px;
+        }
+
+        .invoice-print-area .money-in-words {
+            font-style: italic;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .invoice-print-area .signatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        .invoice-print-area .sig-space {
+            height: 60px;
+        }
+
+        .invoice-print-area .handwritten {
+            font-family: 'Dancing Script', cursive;
+            font-size: 20px;
+            color: #1e3a8a;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #invoiceModalContainer,
+            #invoiceModalContainer * {
+                visibility: visible !important;
+            }
+
+            #invoiceModalContainer {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                padding: 0;
+                display: block;
+            }
+
+            #invoiceModalContent {
+                width: 100%;
+                height: auto;
+                overflow: visible;
+                box-shadow: none;
+                border-radius: 0;
+                display: flex;
+                justify-content: center;
+            }
+
+            .invoice-print-area {
+                width: 210mm;
+                padding: 15mm;
+                margin: 0 auto;
+            }
+
+            .invoice-actions {
+                display: none !important;
+            }
+
+            @page {
+                size: A4;
+                margin: 0;
+            }
+        }
     </style>
 </head>
 
@@ -331,6 +616,13 @@
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
                     <span class="sidebar-text">Đơn hàng</span>
+                </button>
+                <button id="nav-tongdon" onclick="showModule('tongdon')" class="nav-item">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="sidebar-text">Tổng đơn</span>
                 </button>
             </nav>
             <div
@@ -433,41 +725,62 @@
                 </div>
             </header>
             <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50">
-                 <!-- Module: Home -->
+                <!-- Module: Home -->
                 <div id="module-home" class="hidden">
                     <div class="mb-8">
                         <h2 class="text-2xl font-black text-slate-800 tracking-tight mb-2">Chào mừng trở lại!</h2>
-                        <p class="text-slate-500 text-sm">Hệ thống ERP Lock&King đã sẵn sàng. Truy cập nhanh các tính năng bên dưới.</p>
+                        <p class="text-slate-500 text-sm">Hệ thống ERP Lock&King đã sẵn sàng. Truy cập nhanh các tính
+                            năng bên dưới.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <button onclick="showModule('dashboard')" class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-blue-500 transition-all text-left">
-                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                        <button onclick="showModule('dashboard')"
+                            class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-blue-500 transition-all text-left">
+                            <div
+                                class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
                             </div>
                             <h3 class="font-bold text-slate-800 mb-1">Báo cáo doanh thu</h3>
                             <p class="text-xs text-slate-400">Xem tổng quan doanh số và lợi nhuận.</p>
                         </button>
 
-                        <button onclick="showModule('dhct')" class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-emerald-500 transition-all text-left">
-                            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                        <button onclick="showModule('dhct')"
+                            class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-emerald-500 transition-all text-left">
+                            <div
+                                class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
                             </div>
                             <h3 class="font-bold text-slate-800 mb-1">Đơn hàng chi tiết</h3>
                             <p class="text-xs text-slate-400">Quản lý và theo dõi thông tin đơn hàng.</p>
                         </button>
 
-                        <button onclick="showModule('dssp')" class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-amber-500 transition-all text-left">
-                            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                        <button onclick="showModule('dssp')"
+                            class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-amber-500 transition-all text-left">
+                            <div
+                                class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
                             </div>
                             <h3 class="font-bold text-slate-800 mb-1">Danh mục sản phẩm</h3>
                             <p class="text-xs text-slate-400">Thông tin mã hàng và bảng giá niêm yết.</p>
                         </button>
 
-                        <button onclick="showModule('dsnv')" class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-purple-500 transition-all text-left">
-                            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 005.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <button onclick="showModule('dsnv')"
+                            class="group p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-purple-500 transition-all text-left">
+                            <div
+                                class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 005.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
                             </div>
                             <h3 class="font-bold text-slate-800 mb-1">Quản lý nhân viên</h3>
                             <p class="text-xs text-slate-400">Danh sách nhân sự và phân quyền truy cập.</p>
@@ -483,19 +796,23 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Từ ngày</label>
                                 <div class="flex items-center gap-1">
-                                    <button onclick="shiftDate('dashFromDate', -1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                    <button onclick="shiftDate('dashFromDate', -1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
                                     <input type="date" id="dashFromDate" onchange="updateDashboard()"
                                         class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <button onclick="shiftDate('dashFromDate', 1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                                    <button onclick="shiftDate('dashFromDate', 1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Đến ngày</label>
                                 <div class="flex items-center gap-1">
-                                    <button onclick="shiftDate('dashToDate', -1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                    <button onclick="shiftDate('dashToDate', -1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
                                     <input type="date" id="dashToDate" onchange="updateDashboard()"
                                         class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <button onclick="shiftDate('dashToDate', 1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                                    <button onclick="shiftDate('dashToDate', 1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
                                 </div>
                             </div>
                             <!-- NPP Filter -->
@@ -524,8 +841,8 @@
 
                     <!-- Summary Card -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                        <div
-                            class="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-3xl shadow-xl shadow-blue-100 text-white relative overflow-hidden group">
+                        <div onclick="showModule('dhct')"
+                            class="cursor-pointer bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-3xl shadow-xl shadow-blue-100 text-white relative overflow-hidden group hover:scale-[1.02] transition-transform">
                             <div
                                 class="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all">
                             </div>
@@ -538,6 +855,21 @@
                                         d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                 </svg>
                                 <span></span>
+                            </div>
+                        </div>
+                        <div onclick="showModule('tongdon')"
+                            class="cursor-pointer bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-3xl shadow-xl shadow-emerald-100 text-white relative overflow-hidden group hover:scale-[1.02] transition-transform">
+                            <div
+                                class="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all">
+                            </div>
+                            <p class="text-emerald-100 text-sm font-semibold uppercase tracking-wider mb-2">Tổng đơn</p>
+                            <h3 id="dashTotalOrders" class="text-3xl font-bold tracking-tight">0</h3>
+                            <div class="mt-4 flex items-center gap-2 text-emerald-100 text-xs">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span>Unique theo id_dh, ngày, id_nv, npp</span>
                             </div>
                         </div>
                     </div>
@@ -752,9 +1084,11 @@
                 <div id="module-dhct" class="hidden">
                     <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
                     <div class="flex justify-end mb-4">
-                        <button onclick="openAddDHCTForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
+                        <button onclick="openAddDHCTForm()"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                             Thêm Mới
                         </button>
@@ -805,20 +1139,24 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Từ ngày</label>
                                 <div class="flex items-center gap-1">
-                                    <button onclick="shiftDate('dhctFromDate', -1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                    <button onclick="shiftDate('dhctFromDate', -1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
                                     <input type="date" id="dhctFromDate" onchange="filterDHCT()"
                                         class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <button onclick="shiftDate('dhctFromDate', 1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                                    <button onclick="shiftDate('dhctFromDate', 1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
                                 </div>
                             </div>
                             <!-- To Date -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Đến ngày</label>
                                 <div class="flex items-center gap-1">
-                                    <button onclick="shiftDate('dhctToDate', -1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                    <button onclick="shiftDate('dhctToDate', -1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
                                     <input type="date" id="dhctToDate" onchange="filterDHCT()"
                                         class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <button onclick="shiftDate('dhctToDate', 1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                                    <button onclick="shiftDate('dhctToDate', 1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
                                 </div>
                             </div>
                             <!-- NPP Filter -->
@@ -868,15 +1206,106 @@
                     <!-- Pagination for DHCT -->
                     <div id="dhctPagination" class="flex items-center justify-center gap-2 mb-8"></div>
                 </div>
+
+                <!-- Module: Tong Don -->
+                <div id="module-tongdon" class="hidden">
+                    <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
+                    <div class="flex justify-end mb-4">
+                        <button onclick="openAddDHCTForm()"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Thêm Mới
+                        </button>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                            <div class="lg:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">TÃ¬m kiáº¿m
+                                    nhanh</label>
+                                <input type="text" id="tongdonSearchInput" oninput="filterTongDon()"
+                                    class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition"
+                                    placeholder="MÃ£ Ä‘Æ¡n, NPP, nhÃ¢n viÃªn...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tá»« ngÃ y</label>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="shiftDate('tongdonFromDate', -1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                    <input type="date" id="tongdonFromDate" onchange="filterTongDon()"
+                                        class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                    <button onclick="shiftDate('tongdonFromDate', 1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Äáº¿n
+                                    ngÃ y</label>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="shiftDate('tongdonToDate', -1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                    <input type="date" id="tongdonToDate" onchange="filterTongDon()"
+                                        class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                    <button onclick="shiftDate('tongdonToDate', 1)"
+                                        class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">NhÃ  phÃ¢n
+                                    phá»‘i</label>
+                                <select id="tongdonFilterNpp" onchange="filterTongDon()"
+                                    class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                    <option value="">Táº¥t cáº£ NPP</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">NhÃ¢n viÃªn</label>
+                                <select id="tongdonFilterNv" onchange="filterTongDon()"
+                                    class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                    <option value="">Táº¥t cáº£ NV</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+                        <div
+                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-4">
+                            <h3 class="font-bold text-slate-800">Danh sÃ¡ch tá»•ng Ä‘Æ¡n unique</h3>
+                            <div class="text-sm text-slate-500">Tá»•ng Ä‘Æ¡n: <span id="tongdonCount"
+                                    class="font-bold text-emerald-600">0</span></div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
+                                        <th class="px-4 py-3">ID ÄH</th>
+                                        <th class="px-4 py-3">NgÃ y</th>
+                                        <th class="px-4 py-3">NhÃ¢n viÃªn</th>
+                                        <th class="px-4 py-3">NPP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tongdonTableBody" class="divide-y divide-slate-50">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="tongdonPagination" class="flex items-center justify-center gap-2 mb-8"></div>
+                </div>
             </main>
         </div>
     </div>
 
     <!-- Offcanvas overlay -->
-    <div id="dhctAddOverlay" onclick="closeAddDHCTForm()" class="fixed inset-0 bg-slate-900/50 z-40 hidden opacity-0 transition-opacity duration-300"></div>
-    
+    <div id="dhctAddOverlay" onclick="closeAddDHCTForm()"
+        class="fixed inset-0 bg-slate-900/50 z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
     <!-- Offcanvas for Adding DHCT -->
-    <div id="dhctAddSidePanel" class="fixed inset-0 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div id="dhctAddSidePanel"
+        class="fixed inset-0 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
         <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800">Thêm Mới Đơn Hàng</h2>
             <button onclick="closeAddDHCTForm()" class="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition">
@@ -894,21 +1323,26 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Mã đơn hàng *</label>
-                        <input type="text" id="addDhId" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none" placeholder="VD: DH-001 (Bỏ trống sẽ tự sinh mã)">
+                        <input type="text" id="addDhId" onchange="handleOrderIdLookup()"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none"
+                            placeholder="VD: DH-001 (Bỏ trống sẽ tự sinh mã)">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Ngày *</label>
-                        <input type="date" id="addDate" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                        <input type="date" id="addDate"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Nhân viên *</label>
-                        <select id="addIdNv" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                        <select id="addIdNv"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
                             <option value="">-- Chọn nhân viên --</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Nhà phân phối</label>
-                        <select id="addNpp" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                        <select id="addNpp"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
                             <option value="">-- Chọn NPP --</option>
                         </select>
                     </div>
@@ -920,12 +1354,15 @@
             <div>
                 <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
                     <h3 class="font-bold text-slate-700">Chi tiết sản phẩm</h3>
-                    <button onclick="addDHCTProductRow()" class="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-200 transition">+ Thêm SP</button>
+                    <button onclick="addDHCTProductRow()"
+                        class="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-200 transition">+
+                        Thêm SP</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm" id="dhctProductTable">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                            <tr
+                                class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
                                 <th class="px-3 py-2 w-[45%]">Sản phẩm</th>
                                 <th class="px-3 py-2 text-right w-[20%]">Đơn giá</th>
                                 <th class="px-3 py-2 text-center w-[12%]">SL</th>
@@ -939,18 +1376,221 @@
                     </table>
                 </div>
             </div>
-            
+
         </div>
         <div class="p-4 sm:p-6 border-t border-slate-200 flex justify-between gap-3 shrink-0 bg-slate-50 items-center">
-            <div class="text-sm font-bold text-slate-700">Tổng cộng: <span id="addTotalSum" class="text-blue-600 text-lg">0</span></div>
+            <div class="text-sm font-bold text-slate-700">Tổng cộng: <span id="addTotalSum"
+                    class="text-blue-600 text-lg">0</span></div>
             <div class="flex gap-2">
-                <button onclick="closeAddDHCTForm()" class="px-5 py-2 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 font-semibold rounded-xl transition">Hủy</button>
-                <button id="saveDhctBtn" onclick="submitAddDHCTForm()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center">Lưu đơn</button>
+                <button onclick="closeAddDHCTForm()"
+                    class="px-5 py-2 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 font-semibold rounded-xl transition">Hủy</button>
+                <button id="saveDhctBtn" onclick="submitAddDHCTForm()"
+                    class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center">Lưu
+                    đơn</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offcanvas for Tong Don Details Drawer -->
+    <div id="tongdonDetailOverlay" onclick="closeTongDonDetailPanel()"
+        class="fixed inset-0 bg-slate-900/60 z-40 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+    </div>
+    <div id="tongdonDetailSidePanel"
+        class="fixed inset-0 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200 bg-slate-50/50">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">Chi Tiết Đơn Hàng</h2>
+                <div id="tdIdDhHeader"
+                    class="text-xs font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block mt-1">ID: ---</div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="tongDonEditBtn" onclick="toggleTongDonEditMode()"
+                    class="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition"
+                    title="Chỉnh sửa đơn hàng">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </button>
+                <button onclick="closeTongDonDetailPanel()"
+                    class="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+            <!-- Tóm tắt đơn hàng -->
+            <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-100 p-4 rounded-2xl space-y-3">
+                <div class="grid grid-cols-2 gap-y-3 text-sm">
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Ngày
+                            tạo</span>
+                        <span id="tdDate" class="font-semibold text-slate-700">---</span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Tổng
+                            tiền</span>
+                        <span id="tdTotal" class="font-bold text-emerald-600">---</span>
+                    </div>
+                    <div class="col-span-2 pt-2 border-t border-slate-100">
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Nhân
+                            viên</span>
+                        <span id="tdStaff" class="font-medium text-slate-700">---</span>
+                    </div>
+                    <div class="col-span-2 pt-2 border-t border-slate-100">
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Nhà phân
+                            phối</span>
+                        <span id="tdNpp" class="font-medium text-slate-700">---</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách sản phẩm -->
+            <div>
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Danh sách sản phẩm
+                </h3>
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead id="tdDetailHead">
+                            <tr
+                                class="bg-slate-50/80 border-b border-slate-200 font-bold text-slate-400 uppercase tracking-widest">
+                                <th class="px-3 py-3">Sản phẩm</th>
+                                <th class="px-3 py-3 text-right">Đơn giá</th>
+                                <th class="px-3 py-3 text-center w-12">SL</th>
+                                <th class="px-3 py-3 text-right">Tổng</th>
+                                <th id="tdActionHeader" class="px-3 py-3 text-center hidden"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tongdonDetailBody" class="divide-y divide-slate-100">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 sm:p-6 border-t border-slate-200 bg-slate-50/80 grid grid-cols-2 gap-3">
+            <button onclick="closeTongDonDetailPanel()"
+                class="w-full py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition shadow-sm">Đóng</button>
+            <button onclick="showInvoice(selectedTongDonId)"
+                class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                In Hóa Đơn
+            </button>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div id="invoiceModalContainer" class="hidden">
+        <div id="invoiceModalContent">
+            <div class="invoice-actions">
+                <button onclick="document.getElementById('invoiceModalContainer').classList.add('hidden')"
+                    class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold hover:bg-slate-300 transition">Đóng</button>
+                <button onclick="window.print()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    In Hóa Đơn (A4)
+                </button>
+            </div>
+            <div id="invoicePrintArea" class="invoice-print-area">
+                <div class="container">
+                    <div class="header-top">
+                        <div class="header-logo">
+                            <div class="logo-box"><span>TP</span></div>
+                        </div>
+                        <div class="header-center">
+                            <div class="company-info">
+                                <h1>CÔNG TY TNHH TMDV THÀNH PHI</h1>
+                                <div class="slogan">CHUYÊN PHÂN PHỐI ĐIỆN DÂN DỤNG, GIA DỤNG, THIẾT BỊ NHÀ BẾP, ĐIỆN TỬ,
+                                    ĐIỆN LẠNH</div>
+                                <div class="address"><b>Đ/c:</b> SN 11B, Ngõ 274 Đường Trần Lãm, Tổ 12, P.Trần Lãm, Tỉnh
+                                    Hưng yên</div>
+                                <div class="address"><b>Tổng kho:</b> Cụm CN Thủy Vân, Xã Vũ Quý, Tỉnh Hưng yên</div>
+                            </div>
+                        </div>
+                        <div class="header-right">
+                            <div style="margin-bottom: 4px;">Mã đơn hàng: <b id="invOrderId">---</b></div>
+                            <div style="margin-bottom: 4px;">Ngày tạo: <b id="invDate">---</b></div>
+                            <div class="bank-info">
+                                ĐT: 0988.700.805 - 0989315983<br>
+                                Số TK: 114000179298<br>
+                                VietinBank CN Thái Bình<br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-title">PHIẾU GIAO HÀNG</div>
+                    <div class="customer-section">
+                        <div>
+                            <div><span class="label">Khách hàng:</span> <b id="invCustomerName">---</b></div>
+                            <div><span class="label">Địa chỉ:</span> <span id="invCustomerAddress">---</span></div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div>Điện thoại: <b id="invCustomerPhone">---</b></div>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 5%">STT</th>
+                                <th style="width: 15%">Mã SP</th>
+                                <th style="width: 40%">Tên sản phẩm</th>
+                                <th style="width: 8%">SL</th>
+                                <th style="width: 12%">Đơn giá</th>
+                                <th style="width: 20%">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invTableBody">
+                            <!-- Rows -->
+                        </tbody>
+                    </table>
+                    <div class="payment-container">
+                        <div class="qr-section">
+                            <div class="qr-placeholder" id="invQrCode"></div>
+                        </div>
+                        <div class="totals-section">
+                            <div class="total-row"><span>Tổng số lượng:</span> <b id="invTotalQty">0</b></div>
+                            <div class="total-row font-bold"><span>Tổng tiền hàng:</span> <span
+                                    id="invSubTotal">0</span></div>
+                            <div class="total-row main-sum">
+                                <span style="font-size: 14px;">TỔNG CỘNG:</span>
+                                <span style="font-size: 16px;" id="invGrandTotal">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="money-in-words">Bằng chữ: <b id="invTotalWords">---</b></div>
+                    <div class="signatures">
+                        <div><b>Người lập</b><br>
+                            <div class="sig-space"></div>
+                        </div>
+                        <div><b>Người bán</b><br>
+                            <div class="sig-space"></div>
+                        </div>
+                        <div><b>Người mua</b><br>
+                            <div class="sig-space"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+
         // --- LOGIC CONFIG ---
         const CONFIG = {
             spreadsheetId: "111Na2Oh6-9irXa2f45gdJ5sboEVbRvqJXCaGaieZhMs",
@@ -967,15 +1607,20 @@
         let nccData = [];
         let ordersData = [];
         let filteredOrders = [];
+        let filteredTongDon = [];
 
         // Pagination State
         const ROWS_PER_PAGE = 100;
         let currentPageDHCT = 1;
+        let currentPageTongDon = 1;
         let currentPageDSSP = 1;
+        let selectedTongDonId = '';
         let currentUser = null;
         let accessToken = null;
         let tokenExpiry = 0;
         let isSidebarCollapsed = false;
+        let isTongDonEditMode = false;
+        let isAddingItemTongDon = false;
 
         // Hàm lấy giá trị an toàn để từ mảng Google Sheets tránh lỗi undefined.toString()
         const safeGet = (row, idx, fallbackIdx) => {
@@ -1013,7 +1658,7 @@
             const day = today.getDay(); // 0 (Sun) to 6 (Sat)
             const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Monday
             const monday = new Date(today.setDate(diff));
-            
+
             fromInput.value = monday.toISOString().split('T')[0];
             toInput.value = new Date().toISOString().split('T')[0];
         }
@@ -1152,6 +1797,7 @@
 
                     filteredOrders = [...ordersData];
                     populateDHCTFilters();
+                    populateTongDonFilters();
                     renderDHCTList();
                 }
             } catch (err) {
@@ -1170,13 +1816,19 @@
                     const headers = data.values[0].map(h => h ? h.toString().trim().toLowerCase() : '');
                     const iId = headers.indexOf('id');
                     const iName = headers.findIndex(h => h === 'ho_ten' || h === 'ten_npp' || h === 'tên npp' || h === 'name' || h === 'ten');
+                    const iAddr = headers.findIndex(h => h === 'dia_chi' || h === 'địa chỉ' || h === 'address');
+                    const iPhone = headers.findIndex(h => h === 'sdt' || h === 'số điện thoại' || h === 'phone');
+
                     nppData = data.values.slice(1).map(r => ({
                         id: safeGet(r, iId, 0),
-                        name: safeGet(r, iName, 1)
+                        name: safeGet(r, iName, 1),
+                        address: iAddr !== -1 ? safeGet(r, iAddr) : '',
+                        phone: iPhone !== -1 ? safeGet(r, iPhone) : ''
                     })).filter(n => n.id);
                 }
             } catch (err) { console.error("NPP Fetch Error:", err); }
         }
+
 
         async function fetchNCCData() {
             try {
@@ -1351,7 +2003,12 @@
                     'dssp': 'Danh mục sản phẩm',
                     'dhct': 'Đơn hàng chi tiết'
                 };
+                titles['tongdon'] = 'Tổng đơn';
                 headerTitle.textContent = titles[moduleName] || 'Dashboard';
+            }
+
+            if (moduleName === 'tongdon' && headerTitle) {
+                headerTitle.textContent = '\u0054\u1ed5ng \u0111\u01a1n';
             }
 
             if (moduleName === 'dashboard') {
@@ -1364,6 +2021,19 @@
                     fetchNPPData()
                 ]).then(() => {
                     updateDashboard();
+                });
+            }
+
+            if (moduleName === 'tongdon') {
+                initializeTongDonModule();
+                Promise.all([
+                    fetchOrderData(),
+                    fetchProductData(),
+                    fetchNPPData(),
+                    fetchNCCData()
+                ]).then(() => {
+                    populateTongDonFilters();
+                    filterTongDon();
                 });
             }
 
@@ -1569,6 +2239,549 @@
             });
 
             renderDHCTList();
+        }
+
+
+        // --- End of DHCT Module ---
+
+
+        function initializeTongDonModule() {
+            const navLabel = document.querySelector('#nav-tongdon .sidebar-text');
+            if (navLabel) navLabel.textContent = 'Tổng đơn';
+
+            const module = document.getElementById('module-tongdon');
+            if (!module || module.dataset.initialized === 'true') return;
+
+            module.innerHTML = `
+                <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
+                <div class="flex justify-end mb-4">
+                    <button onclick="openAddDHCTForm()"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4v16m8-8H4" />
+                        </svg>
+                        Thêm Mới
+                    </button>
+                </div>
+                <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div class="lg:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tìm kiếm nhanh</label>
+                            <input type="text" id="tongdonSearchInput" oninput="filterTongDon()"
+                                class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition"
+                                placeholder="Mã đơn, NPP, nhân viên...">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Từ ngày</label>
+                            <div class="flex items-center gap-1">
+                                <button onclick="shiftDate('tongdonFromDate', -1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                <input type="date" id="tongdonFromDate" onchange="filterTongDon()"
+                                    class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                <button onclick="shiftDate('tongdonFromDate', 1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Đến ngày</label>
+                            <div class="flex items-center gap-1">
+                                <button onclick="shiftDate('tongdonToDate', -1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">-</button>
+                                <input type="date" id="tongdonToDate" onchange="filterTongDon()"
+                                    class="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                <button onclick="shiftDate('tongdonToDate', 1)" class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Nhà phân phối</label>
+                            <select id="tongdonFilterNpp" onchange="filterTongDon()"
+                                class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                <option value="">Tất cả NPP</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Nhân viên</label>
+                            <select id="tongdonFilterNv" onchange="filterTongDon()"
+                                class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                <option value="">Tất cả NV</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-4">
+                        <h3 class="font-bold text-slate-800">Danh sách tổng đơn unique</h3>
+                        <div class="text-sm text-slate-500">Tổng đơn: <span id="tongdonCount" class="font-bold text-emerald-600">0</span></div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
+                                    <th class="px-4 py-3">ID ĐH</th>
+                                    <th class="px-4 py-3">Ngày</th>
+                                    <th class="px-4 py-3">Nhân viên</th>
+                                    <th class="px-4 py-3">NPP</th>
+                                    <th class="px-4 py-3 text-right">Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tongdonTableBody" class="divide-y divide-slate-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+                <div id="tongdonPagination" class="flex items-center justify-center gap-2 mb-6"></div>
+            `;
+
+            module.dataset.initialized = 'true';
+        }
+
+        function populateTongDonFilters() {
+            const nppIds = new Set();
+            const nvIds = new Set();
+            ordersData.forEach(o => {
+                if (o.npp) nppIds.add(o.npp);
+                if (o.id_nv) nvIds.add(o.id_nv);
+            });
+
+            const nppSelect = document.getElementById('tongdonFilterNpp');
+            const nvSelect = document.getElementById('tongdonFilterNv');
+
+            if (nppSelect) {
+                nppSelect.innerHTML = '<option value="">Tất cả NPP</option>';
+                [...nppIds].sort().forEach(id => {
+                    const info = nppData.find(n => n.id === id);
+                    const displayName = info ? `${id} - ${info.name}` : id;
+                    nppSelect.innerHTML += `<option value="${id}">${displayName}</option>`;
+                });
+            }
+
+            if (nvSelect) {
+                nvSelect.innerHTML = '<option value="">Tất cả NV</option>';
+                [...nvIds].sort().forEach(id => {
+                    const info = usersData.find(u => u.id === id);
+                    const displayName = info ? `${id} - ${info.name}` : id;
+                    nvSelect.innerHTML += `<option value="${id}">${displayName}</option>`;
+                });
+            }
+        }
+
+        function getUniqueTongDonData(sourceData) {
+            const totalByOrderId = {};
+            sourceData.forEach(o => {
+                const amount = parseFloat(o.total) || 0;
+                totalByOrderId[o.id_dh] = (totalByOrderId[o.id_dh] || 0) + amount;
+            });
+
+            const uniqueMap = new Map();
+            sourceData.forEach(o => {
+                const key = [o.id_dh || '', o.date || '', o.id_nv || '', o.npp || ''].join('||');
+                if (!uniqueMap.has(key)) {
+                    uniqueMap.set(key, {
+                        id_dh: o.id_dh || '',
+                        date: o.date || '',
+                        id_nv: o.id_nv || '',
+                        npp: o.npp || '',
+                        total_amount: totalByOrderId[o.id_dh] || 0
+                    });
+                }
+            });
+            return Array.from(uniqueMap.values());
+        }
+
+        function renderTongDonDetails(idDh) {
+            const detailBody = document.getElementById('tongdonDetailBody');
+            if (!detailBody) return;
+
+            // Fetch order summary for header
+            const summary = filteredTongDon.find(o => o.id_dh === idDh);
+            if (summary) {
+                const staff = usersData.find(u => u.id === summary.id_nv);
+                const nppInfo = nppData.find(n => n.id === summary.npp);
+
+                document.getElementById('tdIdDhHeader').textContent = `ID: ${summary.id_dh}`;
+                document.getElementById('tdDate').textContent = summary.date;
+                document.getElementById('tdTotal').textContent = (summary.total_amount || 0).toLocaleString('vi-VN') + ' đ';
+                document.getElementById('tdStaff').textContent = staff ? `${summary.id_nv} - ${staff.name}` : summary.id_nv;
+                document.getElementById('tdNpp').textContent = nppInfo ? `${summary.npp} - ${nppInfo.name}` : summary.npp;
+            }
+
+            const detailRows = ordersData
+                .filter(o => o.id_dh === idDh)
+                .sort((a, b) => (a.id_sp || '').localeCompare(b.id_sp || ''));
+
+            if (isTongDonEditMode) {
+                document.getElementById('tdActionHeader').classList.remove('hidden');
+            } else {
+                document.getElementById('tdActionHeader').classList.add('hidden');
+            }
+
+            if (detailRows.length === 0) {
+                detailBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-4 py-8 text-center text-slate-400 italic">Không có dữ liệu chi tiết.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            detailBody.innerHTML = '';
+            detailRows.forEach(o => {
+                const product = productsData.find(p => p.id === o.id_sp);
+                const productName = product ? product.name : o.id_sp;
+                const rowId = o.id;
+
+                let actionHtml = '';
+                let qtyCell = o.qty || 0;
+                let priceCell = (parseFloat(o.price) || 0).toLocaleString('vi-VN');
+
+                if (isTongDonEditMode && !isAddingItemTongDon) {
+                    actionHtml = `
+                        <td class="px-3 py-3 text-center">
+                            <button onclick="deleteDHCTItem('${rowId}')" class="text-red-400 hover:text-red-600 transition" title="Xóa">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    qtyCell = `<input type="number" value="${o.qty}" onchange="updateDHCTItem('${rowId}', 'qty', this.value)" class="w-16 px-1 py-1 border border-blue-200 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none">`;
+                    priceCell = `<input type="number" value="${o.price}" onchange="updateDHCTItem('${rowId}', 'price', this.value)" class="w-24 px-1 py-1 border border-blue-200 rounded text-right focus:ring-1 focus:ring-blue-500 outline-none">`;
+                }
+
+                detailBody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-3 py-3">
+                            <div class="font-bold text-slate-700">${productName}</div>
+                            <div class="text-[10px] font-mono text-slate-400">${o.id_sp || ''}</div>
+                        </td>
+                        <td class="px-3 py-3 text-right text-slate-600">${priceCell}</td>
+                        <td class="px-3 py-3 text-center font-bold text-slate-700">${qtyCell}</td>
+                        <td class="px-3 py-3 text-right font-bold text-blue-600">${(parseFloat(o.total) || 0).toLocaleString('vi-VN')}</td>
+                        ${actionHtml}
+                    </tr>
+                `;
+            });
+
+            if (isAddingItemTongDon) {
+                const productOptions = productsData.map(p => `<option value="${p.id}">${p.id} - ${p.name}</option>`).join('');
+                detailBody.innerHTML += `
+                    <tr class="bg-blue-50/50 border-y-2 border-blue-100">
+                        <td class="px-3 py-3">
+                            <select id="inlineAddIdSp" onchange="onInlineAddProductChange()" class="w-full text-xs p-1 border border-blue-300 rounded focus:ring-1 focus:ring-blue-500 outline-none">
+                                <option value="">-- Chọn sản phẩm --</option>
+                                ${productOptions}
+                            </select>
+                        </td>
+                        <td class="px-3 py-3 text-right">
+                            <input type="number" id="inlineAddPrice" value="0" oninput="updateInlineAddTotal()" class="w-24 px-1 py-1 border border-blue-300 rounded text-right text-xs focus:ring-1 focus:ring-blue-500 outline-none">
+                        </td>
+                        <td class="px-3 py-3 text-center">
+                            <input type="number" id="inlineAddQty" value="1" oninput="updateInlineAddTotal()" class="w-16 px-1 py-1 border border-blue-300 rounded text-center text-xs focus:ring-1 focus:ring-blue-500 outline-none">
+                        </td>
+                        <td class="px-3 py-3 text-right font-bold text-blue-600" id="inlineAddTotalVal">0</td>
+                        <td class="px-3 py-3 text-center flex items-center justify-center gap-1">
+                            <button onclick="confirmAddDHCTItemInline()" class="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition" title="Xác nhận">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                            <button onclick="cancelAddDHCTItemInline()" class="p-1 text-red-500 hover:bg-red-50 rounded transition" title="Hủy">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (isTongDonEditMode) {
+                detailBody.innerHTML += `
+                    <tr>
+                        <td colspan="5" class="px-3 py-4 text-center">
+                            <button onclick="openAddProductToExistingOrder()" 
+                                class="w-full py-2 border-2 border-dashed border-blue-200 rounded-xl text-blue-500 hover:border-blue-400 hover:bg-blue-50 transition font-bold flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Thêm sản phẩm mới vào đơn này
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function toggleTongDonEditMode() {
+            isTongDonEditMode = !isTongDonEditMode;
+            const btn = document.getElementById('tongDonEditBtn');
+            if (isTongDonEditMode) {
+                btn.classList.add('text-blue-600', 'bg-blue-50');
+            } else {
+                btn.classList.remove('text-blue-600', 'bg-blue-50');
+            }
+            renderTongDonDetails(selectedTongDonId);
+        }
+
+        async function deleteDHCTItem(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi đơn hàng?')) return;
+            const idx = ordersData.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                ordersData.splice(idx, 1);
+                // Update filtered data if needed, but renderTongDonDetails uses ordersData directly filtered by idDh
+                await syncOrdersToGoogleSheets();
+                // We need to re-calculate the total in filteredTongDon for this idDh
+                const idDh = selectedTongDonId;
+                const items = ordersData.filter(o => o.id_dh === idDh);
+                const newTotal = items.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+                const tongDonIdx = filteredTongDon.findIndex(o => o.id_dh === idDh);
+                if (tongDonIdx !== -1) filteredTongDon[tongDonIdx].total_amount = newTotal;
+
+                renderTongDonDetails(idDh);
+                renderTongDonList(); // Update the main list total
+                alert('Đã xóa sản phẩm.');
+            }
+        }
+
+        async function updateDHCTItem(id, field, value) {
+            const idx = ordersData.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                const item = ordersData[idx];
+                item[field] = value;
+                // Re-calculate total for this row
+                const price = parseFloat(item.price) || 0;
+                const qty = parseFloat(item.qty) || 0;
+                item.total = price * qty;
+
+                await syncOrdersToGoogleSheets();
+
+                // Re-calculate total for the whole order
+                const idDh = selectedTongDonId;
+                const items = ordersData.filter(o => o.id_dh === idDh);
+                const newTotal = items.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+                const tongDonIdx = filteredTongDon.findIndex(o => o.id_dh === idDh);
+                if (tongDonIdx !== -1) filteredTongDon[tongDonIdx].total_amount = newTotal;
+
+                renderTongDonDetails(idDh);
+                renderTongDonList();
+            }
+        }
+
+        function openAddProductToExistingOrder() {
+            const idDh = selectedTongDonId;
+            if (!idDh) return;
+            isAddingItemTongDon = true;
+            renderTongDonDetails(idDh);
+        }
+
+        function onInlineAddProductChange() {
+            const select = document.getElementById('inlineAddIdSp');
+            const productId = select.value;
+            const product = productsData.find(p => p.id === productId);
+            const priceInput = document.getElementById('inlineAddPrice');
+            if (product && priceInput) {
+                priceInput.value = product.price || 0;
+            }
+            updateInlineAddTotal();
+        }
+
+        function updateInlineAddTotal() {
+            const price = parseFloat(document.getElementById('inlineAddPrice').value) || 0;
+            const qty = parseFloat(document.getElementById('inlineAddQty').value) || 0;
+            const total = price * qty;
+            const totalEl = document.getElementById('inlineAddTotalVal');
+            if (totalEl) {
+                totalEl.textContent = total.toLocaleString('vi-VN');
+            }
+        }
+
+        function cancelAddDHCTItemInline() {
+            isAddingItemTongDon = false;
+            renderTongDonDetails(selectedTongDonId);
+        }
+
+        async function confirmAddDHCTItemInline() {
+            const idDh = selectedTongDonId;
+            const productId = document.getElementById('inlineAddIdSp').value;
+            const price = parseFloat(document.getElementById('inlineAddPrice').value) || 0;
+            const qty = parseFloat(document.getElementById('inlineAddQty').value) || 0;
+
+            if (!productId) {
+                alert('Vui lòng chọn sản phẩm.');
+                return;
+            }
+
+            const summary = filteredTongDon.find(o => o.id_dh === idDh);
+            if (!summary) return;
+
+            // Generate Max ID
+            let maxId = 0;
+            ordersData.forEach(o => {
+                const numericId = parseInt(o.id.replace(/\D/g, ''));
+                if (!isNaN(numericId) && numericId > maxId) maxId = numericId;
+            });
+            maxId++;
+            const newId = `DHCT-${maxId.toString().padStart(5, '0')}`;
+
+            const newRecord = {
+                id: newId,
+                id_dh: idDh,
+                date: summary.date,
+                id_sp: productId,
+                price: price,
+                qty: qty,
+                total: price * qty,
+                id_nv: summary.id_nv,
+                npp: summary.npp,
+                ncc: ""
+            };
+
+            ordersData.push(newRecord);
+            await syncOrdersToGoogleSheets();
+
+            // Refresh totals
+            const items = ordersData.filter(o => o.id_dh === idDh);
+            const newTotal = items.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+            const tongDonIdx = filteredTongDon.findIndex(o => o.id_dh === idDh);
+            if (tongDonIdx !== -1) filteredTongDon[tongDonIdx].total_amount = newTotal;
+
+            isAddingItemTongDon = false;
+            renderTongDonDetails(idDh);
+            renderTongDonList();
+        }
+
+        function openTongDonDetailPanel(idDh) {
+            renderTongDonDetails(idDh);
+            const panel = document.getElementById('tongdonDetailSidePanel');
+            const overlay = document.getElementById('tongdonDetailOverlay');
+            if (panel && overlay) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    panel.classList.remove('translate-x-full');
+                }, 10);
+            }
+        }
+
+        function closeTongDonDetailPanel() {
+            const panel = document.getElementById('tongdonDetailSidePanel');
+            const overlay = document.getElementById('tongdonDetailOverlay');
+            if (panel && overlay) {
+                panel.classList.add('translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    // Reset selected state visually only when closing
+                    selectedTongDonId = '';
+                    isTongDonEditMode = false;
+                    isAddingItemTongDon = false;
+                    renderTongDonList();
+                }, 300);
+            }
+        }
+
+        function selectTongDon(idDh) {
+            selectedTongDonId = idDh || '';
+            renderTongDonList();
+            if (selectedTongDonId) {
+                openTongDonDetailPanel(selectedTongDonId);
+            }
+        }
+
+        function renderTongDonList(dataToRender = null) {
+            let data = dataToRender || filteredTongDon;
+            const tableBody = document.getElementById('tongdonTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+            document.getElementById('tongdonCount').textContent = data.length.toLocaleString('vi-VN');
+
+            if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">Không tìm thấy đơn nào.</td></tr>`;
+                document.getElementById('tongdonPagination').innerHTML = '';
+                renderTongDonDetails('');
+                return;
+            }
+
+            data.sort((a, b) => parseDate(b.date) - parseDate(a.date));
+
+            const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+            if (currentPageTongDon > totalPages) currentPageTongDon = 1;
+
+            const start = (currentPageTongDon - 1) * ROWS_PER_PAGE;
+            const slicedData = data.slice(start, start + ROWS_PER_PAGE);
+
+            slicedData.forEach(o => {
+                const staff = usersData.find(u => u.id === o.id_nv);
+                const staffName = staff ? `${o.id_nv} - ${staff.name}` : o.id_nv;
+                const nppInfo = nppData.find(n => n.id === o.npp);
+                const nppName = nppInfo ? `${o.npp} - ${nppInfo.name}` : o.npp;
+                const isSelected = selectedTongDonId === o.id_dh;
+                const safeIdDh = o.id_dh.replace(/'/g, "\\'"); // Thoát dấu nháy đơn
+
+                tableBody.innerHTML += `
+                    <tr onclick="selectTongDon('${safeIdDh}')" 
+                        class="cursor-pointer transition-all text-xs ${isSelected ? 'bg-emerald-50 border-l-4 border-emerald-500 shadow-inner' : 'hover:bg-slate-50 border-l-4 border-transparent'}">
+                        <td class="px-4 py-3 font-medium ${isSelected ? 'text-emerald-700' : 'text-slate-900'}">${o.id_dh}</td>
+                        <td class="px-4 py-3 text-slate-500">${o.date}</td>
+                        <td class="px-4 py-3 text-slate-600">${staffName}</td>
+                        <td class="px-4 py-3 text-slate-600">${nppName}</td>
+                        <td class="px-4 py-3 text-right font-bold text-emerald-600">${(o.total_amount || 0).toLocaleString('vi-VN')}</td>
+                    </tr>
+                `;
+            });
+
+            renderPaginationControls('tongdonPagination', totalPages, currentPageTongDon, (page) => {
+                currentPageTongDon = page;
+                renderTongDonList();
+            });
+
+            const stillVisible = data.some(o => o.id_dh === selectedTongDonId);
+            renderTongDonDetails(stillVisible ? selectedTongDonId : '');
+        }
+
+        function filterTongDon() {
+            currentPageTongDon = 1;
+            const q = (document.getElementById('tongdonSearchInput')?.value || '').toLowerCase();
+            const fromStr = document.getElementById('tongdonFromDate')?.value || '';
+            const toStr = document.getElementById('tongdonToDate')?.value || '';
+            const filterNpp = document.getElementById('tongdonFilterNpp')?.value || '';
+            const filterNv = document.getElementById('tongdonFilterNv')?.value || '';
+
+            const baseData = ordersData.filter(o => {
+                const isKD = currentUser && currentUser.role && currentUser.role.trim().toLowerCase() === 'kd';
+                if (isKD && o.id_nv !== currentUser.id) return false;
+
+                let itemDate = parseDate(o.date);
+                if (itemDate) itemDate.setHours(0, 0, 0, 0);
+
+                let matches = true;
+                if (fromStr) {
+                    const start = new Date(fromStr);
+                    start.setHours(0, 0, 0, 0);
+                    matches = matches && itemDate >= start;
+                }
+                if (toStr) {
+                    const end = new Date(toStr);
+                    end.setHours(0, 0, 0, 0);
+                    matches = matches && itemDate <= end;
+                }
+
+                if (filterNpp && o.npp !== filterNpp) matches = false;
+                if (filterNv && o.id_nv !== filterNv) matches = false;
+
+                if (q) {
+                    const rowStr = `${o.id_dh} ${o.npp} ${o.id_nv} ${o.date}`.toLowerCase();
+                    if (!rowStr.includes(q)) matches = false;
+                }
+
+                return matches;
+            });
+
+            filteredTongDon = getUniqueTongDonData(baseData);
+            if (!filteredTongDon.some(o => o.id_dh === selectedTongDonId)) {
+                selectedTongDonId = filteredTongDon[0]?.id_dh || '';
+            }
+            renderTongDonList();
         }
 
         function downloadDHCTTemplate() {
@@ -1949,6 +3162,7 @@
 
             // Aggregates
             let totalRev = 0;
+            const uniqueOrders = new Set();
             const staffRev = {};
             const nppRev = {};
             const dateRev = {};
@@ -1956,6 +3170,7 @@
             filtered.forEach(o => {
                 const amount = parseFloat(o.total) || 0;
                 totalRev += amount;
+                uniqueOrders.add([o.id_dh || '', o.date || '', o.id_nv || '', o.npp || ''].join('||'));
 
                 // Staff lookup name
                 const staffInfo = usersData.find(u => u.id === o.id_nv);
@@ -1973,6 +3188,7 @@
 
             // Update UI
             document.getElementById('dashTotalRevenue').textContent = totalRev.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('dashTotalOrders').textContent = uniqueOrders.size.toLocaleString('vi-VN');
 
             // Render tables helper
             const renderDashTable = (id, obj, sortType = 'value') => {
@@ -2227,9 +3443,9 @@
         function onAddIdSpChange(id) {
             const spId = document.getElementById(`addIdSp_${id}`).value.trim();
             const p = productsData.find(x => x.id === spId);
-            if(p && p.price) {
+            if (p && p.price) {
                 document.getElementById(`addPrice_${id}`).value = p.price;
-            } else if(!spId) {
+            } else if (!spId) {
                 document.getElementById(`addPrice_${id}`).value = '';
             }
             calcAddTotal(id);
@@ -2240,6 +3456,103 @@
             const qty = parseFloat(document.getElementById(`addQty_${id}`).value) || 0;
             document.getElementById(`addTotal_${id}`).value = price * qty;
             updateTotalSum();
+        }
+
+        function handleOrderIdLookup() {
+            const idDh = document.getElementById('addDhId').value.trim();
+            if (!idDh) return;
+
+            const existingItems = ordersData.filter(o => o.id_dh === idDh);
+            if (existingItems.length > 0) {
+                showToast(`Đã tìm thấy đơn hàng cũ (${idDh}), đang tải dữ liệu...`, 'info');
+
+                const first = existingItems[0];
+
+                // Populate Master Info
+                document.getElementById('addDate').value = formatDateForInput(first.date);
+                document.getElementById('addIdNv').value = first.id_nv || '';
+                document.getElementById('addNpp').value = first.npp || '';
+
+                // Clear and Populate Products
+                document.getElementById('dhctProductList').innerHTML = '';
+                productRowIndex = 0;
+
+                existingItems.forEach(item => {
+                    addDHCTProductRow();
+                    const currentRowId = productRowIndex;
+                    document.getElementById(`addIdSp_${currentRowId}`).value = item.id_sp;
+                    document.getElementById(`addPrice_${currentRowId}`).value = item.price;
+                    document.getElementById(`addQty_${currentRowId}`).value = item.qty;
+                    calcAddTotal(currentRowId);
+                });
+
+                updateTotalSum();
+            } else {
+                // If ID not found, reset form except the ID field
+                const today = new Date();
+                document.getElementById('addDate').value = today.toISOString().split('T')[0];
+                document.getElementById('addIdNv').value = currentUser ? currentUser.id : '';
+                document.getElementById('addNpp').value = '';
+
+                document.getElementById('dhctProductList').innerHTML = '';
+                productRowIndex = 0;
+                addDHCTProductRow();
+            }
+        }
+
+        function generateUniqueOrderId() {
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let result = '';
+            let isUnique = false;
+
+            while (!isUnique) {
+                result = '';
+                for (let i = 0; i < 8; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                // Check uniqueness in ordersData
+                const exists = ordersData.some(o => o.id_dh === result);
+                if (!exists) isUnique = true;
+            }
+            return result;
+        }
+
+        function formatDateForInput(dateStr) {
+            if (!dateStr) return '';
+            // Expecting dd/mm/yyyy
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-2xl shadow-2xl z-[100] transform transition-all duration-300 translate-y-20 opacity-0 flex items-center gap-3 font-semibold text-sm`;
+
+            const bgColor = type === 'info' ? 'bg-blue-600 text-white' : 'bg-emerald-600 text-white';
+            toast.classList.add(...bgColor.split(' '));
+
+            toast.innerHTML = `
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ${message}
+            `;
+
+            document.body.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-20', 'opacity-0');
+            }, 10);
+
+            // Animate out
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         function updateTotalSum() {
@@ -2261,7 +3574,7 @@
             // Initial fields setup
             const today = new Date();
             document.getElementById('addDate').value = today.toISOString().split('T')[0];
-            document.getElementById('addDhId').value = '';
+            document.getElementById('addDhId').value = generateUniqueOrderId();
             document.getElementById('addNcc').value = '';
 
             // Populate NV select
@@ -2272,6 +3585,15 @@
             // Populate NPP select
             const nppSelect = document.getElementById('addNpp');
             nppSelect.innerHTML = '<option value="">-- Chọn NPP --</option>' + nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+
+            // Reset ReadOnly/Disabled states
+            const masterFields = ['addDhId', 'addDate', 'addIdNv', 'addNpp'];
+            masterFields.forEach(id => {
+                const el = document.getElementById(id);
+                el.readOnly = false;
+                el.disabled = false;
+                el.classList.remove('bg-slate-100', 'text-slate-400');
+            });
 
             // Reset Products List
             document.getElementById('dhctProductList').innerHTML = '';
@@ -2299,7 +3621,7 @@
 
                 const container = document.getElementById('dhctProductList');
                 const rowDivs = container.querySelectorAll('[id^="dhctRow_"]');
-                
+
                 if (rowDivs.length === 0) {
                     alert('Vui lòng thêm ít nhất 1 sản phẩm.');
                     return;
@@ -2370,12 +3692,25 @@
                 btn.innerHTML = '<div class="spinner w-4 h-4 border-2 border-white border-t-transparent mr-2 block" style="margin:0;"></div> Đang lưu...';
                 btn.disabled = true;
 
+                // Handle Overwrite: Remove existing entries with the same final_id_dh
+                const oldLength = ordersData.length;
+                ordersData = ordersData.filter(o => o.id_dh !== final_id_dh);
+                if (ordersData.length < oldLength) {
+                    console.log(`Overwriting existing order ${final_id_dh}`);
+                }
+
                 // Push new entries to ordersData
                 newOrdersList.forEach(order => ordersData.push(order));
                 filterDHCT(); // Re-render table
 
+                // If we were adding to an existing order being viewed, refresh details
+                if (selectedTongDonId === final_id_dh) {
+                    renderTongDonDetails(final_id_dh);
+                    renderTongDonList();
+                }
+
                 await syncOrdersToGoogleSheets();
-                
+
                 alert(`Thêm mới thành công ${newOrdersList.length} sản phẩm vào đơn ${final_id_dh}!`);
                 closeAddDHCTForm();
             } catch (err) {
@@ -2390,7 +3725,135 @@
             }
         }
 
-        // Init
+
+        // --- INVOICE LOGIC ---
+
+        function docSoThanhChu(number) {
+            const ChuSo = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+            const Tien = ["", " nghìn", " triệu", " tỷ", " nghìn tỷ", " triệu tỷ"];
+
+            function DocSo3ChuSo(baso) {
+                let trăm = Math.floor(baso / 100);
+                let chục = Math.floor((baso % 100) / 10);
+                let đơnvị = baso % 10;
+                let KetQua = "";
+                if (trăm == 0 && chục == 0 && đơnvị == 0) return "";
+                if (trăm != 0) {
+                    KetQua += ChuSo[trăm] + " trăm ";
+                    if ((chục == 0) && (đơnvị != 0)) KetQua += "lẻ ";
+                }
+                if ((chục != 0) && (chục != 1)) {
+                    KetQua += ChuSo[chục] + " mươi ";
+                    if ((chục == 0) && (đơnvị != 0)) KetQua = KetQua + "lẻ ";
+                }
+                if (chục == 1) KetQua += "mười ";
+                switch (đơnvị) {
+                    case 1:
+                        if ((chục != 0) && (chục != 1)) KetQua += "mốt ";
+                        else KetQua += ChuSo[đơnvị] + " ";
+                        break;
+                    case 5:
+                        if (chục == 0) KetQua += ChuSo[đơnvị] + " ";
+                        else KetQua += "lăm ";
+                        break;
+                    default:
+                        if (đơnvị != 0) KetQua += ChuSo[đơnvị] + " ";
+                        break;
+                }
+                return KetQua;
+            }
+
+            if (number == 0) return "Không đồng";
+            if (number < 0) return "Số tiền âm";
+            let str = "";
+            let i = 0;
+            let so = number;
+            while (so > 0) {
+                let v = so % 1000;
+                if (v > 0) {
+                    let tam = DocSo3ChuSo(v);
+                    str = tam + Tien[i] + " " + str;
+                }
+                so = Math.floor(so / 1000);
+                i++;
+            }
+            str = str.trim();
+            if (str.length > 0) {
+                str = str.charAt(0).toUpperCase() + str.slice(1);
+            }
+            return str + " đồng chẵn.";
+        }
+
+        function showInvoice(idDh) {
+            if (!idDh) return alert("Không tìm thấy ID đơn hàng");
+
+            // Lấy thông tin tổng quát
+            const items = ordersData.filter(o => o.id_dh === idDh);
+            if (items.length === 0) return alert("Không tìm thấy dữ liệu cho đơn hàng này");
+
+            const first = items[0];
+            const summary = filteredTongDon.find(o => o.id_dh === idDh) || {
+                date: first.date,
+                id_nv: first.id_nv,
+                npp: first.npp,
+                total_amount: items.reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0)
+            };
+
+            const nppInfo = nppData.find(n => n.id === summary.npp) || { name: summary.npp, address: '---', phone: '---' };
+
+            // Hiển thị Header
+            document.getElementById('invOrderId').textContent = idDh;
+            document.getElementById('invDate').textContent = summary.date;
+
+            // Hiển thị Khách hàng
+            document.getElementById('invCustomerName').textContent = nppInfo.name.toUpperCase();
+            document.getElementById('invCustomerAddress').textContent = nppInfo.address || '---';
+            document.getElementById('invCustomerPhone').textContent = nppInfo.phone || '---';
+
+            // Hiển thị Table
+            const tableBody = document.getElementById('invTableBody');
+            tableBody.innerHTML = '';
+            let totalQty = 0;
+
+            items.forEach((o, index) => {
+                const prod = productsData.find(p => p.id === o.id_sp) || { name: o.id_sp, module: '' };
+                const qty = parseInt(o.qty) || 0;
+                const price = parseFloat(o.price) || 0;
+                const total = parseFloat(o.total) || 0;
+                totalQty += qty;
+
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${o.id_sp}</td>
+                        <td style="text-align: left; padding-left: 5px;">${prod.name}</td>
+                        <td>${qty}</td>
+                        <td style="text-align: right;">${price.toLocaleString('vi-VN')}</td>
+                        <td style="text-align: right;">${total.toLocaleString('vi-VN')}</td>
+                    </tr>
+                `;
+            });
+
+            // Tổng kết
+            const grandTotal = summary.total_amount || 0;
+            document.getElementById('invTotalQty').textContent = totalQty;
+            document.getElementById('invSubTotal').textContent = grandTotal.toLocaleString('vi-VN');
+            document.getElementById('invGrandTotal').textContent = grandTotal.toLocaleString('vi-VN');
+            document.getElementById('invTotalWords').textContent = docSoThanhChu(grandTotal);
+
+            // Cập nhật QR Code
+            const qrContainer = document.getElementById('invQrCode');
+            qrContainer.innerHTML = `<img src="https://img.vietqr.io/image/970415-114000179298-qr_only.png" style="max-height: 100%; border-radius: 4px;">`;
+
+            // Hiển thị Modal
+            document.getElementById('invoiceModalContainer').classList.remove('hidden');
+        }
+
+        function printCurrentInvoice() {
+            window.print();
+        }
+
+
         window.addEventListener('load', async () => {
             const savedSession = localStorage.getItem('erp_user_session');
             if (savedSession) {
