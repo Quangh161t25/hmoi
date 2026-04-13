@@ -1083,8 +1083,8 @@
                 <!-- Module: DHCT -->
                 <div id="module-dhct" class="hidden">
                     <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
-                    <div class="flex justify-end mb-4">
-                        <button onclick="openAddDHCTForm()"
+                    <div class="hidden justify-end mb-4">
+                        <button onclick="openAddDHCTForm()" id="btn-add-dhct"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1210,8 +1210,8 @@
                 <!-- Module: Tong Don -->
                 <div id="module-tongdon" class="hidden">
                     <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
-                    <div class="flex justify-end mb-4">
-                        <button onclick="openAddDHCTForm()"
+                    <div class="hidden justify-end mb-4">
+                        <button onclick="openAddDHCTForm()" id="btn-add-tongdon"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -2035,6 +2035,13 @@
                     populateTongDonFilters();
                     filterTongDon();
                 });
+                const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+                const btnAddTongDon = document.getElementById('btn-add-tongdon');
+                if (btnAddTongDon) btnAddTongDon.style.display = 'none';
+                const btnAddTongDonJs = document.getElementById('btn-add-tongdon-js');
+                if (btnAddTongDonJs) btnAddTongDonJs.style.display = 'none';
+                const editBtn = document.getElementById('tongDonEditBtn');
+                if (editBtn) editBtn.style.display = isAdmin ? '' : 'none';
             }
 
             // Permission Check for DSNV Admin Actions
@@ -2091,6 +2098,8 @@
                         dhctAdminActions.classList.remove('flex');
                     }
                 }
+                const btnAddDhct = document.getElementById('btn-add-dhct');
+                if (btnAddDhct) btnAddDhct.style.display = 'none';
 
                 // Fetch all dependencies for lookups
                 Promise.all([
@@ -2254,8 +2263,8 @@
 
             module.innerHTML = `
                 <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
-                <div class="flex justify-end mb-4">
-                    <button onclick="openAddDHCTForm()"
+                <div class="hidden justify-end mb-4">
+                    <button onclick="openAddDHCTForm()" id="btn-add-tongdon-js"
                         class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -2512,6 +2521,8 @@
         }
 
         function toggleTongDonEditMode() {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert("Chỉ có admin mới được quyền sửa đơn hàng!");
             isTongDonEditMode = !isTongDonEditMode;
             const btn = document.getElementById('tongDonEditBtn');
             if (isTongDonEditMode) {
@@ -2523,6 +2534,8 @@
         }
 
         async function deleteDHCTItem(id) {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert("Chỉ có admin mới được quyền xóa đơn hàng!");
             if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi đơn hàng?')) return;
             const idx = ordersData.findIndex(o => o.id === id);
             if (idx !== -1) {
@@ -2543,6 +2556,8 @@
         }
 
         async function updateDHCTItem(id, field, value) {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert("Chỉ có admin mới được quyền sửa đơn hàng!");
             const idx = ordersData.findIndex(o => o.id === id);
             if (idx !== -1) {
                 const item = ordersData[idx];
@@ -3566,6 +3581,8 @@
         }
 
         function openAddDHCTForm() {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert('Chỉ có admin mới được quyền thêm mới!');
             document.getElementById('dhctAddSidePanel').classList.remove('translate-x-full');
             const overlay = document.getElementById('dhctAddOverlay');
             overlay.classList.remove('hidden');
