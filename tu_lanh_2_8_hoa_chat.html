@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Theo Dõi Nhiệt Độ Tủ Lạnh 2-8°C - Bệnh Viện Nhi Đồng 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background: transparent;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            section {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            border: 1px solid #333;
+            padding: 2px;
+            text-align: center;
+            font-size: 11px;
+            height: 26px;
+            vertical-align: middle;
+        }
+
+        .header-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px 0;
+            text-transform: uppercase;
+        }
+
+        .td-name {
+            font-size: 9px;
+            line-height: 1.1;
+            word-break: break-all;
+        }
+
+        .mark {
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 p-4 font-sans text-xs">
+
+    <div class="max-w-5xl mx-auto space-y-12" id="print-container">
+        <!-- JS sẽ inject HTML vào đây -->
+    </div>
+
+    <div class="no-print fixed bottom-4 right-4 flex gap-4">
+        <button onclick="window.print()"
+            class="bg-blue-600 text-white px-6 py-2 rounded-full shadow-lg hover:bg-blue-700 transition font-bold">
+            🖨️ In Phiếu
+        </button>
+    </div>
+
+    <script>
+        // Lấy dữ liệu từ URL truyền vào (vd: ?thang=03/2026&data=1S3_ADMIN|... hoặc ?1S3_ADMIN|...)
+        const urlParams = new URLSearchParams(window.location.search);
+        let rawData = urlParams.get('data');
+        let thangNam = urlParams.get('thang');
+
+        // Nếu không dùng tham số data=, lấy thẳng từ chuỗi query
+        if (!rawData && window.location.search.length > 1 && !window.location.search.includes('=')) {
+            rawData = decodeURIComponent(window.location.search.substring(1));
+        }
+
+        // Mặc định chuỗi rỗng nếu không có link truyền vào
+        rawData = rawData || "";
+        thangNam = thangNam || "...../2026";
+
+        // Hàm phân tích dữ liệu
+        const items = rawData.split('|');
+        const dataMap = {};
+
+        items.forEach(item => {
+            if (!item) return;
+            // Pattern: [Ngày][S/C][Nhiệt độ]_[Người ký] (vd: 1S3_ADMIN)
+            const match = item.match(/^(\d+)([SC])([^_]+)_(.+)$/i);
+            if (match) {
+                const day = parseInt(match[1]);
+                const session = match[2].toUpperCase(); // S hoặc C
+                const temp = match[3];
+                const admin = match[4];
+
+                if (!dataMap[day]) dataMap[day] = {};
+                dataMap[day][session] = { temp, admin };
+            }
+        });
+
+        // Thiết lập 2 trang (Trang 1: 1-15, Trang 2: 16-31)
+        const pages = [
+            { start: 1, end: 15 },
+            { start: 16, end: 31 }
+        ];
+
+        let htmlContent = '';
+
+        pages.forEach((page, pageIndex) => {
+            // Kiểm tra xem trang có dữ liệu không
+            let hasData = false;
+            for (let d = page.start; d <= page.end; d++) {
+                if (dataMap[d]) hasData = true;
+            }
+            if (pageIndex > 0 && !hasData) return; // Bỏ qua trang 2 nếu không có dữ liệu
+
+            htmlContent += `
+            <section class="bg-white p-6 shadow-lg rounded-lg border border-gray-200 ${pageIndex > 0 ? 'page-break mt-8' : ''}">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-bold">Bệnh viện Nhi Đồng 1</h3>
+                        <p class="text-sm">Ban QLCLXN</p>
+                        <p class="text-sm font-semibold">Khoa Xét nghiệm Huyết Học</p>
+                    </div>
+                    <div class="text-right text-xs">
+                        <p></p>
+                        <p></p>
+                    </div>
+                </div>
+
+                <h1 class="header-title">PHIẾU THEO DÕI NHIỆT ĐỘ TỦ LẠNH TRỮ HÓA CHẤT 2-8°C <br><span class="text-sm font-normal">(Trang ${pageIndex + 1})</span></h1>
+
+                <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                    <p><strong>Loại tủ:</strong> SANYO MAR 304</p>
+                    <p><strong>Mã thiết bị:</strong> Hem...008</p>
+                    <p><strong>Mã nhiệt kế:</strong> -010</p>
+                    <p><strong>Tháng/Năm:</strong> ${thangNam}</p>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th rowspan="2" class="w-16">Nhiệt độ</th>
+                            <th colspan="${(page.end - page.start + 1) * 2}" class="font-bold">Ngày trong tháng (${page.start} - ${page.end})</th>
+                        </tr>
+                        <tr class="bg-gray-100">`;
+
+            for (let d = page.start; d <= page.end; d++) {
+                htmlContent += `<th colspan="2" class="w-12">${d}</th>`;
+            }
+
+            htmlContent += `
+                        </tr>
+                        <tr class="bg-gray-100">
+                            <th>Buổi</th>`;
+
+            for (let d = page.start; d <= page.end; d++) {
+                htmlContent += `<th>S</th><th>C</th>`;
+            }
+
+            htmlContent += `
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            // Sinh các dòng nhiệt độ từ 8°C đến 2°C
+            for (let temp = 8; temp >= 2; temp--) {
+                // Kiểm tra xem dòng này có rơi nguy hiểm không (nhiệt độ >=8 hoặc <=2)
+                let tempClass = (temp === 8 || temp === 2) ? 'text-red-600 font-bold' : 'font-bold';
+                htmlContent += `<tr><td class="${tempClass}">${temp}°C</td>`;
+
+                for (let d = page.start; d <= page.end; d++) {
+                    let m_mark = (dataMap[d] && dataMap[d]['S'] && parseInt(dataMap[d]['S'].temp) === temp) ? '<span class="mark text-green-700">v</span>' : '';
+                    let a_mark = (dataMap[d] && dataMap[d]['C'] && parseInt(dataMap[d]['C'].temp) === temp) ? '<span class="mark text-green-700">v</span>' : '';
+
+                    htmlContent += `<td>${m_mark}</td><td>${a_mark}</td>`;
+                }
+                htmlContent += `</tr>`;
+            }
+
+            // Dòng chữ ký (Ký tên)
+            htmlContent += `
+                        <tr>
+                            <td class="font-bold bg-gray-50">Ký tên</td>`;
+            for (let d = page.start; d <= page.end; d++) {
+                let m_admin = (dataMap[d] && dataMap[d]['S'] && dataMap[d]['S'].admin) ? dataMap[d]['S'].admin : '';
+                let a_admin = (dataMap[d] && dataMap[d]['C'] && dataMap[d]['C'].admin) ? dataMap[d]['C'].admin : '';
+
+                htmlContent += `<td class="td-name text-blue-800 font-medium">${m_admin}</td><td class="td-name text-blue-800 font-medium">${a_admin}</td>`;
+            }
+
+            htmlContent += `
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="mt-4 text-xs italic text-gray-700">* Ghi chú: S = Sáng (8:00), C = Chiều (16:00). Đánh dấu 'v' vào ô nhiệt độ đo được.</p>
+            </section>`;
+        });
+
+        document.getElementById('print-container').innerHTML = htmlContent;
+
+    </script>
+</body>
+
+</html>
