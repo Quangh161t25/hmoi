@@ -624,6 +624,20 @@
                     </svg>
                     <span class="sidebar-text">Tổng đơn</span>
                 </button>
+                <button id="nav-kho" onclick="showModule('kho')" class="nav-item">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 7v13a1 1 0 001 1h16a1 1 0 001-1V7M3 7l9-4 9 4M3 7h18M12 3v18" />
+                    </svg>
+                    <span class="sidebar-text">Kho hàng</span>
+                </button>
+                <button id="nav-khosp" onclick="showModule('khosp')" class="nav-item">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span class="sidebar-text">Kho SP</span>
+                </button>
             </nav>
             <div
                 class="p-4 border-t border-slate-100 text-center sidebar-text text-[10px] text-slate-400 uppercase tracking-widest font-medium">
@@ -1083,7 +1097,7 @@
                 <!-- Module: DHCT -->
                 <div id="module-dhct" class="hidden">
                     <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
-                    <div class="hidden justify-end mb-4">
+                    <div class="flex justify-end mb-4">
                         <button onclick="openAddDHCTForm()" id="btn-add-dhct"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1195,6 +1209,7 @@
                                         <th class="px-4 py-3">Nhân viên</th>
                                         <th class="px-4 py-3">NPP</th>
                                         <th class="px-4 py-3">NCC</th>
+                                        <th class="px-4 py-3">Kho đi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dhctTableBody" class="divide-y divide-slate-50">
@@ -1209,17 +1224,6 @@
 
                 <!-- Module: Tong Don -->
                 <div id="module-tongdon" class="hidden">
-                    <!-- Nút Thêm Mới luôn hiển thị trên mọi thiết bị -->
-                    <div class="hidden justify-end mb-4">
-                        <button onclick="openAddDHCTForm()" id="btn-add-tongdon"
-                            class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-100">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4" />
-                            </svg>
-                            Thêm Mới
-                        </button>
-                    </div>
                     <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                             <div class="lg:col-span-2">
@@ -1264,8 +1268,18 @@
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">NhÃ¢n viÃªn</label>
                                 <select id="tongdonFilterNv" onchange="filterTongDon()"
                                     class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <option value="">Táº¥t cáº£ NV</option>
+                                    <option value="">Tất cả NV</option>
                                 </select>
+                            </div>
+                            <!-- Thêm mới đơn hàng -->
+                            <div class="flex items-end">
+                                <button onclick="openAddDHCTForm()" id="btn-add-tongdon"
+                                    class="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 transition flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Thêm đơn
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1295,6 +1309,196 @@
                     </div>
                     <div id="tongdonPagination" class="flex items-center justify-center gap-2 mb-8"></div>
                 </div>
+
+                <!-- Module: KHO -->
+                <div id="module-kho" class="hidden">
+                    <!-- Search Bar -->
+                    <div
+                        class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm mb-6 flex items-center gap-4">
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </span>
+                            <input type="text" id="khoSearchInput" oninput="filterKho()"
+                                class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition"
+                                placeholder="Tìm theo tên kho, ID...">
+                        </div>
+                        <button onclick="fetchKhoData()" title="Làm mới"
+                            class="p-2 bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 rounded-xl transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                        <button onclick="openAddKhoForm()"
+                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Thêm mới
+                        </button>
+                    </div>
+
+                    <!-- Kho Table -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                            <h3 class="font-bold text-slate-800">Danh sách kho</h3>
+                            <span class="text-sm text-slate-500">Tổng: <span id="khoCount"
+                                    class="font-bold text-blue-600">0</span> kho</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
+                                        <th class="px-4 py-3">Tên kho</th>
+                                        <th class="px-4 py-3 text-center w-32">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="khoTableBody" class="divide-y divide-slate-50">
+                                    <tr>
+                                        <td colspan="2" class="px-4 py-8 text-center text-slate-400 text-sm">
+                                            <div class="spinner" style="width:24px;height:24px;margin:0 auto 6px;">
+                                            </div>
+                                            Đang tải...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module: KHO SP -->
+                <div id="module-khosp" class="hidden">
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div
+                            class="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-2xl text-white shadow-lg shadow-blue-100 relative overflow-hidden">
+                            <div class="absolute -right-3 -top-3 w-20 h-20 bg-white/10 rounded-full blur-2xl"></div>
+                            <p class="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-1">Tồn đầu</p>
+                            <h3 id="khospTotalTonDau" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl text-white shadow-lg shadow-emerald-100 relative overflow-hidden">
+                            <div class="absolute -right-3 -top-3 w-20 h-20 bg-white/10 rounded-full blur-2xl"></div>
+                            <p class="text-emerald-100 text-xs font-semibold uppercase tracking-wider mb-1">Tổng nhập
+                            </p>
+                            <h3 id="khospTotalNhap" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-2xl text-white shadow-lg shadow-amber-100 relative overflow-hidden">
+                            <div class="absolute -right-3 -top-3 w-20 h-20 bg-white/10 rounded-full blur-2xl"></div>
+                            <p class="text-amber-100 text-xs font-semibold uppercase tracking-wider mb-1">Tổng xuất</p>
+                            <h3 id="khospTotalXuat" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-slate-700 to-slate-900 p-5 rounded-2xl text-white shadow-lg shadow-slate-200 relative overflow-hidden">
+                            <div class="absolute -right-3 -top-3 w-20 h-20 bg-white/10 rounded-full blur-2xl"></div>
+                            <p class="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-1">Tồn cuối</p>
+                            <h3 id="khospTotalTonCuoi" class="text-2xl font-bold">0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div
+                        class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-3">
+                        <div class="relative flex-1 min-w-[180px]">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </span>
+                            <input type="text" id="khospSearchInput" oninput="filterKhoSP()"
+                                class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition"
+                                placeholder="Tìm theo ID SP, tên kho...">
+                        </div>
+                        <select id="khospFilterIdSp" onchange="filterKhoSP()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả mã SP</option>
+                        </select>
+                        <select id="khospFilterKho" onchange="filterKhoSP()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả kho</option>
+                        </select>
+                        <button onclick="fetchKhoSPData()" title="Làm mới"
+                            class="p-2 bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 rounded-xl transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                        <div class="h-8 w-px bg-slate-200 mx-1"></div>
+                        <button onclick="downloadKhoSPTemplate()"
+                            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Tải mẫu
+                        </button>
+                        <button onclick="downloadKhoSPExport()"
+                            class="px-4 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold rounded-xl transition text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M16 8l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Xuất Excel
+                        </button>
+                        <button onclick="document.getElementById('khospFileInput').click()"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Nhập Excel
+                        </button>
+                        <input type="file" id="khospFileInput" class="hidden" accept=".xlsx, .xls"
+                            onchange="handleKhoSPUpload(event)">
+                    </div>
+
+                    <!-- KHO SP Table -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                            <h3 class="font-bold text-slate-800">Tồn kho sản phẩm</h3>
+                            <span class="text-sm text-slate-500">Tổng: <span id="khospCount"
+                                    class="font-bold text-blue-600">0</span> dòng</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
+                                        <th class="px-4 py-3">ID</th>
+                                        <th class="px-4 py-3">Kho</th>
+                                        <th class="px-4 py-3">Mã Sản phẩm</th>
+                                        <th class="px-4 py-3">Tên Sản phẩm</th>
+                                        <th class="px-4 py-3 text-right">Tồn đầu</th>
+                                        <th class="px-4 py-3 text-right">Nhập</th>
+                                        <th class="px-4 py-3 text-right">Xuất</th>
+                                        <th class="px-4 py-3 text-right">Tồn cuối</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="khospTableBody" class="divide-y divide-slate-50">
+                                    <tr>
+                                        <td colspan="8" class="px-4 py-8 text-center text-slate-400 text-sm">
+                                            <div class="spinner" style="width:24px;height:24px;margin:0 auto 6px;">
+                                            </div>
+                                            Đang tải dữ liệu...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -1346,6 +1550,13 @@
                             <option value="">-- Chọn NPP --</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Kho đi</label>
+                        <select id="addKhoDi"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                            <option value="">-- Chọn kho đi --</option>
+                        </select>
+                    </div>
                     <input type="hidden" id="addNcc" value="">
                 </div>
             </div>
@@ -1388,6 +1599,38 @@
                     class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center">Lưu
                     đơn</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Offcanvas for Warehouse (KHO) -->
+    <div id="khoAddOverlay" onclick="closeAddKhoForm()"
+        class="fixed inset-0 bg-slate-900/50 z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="khoAddSidePanel"
+        class="fixed inset-0 sm:left-auto sm:right-0 sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="flex items-center justify-between p-6 border-b border-slate-200 bg-slate-50/50">
+            <h2 id="khoFormTitle" class="text-xl font-bold text-slate-800">Thêm Kho Mới</h2>
+            <button onclick="closeAddKhoForm()" class="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="flex-1 p-6 space-y-6">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Tên kho *</label>
+                <input type="text" id="addKhoName"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none font-medium"
+                    placeholder="Nhập tên kho...">
+                <p class="mt-2 text-[10px] text-slate-400 italic">* Tên kho sẽ được dùng làm mã định danh (ID).</p>
+            </div>
+            <input type="hidden" id="editingKhoId" value="">
+        </div>
+        <div class="p-6 border-t border-slate-200 bg-slate-50 flex gap-3">
+            <button onclick="closeAddKhoForm()"
+                class="flex-1 py-3 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 font-bold rounded-xl transition">Hủy</button>
+            <button id="saveKhoBtn" onclick="submitAddKhoForm()"
+                class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition">Lưu
+                kho</button>
         </div>
     </div>
 
@@ -1442,9 +1685,12 @@
                         <span id="tdStaff" class="font-medium text-slate-700">---</span>
                     </div>
                     <div class="col-span-2 pt-2 border-t border-slate-100">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Nhà phân
-                            phối</span>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Nhà phân phối</span>
                         <span id="tdNpp" class="font-medium text-slate-700">---</span>
+                    </div>
+                    <div class="col-span-2 pt-2 border-t border-slate-100">
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Kho đi</span>
+                        <span id="tdKhoDi" class="font-medium text-slate-700">---</span>
                     </div>
                 </div>
             </div>
@@ -1564,10 +1810,23 @@
                         </div>
                         <div class="totals-section">
                             <div class="total-row"><span>Tổng số lượng:</span> <b id="invTotalQty">0</b></div>
-                            <div class="total-row font-bold"><span>Tổng tiền hàng:</span> <span
-                                    id="invSubTotal">0</span></div>
-                            <div class="total-row main-sum">
-                                <span style="font-size: 14px;">TỔNG CỘNG:</span>
+                            <div class="total-row"><span>Tổng tiền hàng:</span> <span id="invSubTotal">0</span></div>
+
+                            <div class="total-row" style="margin-top: 10px; color: #475569;">
+                                <span>Chiết khấu</span> <span>0</span>
+                            </div>
+                            <hr style="border: 0; border-bottom: 1px solid #cbd5e1; margin: 10px 0;">
+                            <div class="total-row font-bold" style="margin-top: 10px;">
+                                <span>Cộng</span> <span id="invSum">0</span>
+                            </div>
+
+                            <div class="total-row"
+                                style="margin-top: 15px; margin-bottom: 10px; color: #475569; font-style: italic;">
+                                <span>Nợ cũ (nếu có)</span> <span>0</span>
+                            </div>
+
+                            <div class="total-row main-sum" style="margin-top: 15px;">
+                                <span style="font-size: 14px; font-weight: bold;">Tổng cộng phải trả</span>
                                 <span style="font-size: 16px;" id="invGrandTotal">0</span>
                             </div>
                         </div>
@@ -1781,6 +2040,7 @@
                     const iNvid = headers.findIndex(h => h === 'id_nv');
                     const iNpp = headers.findIndex(h => h === 'npp');
                     const iNcc = headers.findIndex(h => h === 'ncc');
+                    const iKhoDi = headers.findIndex(h => h === 'kho_di' || h === 'kho_đi');
 
                     ordersData = data.values.slice(1).map(r => ({
                         id: safeGet(r, iId, 0),
@@ -1792,7 +2052,8 @@
                         total: safeGet(r, iTotal, 6),
                         id_nv: safeGet(r, iNvid, 7),
                         npp: safeGet(r, iNpp, 8),
-                        ncc: safeGet(r, iNcc, 9)
+                        ncc: safeGet(r, iNcc, 9),
+                        kho_di: safeGet(r, iKhoDi, 10)
                     })).filter(o => o.id || o.id_dh);
 
                     filteredOrders = [...ordersData];
@@ -2001,9 +2262,11 @@
                     'dashboard': 'Báo cáo doanh thu',
                     'dsnv': 'Danh sách nhân viên',
                     'dssp': 'Danh mục sản phẩm',
-                    'dhct': 'Đơn hàng chi tiết'
+                    'dhct': 'Đơn hàng chi tiết',
+                    'tongdon': 'Tổng đơn',
+                    'kho': 'Kho hàng',
+                    'khosp': 'Kho sản phẩm'
                 };
-                titles['tongdon'] = 'Tổng đơn';
                 headerTitle.textContent = titles[moduleName] || 'Dashboard';
             }
 
@@ -2025,6 +2288,9 @@
             }
 
             if (moduleName === 'tongdon') {
+                if (!document.getElementById('tongdonFromDate').value) {
+                    setThisWeekRange('tongdonFromDate', 'tongdonToDate');
+                }
                 initializeTongDonModule();
                 Promise.all([
                     fetchOrderData(),
@@ -2037,9 +2303,9 @@
                 });
                 const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
                 const btnAddTongDon = document.getElementById('btn-add-tongdon');
-                if (btnAddTongDon) btnAddTongDon.style.display = 'none';
+                if (btnAddTongDon) btnAddTongDon.style.display = isAdmin ? 'flex' : 'none';
                 const btnAddTongDonJs = document.getElementById('btn-add-tongdon-js');
-                if (btnAddTongDonJs) btnAddTongDonJs.style.display = 'none';
+                if (btnAddTongDonJs) btnAddTongDonJs.style.display = isAdmin ? 'flex' : 'none';
                 const editBtn = document.getElementById('tongDonEditBtn');
                 if (editBtn) editBtn.style.display = isAdmin ? '' : 'none';
             }
@@ -2082,6 +2348,16 @@
                 fetchProductData();
             }
 
+            // Load KHO module
+            if (moduleName === 'kho') {
+                fetchKhoData();
+            }
+
+            // Load KHO SP module
+            if (moduleName === 'khosp') {
+                fetchKhoSPData();
+            }
+
             // Permission Check for DHCT Admin Actions
             if (moduleName === 'dhct') {
                 if (!document.getElementById('dhctFromDate').value) {
@@ -2099,7 +2375,7 @@
                     }
                 }
                 const btnAddDhct = document.getElementById('btn-add-dhct');
-                if (btnAddDhct) btnAddDhct.style.display = 'none';
+                if (btnAddDhct) btnAddDhct.style.display = isAdmin ? 'flex' : 'none';
 
                 // Fetch all dependencies for lookups
                 Promise.all([
@@ -2154,7 +2430,7 @@
 
             tableBody.innerHTML = '';
             if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-10 text-center text-slate-400">Không tìm thấy đơn hàng nào.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="10" class="px-6 py-10 text-center text-slate-400">Không tìm thấy đơn hàng nào.</td></tr>`;
                 document.getElementById('dhctPagination').innerHTML = '';
                 return;
             }
@@ -2194,6 +2470,7 @@
                         <td class="px-4 py-3 text-slate-600">${staffName}</td>
                         <td class="px-4 py-3 text-slate-600">${nppName}</td>
                         <td class="px-4 py-3 text-slate-600 text-[10px]">${nccName}</td>
+                        <td class="px-4 py-3 text-slate-600 text-[10px]">${o.kho_di || ''}</td>
                     </tr>
                 `;
             });
@@ -2404,13 +2681,61 @@
             const summary = filteredTongDon.find(o => o.id_dh === idDh);
             if (summary) {
                 const staff = usersData.find(u => u.id === summary.id_nv);
+                
+                // Lookup NPP (can be NPP or Kho)
                 const nppInfo = nppData.find(n => n.id === summary.npp);
+                const khoInfoAsNpp = khoData.find(k => k.id === summary.npp);
+                const nppName = nppInfo ? nppInfo.name : (khoInfoAsNpp ? `[Kho] ${khoInfoAsNpp.kho}` : summary.npp);
+
+                // Lookup Kho di
+                const actualOrderRows = ordersData.filter(o => o.id_dh === idDh);
+                const kho_di = actualOrderRows.length > 0 ? actualOrderRows[0].kho_di : '';
+                const khoInfo = khoData.find(k => k.id === kho_di);
+                const khoDiName = khoInfo ? khoInfo.kho : kho_di;
 
                 document.getElementById('tdIdDhHeader').textContent = `ID: ${summary.id_dh}`;
-                document.getElementById('tdDate').textContent = summary.date;
                 document.getElementById('tdTotal').textContent = (summary.total_amount || 0).toLocaleString('vi-VN') + ' đ';
-                document.getElementById('tdStaff').textContent = staff ? `${summary.id_nv} - ${staff.name}` : summary.id_nv;
-                document.getElementById('tdNpp').textContent = nppInfo ? `${summary.npp} - ${nppInfo.name}` : summary.npp;
+
+                if (isTongDonEditMode) {
+                    // Date Edit
+                    document.getElementById('tdDate').innerHTML = `
+                        <input type="date" value="${formatDateForInput(summary.date)}" 
+                            onchange="updateTongDonHeader('${idDh}', 'date', this.value)"
+                            class="w-full text-xs p-1 border border-blue-200 rounded focus:ring-1 focus:ring-blue-500 outline-none">`;
+                    
+                    // Staff Edit
+                    const nvOptions = usersData.map(u => `<option value="${u.id}" ${u.id === summary.id_nv ? 'selected' : ''}>${u.id} - ${u.name}</option>`).join('');
+                    document.getElementById('tdStaff').innerHTML = `
+                        <select onchange="updateTongDonHeader('${idDh}', 'id_nv', this.value)"
+                            class="w-full text-xs p-1 border border-blue-200 rounded focus:ring-1 focus:ring-blue-500 outline-none">
+                            ${nvOptions}
+                        </select>`;
+
+                    // NPP Edit (Include KHO)
+                    let nppOptions = nppData.map(n => `<option value="${n.id}" ${n.id === summary.npp ? 'selected' : ''}>${n.id} - ${n.name}</option>`).join('');
+                    nppOptions += khoData.map(k => `<option value="${k.id}" ${k.id === summary.npp ? 'selected' : ''}>[Kho] ${k.id} - ${k.kho}</option>`).join('');
+                    document.getElementById('tdNpp').innerHTML = `
+                        <select onchange="updateTongDonHeader('${idDh}', 'npp', this.value)"
+                            class="w-full text-xs p-1 border border-blue-200 rounded focus:ring-1 focus:ring-blue-500 outline-none">
+                            <option value="">-- Chọn NPP/Kho --</option>
+                            ${nppOptions}
+                        </select>`;
+
+                    // Kho Di Edit
+                    const khoOptions = khoData.map(k => `<option value="${k.id}" ${k.id === kho_di ? 'selected' : ''}>${k.id} - ${k.kho}</option>`).join('');
+                    document.getElementById('tdKhoDi').innerHTML = `
+                        <select onchange="updateTongDonHeader('${idDh}', 'kho_di', this.value)"
+                            class="w-full text-xs p-1 border border-blue-200 rounded focus:ring-1 focus:ring-blue-500 outline-none">
+                            <option value="">-- Chọn kho đi --</option>
+                            ${khoOptions}
+                        </select>`;
+
+                } else {
+                    document.getElementById('tdDate').textContent = summary.date;
+                    document.getElementById('tdStaff').textContent = staff ? `${summary.id_nv} - ${staff.name}` : summary.id_nv;
+                    document.getElementById('tdNpp').textContent = nppName;
+                    document.getElementById('tdKhoDi').textContent = khoDiName || '---';
+                }
             }
 
             const detailRows = ordersData
@@ -2581,6 +2906,37 @@
             }
         }
 
+        async function updateTongDonHeader(idDh, field, value) {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert("Chỉ có admin mới được quyền sửa đơn hàng!");
+
+            let finalValue = value;
+            if (field === 'date') {
+                const parts = value.split('-'); // YYYY-MM-DD
+                if (parts.length === 3) finalValue = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            // Update all rows in ordersData sharing this id_dh
+            ordersData.forEach(o => {
+                if (o.id_dh === idDh) {
+                    o[field] = finalValue;
+                }
+            });
+
+            // Update summary in filteredTongDon
+            const summaryIdx = filteredTongDon.findIndex(o => o.id_dh === idDh);
+            if (summaryIdx !== -1) {
+                if (field === 'date') filteredTongDon[summaryIdx].date = finalValue;
+                if (field === 'id_nv') filteredTongDon[summaryIdx].id_nv = finalValue;
+                if (field === 'npp') filteredTongDon[summaryIdx].npp = finalValue;
+                // kho_di is not in summary but in base ordersData
+            }
+
+            await syncOrdersToGoogleSheets();
+            renderTongDonDetails(idDh);
+            renderTongDonList();
+        }
+
         function openAddProductToExistingOrder() {
             const idDh = selectedTongDonId;
             if (!idDh) return;
@@ -2729,7 +3085,8 @@
                 const staff = usersData.find(u => u.id === o.id_nv);
                 const staffName = staff ? `${o.id_nv} - ${staff.name}` : o.id_nv;
                 const nppInfo = nppData.find(n => n.id === o.npp);
-                const nppName = nppInfo ? `${o.npp} - ${nppInfo.name}` : o.npp;
+                const khoInfoAsNpp = khoData.find(k => k.id === o.npp);
+                const nppName = nppInfo ? `${o.npp} - ${nppInfo.name}` : (khoInfoAsNpp ? `[Kho] ${o.npp} - ${khoInfoAsNpp.kho}` : o.npp);
                 const isSelected = selectedTongDonId === o.id_dh;
                 const safeIdDh = o.id_dh.replace(/'/g, "\\'"); // Thoát dấu nháy đơn
 
@@ -2800,7 +3157,7 @@
         }
 
         function downloadDHCTTemplate() {
-            const data = [["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc"]];
+            const data = [["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc", "kho_di"]];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
             XLSX.utils.book_append_sheet(wb, ws, "MauDonHang");
@@ -2809,8 +3166,8 @@
 
         function downloadDHCTExport() {
             const data = [
-                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc"],
-                ...filteredOrders.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc])
+                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc", "kho_di"],
+                ...filteredOrders.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
             ];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -2842,6 +3199,7 @@
                     const iNvid = headers.findIndex(h => h === 'id_nv');
                     const iNpp = headers.findIndex(h => h === 'npp');
                     const iNcc = headers.findIndex(h => h === 'ncc');
+                    const iKhoDi = headers.findIndex(h => h === 'kho_di' || h === 'kho_đi');
 
                     // Max ID for auto-generation
                     let maxId = 0;
@@ -2867,7 +3225,8 @@
                             total: safeGet(r, iTotal, 6),
                             id_nv: safeGet(r, iNvid, 7),
                             npp: safeGet(r, iNpp, 8),
-                            ncc: safeGet(r, iNcc, 9)
+                            ncc: safeGet(r, iNcc, 9),
+                            kho_di: safeGet(r, iKhoDi, 10)
                         };
                     });
 
@@ -2898,10 +3257,10 @@
             const sid = CONFIG.spreadsheetId;
             const sname = "DH_CT";
             const rows = [
-                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc"],
-                ...ordersData.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc])
+                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc", "kho_di"],
+                ...ordersData.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
             ];
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:J${rows.length}?valueInputOption=USER_ENTERED`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:K${rows.length}?valueInputOption=USER_ENTERED`;
             await fetch(url, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
@@ -3599,9 +3958,17 @@
             nvSelect.innerHTML = '<option value="">-- Chọn nhân viên --</option>' + usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
             nvSelect.value = currentUser ? currentUser.id : '';
 
-            // Populate NPP select
+            // Populate NPP select (Including KHO)
             const nppSelect = document.getElementById('addNpp');
-            nppSelect.innerHTML = '<option value="">-- Chọn NPP --</option>' + nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+            let nppOptions = '<option value="">-- Chọn NPP/Kho --</option>';
+            nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+            nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
+            nppSelect.innerHTML = nppOptions;
+
+            // Populate Kho selects from khoData
+            const khoOptions = '<option value="">-- Chọn kho đi --</option>' + khoData.map(k => `<option value="${k.id}">${k.id} - ${k.kho}</option>`).join('');
+            const khoDiEl = document.getElementById('addKhoDi');
+            if (khoDiEl) khoDiEl.innerHTML = khoOptions;
 
             // Reset ReadOnly/Disabled states
             const masterFields = ['addDhId', 'addDate', 'addIdNv', 'addNpp'];
@@ -3635,6 +4002,7 @@
                 const id_nv = document.getElementById('addIdNv').value.trim();
                 const npp = document.getElementById('addNpp').value.trim();
                 const ncc = document.getElementById('addNcc').value.trim();
+                const kho_di = document.getElementById('addKhoDi')?.value.trim() || '';
 
                 const container = document.getElementById('dhctProductList');
                 const rowDivs = container.querySelectorAll('[id^="dhctRow_"]');
@@ -3694,7 +4062,8 @@
                             total: total,
                             id_nv: id_nv,
                             npp: npp,
-                            ncc: ncc
+                            ncc: ncc,
+                            kho_di: kho_di
                         });
                     }
                 });
@@ -3855,6 +4224,8 @@
             const grandTotal = summary.total_amount || 0;
             document.getElementById('invTotalQty').textContent = totalQty;
             document.getElementById('invSubTotal').textContent = grandTotal.toLocaleString('vi-VN');
+            const invSum = document.getElementById('invSum');
+            if (invSum) invSum.textContent = grandTotal.toLocaleString('vi-VN');
             document.getElementById('invGrandTotal').textContent = grandTotal.toLocaleString('vi-VN');
             document.getElementById('invTotalWords').textContent = docSoThanhChu(grandTotal);
 
@@ -3885,6 +4256,428 @@
             }
             await fetchAuthData();
         });
+
+        // =============================================
+        // MODULE: KHO - danh sách kho (id | kho)
+        // =============================================
+        let khoData = [];
+        let khoFiltered = [];
+
+        async function fetchKhoData() {
+            const tbody = document.getElementById('khoTableBody');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="2" class="px-4 py-8 text-center text-slate-400 text-sm">
+                <div class="spinner" style="width:24px;height:24px;margin:0 auto 6px;"></div>
+                Đang tải...</td></tr>`;
+            try {
+                const token = await getAccessToken();
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/KHO!A1:Z2000`;
+                const resp = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const data = await resp.json();
+                if (!data.values || data.values.length < 2) {
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="2" class="px-4 py-8 text-center text-slate-400 text-sm">Không có dữ liệu.</td></tr>`;
+                    return;
+                }
+                const headers = data.values[0].map(h => h ? h.toString().trim().toLowerCase() : '');
+                const iId = headers.findIndex(h => h === 'id');
+                const iKho = headers.findIndex(h => h === 'kho' || h === 'ten_kho');
+                khoData = data.values.slice(1).map(r => ({
+                    id: safeGet(r, iId, 0),
+                    kho: safeGet(r, iKho, 1)
+                })).filter(k => k.id || k.kho);
+                khoFiltered = [...khoData];
+                renderKhoList();
+            } catch (err) {
+                console.error('KHO Fetch Error:', err);
+                if (tbody) tbody.innerHTML = `<tr><td colspan="2" class="px-4 py-8 text-center text-red-400 text-sm">Lỗi tải dữ liệu kho.</td></tr>`;
+            }
+        }
+
+        function renderKhoList() {
+            const tbody = document.getElementById('khoTableBody');
+            const countEl = document.getElementById('khoCount');
+            if (!tbody) return;
+            if (countEl) countEl.textContent = khoFiltered.length;
+            if (khoFiltered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="px-4 py-8 text-center text-slate-400 text-sm">Không tìm thấy kho nào.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = khoFiltered.map((k, i) => `
+                <tr class="hover:bg-blue-50/40 transition-colors ${i % 2 ? 'bg-slate-50/50' : ''}">
+                    <td class="px-4 py-3 font-medium text-slate-800">${k.kho || '-'}</td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="openAddKhoForm('${k.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Sửa">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            <button onclick="deleteKho('${k.id}')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition" title="Xóa">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function filterKho() {
+            const q = (document.getElementById('khoSearchInput')?.value || '').toLowerCase().trim();
+            khoFiltered = q ? khoData.filter(k =>
+                k.kho.toLowerCase().includes(q)
+            ) : [...khoData];
+            renderKhoList();
+        }
+
+        // --- CRUD KHO ---
+        function openAddKhoForm(id = '') {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert('Chỉ có quản trị viên mới được thực hiện thao tác này!');
+
+            const panel = document.getElementById('khoAddSidePanel');
+            const overlay = document.getElementById('khoAddOverlay');
+            const titleEl = document.getElementById('khoFormTitle');
+            const nameInput = document.getElementById('addKhoName');
+            const idInput = document.getElementById('editingKhoId');
+
+            idInput.value = id;
+            if (id) {
+                const item = khoData.find(k => k.id === id);
+                nameInput.value = item ? item.kho : '';
+                titleEl.textContent = 'Chỉnh Sửa Kho';
+            } else {
+                nameInput.value = '';
+                titleEl.textContent = 'Thêm Kho Mới';
+            }
+
+            panel.classList.remove('translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+        }
+
+        function closeAddKhoForm() {
+            const panel = document.getElementById('khoAddSidePanel');
+            const overlay = document.getElementById('khoAddOverlay');
+            panel.classList.add('translate-x-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+
+        async function submitAddKhoForm() {
+            const name = document.getElementById('addKhoName').value.trim();
+            const editingId = document.getElementById('editingKhoId').value;
+
+            if (!name) return alert('Vui lòng nhập tên kho!');
+
+            // id = kho logic
+            const newId = name;
+
+            if (editingId) {
+                // Update
+                const idx = khoData.findIndex(k => k.id === editingId);
+                if (idx !== -1) {
+                    khoData[idx] = { id: newId, kho: name };
+                }
+            } else {
+                // Add new
+                if (khoData.some(k => k.id === newId)) {
+                    return alert('Tên kho (ID) đã tồn tại!');
+                }
+                khoData.push({ id: newId, kho: name });
+            }
+
+            await syncKhoToGoogleSheets();
+            filterKho(); // Resets filtering to show all or current filter
+            closeAddKhoForm();
+            alert('Đã lưu thông tin kho.');
+        }
+
+        async function deleteKho(id) {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert('Chỉ có quản trị viên mới được thực hiện thao tác này!');
+
+            if (!confirm(`Bạn có chắc muốn xóa kho "${id}"?`)) return;
+
+            const idx = khoData.findIndex(k => k.id === id);
+            if (idx !== -1) {
+                khoData.splice(idx, 1);
+                await syncKhoToGoogleSheets();
+                filterKho();
+                alert('Đã xóa kho.');
+            }
+        }
+
+        async function syncKhoToGoogleSheets() {
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const rows = [
+                    ["id", "kho"],
+                    ...khoData.map(k => [k.id, k.kho])
+                ];
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/KHO!A1:B${rows.length}?valueInputOption=USER_ENTERED`;
+                await fetch(url, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: rows })
+                });
+            } catch (err) {
+                console.error("Sync Kho Error:", err);
+                alert("Lỗi khi đồng bộ dữ liệu kho lên Google Sheets.");
+            }
+        }
+
+        // =============================================
+        // MODULE: KHO SP - tồn kho sản phẩm
+        // Sheet KHO_SP: id | kho | id_sp | ton_dau | nhap | xuat | ton_cuoi
+        // =============================================
+        let khospData = [];
+        let khospFiltered = [];
+
+        async function fetchKhoSPData() {
+            const tbody = document.getElementById('khospTableBody');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400 text-sm">
+                <div class="spinner" style="width:24px;height:24px;margin:0 auto 6px;"></div>
+                Đang tải dữ liệu kho sản phẩm...</td></tr>`;
+            try {
+                const token = await getAccessToken();
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/KHO_SP!A1:Z5000`;
+                const resp = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const data = await resp.json();
+                if (!data.values || data.values.length < 2) {
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400 text-sm">Không có dữ liệu trong sheet KHO_SP.</td></tr>`;
+                    return;
+                }
+                const headers = data.values[0].map(h => h ? h.toString().trim().toLowerCase() : '');
+                const iId = headers.findIndex(h => h === 'id');
+                const iKho = headers.findIndex(h => h === 'kho' || h === 'ten_kho');
+                const iIdSp = headers.findIndex(h => h === 'id_sp');
+                const iTonDau = headers.findIndex(h => h === 'ton_dau' || h === 'tồn đầu');
+
+                khospData = data.values.slice(1).map(r => ({
+                    id: safeGet(r, iId, 0),
+                    kho: safeGet(r, iKho, 1),
+                    id_sp: safeGet(r, iIdSp, 2),
+                    ton_dau: parseFloat(safeGet(r, iTonDau, 3)) || 0
+                })).filter(k => k.id || k.id_sp);
+
+                // Populate kho filter dropdown
+                const khoSet = new Set(khospData.map(k => k.kho).filter(Boolean));
+                const khoSelect = document.getElementById('khospFilterKho');
+                if (khoSelect) {
+                    khoSelect.innerHTML = '<option value="">Tất cả kho</option>';
+                    [...khoSet].sort().forEach(k => {
+                        khoSelect.innerHTML += `<option value="${k}">${k}</option>`;
+                    });
+                }
+
+                // Populate id_sp filter dropdown
+                const idSpSet = new Set(khospData.map(k => k.id_sp).filter(Boolean));
+                const idSpSelect = document.getElementById('khospFilterIdSp');
+                if (idSpSelect) {
+                    idSpSelect.innerHTML = '<option value="">Tất cả mã SP</option>';
+                    [...idSpSet].sort().forEach(id => {
+                        idSpSelect.innerHTML += `<option value="${id}">${id}</option>`;
+                    });
+                }
+
+                khospFiltered = [...khospData];
+                renderKhoSPList();
+            } catch (err) {
+                console.error('KHO_SP Fetch Error:', err);
+                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-red-400 text-sm">Lỗi tải dữ liệu. Vui lòng thử lại.</td></tr>`;
+            }
+        }
+
+        function renderKhoSPList() {
+            const tbody = document.getElementById('khospTableBody');
+            const countEl = document.getElementById('khospCount');
+            if (!tbody) return;
+
+            const fmt = n => n.toLocaleString('vi-VN');
+            const el = id => document.getElementById(id);
+
+            let totalTonDau = 0;
+            let totalNhap = 0;
+            let totalXuat = 0;
+            let totalTonCuoi = 0;
+
+            if (khospFiltered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400 text-sm">Không tìm thấy dữ liệu.</td></tr>`;
+                if (el('khospTotalTonDau')) el('khospTotalTonDau').textContent = '0';
+                if (el('khospTotalNhap')) el('khospTotalNhap').textContent = '0';
+                if (el('khospTotalXuat')) el('khospTotalXuat').textContent = '0';
+                if (el('khospTotalTonCuoi')) el('khospTotalTonCuoi').textContent = '0';
+                if (countEl) countEl.textContent = '0';
+                return;
+            }
+
+            const rowsHtml = khospFiltered.map((k, i) => {
+                const prod = productsData.find(p => p.id === k.id_sp);
+                const spName = prod ? prod.name : '';
+
+                // Calculate VIRTUAL COLUMNS
+                const nhap = ordersData.filter(o => o.npp === k.kho && o.id_sp === k.id_sp)
+                    .reduce((sum, o) => sum + (parseFloat(o.qty) || 0), 0);
+
+                const xuat = ordersData.filter(o => o.kho_di === k.kho && o.id_sp === k.id_sp)
+                    .reduce((sum, o) => sum + (parseFloat(o.qty) || 0), 0);
+
+                const tonCuoi = k.ton_dau + nhap - xuat;
+
+                // Accumulate totals
+                totalTonDau += k.ton_dau;
+                totalNhap += nhap;
+                totalXuat += xuat;
+                totalTonCuoi += tonCuoi;
+
+                const tonCuoiClass = tonCuoi <= 0
+                    ? 'text-red-600 font-bold'
+                    : tonCuoi < 10
+                        ? 'text-amber-600 font-semibold'
+                        : 'text-slate-800 font-semibold';
+
+                return `
+                <tr class="hover:bg-blue-50/40 transition-colors ${i % 2 ? 'bg-slate-50/50' : ''}">
+                    <td class="px-4 py-3 text-[10px] font-mono text-slate-400">${k.id || '-'}</td>
+                    <td class="px-4 py-3 text-slate-700">${k.kho || '-'}</td>
+                    <td class="px-4 py-3 text-xs font-mono text-blue-600">${k.id_sp || '-'}</td>
+                    <td class="px-4 py-3 text-slate-700 font-medium">${spName}</td>
+                    <td class="px-4 py-3 text-right text-slate-900">${fmt(k.ton_dau)}</td>
+                    <td class="px-4 py-3 text-right text-emerald-600 font-medium">+${fmt(nhap)}</td>
+                    <td class="px-4 py-3 text-right text-amber-600 font-medium">-${fmt(xuat)}</td>
+                    <td class="px-4 py-3 text-right ${tonCuoiClass}">${fmt(tonCuoi)}</td>
+                </tr>`;
+            }).join('');
+
+            tbody.innerHTML = rowsHtml;
+
+            // Update Summary Cards
+            if (el('khospTotalTonDau')) el('khospTotalTonDau').textContent = fmt(totalTonDau);
+            if (el('khospTotalNhap')) el('khospTotalNhap').textContent = fmt(totalNhap);
+            if (el('khospTotalXuat')) el('khospTotalXuat').textContent = fmt(totalXuat);
+            if (el('khospTotalTonCuoi')) el('khospTotalTonCuoi').textContent = fmt(totalTonCuoi);
+            if (countEl) countEl.textContent = khospFiltered.length;
+        }
+
+        function filterKhoSP() {
+            const q = (document.getElementById('khospSearchInput')?.value || '').toLowerCase().trim();
+            const kho = (document.getElementById('khospFilterKho')?.value || '').toLowerCase().trim();
+            const filterIdSp = document.getElementById('khospFilterIdSp')?.value || '';
+
+            khospFiltered = khospData.filter(k => {
+                const matchQ = !q || k.id_sp.toLowerCase().includes(q) || k.kho.toLowerCase().includes(q);
+                const matchKho = !kho || k.kho.toLowerCase() === kho;
+                const matchIdSp = !filterIdSp || k.id_sp === filterIdSp;
+                return matchQ && matchKho && matchIdSp;
+            });
+            renderKhoSPList();
+        }
+
+        // --- KHO SP Excel Features ---
+        function downloadKhoSPTemplate() {
+            const data = [["kho", "id_sp", "ton_dau"]];
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, "MauTồnKho");
+            XLSX.writeFile(wb, "mau_khosp_tondau.xlsx");
+        }
+
+        function downloadKhoSPExport() {
+            const data = [
+                ["id", "kho", "id_sp", "ton_dau"],
+                ...khospFiltered.map(k => [k.id, k.kho, k.id_sp, k.ton_dau])
+            ];
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, "TonKho");
+            XLSX.writeFile(wb, "khosp_export.xlsx");
+        }
+
+        async function handleKhoSPUpload(event) {
+            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+            if (!isAdmin) return alert('Chỉ có quản trị viên mới được thực hiện thao tác này!');
+
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    if (jsonData.length <= 1) return alert("File không có dữ liệu!");
+
+                    const headers = jsonData[0].map(h => h ? h.toString().trim().toLowerCase() : '');
+                    const iKho = headers.findIndex(h => h === 'kho' || h === 'tên kho');
+                    const iIdSp = headers.findIndex(h => h === 'id_sp' || h === 'mã sp');
+                    const iTonDau = headers.findIndex(h => h === 'ton_dau' || h === 'tồn đầu');
+
+                    if (iKho === -1 || iIdSp === -1 || iTonDau === -1) {
+                        return alert("File sai định dạng! Cần có cột: kho, id_sp, ton_dau");
+                    }
+
+                    let updatedCount = 0;
+                    let addedCount = 0;
+
+                    jsonData.slice(1).forEach(r => {
+                        const khoValue = (r[iKho] || "").toString().trim();
+                        const idSpValue = (r[iIdSp] || "").toString().trim();
+                        const tonDauValue = parseFloat(r[iTonDau]) || 0;
+
+                        if (!khoValue || !idSpValue) return;
+
+                        const compositeId = `${khoValue}|${idSpValue}`;
+                        const existingIdx = khospData.findIndex(k => k.id === compositeId);
+
+                        if (existingIdx !== -1) {
+                            khospData[existingIdx].ton_dau = tonDauValue;
+                            updatedCount++;
+                        } else {
+                            khospData.push({
+                                id: compositeId,
+                                kho: khoValue,
+                                id_sp: idSpValue,
+                                ton_dau: tonDauValue
+                            });
+                            addedCount++;
+                        }
+                    });
+
+                    await syncKhoSPToGoogleSheets();
+                    fetchKhoSPData(); // Refresh and re-render
+                    alert(`Đã nhập kho SP thành công:\n- Cập nhật: ${updatedCount}\n- Thêm mới: ${addedCount}`);
+                } catch (err) {
+                    console.error(err);
+                    alert("Lỗi khi xử lý file Excel!");
+                } finally {
+                    event.target.value = "";
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function syncKhoSPToGoogleSheets() {
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const rows = [
+                    ["id", "kho", "id_sp", "ton_dau"],
+                    ...khospData.map(k => [k.id, k.kho, k.id_sp, k.ton_dau])
+                ];
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/KHO_SP!A1:D${rows.length}?valueInputOption=USER_ENTERED`;
+                await fetch(url, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: rows })
+                });
+            } catch (err) {
+                console.error("Sync Kho SP Error:", err);
+                alert("Lỗi khi đồng bộ dữ liệu Tồn đầu lên Google Sheets.");
+            }
+        }
     </script>
 </body>
 
