@@ -1574,9 +1574,10 @@
                         <thead>
                             <tr
                                 class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                <th class="px-3 py-2 w-[45%]">Sản phẩm</th>
-                                <th class="px-3 py-2 text-right w-[20%]">Đơn giá</th>
-                                <th class="px-3 py-2 text-center w-[12%]">SL</th>
+                                <th class="px-3 py-2 w-[40%]">Sản phẩm</th>
+                                <th class="px-3 py-2 text-right w-[15%]">Đơn giá</th>
+                                <th class="px-3 py-2 text-center w-[10%]">SL</th>
+                                <th class="px-3 py-2 text-center w-[12%]">Tồn</th>
                                 <th class="px-3 py-2 text-right w-[18%]">Thành tiền</th>
                                 <th class="px-3 py-2 text-center w-[5%]"></th>
                             </tr>
@@ -2281,8 +2282,10 @@
                 Promise.all([
                     fetchOrderData(),
                     fetchProductData(),
-                    fetchNPPData()
+                    fetchNPPData(),
+                    fetchKhoData()
                 ]).then(() => {
+                    populateFilterOptions();
                     updateDashboard();
                 });
             }
@@ -2296,7 +2299,8 @@
                     fetchOrderData(),
                     fetchProductData(),
                     fetchNPPData(),
-                    fetchNCCData()
+                    fetchNCCData(),
+                    fetchKhoData()
                 ]).then(() => {
                     populateTongDonFilters();
                     filterTongDon();
@@ -2382,7 +2386,8 @@
                     fetchNPPData(),
                     fetchNCCData(),
                     fetchProductData(),
-                    fetchOrderData()
+                    fetchOrderData(),
+                    fetchKhoData()
                 ]).then(() => {
                     populateFilterOptions();
                     filterDHCT();
@@ -2391,13 +2396,6 @@
         }
 
         function populateFilterOptions() {
-            const nppIds = new Set();
-            const nvIds = new Set();
-            ordersData.forEach(o => {
-                if (o.npp) nppIds.add(o.npp);
-                if (o.id_nv) nvIds.add(o.id_nv);
-            });
-
             // IDs of selects to update
             const nppSelectors = ['dashFilterNpp', 'dhctFilterNpp'];
             const nvSelectors = ['dashFilterNv', 'dhctFilterNv'];
@@ -2405,21 +2403,16 @@
             nppSelectors.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                el.innerHTML = '<option value="">Tất cả NPP</option>';
-                [...nppIds].sort().forEach(nid => {
-                    const info = nppData.find(n => n.id === nid);
-                    el.innerHTML += `<option value="${nid}">${info ? nid + ' - ' + info.name : nid}</option>`;
-                });
+                let nppOptions = '<option value="">Tất cả NPP</option>';
+                nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+                nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
+                el.innerHTML = nppOptions;
             });
 
             nvSelectors.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                el.innerHTML = '<option value="">Tất cả NV</option>';
-                [...nvIds].sort().forEach(nvid => {
-                    const info = usersData.find(u => u.id === nvid);
-                    el.innerHTML += `<option value="${nvid}">${info ? nvid + ' - ' + info.name : nvid}</option>`;
-                });
+                el.innerHTML = '<option value="">Tất cả NV</option>' + usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
             });
         }
 
@@ -2621,32 +2614,18 @@
         }
 
         function populateTongDonFilters() {
-            const nppIds = new Set();
-            const nvIds = new Set();
-            ordersData.forEach(o => {
-                if (o.npp) nppIds.add(o.npp);
-                if (o.id_nv) nvIds.add(o.id_nv);
-            });
-
             const nppSelect = document.getElementById('tongdonFilterNpp');
             const nvSelect = document.getElementById('tongdonFilterNv');
 
             if (nppSelect) {
-                nppSelect.innerHTML = '<option value="">Tất cả NPP</option>';
-                [...nppIds].sort().forEach(id => {
-                    const info = nppData.find(n => n.id === id);
-                    const displayName = info ? `${id} - ${info.name}` : id;
-                    nppSelect.innerHTML += `<option value="${id}">${displayName}</option>`;
-                });
+                let nppOptions = '<option value="">Tất cả NPP</option>';
+                nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+                nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
+                nppSelect.innerHTML = nppOptions;
             }
 
             if (nvSelect) {
-                nvSelect.innerHTML = '<option value="">Tất cả NV</option>';
-                [...nvIds].sort().forEach(id => {
-                    const info = usersData.find(u => u.id === id);
-                    const displayName = info ? `${id} - ${info.name}` : id;
-                    nvSelect.innerHTML += `<option value="${id}">${displayName}</option>`;
-                });
+                nvSelect.innerHTML = '<option value="">Tất cả NV</option>' + usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
             }
         }
 
@@ -3797,6 +3776,9 @@
                         <input type="number" id="addQty_${rowId}" oninput="calcAddTotal(${rowId})" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-sm outline-none text-center" placeholder="1" value="1">
                     </td>
                     <td class="px-2 py-2">
+                        <input type="text" id="addStock_${rowId}" readonly class="w-full px-2 py-1.5 bg-transparent border-none text-slate-500 text-center outline-none text-sm font-medium" value="-">
+                    </td>
+                    <td class="px-2 py-2">
                         <input type="number" id="addTotal_${rowId}" readonly class="w-full px-2 py-1.5 bg-transparent border-none text-blue-600 font-bold text-right outline-none text-sm" value="0">
                     </td>
                     <td class="px-1 py-2 text-center">
@@ -3822,7 +3804,52 @@
             } else if (!spId) {
                 document.getElementById(`addPrice_${id}`).value = '';
             }
+            updateRowStock(id);
             calcAddTotal(id);
+        }
+
+        function getCurrentStockValue(kho, id_sp) {
+            if (!kho || !id_sp) return null;
+            const k = khospData.find(x => x.kho === kho && x.id_sp === id_sp);
+            if (!k) return 0;
+
+            const nhap = ordersData.filter(o => o.npp === k.kho && o.id_sp === k.id_sp)
+                .reduce((sum, o) => sum + (parseFloat(o.qty) || 0), 0);
+            const xuat = ordersData.filter(o => o.kho_di === k.kho && o.id_sp === k.id_sp)
+                .reduce((sum, o) => sum + (parseFloat(o.qty) || 0), 0);
+
+            return k.ton_dau + nhap - xuat;
+        }
+
+        function updateRowStock(id) {
+            const kho = document.getElementById('addKhoDi')?.value || '';
+            const spId = document.getElementById(`addIdSp_${id}`)?.value || '';
+            const stockEl = document.getElementById(`addStock_${id}`);
+            if (!stockEl) return;
+
+            if (!kho || !spId) {
+                stockEl.value = '-';
+                stockEl.classList.remove('text-red-600', 'text-amber-600', 'text-slate-800');
+                stockEl.classList.add('text-slate-400');
+                return;
+            }
+
+            const stock = getCurrentStockValue(kho, spId);
+            stockEl.value = stock !== null ? stock.toLocaleString('vi-VN') : '-';
+            
+            stockEl.classList.remove('text-red-600', 'text-amber-600', 'text-slate-800', 'text-slate-400');
+            if (stock <= 0) stockEl.classList.add('text-red-600', 'font-bold');
+            else if (stock < 10) stockEl.classList.add('text-amber-600', 'font-semibold');
+            else stockEl.classList.add('text-slate-800', 'font-semibold');
+        }
+
+        function updateAllStockValues() {
+            const container = document.getElementById('dhctProductList');
+            const rows = container.querySelectorAll('tr[id^="dhctRow_"]');
+            rows.forEach(row => {
+                const id = row.id.split('_')[1];
+                updateRowStock(id);
+            });
         }
 
         function calcAddTotal(id) {
@@ -3857,6 +3884,7 @@
                     document.getElementById(`addIdSp_${currentRowId}`).value = item.id_sp;
                     document.getElementById(`addPrice_${currentRowId}`).value = item.price;
                     document.getElementById(`addQty_${currentRowId}`).value = item.qty;
+                    updateRowStock(currentRowId);
                     calcAddTotal(currentRowId);
                 });
 
@@ -3939,7 +3967,7 @@
             document.getElementById('addTotalSum').textContent = sum.toLocaleString('vi-VN');
         }
 
-        function openAddDHCTForm() {
+        async function openAddDHCTForm() {
             const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
             if (!isAdmin) return alert('Chỉ có admin mới được quyền thêm mới!');
             document.getElementById('dhctAddSidePanel').classList.remove('translate-x-full');
@@ -3952,6 +3980,17 @@
             document.getElementById('addDate').value = today.toISOString().split('T')[0];
             document.getElementById('addDhId').value = generateUniqueOrderId();
             document.getElementById('addNcc').value = '';
+
+            // Core data check - fetch if missing
+            const fetchPromises = [];
+            if (usersData.length === 0) fetchPromises.push(fetchAuthData());
+            if (productsData.length === 0) fetchPromises.push(fetchProductData());
+            if (nppData.length === 0) fetchPromises.push(fetchNPPData());
+            if (khoData.length === 0) fetchPromises.push(fetchKhoData());
+            
+            if (fetchPromises.length > 0) {
+                await Promise.all(fetchPromises);
+            }
 
             // Populate NV select
             const nvSelect = document.getElementById('addIdNv');
@@ -3968,7 +4007,13 @@
             // Populate Kho selects from khoData
             const khoOptions = '<option value="">-- Chọn kho đi --</option>' + khoData.map(k => `<option value="${k.id}">${k.id} - ${k.kho}</option>`).join('');
             const khoDiEl = document.getElementById('addKhoDi');
-            if (khoDiEl) khoDiEl.innerHTML = khoOptions;
+            if (khoDiEl) {
+                khoDiEl.innerHTML = khoOptions;
+                khoDiEl.onchange = updateAllStockValues; // Wire up the stock update
+            }
+
+            // Ensure stock data is available
+            if (khospData.length === 0) fetchKhoSPData();
 
             // Reset ReadOnly/Disabled states
             const masterFields = ['addDhId', 'addDate', 'addIdNv', 'addNpp'];
