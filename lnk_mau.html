@@ -1081,7 +1081,7 @@
                                         <th
                                             class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
                                             Giá bán</th>
-                                        <th
+                                        <th id="col-header-gia-von"
                                             class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
                                             Giá vốn</th>
                                     </tr>
@@ -1976,6 +1976,23 @@
 
                     console.log("Fetched Users Data (Safe):", usersData);
                     renderDSNVList();
+
+                    // Restore Session if exists
+                    const savedUser = localStorage.getItem('erp_user_session');
+                    if (savedUser) {
+                        try {
+                            const userObj = JSON.parse(savedUser);
+                            // Verify user still exists
+                            const validUser = usersData.find(u => u.id === userObj.id);
+                            if (validUser) {
+                                currentUser = validUser;
+                                updateUserProfileUI();
+                                document.getElementById('loginScreen').classList.add('hidden');
+                                document.getElementById('mainApp').classList.remove('hidden');
+                                showModule('home');
+                            }
+                        } catch (e) { console.error("Session restore error", e); }
+                    }
                 } else {
                     console.warn("No data found in sheet or format is wrong:", data);
                 }
@@ -2169,6 +2186,44 @@
             } catch (err) { alert("Không thể xác thực với Google API"); return null; }
         }
 
+        function updateUserProfileUI() {
+            if (!currentUser) return;
+            const role = currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+            const isAdmin = role === 'ADMIN';
+            const isKT = role === 'KT';
+            const isKD = role === 'KD';
+
+            // Top Bar Profile
+            const nameEls = ['userNameHeader', 'userNameHeaderMobile'];
+            const roleEls = ['userRoleHeader', 'userRoleHeaderMobile'];
+            nameEls.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = currentUser.name; });
+            roleEls.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = role; });
+            
+            const avatar = document.getElementById('userAvatar');
+            if (avatar) avatar.textContent = currentUser.name.charAt(0).toUpperCase();
+
+            // Sidebar Visibility
+            const navDsNv = document.getElementById('nav-dsnv');
+            const navKho = document.getElementById('nav-kho');
+            const navKhoSp = document.getElementById('nav-khosp');
+
+            if (isKD) {
+                if (navDsNv) navDsNv.style.display = 'none';
+                if (navKho) navKho.style.display = 'none';
+                if (navKhoSp) navKhoSp.style.display = 'none';
+            } else {
+                if (navDsNv) navDsNv.style.display = '';
+                if (navKho) navKho.style.display = '';
+                if (navKhoSp) navKhoSp.style.display = '';
+            }
+
+            // DSSP "Giá vốn" Header Visibility
+            const costHeader = document.getElementById('col-header-gia-von');
+            if (costHeader) costHeader.style.display = isAdmin ? '' : 'none';
+
+            // Special Case: Dashboard stats are shared for all as requested
+        }
+
         function handleLogin() {
             const uid = document.getElementById('usernameInput').value.trim();
             const pwd = document.getElementById('passwordInput').value.trim();
@@ -2238,6 +2293,13 @@
         }
 
         function showModule(moduleName) {
+            const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+            const restrictedModules = ['dsnv', 'kho', 'khosp'];
+            if (userRole === 'KD' && restrictedModules.includes(moduleName)) {
+                alert("Bạn không có quyền truy cập chức năng này!");
+                return;
+            }
+
             // Auto close sidebar on mobile after selection
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -3299,6 +3361,9 @@
             const slicedData = data.slice(start, start + ROWS_PER_PAGE_DSSP);
 
             slicedData.forEach(p => {
+                const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+                const isAdmin = userRole === 'ADMIN';
+
                 tableBody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4 text-sm font-mono text-slate-500">${p.id}</td>
@@ -3306,7 +3371,7 @@
                         <td class="px-6 py-4 text-sm text-slate-600">${p.module}</td>
                         <td class="px-6 py-4 text-sm text-slate-600">${p.ncc}</td>
                         <td class="px-6 py-4 text-sm font-bold text-blue-600 text-right">${Number(p.price).toLocaleString('vi-VN')} đ</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-slate-500 text-right">${Number(p.cost || 0).toLocaleString('vi-VN')} đ</td>
+                        ${isAdmin ? `<td class="px-6 py-4 text-sm font-semibold text-slate-500 text-right">${Number(p.cost || 0).toLocaleString('vi-VN')} đ</td>` : ''}
                     </tr>
                 `;
             });
@@ -3378,10 +3443,21 @@
         }
 
         function downloadDSSPTemplate() {
-            const data = [
-                ["id", "ten_sp", "modul", "ncc", "gia_ban", "gia_von"],
-                ...productsData.map(p => [p.id, p.name, p.module, p.ncc, p.price, p.cost || ''])
-            ];
+            const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+            const isAdmin = userRole === 'ADMIN';
+
+            let data;
+            if (isAdmin) {
+                data = [
+                    ["id", "ten_sp", "modul", "ncc", "gia_ban", "gia_von"],
+                    ...productsData.map(p => [p.id, p.name, p.module, p.ncc, p.price, p.cost || ''])
+                ];
+            } else {
+                data = [
+                    ["id", "ten_sp", "modul", "ncc", "gia_ban"],
+                    ...productsData.map(p => [p.id, p.name, p.module, p.ncc, p.price])
+                ];
+            }
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
             XLSX.utils.book_append_sheet(wb, ws, "SanPhan");
