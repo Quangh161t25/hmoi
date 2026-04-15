@@ -829,13 +829,12 @@
                                         class="w-8 h-10 flex items-center justify-center bg-slate-100 rounded-lg hover:bg-slate-200 text-slate-600 transition">+</button>
                                 </div>
                             </div>
-                            <!-- NPP Filter -->
+                            <!-- KH Filter -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Nhà phân
-                                    phối</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Khách hàng</label>
                                 <select id="dashFilterNpp" onchange="updateDashboard()"
                                     class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <option value="">Tất cả NPP</option>
+                                    <option value="">Tất cả Khách hàng</option>
                                 </select>
                             </div>
                             <!-- NV Filter -->
@@ -883,7 +882,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <span>Unique theo id_dh, ngày, id_nv, npp</span>
+                                <span>Unique theo id_dh, ngày, id_nv, KH</span>
                             </div>
                         </div>
                     </div>
@@ -917,14 +916,14 @@
                         <div
                             class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col h-[450px]">
                             <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 shrink-0">
-                                <h3 class="font-bold text-slate-800">Doanh thu theo NPP</h3>
+                                <h3 class="font-bold text-slate-800">Doanh thu theo Khách hàng</h3>
                             </div>
                             <div class="overflow-x-auto overflow-y-auto flex-1">
                                 <table class="w-full text-left text-sm no-min">
                                     <thead
                                         class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest sticky top-0 z-10">
                                         <tr>
-                                            <th class="px-6 py-3 w-[60%]">Nhà phân phối</th>
+                                            <th class="px-6 py-3 w-[60%]">Khách hàng</th>
                                             <th class="px-6 py-3 text-left">Doanh thu</th>
                                         </tr>
                                     </thead>
@@ -1082,6 +1081,9 @@
                                         <th
                                             class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
                                             Giá bán</th>
+                                        <th
+                                            class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                                            Giá vốn</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dsspTableBody" class="divide-y divide-slate-100">
@@ -1147,7 +1149,7 @@
                                     nhanh</label>
                                 <input type="text" id="dhctSearchInput" oninput="filterDHCT()"
                                     class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition"
-                                    placeholder="Mã đơn, ID SP, NPP...">
+                                    placeholder="Mã đơn, ID SP, KH...">
                             </div>
                             <!-- From Date -->
                             <div>
@@ -1175,11 +1177,10 @@
                             </div>
                             <!-- NPP Filter -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Nhà phân
-                                    phối</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Khách hàng</label>
                                 <select id="dhctFilterNpp" onchange="filterDHCT()"
                                     class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <option value="">Tất cả NPP</option>
+                                    <option value="">Tất cả KH</option>
                                 </select>
                             </div>
                             <!-- NV Filter -->
@@ -1207,7 +1208,7 @@
                                         <th class="px-4 py-3 text-center">SL</th>
                                         <th class="px-4 py-3 text-right">Thành tiền</th>
                                         <th class="px-4 py-3">Nhân viên</th>
-                                        <th class="px-4 py-3">NPP</th>
+                                        <th class="px-4 py-3">KH</th>
                                         <th class="px-4 py-3">NCC</th>
                                         <th class="px-4 py-3">Kho đi</th>
                                     </tr>
@@ -1257,11 +1258,10 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">NhÃ  phÃ¢n
-                                    phá»‘i</label>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Khách hàng</label>
                                 <select id="tongdonFilterNpp" onchange="filterTongDon()"
                                     class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                    <option value="">Táº¥t cáº£ NPP</option>
+                                    <option value="">Tất cả KH</option>
                                 </select>
                             </div>
                             <div>
@@ -1297,9 +1297,9 @@
                                     <tr
                                         class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
                                         <th class="px-4 py-3">ID ÄH</th>
-                                        <th class="px-4 py-3">NgÃ y</th>
-                                        <th class="px-4 py-3">NhÃ¢n viÃªn</th>
-                                        <th class="px-4 py-3">NPP</th>
+                                        <th class="px-4 py-3">Ngày</th>
+                                        <th class="px-4 py-3">Nhân viên</th>
+                                        <th class="px-4 py-3">KH</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tongdonTableBody" class="divide-y divide-slate-50">
@@ -1544,10 +1544,10 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Nhà phân phối</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Khách hàng *</label>
                         <select id="addNpp"
                             class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
-                            <option value="">-- Chọn NPP --</option>
+                            <option value="">-- Chọn khách hàng --</option>
                         </select>
                     </div>
                     <div>
@@ -1686,7 +1686,7 @@
                         <span id="tdStaff" class="font-medium text-slate-700">---</span>
                     </div>
                     <div class="col-span-2 pt-2 border-t border-slate-100">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Nhà phân phối</span>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Khách hàng</span>
                         <span id="tdNpp" class="font-medium text-slate-700">---</span>
                     </div>
                     <div class="col-span-2 pt-2 border-t border-slate-100">
@@ -1871,6 +1871,7 @@
 
         // Pagination State
         const ROWS_PER_PAGE = 100;
+        const ROWS_PER_PAGE_DSSP = 200;
         let currentPageDHCT = 1;
         let currentPageTongDon = 1;
         let currentPageDSSP = 1;
@@ -2003,13 +2004,15 @@
                     const iMod = headers.findIndex(h => h === 'modul' || h === 'module');
                     const iNcc = headers.findIndex(h => h === 'ncc' || h === 'nhà cung cấp');
                     const iPrice = headers.findIndex(h => h === 'gia_ban' || h === 'giá bán' || h === 'price');
+                    const iCost = headers.findIndex(h => h === 'gia_von' || h === 'giá vốn' || h === 'cost');
 
                     productsData = data.values.slice(1).map(r => ({
                         id: (iId !== -1 ? r[iId] : (r[0] || '')).toString().trim(),
                         name: iName !== -1 ? r[iName] : (r[1] || ''),
                         module: iMod !== -1 ? r[iMod] : (r[2] || ''),
                         ncc: iNcc !== -1 ? r[iNcc] : (r[3] || ''),
-                        price: iPrice !== -1 ? r[iPrice] : (r[4] || '')
+                        price: iPrice !== -1 ? r[iPrice] : (r[4] || ''),
+                        cost: iCost !== -1 ? r[iCost] : (r[5] || '')
                     })).filter(p => p.id);
 
                     renderDSSPList();
@@ -2123,7 +2126,7 @@
             const nvSelect = document.getElementById('dhctFilterNv');
 
             if (nppSelect) {
-                nppSelect.innerHTML = '<option value="">Tất cả NPP</option>';
+                nppSelect.innerHTML = '<option value="">Tất cả khách hàng</option>';
                 [...nppIds].sort().forEach(id => {
                     const info = nppData.find(n => n.id === id);
                     const displayName = info ? `${id} - ${info.name}` : id;
@@ -2305,11 +2308,15 @@
                     populateTongDonFilters();
                     filterTongDon();
                 });
-                const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+                const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+                const isAdmin = userRole === 'ADMIN';
+                const isKT = userRole === 'KT';
+                const isAuthorized = isAdmin || isKT;
+
                 const btnAddTongDon = document.getElementById('btn-add-tongdon');
-                if (btnAddTongDon) btnAddTongDon.style.display = isAdmin ? 'flex' : 'none';
+                if (btnAddTongDon) btnAddTongDon.style.display = isAuthorized ? 'flex' : 'none';
                 const btnAddTongDonJs = document.getElementById('btn-add-tongdon-js');
-                if (btnAddTongDonJs) btnAddTongDonJs.style.display = isAdmin ? 'flex' : 'none';
+                if (btnAddTongDonJs) btnAddTongDonJs.style.display = isAuthorized ? 'flex' : 'none';
                 const editBtn = document.getElementById('tongDonEditBtn');
                 if (editBtn) editBtn.style.display = isAdmin ? '' : 'none';
             }
@@ -2318,13 +2325,15 @@
             if (moduleName === 'dsnv') {
                 const adminActions = document.getElementById('admin-actions');
                 const colHeaderMk = document.getElementById('col-header-mk');
-                const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+                const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+                const isAdmin = userRole === 'ADMIN';
+                const isAuthorized = isAdmin || userRole === 'KT';
 
                 if (adminActions) {
-                    if (isAdmin) {
+                    if (isAuthorized) {
                         adminActions.classList.remove('hidden');
                         adminActions.classList.add('flex');
-                        if (colHeaderMk) colHeaderMk.classList.remove('hidden');
+                        if (colHeaderMk) colHeaderMk.classList.toggle('hidden', !isAdmin);
                     } else {
                         adminActions.classList.add('hidden');
                         adminActions.classList.remove('flex');
@@ -2339,9 +2348,10 @@
             // Permission Check for DSSP Admin Actions
             if (moduleName === 'dssp') {
                 const productAdminActions = document.getElementById('product-admin-actions');
-                const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+                const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+                const isAuthorized = userRole === 'ADMIN' || userRole === 'KT';
                 if (productAdminActions) {
-                    if (isAdmin) {
+                    if (isAuthorized) {
                         productAdminActions.classList.remove('hidden');
                         productAdminActions.classList.add('flex');
                     } else {
@@ -2368,18 +2378,33 @@
                     setThisWeekRange('dhctFromDate', 'dhctToDate');
                 }
                 const dhctAdminActions = document.getElementById('dhct-admin-actions');
-                const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+                const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+                const isAdmin = userRole === 'ADMIN';
+                const isKT = userRole === 'KT';
+                const isAuthorized = isAdmin || isKT;
+
                 if (dhctAdminActions) {
-                    if (isAdmin) {
+                    if (isAuthorized) {
                         dhctAdminActions.classList.remove('hidden');
                         dhctAdminActions.classList.add('flex');
+                        
+                        // Restriction for KT: Hide specific buttons
+                        const btns = dhctAdminActions.querySelectorAll('button, label');
+                        btns.forEach(el => {
+                            const text = el.textContent.toLowerCase();
+                            if (isKT && (text.includes('mẫu trống') || text.includes('up đơn hàng'))) {
+                                el.style.display = 'none';
+                            } else {
+                                el.style.display = '';
+                            }
+                        });
                     } else {
                         dhctAdminActions.classList.add('hidden');
                         dhctAdminActions.classList.remove('flex');
                     }
                 }
                 const btnAddDhct = document.getElementById('btn-add-dhct');
-                if (btnAddDhct) btnAddDhct.style.display = isAdmin ? 'flex' : 'none';
+                if (btnAddDhct) btnAddDhct.style.display = isAuthorized ? 'flex' : 'none';
 
                 // Fetch all dependencies for lookups
                 Promise.all([
@@ -2403,7 +2428,7 @@
             nppSelectors.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                let nppOptions = '<option value="">Tất cả NPP</option>';
+                let nppOptions = '<option value="">Tất cả khách hàng</option>';
                 nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
                 nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
                 el.innerHTML = nppOptions;
@@ -2549,7 +2574,7 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tìm kiếm nhanh</label>
                             <input type="text" id="tongdonSearchInput" oninput="filterTongDon()"
                                 class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition"
-                                placeholder="Mã đơn, NPP, nhân viên...">
+                                placeholder="Mã đơn, KH, nhân viên...">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Từ ngày</label>
@@ -2570,10 +2595,10 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Nhà phân phối</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Khách hàng</label>
                             <select id="tongdonFilterNpp" onchange="filterTongDon()"
                                 class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
-                                <option value="">Tất cả NPP</option>
+                                <option value="">Tất cả KH</option>
                             </select>
                         </div>
                         <div>
@@ -2598,7 +2623,7 @@
                                     <th class="px-4 py-3">ID ĐH</th>
                                     <th class="px-4 py-3">Ngày</th>
                                     <th class="px-4 py-3">Nhân viên</th>
-                                    <th class="px-4 py-3">NPP</th>
+                                    <th class="px-4 py-3">KH</th>
                                     <th class="px-4 py-3 text-right">Tổng tiền</th>
                                 </tr>
                             </thead>
@@ -2618,7 +2643,7 @@
             const nvSelect = document.getElementById('tongdonFilterNv');
 
             if (nppSelect) {
-                let nppOptions = '<option value="">Tất cả NPP</option>';
+                let nppOptions = '<option value="">Tất cả khách hàng</option>';
                 nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
                 nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
                 nppSelect.innerHTML = nppOptions;
@@ -2696,7 +2721,7 @@
                     document.getElementById('tdNpp').innerHTML = `
                         <select onchange="updateTongDonHeader('${idDh}', 'npp', this.value)"
                             class="w-full text-xs p-1 border border-blue-200 rounded focus:ring-1 focus:ring-blue-500 outline-none">
-                            <option value="">-- Chọn NPP/Kho --</option>
+                            <option value="">-- Chọn khách hàng/Kho --</option>
                             ${nppOptions}
                         </select>`;
 
@@ -2747,15 +2772,20 @@
                 let priceCell = (parseFloat(o.price) || 0).toLocaleString('vi-VN');
 
                 if (isTongDonEditMode && !isAddingItemTongDon) {
-                    actionHtml = `
-                        <td class="px-3 py-3 text-center">
-                            <button onclick="deleteDHCTItem('${rowId}')" class="text-red-400 hover:text-red-600 transition" title="Xóa">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </td>
-                    `;
+                    const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
+                    if (isAdmin) {
+                        actionHtml = `
+                            <td class="px-3 py-3 text-center">
+                                <button onclick="deleteDHCTItem('${rowId}')" class="text-red-400 hover:text-red-600 transition" title="Xóa">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </td>
+                        `;
+                    } else {
+                        actionHtml = `<td class="px-3 py-3 text-center text-slate-300">---</td>`;
+                    }
                     qtyCell = `<input type="number" value="${o.qty}" onchange="updateDHCTItem('${rowId}', 'qty', this.value)" class="w-16 px-1 py-1 border border-blue-200 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none">`;
                     priceCell = `<input type="number" value="${o.price}" onchange="updateDHCTItem('${rowId}', 'price', this.value)" class="w-24 px-1 py-1 border border-blue-200 rounded text-right focus:ring-1 focus:ring-blue-500 outline-none">`;
                 }
@@ -2825,8 +2855,8 @@
         }
 
         function toggleTongDonEditMode() {
-            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
-            if (!isAdmin) return alert("Chỉ có admin mới được quyền sửa đơn hàng!");
+            const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+            if (userRole !== 'ADMIN') return alert("Chỉ có admin mới được quyền sửa đơn hàng!");
             isTongDonEditMode = !isTongDonEditMode;
             const btn = document.getElementById('tongDonEditBtn');
             if (isTongDonEditMode) {
@@ -2838,8 +2868,8 @@
         }
 
         async function deleteDHCTItem(id) {
-            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
-            if (!isAdmin) return alert("Chỉ có admin mới được quyền xóa đơn hàng!");
+            const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+            if (userRole !== 'ADMIN') return alert("Chỉ có admin mới được quyền xóa đơn hàng!");
             if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi đơn hàng?')) return;
             const idx = ordersData.findIndex(o => o.id === id);
             if (idx !== -1) {
@@ -3136,7 +3166,7 @@
         }
 
         function downloadDHCTTemplate() {
-            const data = [["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc", "kho_di"]];
+            const data = [["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"]];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
             XLSX.utils.book_append_sheet(wb, ws, "MauDonHang");
@@ -3145,7 +3175,7 @@
 
         function downloadDHCTExport() {
             const data = [
-                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc", "kho_di"],
+                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"],
                 ...filteredOrders.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
             ];
             const wb = XLSX.utils.book_new();
@@ -3176,7 +3206,7 @@
                     const iQty = headers.findIndex(h => h === 'slg' || h === 'sl');
                     const iTotal = headers.findIndex(h => h === 'thanh_tien' || h === 'total');
                     const iNvid = headers.findIndex(h => h === 'id_nv');
-                    const iNpp = headers.findIndex(h => h === 'npp');
+                    const iNpp = headers.findIndex(h => h === 'npp' || h === 'kh' || h === 'khách hàng');
                     const iNcc = headers.findIndex(h => h === 'ncc');
                     const iKhoDi = headers.findIndex(h => h === 'kho_di' || h === 'kho_đi');
 
@@ -3236,7 +3266,7 @@
             const sid = CONFIG.spreadsheetId;
             const sname = "DH_CT";
             const rows = [
-                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "npp", "ncc", "kho_di"],
+                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"],
                 ...ordersData.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
             ];
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:K${rows.length}?valueInputOption=USER_ENTERED`;
@@ -3255,18 +3285,18 @@
             tableBody.innerHTML = '';
             tableBody.classList.remove('italic', 'text-slate-400');
             if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">Không tìm thấy sản phẩm nào.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">Không tìm thấy sản phẩm nào.</td></tr>`;
                 const pagCont = document.getElementById('dsspPagination');
                 if (pagCont) pagCont.innerHTML = '';
                 return;
             }
 
             // Pagination
-            const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+            const totalPages = Math.ceil(data.length / ROWS_PER_PAGE_DSSP);
             if (currentPageDSSP > totalPages) currentPageDSSP = 1;
 
-            const start = (currentPageDSSP - 1) * ROWS_PER_PAGE;
-            const slicedData = data.slice(start, start + ROWS_PER_PAGE);
+            const start = (currentPageDSSP - 1) * ROWS_PER_PAGE_DSSP;
+            const slicedData = data.slice(start, start + ROWS_PER_PAGE_DSSP);
 
             slicedData.forEach(p => {
                 tableBody.innerHTML += `
@@ -3276,6 +3306,7 @@
                         <td class="px-6 py-4 text-sm text-slate-600">${p.module}</td>
                         <td class="px-6 py-4 text-sm text-slate-600">${p.ncc}</td>
                         <td class="px-6 py-4 text-sm font-bold text-blue-600 text-right">${Number(p.price).toLocaleString('vi-VN')} đ</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-500 text-right">${Number(p.cost || 0).toLocaleString('vi-VN')} đ</td>
                     </tr>
                 `;
             });
@@ -3348,8 +3379,8 @@
 
         function downloadDSSPTemplate() {
             const data = [
-                ["id", "ten_sp", "modul", "ncc", "gia_ban"],
-                ...productsData.map(p => [p.id, p.name, p.module, p.ncc, p.price])
+                ["id", "ten_sp", "modul", "ncc", "gia_ban", "gia_von"],
+                ...productsData.map(p => [p.id, p.name, p.module, p.ncc, p.price, p.cost || ''])
             ];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -3376,13 +3407,15 @@
                     const iMod = headers.findIndex(h => h === 'modul' || h === 'module');
                     const iNcc = headers.findIndex(h => h === 'ncc');
                     const iPrice = headers.findIndex(h => h === 'gia_ban' || h === 'price');
+                    const iCost = headers.findIndex(h => h === 'gia_von' || h === 'cost');
 
                     const newProducts = jsonData.slice(1).map(r => ({
                         id: (iId !== -1 ? r[iId] : (r[0] || '')).toString().trim(),
                         name: iName !== -1 ? r[iName] : (r[1] || ''),
                         module: iMod !== -1 ? r[iMod] : (r[2] || ''),
                         ncc: iNcc !== -1 ? r[iNcc] : (r[3] || ''),
-                        price: iPrice !== -1 ? r[iPrice] : (r[4] || '')
+                        price: iPrice !== -1 ? r[iPrice] : (r[4] || ''),
+                        cost: iCost !== -1 ? r[iCost] : (r[5] || '')
                     })).filter(p => p.id);
 
                     let updatedCount = 0;
@@ -3412,10 +3445,10 @@
             const sid = CONFIG.spreadsheetId;
             const sname = "DS_SP";
             const rows = [
-                ["id", "ten_sp", "modul", "ncc", "gia_ban"],
-                ...productsData.map(p => [p.id, p.name, p.module, p.ncc, p.price])
+                ["id", "ten_sp", "modul", "ncc", "gia_ban", "gia_von"],
+                ...productsData.map(p => [p.id, p.name, p.module, p.ncc, p.price, p.cost || ''])
             ];
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:E${rows.length}?valueInputOption=USER_ENTERED`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:F${rows.length}?valueInputOption=USER_ENTERED`;
             await fetch(url, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
@@ -3968,8 +4001,9 @@
         }
 
         async function openAddDHCTForm() {
-            const isAdmin = currentUser && currentUser.role && currentUser.role.trim().toUpperCase() === 'ADMIN';
-            if (!isAdmin) return alert('Chỉ có admin mới được quyền thêm mới!');
+            const userRole = currentUser && currentUser.role ? currentUser.role.trim().toUpperCase() : '';
+            const isAuthorized = userRole === 'ADMIN' || userRole === 'KT';
+            if (!isAuthorized) return alert('Bạn không có quyền thêm mới!');
             document.getElementById('dhctAddSidePanel').classList.remove('translate-x-full');
             const overlay = document.getElementById('dhctAddOverlay');
             overlay.classList.remove('hidden');
@@ -3997,9 +4031,9 @@
             nvSelect.innerHTML = '<option value="">-- Chọn nhân viên --</option>' + usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
             nvSelect.value = currentUser ? currentUser.id : '';
 
-            // Populate NPP select (Including KHO)
+            // Populate KH select (Including KHO)
             const nppSelect = document.getElementById('addNpp');
-            let nppOptions = '<option value="">-- Chọn NPP/Kho --</option>';
+            let nppOptions = '<option value="">-- Chọn khách hàng/Kho --</option>';
             nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
             nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
             nppSelect.innerHTML = nppOptions;
