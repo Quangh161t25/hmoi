@@ -1129,6 +1129,52 @@
             color: #9a3412;
         }
 
+        .broom-icon {
+            color: #f59e0b;
+            margin-left: 6px;
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            animation: broom-shake 2s infinite ease-in-out;
+            transform-origin: bottom right;
+        }
+
+        @keyframes broom-shake {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-15deg); }
+            40% { transform: rotate(10deg); }
+            60% { transform: rotate(-5deg); }
+            80% { transform: rotate(2deg); }
+        }
+
+        .room-status-dirty {
+            background: #fef2f2;
+        }
+
+        /* Room List Tab Styles */
+        .room-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-list-table th, .room-list-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .room-list-table th {
+            background: #f8fafc;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
         /* === BOOKING MODAL === */
         .booking-modal {
             background: #ffffff;
@@ -1847,6 +1893,7 @@
         <!-- Tab Navigation -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tab-sheet')" id="btn-tab-sheet">Xem đặt phòng</button>
+            <button class="tab-btn" onclick="switchTab('tab-room-list')" id="btn-tab-room-list">Danh sách phòng</button>
             <button class="tab-btn" onclick="switchTab('tab-report')" id="btn-tab-report">Báo cáo</button>
         </div>
 
@@ -1933,6 +1980,76 @@
 
             <div id="timelineContainer" class="timeline-container">
                 <!-- Timeline inject here -->
+            </div>
+        </div>
+
+        <!-- Tab 3: Danh sách phòng -->
+        <div id="tab-room-list" class="tab-content">
+            <header style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <h1>Danh sách phòng</h1>
+                    <button class="tool-btn-outline" onclick="bulkClearDirty()" style="color: #ef4444; border-color: #fca5a5; font-weight: 700;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20l9-9-9-9-9 9 9 9z"/><path d="M2 12l10 10 10-10"/></svg>
+                        Xóa tất cả Bẩn
+                    </button>
+                </div>
+                <button class="btn-primary" onclick="fetchData()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    Tải dữ liệu
+                </button>
+            </header>
+
+            <!-- Room Filter Bar -->
+            <div class="report-filter-bar" style="margin-bottom: 1.5rem;">
+                <div class="report-filter-group">
+                    <label>Loại phòng</label>
+                    <select id="roomFilterType" onchange="renderRoomList()">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+                <div class="report-filter-group">
+                    <label>Phòng</label>
+                    <input type="text" id="roomFilterName" placeholder="Số phòng..." oninput="renderRoomList()">
+                </div>
+                <div class="report-filter-group">
+                    <label>Tầng</label>
+                    <select id="roomFilterFloor" onchange="renderRoomList()">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+                <div class="report-filter-group">
+                    <label>Trạng thái</label>
+                    <select id="roomFilterStatus" onchange="renderRoomList()">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+                <div class="report-filter-group">
+                    <label>Tình trạng</label>
+                    <select id="roomFilterDirty" onchange="renderRoomList()">
+                        <option value="">Tất cả</option>
+                        <option value="Bẩn">Bẩn</option>
+                        <option value="Sạch">Sạch</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="roomListContent" class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Loại phòng</th>
+                            <th>Phòng</th>
+                            <th>Tầng</th>
+                            <th>Giá (ban ngày)</th>
+                            <th>Trạng thái</th>
+                            <th>Tình trạng</th>
+                            <th style="width: 100px; text-align: center;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomListTableBody">
+                        <!-- Content will be injected here -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -2711,9 +2828,15 @@
             renderTable();
 
             // Nếu đang ở tab báo cáo thì cập nhật báo cáo luôn
-            if (document.getElementById('tab-report').classList.contains('active')) {
+            if (document.getElementById('tab-report') && document.getElementById('tab-report').classList.contains('active')) {
                 populateReportFilters();
                 renderReports();
+            }
+
+            // Nếu đang ở tab danh sách phòng thì cập nhật danh sách
+            if (document.getElementById('tab-room-list') && document.getElementById('tab-room-list').classList.contains('active')) {
+                populateRoomFilters();
+                renderRoomList();
             }
         }
 
@@ -2922,6 +3045,8 @@
 
             const roomsMap = {}; // Holds data based on currentGroupMode
 
+            const roomMetadataMap = {};
+
             // 1. Khởi tạo sơ đồ từ danh sách phòng (roomListData) của sheet DS_PHONG
             if (roomListData && roomListData.length > 1) {
                 const rHeaders = roomListData[0];
@@ -2931,6 +3056,7 @@
                 const crType = findColIndex(rHeaders, COL_MAPPING.roomType);
                 const crName = findColIndex(rHeaders, COL_MAPPING.roomName, [crType]);
                 const crFloor = findColIndex(rHeaders, COL_MAPPING.floor, [crType, crName]);
+                const crTinhTrang = rHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'tinh_trang');
 
                 rRows.forEach(row => {
                     const roomId = crId !== -1 ? row[crId] : (crName !== -1 ? row[crName] : '');
@@ -2939,6 +3065,7 @@
                     let type = (crType !== -1 && row[crType]) ? row[crType].toString().trim() : 'LOẠI KHÁC';
                     let room = (crName !== -1 && row[crName]) ? row[crName].toString().trim() : roomId;
                     let floor = (crFloor !== -1 && row[crFloor]) ? row[crFloor].toString().trim() : 'Chưa định tầng';
+                    let tinhTrang = crTinhTrang !== -1 ? (row[crTinhTrang] || '').toString().trim() : '';
 
                     if (currentGroupMode === 'room') {
                         type = 'TẦNG ' + floor;
@@ -2946,6 +3073,8 @@
 
                     if (!roomsMap[type]) roomsMap[type] = {};
                     if (!roomsMap[type][room]) roomsMap[type][room] = [];
+
+                    roomMetadataMap[room] = { tinhTrang };
                 });
             }
             
@@ -3015,8 +3144,13 @@
                 bodyHTML += `<div class="room-type-header"><svg width="14" height="14" style="margin-right: 4px; display: inline; vertical-align: text-bottom;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> ${type}</div>`;
 
                 for (const [room, bookings] of Object.entries(rooms)) {
-                    bodyHTML += `<div class="timeline-row" data-room="${room}" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropBooking(event, '${room}')">`;
-                    bodyHTML += `<div class="room-info"><span class="room-number">${room}</span></div>`;
+                    const metadata = roomMetadataMap[room] || {};
+                    const isDirty = (metadata.tinhTrang === 'Bẩn');
+                    const broomIcon = isDirty ? `<svg class="broom-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Phòng bẩn - cần dọn dẹp"><path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"/><path d="M14.5 7L17 9.5"/><path d="M5 14l2 2"/><path d="M7 12l2 2"/><path d="M9 10l2 2"/></svg>` : '';
+                    const rowDirtyClass = isDirty ? 'room-status-dirty' : '';
+
+                    bodyHTML += `<div class="timeline-row ${rowDirtyClass}" data-room="${room}" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropBooking(event, '${room}')">`;
+                    bodyHTML += `<div class="room-info"><span class="room-number">${room}${broomIcon}</span></div>`;
 
                     bodyHTML += `<div class="timeline-grid">`;
                     if (isDayView) {
@@ -3875,6 +4009,207 @@
 
             renderTableBody('tableDailyReport', dailyStats, true);
             renderTableBody('tableRoomReport', roomStats);
+        }
+
+        function renderRoomList() {
+            const tbody = document.getElementById('roomListTableBody');
+            if (!tbody) return;
+
+            if (!roomListData || roomListData.length <= 1) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-dim);">Chưa có dữ liệu phòng.</td></tr>';
+                return;
+            }
+
+            const headers = roomListData[0];
+            const rows = roomListData.slice(1);
+
+            const cId = headers.indexOf('id');
+            const cType = findColIndex(headers, COL_MAPPING.roomType);
+            const cName = findColIndex(headers, COL_MAPPING.roomName, [cType]);
+            const cFloor = findColIndex(headers, COL_MAPPING.floor, [cType, cName]);
+            const cBanNgay = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'ban_ngay');
+            const cTrangThai = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'trang_thai');
+            const cTinhTrang = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'tinh_trang');
+
+            // Lấy giá trị lọc
+            const fType = document.getElementById('roomFilterType') ? document.getElementById('roomFilterType').value : '';
+            const fName = document.getElementById('roomFilterName') ? document.getElementById('roomFilterName').value.trim().toLowerCase() : '';
+            const fFloor = document.getElementById('roomFilterFloor') ? document.getElementById('roomFilterFloor').value : '';
+            const fStatus = document.getElementById('roomFilterStatus') ? document.getElementById('roomFilterStatus').value : '';
+            const fDirty = document.getElementById('roomFilterDirty') ? document.getElementById('roomFilterDirty').value : '';
+
+            let filteredRows = rows.map((row, idx) => ({ data: row, originalIndex: idx + 1 }));
+
+            // Áp dụng bộ lọc
+            if (fType) filteredRows = filteredRows.filter(r => r.data[cType] === fType);
+            if (fName) filteredRows = filteredRows.filter(r => (r.data[cName] || '').toString().toLowerCase().includes(fName));
+            if (fFloor) filteredRows = filteredRows.filter(r => r.data[cFloor] === fFloor);
+            if (fStatus) filteredRows = filteredRows.filter(r => r.data[cTrangThai] === fStatus);
+            if (fDirty) {
+                if (fDirty === 'Bẩn') filteredRows = filteredRows.filter(r => r.data[cTinhTrang] === 'Bẩn');
+                else filteredRows = filteredRows.filter(r => r.data[cTinhTrang] !== 'Bẩn');
+            }
+
+            // Lưu danh sách đã lọc vào biến toàn cục để dùng cho Bulk Clear
+            window.currentFilteredRooms = filteredRows;
+
+            tbody.innerHTML = filteredRows.map(r => {
+                const row = r.data;
+                const roomName = cName !== -1 ? row[cName] : (cId !== -1 ? row[cId] : 'N/A');
+                const tinhTrang = cTinhTrang !== -1 ? (row[cTinhTrang] || '').toString().trim() : '';
+                const isDirty = (tinhTrang === 'Bẩn');
+                const rowClass = isDirty ? 'room-status-dirty' : '';
+                const broomIcon = isDirty ? `<svg class="broom-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"/><path d="M14.5 7L17 9.5"/><path d="M5 14l2 2"/><path d="M7 12l2 2"/><path d="M9 10l2 2"/></svg>` : '';
+
+                return `
+                    <tr class="${rowClass}">
+                        <td>${cType !== -1 ? (row[cType] || '') : ''}</td>
+                        <td><strong>${roomName}</strong>${broomIcon}</td>
+                        <td>${cFloor !== -1 ? (row[cFloor] || '') : ''}</td>
+                        <td>${cBanNgay !== -1 ? formatNumberVi(row[cBanNgay]) : ''}</td>
+                        <td><span class="badge ${row[cTrangThai] === 'Sẵn sàng' ? 'badge-green' : 'badge-orange'}">${cTrangThai !== -1 ? (row[cTrangThai] || '') : ''}</span></td>
+                        <td><span class="badge ${isDirty ? 'badge-orange' : 'badge-green'}">${tinhTrang || 'Sạch'}</span></td>
+                        <td style="text-align: center;">
+                            ${isDirty ? `
+                                <button class="tool-btn-outline" onclick="updateRoomStatus(${r.originalIndex}, '')" style="padding: 2px 8px; font-size: 0.75rem; color: #10b981; border-color: #10b981;">
+                                    Sạch
+                                </button>
+                            ` : '-'}
+                        </td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-dim);">Không có phòng nào phù hợp với bộ lọc.</td></tr>';
+        }
+
+        function populateRoomFilters() {
+            if (!roomListData || roomListData.length <= 1) return;
+            const headers = roomListData[0];
+            const rows = roomListData.slice(1);
+
+            const cType = findColIndex(headers, COL_MAPPING.roomType);
+            const cFloor = findColIndex(headers, COL_MAPPING.floor);
+            const cTrangThai = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'trang_thai');
+
+            const types = new Set();
+            const floors = new Set();
+            const statuses = new Set();
+
+            rows.forEach(row => {
+                if (cType !== -1 && row[cType]) types.add(row[cType].toString().trim());
+                if (cFloor !== -1 && row[cFloor]) floors.add(row[cFloor].toString().trim());
+                if (cTrangThai !== -1 && row[cTrangThai]) statuses.add(row[cTrangThai].toString().trim());
+            });
+
+            const updateSelect = (id, items) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const currentVal = el.value;
+                el.innerHTML = '<option value="">Tất cả</option>' +
+                    Array.from(items).sort().map(i => `<option value="${i}" ${i === currentVal ? 'selected' : ''}>${i}</option>`).join('');
+            };
+
+            updateSelect('roomFilterType', types);
+            updateSelect('roomFilterFloor', floors);
+            updateSelect('roomFilterStatus', statuses);
+        }
+
+        async function updateRoomStatus(rowIndex, newStatus) {
+            const statusLabel = document.getElementById('saveStatus');
+            try {
+                if (statusLabel) {
+                    statusLabel.textContent = "Đang cập nhật tình trạng...";
+                    statusLabel.style.display = 'block';
+                }
+
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const rSheetName = CONFIG.roomSheetName;
+                
+                // Cột P là index 15, Sheets row là rowIndex + 1
+                const range = `${rSheetName}!P${rowIndex + 1}`; 
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`;
+                
+                const response = await fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ values: [[newStatus]] })
+                });
+                
+                if (response.ok) {
+                    toast.success(`Đã cập nhật tình trạng phòng.`);
+                    fetchData(); // Tải lại toàn bộ dữ liệu để đồng bộ
+                } else {
+                    const err = await response.json();
+                    alert("Lỗi: " + err.error.message);
+                }
+            } catch (err) {
+                console.error("Update status error:", err);
+                alert("Lỗi: " + err.message);
+            } finally {
+                if (statusLabel) statusLabel.style.display = 'none';
+            }
+        }
+
+        async function bulkClearDirty() {
+            const filteredDirtyRooms = (window.currentFilteredRooms || []).filter(r => {
+                const headers = roomListData[0];
+                const cTinhTrang = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'tinh_trang');
+                return r.data[cTinhTrang] === 'Bẩn';
+            });
+
+            if (filteredDirtyRooms.length === 0) {
+                return toast.show("Không có phòng bẩn nào trong danh sách đang lọc.", "info");
+            }
+
+            if (!confirm(`Bạn có chắc chắn muốn xóa "Bẩn" cho ${filteredDirtyRooms.length} phòng đang được lọc không?`)) return;
+
+            const statusLabel = document.getElementById('saveStatus');
+            try {
+                if (statusLabel) {
+                    statusLabel.textContent = `Đang xử lý ${filteredDirtyRooms.length} phòng...`;
+                    statusLabel.style.display = 'block';
+                }
+
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const rSheetName = CONFIG.roomSheetName;
+
+                // Sử dụng batchUpdate để hiệu quả hơn
+                const updates = filteredDirtyRooms.map(r => ({
+                    range: `${rSheetName}!P${r.originalIndex + 1}`,
+                    values: [[""]]
+                }));
+
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values:batchUpdate`;
+                
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        valueInputOption: "USER_ENTERED",
+                        data: updates
+                    })
+                });
+                
+                if (response.ok) {
+                    toast.success(`Đã dọn dẹp xong ${filteredDirtyRooms.length} phòng.`);
+                    fetchData();
+                } else {
+                    const err = await response.json();
+                    alert("Lỗi: " + err.error.message);
+                }
+            } catch (err) {
+                console.error("Bulk update error:", err);
+                alert("Lỗi: " + err.message);
+            } finally {
+                if (statusLabel) statusLabel.style.display = 'none';
+            }
         }
 
         function applySettings() {
@@ -4816,6 +5151,11 @@
             if (tabId === 'tab-report') {
                 populateReportFilters();
                 renderReports();
+            }
+
+            if (tabId === 'tab-room-list') {
+                populateRoomFilters();
+                renderRoomList();
             }
         }
 
