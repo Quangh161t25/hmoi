@@ -624,6 +624,13 @@
                     </svg>
                     <span class="sidebar-text">Tổng đơn</span>
                 </button>
+                <button id="nav-congno" onclick="showModule('congno')" class="nav-item">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="sidebar-text">Công nợ</span>
+                </button>
                 <button id="nav-kho" onclick="showModule('kho')" class="nav-item">
                     <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1276,7 +1283,8 @@
                                 <button onclick="openAddDHCTForm()" id="btn-add-tongdon"
                                     class="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 transition flex items-center justify-center gap-2">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4" />
                                     </svg>
                                     Thêm đơn
                                 </button>
@@ -1499,6 +1507,71 @@
                     </div>
                 </div>
 
+                <!-- Module: Công nợ -->
+                <div id="module-congno" class="hidden">
+                    <div class="flex justify-end mb-4">
+                        <button onclick="openAddCongNoForm()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-blue-100">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Thêm mới
+                        </button>
+                    </div>
+                    <!-- Search Bar -->
+                    <div
+                        class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-4">
+                        <div class="relative flex-1 min-w-[200px]">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </span>
+                            <input type="text" id="congnoSearchInput" oninput="filterCongNo()"
+                                class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition"
+                                placeholder="Tìm kiếm NPP...">
+                        </div>
+                        <select id="congnoFilterType" onchange="filterCongNo()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả (Thu/Chi)</option>
+                            <option value="Thu">Thu</option>
+                            <option value="Chi">Chi</option>
+                        </select>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="congnoFromDate" onchange="filterCongNo()"
+                                class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <span class="text-slate-400">-</span>
+                            <input type="date" id="congnoToDate" onchange="filterCongNo()"
+                                class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                        </div>
+                    </div>
+                    <!-- Table -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
+                                        <th class="px-4 py-3">ID</th>
+                                        <th class="px-4 py-3">Ngày</th>
+                                        <th class="px-4 py-3">Thu/Chi</th>
+                                        <th class="px-4 py-3">Khách hàng</th>
+                                        <th class="px-4 py-3 text-right">Số tiền</th>
+                                        <th class="px-4 py-3 text-center">ID ĐH</th>
+                                        <th class="px-4 py-3 text-center">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="congnoTableBody" class="divide-y divide-slate-50 text-sm">
+                                    <!-- Data via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="congnoPagination" class="flex items-center justify-center gap-2 mb-8"></div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -1635,6 +1708,69 @@
         </div>
     </div>
 
+    <!-- Offcanvas for Công nợ -->
+    <div id="congnoAddOverlay" onclick="closeAddCongNoForm()"
+        class="fixed inset-0 bg-slate-900/50 z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="congnoAddSidePanel"
+        class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+            <h2 id="congnoFormTitle" class="text-xl font-bold text-slate-800">Thêm Công Nợ</h2>
+            <button onclick="closeAddCongNoForm()"
+                class="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="p-6 space-y-4 flex-1 overflow-y-auto">
+            <input type="hidden" id="editCongNoId">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">ID *</label>
+                <input type="text" id="addCongNoId"
+                    class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none"
+                    placeholder="Tự sinh ID nếu bỏ trống">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Ngày *</label>
+                <input type="date" id="addCongNoDate"
+                    class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Thu/Chi *</label>
+                <select id="addCongNoType"
+                    class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                    <option value="Thu">Thu</option>
+                    <option value="Chi">Chi</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Khách hàng *</label>
+                <select id="addCongNoNpp"
+                    class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
+                    <option value="">-- Chọn khách hàng --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Số tiền *</label>
+                <input type="number" id="addCongNoAmount"
+                    class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none font-bold"
+                    placeholder="0">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Mã Đơn Hàng (id_dh)</label>
+                <input type="text" id="addCongNoIdDh"
+                    class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none"
+                    placeholder="Nhập ID đơn hàng (nếu có)">
+            </div>
+        </div>
+        <div class="p-6 border-t border-slate-200 bg-slate-50 flex gap-3">
+            <button onclick="closeAddCongNoForm()"
+                class="flex-1 py-3 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 font-bold rounded-xl transition">Hủy</button>
+            <button onclick="submitAddCongNoForm()"
+                class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-100 transition">Lưu</button>
+        </div>
+    </div>
+
     <!-- Offcanvas for Tong Don Details Drawer -->
     <div id="tongdonDetailOverlay" onclick="closeTongDonDetailPanel()"
         class="fixed inset-0 bg-slate-900/60 z-40 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
@@ -1648,6 +1784,14 @@
                     class="text-xs font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block mt-1">ID: ---</div>
             </div>
             <div class="flex items-center gap-2">
+                <button id="quickCollectDebtBtn" onclick="quickCollectDebt()"
+                    class="p-2 text-slate-400 hover:bg-slate-100 hover:text-emerald-600 rounded-full transition"
+                    title="Thu nợ nhanh (Tạo công nợ thu)">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
                 <button id="tongDonEditBtn" onclick="toggleTongDonEditMode()"
                     class="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition"
                     title="Chỉnh sửa đơn hàng">
@@ -1686,7 +1830,8 @@
                         <span id="tdStaff" class="font-medium text-slate-700">---</span>
                     </div>
                     <div class="col-span-2 pt-2 border-t border-slate-100">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Khách hàng</span>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Khách
+                            hàng</span>
                         <span id="tdNpp" class="font-medium text-slate-700">---</span>
                     </div>
                     <div class="col-span-2 pt-2 border-t border-slate-100">
@@ -1868,6 +2013,9 @@
         let ordersData = [];
         let filteredOrders = [];
         let filteredTongDon = [];
+        let congnoData = [];
+        let filteredCongNo = [];
+        let currentPageCongNo = 1;
 
         // Pagination State
         const ROWS_PER_PAGE = 100;
@@ -2198,7 +2346,7 @@
             const roleEls = ['userRoleHeader', 'userRoleHeaderMobile'];
             nameEls.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = currentUser.name; });
             roleEls.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = role; });
-            
+
             const avatar = document.getElementById('userAvatar');
             if (avatar) avatar.textContent = currentUser.name.charAt(0).toUpperCase();
 
@@ -2331,7 +2479,8 @@
                     'dhct': 'Đơn hàng chi tiết',
                     'tongdon': 'Tổng đơn',
                     'kho': 'Kho hàng',
-                    'khosp': 'Kho sản phẩm'
+                    'khosp': 'Kho sản phẩm',
+                    'congno': 'Công nợ'
                 };
                 headerTitle.textContent = titles[moduleName] || 'Dashboard';
             }
@@ -2434,6 +2583,14 @@
                 fetchKhoSPData();
             }
 
+            // Load CONG NO module
+            if (moduleName === 'congno') {
+                Promise.all([
+                    fetchNPPData(),
+                    fetchCongNoData()
+                ]);
+            }
+
             // Permission Check for DHCT Admin Actions
             if (moduleName === 'dhct') {
                 if (!document.getElementById('dhctFromDate').value) {
@@ -2449,7 +2606,7 @@
                     if (isAuthorized) {
                         dhctAdminActions.classList.remove('hidden');
                         dhctAdminActions.classList.add('flex');
-                        
+
                         // Restriction for KT: Hide specific buttons
                         const btns = dhctAdminActions.querySelectorAll('button, label');
                         btns.forEach(el => {
@@ -2747,7 +2904,7 @@
             const summary = filteredTongDon.find(o => o.id_dh === idDh);
             if (summary) {
                 const staff = usersData.find(u => u.id === summary.id_nv);
-                
+
                 // Lookup NPP (can be NPP or Kho)
                 const nppInfo = nppData.find(n => n.id === summary.npp);
                 const khoInfoAsNpp = khoData.find(k => k.id === summary.npp);
@@ -2768,7 +2925,7 @@
                         <input type="date" value="${formatDateForInput(summary.date)}" 
                             onchange="updateTongDonHeader('${idDh}', 'date', this.value)"
                             class="w-full text-xs p-1 border border-blue-200 rounded focus:ring-1 focus:ring-blue-500 outline-none">`;
-                    
+
                     // Staff Edit
                     const nvOptions = usersData.map(u => `<option value="${u.id}" ${u.id === summary.id_nv ? 'selected' : ''}>${u.id} - ${u.name}</option>`).join('');
                     document.getElementById('tdStaff').innerHTML = `
@@ -3945,7 +4102,7 @@
 
             const stock = getCurrentStockValue(kho, spId);
             stockEl.value = stock !== null ? stock.toLocaleString('vi-VN') : '-';
-            
+
             stockEl.classList.remove('text-red-600', 'text-amber-600', 'text-slate-800', 'text-slate-400');
             if (stock <= 0) stockEl.classList.add('text-red-600', 'font-bold');
             else if (stock < 10) stockEl.classList.add('text-amber-600', 'font-semibold');
@@ -4097,7 +4254,7 @@
             if (productsData.length === 0) fetchPromises.push(fetchProductData());
             if (nppData.length === 0) fetchPromises.push(fetchNPPData());
             if (khoData.length === 0) fetchPromises.push(fetchKhoData());
-            
+
             if (fetchPromises.length > 0) {
                 await Promise.all(fetchPromises);
             }
@@ -4831,6 +4988,284 @@
             } catch (err) {
                 console.error("Sync Kho SP Error:", err);
                 alert("Lỗi khi đồng bộ dữ liệu Tồn đầu lên Google Sheets.");
+            }
+        }
+
+        // --- CONG NO MODULE FUNCTIONS ---
+        async function fetchCongNoData() {
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/CONG_NO!A1:Z2000`;
+                const resp = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const data = await resp.json();
+                if (data.values && data.values.length > 1) {
+                    const headers = data.values[0].map(h => h ? h.toString().trim().toLowerCase() : '');
+                    const iId = headers.indexOf('id');
+                    const iDate = headers.findIndex(h => h === 'ngay' || h === 'ngày');
+                    const iType = headers.findIndex(h => h === 'thu_chi');
+                    const iNpp = headers.findIndex(h => h === 'id_npp');
+                    const iAmount = headers.findIndex(h => h === 'so_tien');
+                    const iIdDh = headers.findIndex(h => h === 'id_dh');
+
+                    congnoData = data.values.slice(1).map(r => ({
+                        id: safeGet(r, iId, 0),
+                        date: safeGet(r, iDate, 1),
+                        type: safeGet(r, iType, 2),
+                        id_npp: safeGet(r, iNpp, 3),
+                        amount: safeGet(r, iAmount, 4),
+                        id_dh: safeGet(r, iIdDh, 5)
+                    })).filter(c => c.id);
+                    filteredCongNo = [...congnoData];
+                    renderCongNoList();
+                } else {
+                    congnoData = [];
+                    filteredCongNo = [];
+                    renderCongNoList();
+                }
+            } catch (err) { console.error("Cong No Fetch Error:", err); }
+        }
+
+        function renderCongNoList() {
+            const tableBody = document.getElementById('congnoTableBody');
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredCongNo.length / ROWS_PER_PAGE);
+            if (currentPageCongNo > totalPages) currentPageCongNo = 1;
+            const start = (currentPageCongNo - 1) * ROWS_PER_PAGE;
+            const slicedData = filteredCongNo.slice(start, start + ROWS_PER_PAGE);
+
+            if (slicedData.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">Không có dữ liệu công nợ.</td></tr>`;
+                return;
+            }
+
+            slicedData.forEach(c => {
+                const npp = nppData.find(n => n.id === c.id_npp);
+                const nppName = npp ? `${c.id_npp} - ${npp.name}` : c.id_npp;
+                const typeClass = c.type === 'Thu' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3 font-mono text-slate-500">${c.id}</td>
+                        <td class="px-4 py-3 text-slate-600">${c.date}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${typeClass}">${c.type}</span>
+                        </td>
+                        <td class="px-4 py-3 text-slate-700 font-medium">${nppName}</td>
+                        <td class="px-4 py-3 text-right font-bold text-slate-900">${parseFloat(c.amount || 0).toLocaleString('vi-VN')}</td>
+                        <td class="px-4 py-3 text-center text-xs text-slate-500 font-mono">${c.id_dh || ''}</td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="editCongNo('${c.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Sửa">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                </button>
+                                <button onclick="deleteCongNo('${c.id}')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition" title="Xóa">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            renderPaginationControls('congnoPagination', totalPages, currentPageCongNo, (page) => {
+                currentPageCongNo = page;
+                renderCongNoList();
+            });
+        }
+
+        function filterCongNo() {
+            const q = document.getElementById('congnoSearchInput').value.toLowerCase();
+            const type = document.getElementById('congnoFilterType').value;
+            const fromStr = document.getElementById('congnoFromDate').value;
+            const toStr = document.getElementById('congnoToDate').value;
+
+            filteredCongNo = congnoData.filter(c => {
+                let matches = true;
+                if (q && !c.id_npp.toLowerCase().includes(q)) {
+                    const npp = nppData.find(n => n.id === c.id_npp);
+                    if (!npp || !npp.name.toLowerCase().includes(q)) matches = false;
+                }
+                if (type && c.type !== type) matches = false;
+
+                const itemDate = parseDate(c.date);
+                if (itemDate) itemDate.setHours(0, 0, 0, 0);
+                if (fromStr) {
+                    const start = new Date(fromStr);
+                    start.setHours(0, 0, 0, 0);
+                    if (itemDate < start) matches = false;
+                }
+                if (toStr) {
+                    const end = new Date(toStr);
+                    end.setHours(0, 0, 0, 0);
+                    if (itemDate > end) matches = false;
+                }
+                return matches;
+            });
+            currentPageCongNo = 1;
+            renderCongNoList();
+        }
+
+        function openAddCongNoForm() {
+            document.getElementById('congnoFormTitle').textContent = 'Thêm Công Nợ';
+            document.getElementById('editCongNoId').value = '';
+            document.getElementById('addCongNoId').value = '';
+            document.getElementById('addCongNoDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('addCongNoType').value = 'Thu';
+            document.getElementById('addCongNoAmount').value = '';
+            document.getElementById('addCongNoIdDh').value = '';
+
+            const nppSelect = document.getElementById('addCongNoNpp');
+            nppSelect.innerHTML = '<option value="">-- Chọn khách hàng --</option>' + nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+
+            document.getElementById('congnoAddOverlay').classList.remove('hidden');
+            setTimeout(() => document.getElementById('congnoAddOverlay').classList.remove('opacity-0'), 10);
+            document.getElementById('congnoAddSidePanel').classList.remove('translate-x-full');
+        }
+
+        function closeAddCongNoForm() {
+            document.getElementById('congnoAddSidePanel').classList.add('translate-x-full');
+            document.getElementById('congnoAddOverlay').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('congnoAddOverlay').classList.add('hidden'), 300);
+        }
+
+        async function submitAddCongNoForm() {
+            const editId = document.getElementById('editCongNoId').value;
+            const id = document.getElementById('addCongNoId').value.trim();
+            const rawDate = document.getElementById('addCongNoDate').value;
+            const type = document.getElementById('addCongNoType').value;
+            const id_npp = document.getElementById('addCongNoNpp').value;
+            const amount = document.getElementById('addCongNoAmount').value;
+            const id_dh = document.getElementById('addCongNoIdDh').value.trim();
+
+            if (!rawDate || !id_npp || !amount) return alert("Vui lòng nhập đầy đủ thông tin!");
+
+            const parts = rawDate.split('-');
+            const date = `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+            let finalId = id;
+            if (!editId && !finalId) {
+                let maxId = 0;
+                congnoData.forEach(c => {
+                    const num = parseInt(c.id.replace(/\D/g, ''));
+                    if (!isNaN(num) && num > maxId) maxId = num;
+                });
+                finalId = `CN-${(maxId + 1).toString().padStart(5, '0')}`;
+            } else if (editId) {
+                finalId = editId;
+            }
+
+            const record = { id: finalId, date, type, id_npp, amount, id_dh };
+
+            if (editId) {
+                const idx = congnoData.findIndex(c => c.id === editId);
+                if (idx !== -1) congnoData[idx] = record;
+            } else {
+                congnoData.push(record);
+            }
+
+            await syncCongNoToGoogleSheets();
+            fetchCongNoData();
+            closeAddCongNoForm();
+            alert("Đã lưu công nợ.");
+        }
+
+        function editCongNo(id) {
+            const c = congnoData.find(x => x.id === id);
+            if (!c) return;
+
+            openAddCongNoForm();
+            document.getElementById('congnoFormTitle').textContent = 'Sửa Công Nợ';
+            document.getElementById('editCongNoId').value = c.id;
+            document.getElementById('addCongNoId').value = c.id;
+            document.getElementById('addCongNoId').readOnly = true;
+            document.getElementById('addCongNoDate').value = formatDateForInput(c.date);
+            document.getElementById('addCongNoType').value = c.type;
+            document.getElementById('addCongNoNpp').value = c.id_npp;
+            document.getElementById('addCongNoAmount').value = c.amount;
+            document.getElementById('addCongNoIdDh').value = c.id_dh || '';
+        }
+
+        async function deleteCongNo(id) {
+            if (!confirm("Bạn có chắc chắn muốn xóa dòng này?")) return;
+            const idx = congnoData.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                congnoData.splice(idx, 1);
+                await syncCongNoToGoogleSheets();
+                fetchCongNoData();
+            }
+        }
+
+        async function syncCongNoToGoogleSheets() {
+            try {
+                const token = await getAccessToken();
+                const sid = CONFIG.spreadsheetId;
+                const rows = [
+                    ["id", "ngay", "thu_chi", "id_npp", "so_tien", "id_dh"],
+                    ...congnoData.map(c => [c.id, c.date, c.type, c.id_npp, c.amount, c.id_dh || ""])
+                ];
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/CONG_NO!A1:F${rows.length}?valueInputOption=USER_ENTERED`;
+                await fetch(url, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ values: rows })
+                });
+            } catch (err) { console.error("Sync Cong No Error:", err); }
+        }
+
+        async function quickCollectDebt() {
+            const idDh = selectedTongDonId;
+            if (!idDh) return;
+
+            // Đảm bảo dữ liệu công nợ đã được tải
+            if (congnoData.length === 0) await fetchCongNoData();
+
+            // Tìm thông tin tổng đơn
+            const summary = filteredTongDon.find(o => o.id_dh === idDh);
+            if (!summary) return alert("Không tìm thấy thông tin đơn hàng để thu nợ!");
+
+            const amount = summary.total_amount || 0;
+            if (amount <= 0) return alert("Đơn hàng không có giá trị để thu nợ!");
+
+            if (!confirm(`Xác nhận tạo phiếu THU NỢ NHANH cho đơn hàng: ${idDh}\nKhách hàng: ${summary.npp}\nSố tiền: ${amount.toLocaleString('vi-VN')} đ`)) return;
+
+            // Tự sinh ID Công nợ
+            let maxIdNum = 0;
+            congnoData.forEach(c => {
+                const num = parseInt(c.id.replace(/\D/g, ''));
+                if (!isNaN(num) && num > maxIdNum) maxIdNum = num;
+            });
+            const newCnId = `CN-${(maxIdNum + 1).toString().padStart(5, '0')}`;
+
+            // Ngày hôm nay
+            const today = new Date();
+            const dateStr = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+
+            const newRecord = {
+                id: newCnId,
+                date: dateStr,
+                type: 'Thu',
+                id_npp: summary.npp,
+                amount: amount,
+                id_dh: idDh
+            };
+
+            congnoData.push(newRecord);
+
+            try {
+                await syncCongNoToGoogleSheets();
+                if (typeof showToast === 'function') {
+                    showToast(`Đã thu nợ ${amount.toLocaleString('vi-VN')} đ cho đơn ${idDh}`, 'success');
+                } else {
+                    alert(`Đã tạo phiếu thu nợ thành công cho đơn ${idDh}`);
+                }
+                // Refresh dữ liệu
+                fetchCongNoData();
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi khi đồng bộ dữ liệu công nợ lên Google Sheets!");
             }
         }
     </script>
