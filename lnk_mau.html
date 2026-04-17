@@ -1539,12 +1539,35 @@
                             <option value="Thu">Thu</option>
                             <option value="Chi">Chi</option>
                         </select>
+                        <select id="congnoFilterNpp" onchange="filterCongNo()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm max-w-[200px]">
+                            <option value="">Tất cả Khách hàng</option>
+                        </select>
                         <div class="flex items-center gap-2">
                             <input type="date" id="congnoFromDate" onchange="filterCongNo()"
                                 class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
                             <span class="text-slate-400">-</span>
                             <input type="date" id="congnoToDate" onchange="filterCongNo()"
                                 class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Tổng
+                                phát sinh (Chi)</span>
+                            <span id="congnoTotalArising" class="text-xl font-bold text-red-600">0 đ</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Đã
+                                trả (Thu)</span>
+                            <span id="congnoTotalPaid" class="text-xl font-bold text-emerald-600">0 đ</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Còn
+                                lại</span>
+                            <span id="congnoTotalRemaining" class="text-xl font-bold text-blue-600">0 đ</span>
                         </div>
                     </div>
                     <!-- Table -->
@@ -5016,8 +5039,16 @@
                         amount: safeGet(r, iAmount, 4),
                         id_dh: safeGet(r, iIdDh, 5)
                     })).filter(c => c.id);
+
+                    // Populate NPP filter
+                    const nppFilter = document.getElementById('congnoFilterNpp');
+                    if (nppFilter) {
+                        nppFilter.innerHTML = '<option value="">Tất cả Khách hàng</option>' +
+                            nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+                    }
+
                     filteredCongNo = [...congnoData];
-                    renderCongNoList();
+                    filterCongNo(); // This will sort and render
                 } else {
                     congnoData = [];
                     filteredCongNo = [];
@@ -5079,17 +5110,26 @@
         function filterCongNo() {
             const q = document.getElementById('congnoSearchInput').value.toLowerCase();
             const type = document.getElementById('congnoFilterType').value;
+            const filterNpp = document.getElementById('congnoFilterNpp')?.value || '';
             const fromStr = document.getElementById('congnoFromDate').value;
             const toStr = document.getElementById('congnoToDate').value;
 
             filteredCongNo = congnoData.filter(c => {
                 let matches = true;
+
+                // NPP Search
                 if (q && !c.id_npp.toLowerCase().includes(q)) {
                     const npp = nppData.find(n => n.id === c.id_npp);
                     if (!npp || !npp.name.toLowerCase().includes(q)) matches = false;
                 }
+
+                // NPP Dropdown Filter
+                if (filterNpp && c.id_npp !== filterNpp) matches = false;
+
+                // Type Filter
                 if (type && c.type !== type) matches = false;
 
+                // Date Filter
                 const itemDate = parseDate(c.date);
                 if (itemDate) itemDate.setHours(0, 0, 0, 0);
                 if (fromStr) {
@@ -5104,6 +5144,30 @@
                 }
                 return matches;
             });
+
+            // Sort DESC by date
+            filteredCongNo.sort((a, b) => parseDate(b.date) - parseDate(a.date));
+
+            // Calculate Summaries
+            let totalArising = 0; // Chi
+            let totalPaid = 0;    // Thu
+
+            // Note: Normally we should calculate based on ALL records matching current filters (search, date, npp) 
+            // even if not displayed on the current page.
+            filteredCongNo.forEach(c => {
+                const val = parseFloat(c.amount) || 0;
+                if (c.type === 'Chi') totalArising += val;
+                else if (c.type === 'Thu') totalPaid += val;
+            });
+
+            const elArising = document.getElementById('congnoTotalArising');
+            const elPaid = document.getElementById('congnoTotalPaid');
+            const elRemaining = document.getElementById('congnoTotalRemaining');
+
+            if (elArising) elArising.textContent = totalArising.toLocaleString('vi-VN') + ' đ';
+            if (elPaid) elPaid.textContent = totalPaid.toLocaleString('vi-VN') + ' đ';
+            if (elRemaining) elRemaining.textContent = (totalArising - totalPaid).toLocaleString('vi-VN') + ' đ';
+
             currentPageCongNo = 1;
             renderCongNoList();
         }
@@ -5226,10 +5290,16 @@
             const summary = filteredTongDon.find(o => o.id_dh === idDh);
             if (!summary) return alert("Không tìm thấy thông tin đơn hàng để thu nợ!");
 
-            const amount = summary.total_amount || 0;
-            if (amount <= 0) return alert("Đơn hàng không có giá trị để thu nợ!");
+            const defaultAmount = summary.total_amount || 0;
 
-            if (!confirm(`Xác nhận tạo phiếu THU NỢ NHANH cho đơn hàng: ${idDh}\nKhách hàng: ${summary.npp}\nSố tiền: ${amount.toLocaleString('vi-VN')} đ`)) return;
+            // Hỏi người dùng nhập số tiền
+            const inputAmount = prompt(`Nhập số tiền thu nợ cho đơn hàng ${idDh}:`, defaultAmount);
+            if (inputAmount === null) return; // Người dùng nhấn Hủy
+
+            const amount = parseFloat(inputAmount);
+            if (isNaN(amount) || amount <= 0) return alert("Số tiền không hợp lệ!");
+
+            if (!confirm(`Xác nhận tạo phiếu THU NỢ cho đơn hàng: ${idDh}\nKhách hàng: ${summary.npp}\nSố tiền: ${amount.toLocaleString('vi-VN')} đ`)) return;
 
             // Tự sinh ID Công nợ
             let maxIdNum = 0;
