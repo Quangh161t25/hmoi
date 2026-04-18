@@ -645,6 +645,20 @@
                     </svg>
                     <span class="sidebar-text">Kho SP</span>
                 </button>
+                <button id="nav-bc-nhap" onclick="showModule('bc-nhap')" class="nav-item">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-6h13M9 17H5a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v4M9 17l-4-4m0 0l4-4" />
+                    </svg>
+                    <span class="sidebar-text">BC Nhập hàng</span>
+                </button>
+                <button id="nav-bc-kho" onclick="showModule('bc-kho')" class="nav-item">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <span class="sidebar-text">BC Kho hàng</span>
+                </button>
             </nav>
             <div
                 class="p-4 border-t border-slate-100 text-center sidebar-text text-[10px] text-slate-400 uppercase tracking-widest font-medium">
@@ -963,6 +977,55 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Revenue by Product & Inventory Summary -->
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start mt-8">
+                        <!-- Top Sản phẩm bán chạy -->
+                        <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col h-[450px]">
+                            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 shrink-0 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Top Sản phẩm bán chạy</h3>
+                                <span class="text-xs text-blue-600 font-medium">Theo doanh thu</span>
+                            </div>
+                            <div class="overflow-x-auto overflow-y-auto flex-1">
+                                <table class="w-full text-left text-sm no-min">
+                                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest sticky top-0 z-10">
+                                        <tr>
+                                            <th class="px-6 py-3 w-[60%]">Sản phẩm</th>
+                                            <th class="px-6 py-3 text-left">Doanh thu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashProductTable" class="divide-y divide-slate-50">
+                                        <tr>
+                                            <td colspan="2" class="px-6 py-4 text-center text-slate-400 italic">Đang cập nhật...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tóm tắt Kho hàng -->
+                        <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col h-[450px]">
+                            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 shrink-0 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Tóm tắt Kho hàng</h3>
+                                <span class="text-xs text-amber-600 font-medium">Cảnh báo tồn kho</span>
+                            </div>
+                            <div class="overflow-x-auto overflow-y-auto flex-1">
+                                <table class="w-full text-left text-sm no-min">
+                                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest sticky top-0 z-10">
+                                        <tr>
+                                            <th class="px-6 py-3">Kho / Sản phẩm</th>
+                                            <th class="px-6 py-3 text-right">Tồn cuối</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashInventorySummaryTable" class="divide-y divide-slate-50">
+                                        <tr>
+                                            <td colspan="2" class="px-6 py-4 text-center text-slate-400 italic">Đang tải dữ liệu kho...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Module: DSNV -->
@@ -1210,6 +1273,7 @@
                                         class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
                                         <th class="px-4 py-3">ID ĐH</th>
                                         <th class="px-4 py-3">Ngày</th>
+                                        <th class="px-4 py-3 text-center">Loại</th>
                                         <th class="px-4 py-3">Sản phẩm</th>
                                         <th class="px-4 py-3 text-right">Đơn giá</th>
                                         <th class="px-4 py-3 text-center">SL</th>
@@ -1595,6 +1659,198 @@
                     <div id="congnoPagination" class="flex items-center justify-center gap-2 mb-8"></div>
                 </div>
 
+                <!-- Module: BC NHẬP HÀNG -->
+                <div id="module-bc-nhap" class="hidden">
+                    <!-- Filter Bar -->
+                    <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="bcNhapFromDate" onchange="filterBcNhap()"
+                                class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <span class="text-slate-400">-</span>
+                            <input type="date" id="bcNhapToDate" onchange="filterBcNhap()"
+                                class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                        </div>
+                        <select id="bcNhapFilterNcc" onchange="filterBcNhap()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả NCC</option>
+                        </select>
+                        <select id="bcNhapFilterKho" onchange="filterBcNhap()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả kho nhập</option>
+                        </select>
+                        <button onclick="filterBcNhap()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition">
+                            Lọc
+                        </button>
+                        <button onclick="resetBcNhapFilters()"
+                            class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-semibold text-sm transition">
+                            Xóa lọc
+                        </button>
+                        <button onclick="exportBcNhapExcel()"
+                            class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Xuất Excel
+                        </button>
+                    </div>
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Tổng đơn nhập</span>
+                            <span id="bcNhapTotalOrders" class="text-xl font-bold text-slate-800">0</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Tổng SL nhập</span>
+                            <span id="bcNhapTotalQty" class="text-xl font-bold text-blue-600">0</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Tổng giá trị nhập</span>
+                            <span id="bcNhapTotalValue" class="text-xl font-bold text-emerald-600">0 đ</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Số NCC</span>
+                            <span id="bcNhapTotalNcc" class="text-xl font-bold text-amber-600">0</span>
+                        </div>
+                    </div>
+                    <!-- Charts row -->
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+                        <!-- By NCC -->
+                        <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Nhập theo NCC</h3>
+                                <span class="text-xs text-emerald-600 font-medium">Theo giá trị</span>
+                            </div>
+                            <div class="overflow-x-auto max-h-64 overflow-y-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest sticky top-0">
+                                        <tr>
+                                            <th class="px-6 py-3 w-[60%]">NCC</th>
+                                            <th class="px-6 py-3">Giá trị nhập</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bcNhapByNccTable" class="divide-y divide-slate-50"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- By Product -->
+                        <div class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Nhập theo Sản phẩm</h3>
+                                <span class="text-xs text-blue-600 font-medium">Theo giá trị</span>
+                            </div>
+                            <div class="overflow-x-auto max-h-64 overflow-y-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest sticky top-0">
+                                        <tr>
+                                            <th class="px-6 py-3 w-[60%]">Sản phẩm</th>
+                                            <th class="px-6 py-3">Giá trị nhập</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bcNhapBySpTable" class="divide-y divide-slate-50"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Detail Table -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800">Chi tiết đơn nhập</h3>
+                            <span id="bcNhapDetailCount" class="text-xs text-slate-400 font-medium">0 dòng</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3">ID ĐH</th>
+                                        <th class="px-4 py-3">Ngày</th>
+                                        <th class="px-4 py-3">Sản phẩm</th>
+                                        <th class="px-4 py-3">NCC</th>
+                                        <th class="px-4 py-3">Kho nhập</th>
+                                        <th class="px-4 py-3 text-right">SL</th>
+                                        <th class="px-4 py-3 text-right">Đơn giá</th>
+                                        <th class="px-4 py-3 text-right">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bcNhapDetailTable" class="divide-y divide-slate-100 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="bcNhapPagination" class="flex items-center justify-center gap-2 mt-4 mb-8"></div>
+                </div>
+
+                <!-- Module: BC KHO HÀNG -->
+                <div id="module-bc-kho" class="hidden">
+                    <!-- Filter Bar -->
+                    <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-4">
+                        <select id="bcKhoFilterKho" onchange="renderBcKho()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả kho</option>
+                        </select>
+                        <select id="bcKhoFilterSp" onchange="renderBcKho()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả sản phẩm</option>
+                        </select>
+                        <select id="bcKhoFilterStatus" onchange="renderBcKho()"
+                            class="px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="het">Hết hàng (= 0)</option>
+                            <option value="thap">Tồn thấp (≤ 5)</option>
+                            <option value="du">Còn hàng (> 5)</option>
+                        </select>
+                        <button onclick="exportBcKhoExcel()"
+                            class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Xuất Excel
+                        </button>
+                    </div>
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Tổng mặt hàng</span>
+                            <span id="bcKhoTotalItems" class="text-xl font-bold text-slate-800">0</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Hết hàng</span>
+                            <span id="bcKhoCountHet" class="text-xl font-bold text-red-600">0</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Tồn thấp (≤ 5)</span>
+                            <span id="bcKhoCountThap" class="text-xl font-bold text-amber-600">0</span>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Còn hàng</span>
+                            <span id="bcKhoCountDu" class="text-xl font-bold text-emerald-600">0</span>
+                        </div>
+                    </div>
+                    <!-- Inventory Table -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800">Tồn kho chi tiết</h3>
+                            <span id="bcKhoCount" class="text-xs text-slate-400 font-medium">0 mặt hàng</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3">Kho</th>
+                                        <th class="px-4 py-3">Mã SP</th>
+                                        <th class="px-4 py-3">Tên sản phẩm</th>
+                                        <th class="px-4 py-3 text-right">Tồn đầu</th>
+                                        <th class="px-4 py-3 text-right">Nhập</th>
+                                        <th class="px-4 py-3 text-right">Xuất</th>
+                                        <th class="px-4 py-3 text-right">Tồn cuối</th>
+                                        <th class="px-4 py-3 text-center">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bcKhoTable" class="divide-y divide-slate-100 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -1621,6 +1877,20 @@
                     <h3 class="font-bold text-slate-700">Thông tin chung</h3>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2 sm:col-span-1">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Loại giao dịch *</label>
+                        <div class="flex gap-2 p-1 bg-slate-100 rounded-xl">
+                            <button type="button" onclick="setTransactionType('Bán')" id="btnTypeBan"
+                                class="flex-1 py-2 text-sm font-bold rounded-lg transition bg-blue-600 text-white shadow-sm">
+                                Bán hàng
+                            </button>
+                            <button type="button" onclick="setTransactionType('Nhập')" id="btnTypeNhap"
+                                class="flex-1 py-2 text-sm font-bold rounded-lg transition text-slate-500 hover:bg-white">
+                                Nhập hàng
+                            </button>
+                        </div>
+                        <input type="hidden" id="addNhapXuat" value="Bán">
+                    </div>
                     <div class="col-span-2">
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Mã đơn hàng *</label>
                         <input type="text" id="addDhId" onchange="handleOrderIdLookup()"
@@ -1640,14 +1910,15 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Khách hàng *</label>
+                        <label id="labelNpp" class="block text-sm font-semibold text-slate-700 mb-1">Khách hàng
+                            *</label>
                         <select id="addNpp"
                             class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
                             <option value="">-- Chọn khách hàng --</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Kho đi</label>
+                        <label id="labelKhoDi" class="block text-sm font-semibold text-slate-700 mb-1">Kho đi</label>
                         <select id="addKhoDi"
                             class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition outline-none">
                             <option value="">-- Chọn kho đi --</option>
@@ -1808,12 +2079,13 @@
             </div>
             <div class="flex items-center gap-2">
                 <button id="quickCollectDebtBtn" onclick="quickCollectDebt()"
-                    class="p-2 text-slate-400 hover:bg-slate-100 hover:text-emerald-600 rounded-full transition"
+                    class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-md active:scale-95"
                     title="Thu nợ nhanh (Tạo công nợ thu)">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
+                    <span class="font-bold text-sm uppercase">Thu nợ nhanh</span>
                 </button>
                 <button id="tongDonEditBtn" onclick="toggleTongDonEditMode()"
                     class="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition"
@@ -2233,6 +2505,7 @@
                     const iNpp = headers.findIndex(h => h === 'npp');
                     const iNcc = headers.findIndex(h => h === 'ncc');
                     const iKhoDi = headers.findIndex(h => h === 'kho_di' || h === 'kho_đi');
+                    const iNhapXuat = headers.findIndex(h => h === 'nhap_xuat' || h === 'loại' || h === 'loai');
 
                     ordersData = data.values.slice(1).map(r => ({
                         id: safeGet(r, iId, 0),
@@ -2245,7 +2518,8 @@
                         id_nv: safeGet(r, iNvid, 7),
                         npp: safeGet(r, iNpp, 8),
                         ncc: safeGet(r, iNcc, 9),
-                        kho_di: safeGet(r, iKhoDi, 10)
+                        kho_di: safeGet(r, iKhoDi, 10),
+                        nhap_xuat: safeGet(r, iNhapXuat, 11)
                     })).filter(o => o.id || o.id_dh);
 
                     filteredOrders = [...ordersData];
@@ -2503,7 +2777,9 @@
                     'tongdon': 'Tổng đơn',
                     'kho': 'Kho hàng',
                     'khosp': 'Kho sản phẩm',
-                    'congno': 'Công nợ'
+                    'congno': 'Công nợ',
+                    'bc-nhap': 'Báo cáo nhập hàng',
+                    'bc-kho': 'Báo cáo kho hàng'
                 };
                 headerTitle.textContent = titles[moduleName] || 'Dashboard';
             }
@@ -2614,6 +2890,35 @@
                 ]);
             }
 
+            // Load BC NHẬP module
+            if (moduleName === 'bc-nhap') {
+                if (!document.getElementById('bcNhapFromDate').value) {
+                    setThisWeekRange('bcNhapFromDate', 'bcNhapToDate');
+                }
+                Promise.all([
+                    fetchOrderData(),
+                    fetchProductData(),
+                    fetchNCCData(),
+                    fetchKhoData()
+                ]).then(() => {
+                    populateBcNhapFilters();
+                    filterBcNhap();
+                });
+            }
+
+            // Load BC KHO module
+            if (moduleName === 'bc-kho') {
+                Promise.all([
+                    fetchOrderData(),
+                    fetchProductData(),
+                    fetchKhoSPData(),
+                    fetchKhoData()
+                ]).then(() => {
+                    populateBcKhoFilters();
+                    renderBcKho();
+                });
+            }
+
             // Permission Check for DHCT Admin Actions
             if (moduleName === 'dhct') {
                 if (!document.getElementById('dhctFromDate').value) {
@@ -2690,7 +2995,7 @@
 
             tableBody.innerHTML = '';
             if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="10" class="px-6 py-10 text-center text-slate-400">Không tìm thấy đơn hàng nào.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="11" class="px-6 py-10 text-center text-slate-400">Không tìm thấy đơn hàng nào.</td></tr>`;
                 document.getElementById('dhctPagination').innerHTML = '';
                 return;
             }
@@ -2721,6 +3026,11 @@
                     <tr class="hover:bg-slate-50 transition-colors text-xs">
                         <td class="px-4 py-3 font-medium text-slate-900">${o.id_dh}</td>
                         <td class="px-4 py-3 text-slate-500">${o.date}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="${o.nhap_xuat === 'Nhập' ? 'text-emerald-600' : 'text-blue-600'} font-medium">
+                                ${o.nhap_xuat || ''}
+                            </span>
+                        </td>
                         <td class="px-4 py-3">
                             <div class="font-medium text-slate-800">${prodDisplayName}</div>
                         </td>
@@ -2837,6 +3147,15 @@
                             </div>
                         </div>
                         <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Loại đơn</label>
+                            <select id="tongdonFilterLoai" onchange="filterTongDon()"
+                                class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                                <option value="">Tất cả loại</option>
+                                <option value="Bán">Bán hàng</option>
+                                <option value="Nhập">Nhập hàng</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Khách hàng</label>
                             <select id="tongdonFilterNpp" onchange="filterTongDon()"
                                 class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
@@ -2862,10 +3181,12 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase font-bold text-slate-400 tracking-widest whitespace-nowrap">
-                                    <th class="px-4 py-3">ID ĐH</th>
-                                    <th class="px-4 py-3">Ngày</th>
+                                    <th class="px-4 py-3 sticky left-0 bg-slate-50 z-10">ID ĐH</th>
+                                    <th class="px-4 py-3 text-center">Ngày</th>
+                                    <th class="px-4 py-3 text-center">Loại</th>
                                     <th class="px-4 py-3">Nhân viên</th>
-                                    <th class="px-4 py-3">KH</th>
+                                    <th class="px-4 py-3">KH / NCC</th>
+                                    <th class="px-4 py-3">Kho đi</th>
                                     <th class="px-4 py-3 text-right">Tổng tiền</th>
                                 </tr>
                             </thead>
@@ -2912,6 +3233,9 @@
                         date: o.date || '',
                         id_nv: o.id_nv || '',
                         npp: o.npp || '',
+                        kho_di: o.kho_di || '',
+                        nhap_xuat: o.nhap_xuat || '',
+                        ncc: o.ncc || '',
                         total_amount: totalByOrderId[o.id_dh] || 0
                     });
                 }
@@ -3318,7 +3642,7 @@
             document.getElementById('tongdonCount').textContent = data.length.toLocaleString('vi-VN');
 
             if (data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">Không tìm thấy đơn nào.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-10 text-center text-slate-400">Không tìm thấy đơn nào.</td></tr>`;
                 document.getElementById('tongdonPagination').innerHTML = '';
                 renderTongDonDetails('');
                 return;
@@ -3335,19 +3659,39 @@
             slicedData.forEach(o => {
                 const staff = usersData.find(u => u.id === o.id_nv);
                 const staffName = staff ? `${o.id_nv} - ${staff.name}` : o.id_nv;
-                const nppInfo = nppData.find(n => n.id === o.npp);
-                const khoInfoAsNpp = khoData.find(k => k.id === o.npp);
-                const nppName = nppInfo ? `${o.npp} - ${nppInfo.name}` : (khoInfoAsNpp ? `[Kho] ${o.npp} - ${khoInfoAsNpp.kho}` : o.npp);
+
+                // Determine KH/NCC display name
+                let displayName = o.npp;
+                if (o.nhap_xuat === 'Nhập') {
+                    const nccInfo = nccData.find(n => n.id === o.kho_di); // In Nhập mode, kho_di stores NCC ID
+                    displayName = nccInfo ? `${o.kho_di} - ${nccInfo.name}` : o.kho_di;
+                } else {
+                    const nppInfo = nppData.find(n => n.id === o.npp);
+                    const khoInfoAsNpp = khoData.find(k => k.id === o.npp);
+                    displayName = nppInfo ? `${o.npp} - ${nppInfo.name}` : (khoInfoAsNpp ? `[Kho] ${o.npp} - ${khoInfoAsNpp.kho}` : o.npp);
+                }
+
+                // Kho di display name
+                const khoTarget = o.nhap_xuat === 'Nhập' ? o.npp : o.kho_di;
+                const khoInfo = khoData.find(k => k.id === khoTarget);
+                const khoDiName = khoInfo ? khoInfo.kho : khoTarget;
+
                 const isSelected = selectedTongDonId === o.id_dh;
                 const safeIdDh = o.id_dh.replace(/'/g, "\\'"); // Thoát dấu nháy đơn
 
                 tableBody.innerHTML += `
                     <tr onclick="selectTongDon('${safeIdDh}')" 
                         class="cursor-pointer transition-all text-xs ${isSelected ? 'bg-emerald-50 border-l-4 border-emerald-500 shadow-inner' : 'hover:bg-slate-50 border-l-4 border-transparent'}">
-                        <td class="px-4 py-3 font-medium ${isSelected ? 'text-emerald-700' : 'text-slate-900'}">${o.id_dh}</td>
-                        <td class="px-4 py-3 text-slate-500">${o.date}</td>
+                        <td class="px-4 py-3 font-medium sticky left-0 z-10 ${isSelected ? 'bg-emerald-50 text-emerald-700' : 'bg-white text-slate-900'}">${o.id_dh}</td>
+                        <td class="px-4 py-3 text-center text-slate-500">${o.date}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="${o.nhap_xuat === 'Nhập' ? 'text-amber-600 bg-amber-50' : 'text-blue-600 bg-blue-50'} px-2 py-0.5 rounded-full font-bold">
+                                ${o.nhap_xuat || 'Bán'}
+                            </span>
+                        </td>
                         <td class="px-4 py-3 text-slate-600">${staffName}</td>
-                        <td class="px-4 py-3 text-slate-600">${nppName}</td>
+                        <td class="px-4 py-3 text-slate-600">${displayName}</td>
+                        <td class="px-4 py-3 text-slate-600">${khoDiName || ''}</td>
                         <td class="px-4 py-3 text-right font-bold text-emerald-600">${(o.total_amount || 0).toLocaleString('vi-VN')}</td>
                     </tr>
                 `;
@@ -3365,14 +3709,18 @@
         function filterTongDon() {
             currentPageTongDon = 1;
             const q = (document.getElementById('tongdonSearchInput')?.value || '').toLowerCase();
-            const fromStr = document.getElementById('tongdonFromDate')?.value || '';
-            const toStr = document.getElementById('tongdonToDate')?.value || '';
-            const filterNpp = document.getElementById('tongdonFilterNpp')?.value || '';
-            const filterNv = document.getElementById('tongdonFilterNv')?.value || '';
+            const fromStr = (document.getElementById('tongdonFromDate')?.value || '');
+            const toStr = (document.getElementById('tongdonToDate')?.value || '');
+            const filterLoai = (document.getElementById('tongdonFilterLoai')?.value || '');
+            const filterNpp = (document.getElementById('tongdonFilterNpp')?.value || '');
+            const filterNv = (document.getElementById('tongdonFilterNv')?.value || '');
 
             const baseData = ordersData.filter(o => {
                 const isKD = currentUser && currentUser.role && currentUser.role.trim().toLowerCase() === 'kd';
                 if (isKD && o.id_nv !== currentUser.id) return false;
+
+                // Loại Filter
+                if (filterLoai && o.nhap_xuat !== filterLoai) return false;
 
                 let itemDate = parseDate(o.date);
                 if (itemDate) itemDate.setHours(0, 0, 0, 0);
@@ -3408,7 +3756,7 @@
         }
 
         function downloadDHCTTemplate() {
-            const data = [["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"]];
+            const data = [["id", "id_dh", "ngay", "nhap_xuat", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"]];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
             XLSX.utils.book_append_sheet(wb, ws, "MauDonHang");
@@ -3417,8 +3765,8 @@
 
         function downloadDHCTExport() {
             const data = [
-                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"],
-                ...filteredOrders.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
+                ["id", "id_dh", "ngay", "nhap_xuat", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"],
+                ...filteredOrders.map(o => [o.id, o.id_dh, o.date, o.nhap_xuat || '', o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
             ];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -3451,6 +3799,7 @@
                     const iNpp = headers.findIndex(h => h === 'npp' || h === 'kh' || h === 'khách hàng');
                     const iNcc = headers.findIndex(h => h === 'ncc');
                     const iKhoDi = headers.findIndex(h => h === 'kho_di' || h === 'kho_đi');
+                    const iNhapXuat = headers.findIndex(h => h === 'nhap_xuat' || h === 'loại' || h === 'loai');
 
                     // Max ID for auto-generation
                     let maxId = 0;
@@ -3477,7 +3826,8 @@
                             id_nv: safeGet(r, iNvid, 7),
                             npp: safeGet(r, iNpp, 8),
                             ncc: safeGet(r, iNcc, 9),
-                            kho_di: safeGet(r, iKhoDi, 10)
+                            kho_di: safeGet(r, iKhoDi, 10),
+                            nhap_xuat: safeGet(r, iNhapXuat, 11)
                         };
                     });
 
@@ -3508,10 +3858,10 @@
             const sid = CONFIG.spreadsheetId;
             const sname = "DH_CT";
             const rows = [
-                ["id", "id_dh", "ngay", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"],
-                ...ordersData.map(o => [o.id, o.id_dh, o.date, o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
+                ["id", "id_dh", "ngay", "nhap_xuat", "id_sp", "don_gia", "slg", "thanh_tien", "id_nv", "kh", "ncc", "kho_di"],
+                ...ordersData.map(o => [o.id, o.id_dh, o.date, o.nhap_xuat || '', o.id_sp, o.price, o.qty, o.total, o.id_nv, o.npp, o.ncc, o.kho_di || ''])
             ];
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:K${rows.length}?valueInputOption=USER_ENTERED`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sname}!A1:L${rows.length}?valueInputOption=USER_ENTERED`;
             await fetch(url, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
@@ -3862,6 +4212,30 @@
             renderDashTable('dashStaffTable', staffRev);
             renderDashTable('dashNppTable', nppRev);
             renderDashTable('dashDateTable', dateRev, 'date');
+
+            // ── Top Sản phẩm bán chạy ──
+            const productRevBody = document.getElementById('dashProductTable');
+            if (productRevBody) {
+                const productRev = {};
+                filtered.forEach(o => {
+                    if (o.nhap_xuat === 'Nhập') return; // chỉ tính đơn bán
+                    const amount = parseFloat(o.total) || 0;
+                    const prod = productsData.find(p => p.id === o.id_sp);
+                    const label = prod ? `${o.id_sp} - ${prod.name}` : (o.id_sp || 'Không rõ');
+                    productRev[label] = (productRev[label] || 0) + amount;
+                });
+                renderDashTable('dashProductTable', productRev);
+            }
+
+            // ── Tóm tắt Kho hàng: nhóm theo kho_di, cộng thanh_tien ──
+            const khoRev = {};
+            filtered.forEach(o => {
+                const kho = (o.kho_di || '').trim();
+                if (!kho) return;
+                const amount = parseFloat(o.total) || 0;
+                khoRev[kho] = (khoRev[kho] || 0) + amount;
+            });
+            renderDashTable('dashInventorySummaryTable', khoRev);
         }
 
         function resetDashboardFilters() {
@@ -4161,7 +4535,10 @@
                 // Populate Master Info
                 document.getElementById('addDate').value = formatDateForInput(first.date);
                 document.getElementById('addIdNv').value = first.id_nv || '';
+                setTransactionType(first.nhap_xuat || 'Bán'); // Update UI buttons
                 document.getElementById('addNpp').value = first.npp || '';
+                document.getElementById('addKhoDi').value = first.kho_di || '';
+
 
                 // Clear and Populate Products
                 document.getElementById('dhctProductList').innerHTML = '';
@@ -4246,6 +4623,64 @@
             }, 3000);
         }
 
+        function setTransactionType(type) {
+            document.getElementById('addNhapXuat').value = type;
+            const btnBan = document.getElementById('btnTypeBan');
+            const btnNhap = document.getElementById('btnTypeNhap');
+            if (!btnBan || !btnNhap) return;
+
+            if (type === 'Bán') {
+                btnBan.className = "flex-1 py-2 text-sm font-bold rounded-lg transition bg-blue-600 text-white shadow-sm";
+                btnNhap.className = "flex-1 py-2 text-sm font-bold rounded-lg transition text-slate-500 hover:bg-white";
+            } else {
+                btnBan.className = "flex-1 py-2 text-sm font-bold rounded-lg transition text-slate-500 hover:bg-white";
+                btnNhap.className = "flex-1 py-2 text-sm font-bold rounded-lg transition bg-red-500 text-white shadow-sm";
+            }
+            toggleFormMode();
+        }
+
+        function toggleFormMode() {
+            const loai = document.getElementById('addNhapXuat').value;
+            const labelNpp = document.getElementById('labelNpp');
+            const labelKhoDi = document.getElementById('labelKhoDi');
+            const selectNpp = document.getElementById('addNpp');
+            const selectKhoDi = document.getElementById('addKhoDi');
+
+            // Populate NV select (always needed)
+            const nvSelect = document.getElementById('addIdNv');
+            if (nvSelect.options.length <= 1) {
+                nvSelect.innerHTML = '<option value="">-- Chọn nhân viên --</option>' + usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
+                nvSelect.value = currentUser ? currentUser.id : '';
+            }
+
+            if (loai === 'Nhập') {
+                labelNpp.innerText = "Nhập kho *";
+                labelKhoDi.innerText = "Nhà cung cấp (NCC) *";
+
+                // Populate selectNpp with KHO
+                selectNpp.innerHTML = '<option value="">-- Chọn kho nhập --</option>' + khoData.map(k => `<option value="${k.id}">${k.id} - ${k.kho}</option>`).join('');
+
+                // Populate selectKhoDi with NCC
+                selectKhoDi.innerHTML = '<option value="">-- Chọn nhà cung cấp --</option>' + nccData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+            } else {
+                labelNpp.innerText = "Khách hàng *";
+                labelKhoDi.innerText = "Kho đi";
+
+                // Populate selectNpp with Khách hàng + Kho (cho nội bộ)
+                let nppOptions = '<option value="">-- Chọn khách hàng/Kho --</option>';
+                nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
+                nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
+                selectNpp.innerHTML = nppOptions;
+
+                // Populate selectKhoDi with KHO
+                selectKhoDi.innerHTML = '<option value="">-- Chọn kho đi --</option>' + khoData.map(k => `<option value="${k.id}">${k.id} - ${k.kho}</option>`).join('');
+            }
+
+            if (selectKhoDi) {
+                selectKhoDi.onchange = updateAllStockValues;
+            }
+        }
+
         function updateTotalSum() {
             let sum = 0;
             const container = document.getElementById('dhctProductList');
@@ -4269,6 +4704,7 @@
             const today = new Date();
             document.getElementById('addDate').value = today.toISOString().split('T')[0];
             document.getElementById('addDhId').value = generateUniqueOrderId();
+            setTransactionType('Bán');
             document.getElementById('addNcc').value = '';
 
             // Core data check - fetch if missing
@@ -4276,31 +4712,14 @@
             if (usersData.length === 0) fetchPromises.push(fetchAuthData());
             if (productsData.length === 0) fetchPromises.push(fetchProductData());
             if (nppData.length === 0) fetchPromises.push(fetchNPPData());
+            if (nccData.length === 0) fetchPromises.push(fetchNCCData());
             if (khoData.length === 0) fetchPromises.push(fetchKhoData());
 
             if (fetchPromises.length > 0) {
                 await Promise.all(fetchPromises);
             }
 
-            // Populate NV select
-            const nvSelect = document.getElementById('addIdNv');
-            nvSelect.innerHTML = '<option value="">-- Chọn nhân viên --</option>' + usersData.map(u => `<option value="${u.id}">${u.id} - ${u.name}</option>`).join('');
-            nvSelect.value = currentUser ? currentUser.id : '';
-
-            // Populate KH select (Including KHO)
-            const nppSelect = document.getElementById('addNpp');
-            let nppOptions = '<option value="">-- Chọn khách hàng/Kho --</option>';
-            nppOptions += nppData.map(n => `<option value="${n.id}">${n.id} - ${n.name}</option>`).join('');
-            nppOptions += khoData.map(k => `<option value="${k.id}">[Kho] ${k.id} - ${k.kho}</option>`).join('');
-            nppSelect.innerHTML = nppOptions;
-
-            // Populate Kho selects from khoData
-            const khoOptions = '<option value="">-- Chọn kho đi --</option>' + khoData.map(k => `<option value="${k.id}">${k.id} - ${k.kho}</option>`).join('');
-            const khoDiEl = document.getElementById('addKhoDi');
-            if (khoDiEl) {
-                khoDiEl.innerHTML = khoOptions;
-                khoDiEl.onchange = updateAllStockValues; // Wire up the stock update
-            }
+            toggleFormMode(); // Set labels and populate selections based on mode
 
             // Ensure stock data is available
             if (khospData.length === 0) fetchKhoSPData();
@@ -4337,6 +4756,7 @@
                 const id_nv = document.getElementById('addIdNv').value.trim();
                 const npp = document.getElementById('addNpp').value.trim();
                 const ncc = document.getElementById('addNcc').value.trim();
+                const nhap_xuat = document.getElementById('addNhapXuat').value;
                 const kho_di = document.getElementById('addKhoDi')?.value.trim() || '';
 
                 const container = document.getElementById('dhctProductList');
@@ -4398,7 +4818,8 @@
                             id_nv: id_nv,
                             npp: npp,
                             ncc: ncc,
-                            kho_di: kho_di
+                            kho_di: kho_di,
+                            nhap_xuat: nhap_xuat
                         });
                     }
                 });
@@ -5337,6 +5758,284 @@
                 console.error(err);
                 alert("Lỗi khi đồng bộ dữ liệu công nợ lên Google Sheets!");
             }
+        }
+
+        // ═══════════════════════════════════════════════
+        // MODULE: BÁO CÁO NHẬP HÀNG
+        // ═══════════════════════════════════════════════
+        let bcNhapFiltered = [];
+        let bcNhapCurrentPage = 1;
+        const BC_NHAP_PAGE_SIZE = 50;
+
+        function populateBcNhapFilters() {
+            // NCC dropdown
+            const nccSel = document.getElementById('bcNhapFilterNcc');
+            if (nccSel) {
+                const nccSet = new Set(ordersData.filter(o => o.nhap_xuat === 'Nhập').map(o => o.ncc).filter(Boolean));
+                nccSel.innerHTML = '<option value="">Tất cả NCC</option>';
+                [...nccSet].sort().forEach(v => {
+                    const info = nccData.find(n => n.id === v);
+                    nccSel.innerHTML += `<option value="${v}">${v}${info ? ' - ' + info.name : ''}</option>`;
+                });
+            }
+            // Kho dropdown
+            const khoSel = document.getElementById('bcNhapFilterKho');
+            if (khoSel) {
+                const khoSet = new Set(ordersData.filter(o => o.nhap_xuat === 'Nhập').map(o => o.npp).filter(Boolean));
+                khoSel.innerHTML = '<option value="">Tất cả kho nhập</option>';
+                [...khoSet].sort().forEach(v => {
+                    const info = khoData.find(k => k.id === v);
+                    khoSel.innerHTML += `<option value="${v}">${v}${info ? ' - ' + info.kho : ''}</option>`;
+                });
+            }
+        }
+
+        function filterBcNhap() {
+            const fromStr = document.getElementById('bcNhapFromDate')?.value || '';
+            const toStr   = document.getElementById('bcNhapToDate')?.value   || '';
+            const filterNcc = document.getElementById('bcNhapFilterNcc')?.value || '';
+            const filterKho = document.getElementById('bcNhapFilterKho')?.value || '';
+
+            bcNhapFiltered = ordersData.filter(o => {
+                if (o.nhap_xuat !== 'Nhập') return false;
+                const itemDate = parseDate(o.date);
+                if (itemDate) itemDate.setHours(0,0,0,0);
+                if (fromStr) { const s = new Date(fromStr); s.setHours(0,0,0,0); if (itemDate < s) return false; }
+                if (toStr)   { const e = new Date(toStr);   e.setHours(0,0,0,0); if (itemDate > e) return false; }
+                if (filterNcc && o.ncc !== filterNcc) return false;
+                if (filterKho && o.npp !== filterKho) return false;
+                return true;
+            });
+            bcNhapFiltered.sort((a, b) => parseDate(b.date) - parseDate(a.date));
+            bcNhapCurrentPage = 1;
+            renderBcNhap();
+        }
+
+        function resetBcNhapFilters() {
+            document.getElementById('bcNhapFromDate').value = '';
+            document.getElementById('bcNhapToDate').value   = '';
+            document.getElementById('bcNhapFilterNcc').value = '';
+            document.getElementById('bcNhapFilterKho').value = '';
+            filterBcNhap();
+        }
+
+        function renderBcNhap() {
+            const data = bcNhapFiltered;
+
+            // Summary cards
+            const totalOrders = new Set(data.map(o => o.id_dh)).size;
+            const totalQty    = data.reduce((s, o) => s + (parseFloat(o.qty) || 0), 0);
+            const totalVal    = data.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+            const totalNcc    = new Set(data.map(o => o.ncc).filter(Boolean)).size;
+
+            const el = id => document.getElementById(id);
+            if (el('bcNhapTotalOrders')) el('bcNhapTotalOrders').textContent = totalOrders.toLocaleString('vi-VN');
+            if (el('bcNhapTotalQty'))    el('bcNhapTotalQty').textContent    = totalQty.toLocaleString('vi-VN');
+            if (el('bcNhapTotalValue'))  el('bcNhapTotalValue').textContent  = totalVal.toLocaleString('vi-VN') + ' đ';
+            if (el('bcNhapTotalNcc'))    el('bcNhapTotalNcc').textContent    = totalNcc.toLocaleString('vi-VN');
+
+            // By NCC table
+            const nccMap = {};
+            data.forEach(o => {
+                const info = nccData.find(n => n.id === o.ncc);
+                const label = info ? `${o.ncc} - ${info.name}` : (o.ncc || 'Không rõ');
+                nccMap[label] = (nccMap[label] || 0) + (parseFloat(o.total) || 0);
+            });
+            const nccBody = el('bcNhapByNccTable');
+            if (nccBody) {
+                const entries = Object.entries(nccMap).sort((a,b) => b[1]-a[1]);
+                nccBody.innerHTML = entries.length === 0
+                    ? '<tr><td colspan="2" class="px-6 py-4 text-center text-slate-400">Không có dữ liệu</td></tr>'
+                    : entries.map(([k, v]) => `<tr class="hover:bg-slate-50">
+                        <td class="px-6 py-3 font-medium text-slate-700">${k}</td>
+                        <td class="px-6 py-3 font-bold text-emerald-700">${v.toLocaleString('vi-VN')} đ</td>
+                    </tr>`).join('');
+            }
+
+            // By SP table
+            const spMap = {};
+            data.forEach(o => {
+                const prod = productsData.find(p => p.id === o.id_sp);
+                const label = prod ? `${o.id_sp} - ${prod.name}` : (o.id_sp || 'Không rõ');
+                spMap[label] = (spMap[label] || 0) + (parseFloat(o.total) || 0);
+            });
+            const spBody = el('bcNhapBySpTable');
+            if (spBody) {
+                const entries = Object.entries(spMap).sort((a,b) => b[1]-a[1]);
+                spBody.innerHTML = entries.length === 0
+                    ? '<tr><td colspan="2" class="px-6 py-4 text-center text-slate-400">Không có dữ liệu</td></tr>'
+                    : entries.map(([k, v]) => `<tr class="hover:bg-slate-50">
+                        <td class="px-6 py-3 font-medium text-slate-700">${k}</td>
+                        <td class="px-6 py-3 font-bold text-blue-700">${v.toLocaleString('vi-VN')} đ</td>
+                    </tr>`).join('');
+            }
+
+            // Detail table with pagination
+            const start = (bcNhapCurrentPage - 1) * BC_NHAP_PAGE_SIZE;
+            const pageData = data.slice(start, start + BC_NHAP_PAGE_SIZE);
+            const detailBody = el('bcNhapDetailTable');
+            if (detailBody) {
+                if (data.length === 0) {
+                    detailBody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-slate-400">Không có dữ liệu</td></tr>';
+                } else {
+                    detailBody.innerHTML = pageData.map(o => {
+                        const prod = productsData.find(p => p.id === o.id_sp);
+                        const prodName = prod ? prod.name : '';
+                        const nccInfo = nccData.find(n => n.id === o.ncc);
+                        const nccName = nccInfo ? nccInfo.name : '';
+                        const khoInfo = khoData.find(k => k.id === o.npp);
+                        const khoName = khoInfo ? khoInfo.kho : o.npp;
+                        return `<tr class="hover:bg-slate-50">
+                            <td class="px-4 py-3 font-mono text-xs text-slate-500">${o.id_dh || ''}</td>
+                            <td class="px-4 py-3 text-slate-600">${o.date || ''}</td>
+                            <td class="px-4 py-3 font-medium text-slate-700">${o.id_sp || ''}<br><span class="text-xs text-slate-400">${prodName}</span></td>
+                            <td class="px-4 py-3 text-slate-600">${o.ncc || ''}<br><span class="text-xs text-slate-400">${nccName}</span></td>
+                            <td class="px-4 py-3 text-slate-600">${khoName}</td>
+                            <td class="px-4 py-3 text-right font-bold text-slate-800">${(parseFloat(o.qty)||0).toLocaleString('vi-VN')}</td>
+                            <td class="px-4 py-3 text-right text-slate-600">${(parseFloat(o.price)||0).toLocaleString('vi-VN')} đ</td>
+                            <td class="px-4 py-3 text-right font-bold text-emerald-700">${(parseFloat(o.total)||0).toLocaleString('vi-VN')} đ</td>
+                        </tr>`;
+                    }).join('');
+                }
+            }
+            const countEl = el('bcNhapDetailCount');
+            if (countEl) countEl.textContent = data.length.toLocaleString('vi-VN') + ' dòng';
+
+            // Pagination
+            const totalPages = Math.ceil(data.length / BC_NHAP_PAGE_SIZE);
+            const pag = el('bcNhapPagination');
+            if (pag) {
+                pag.innerHTML = '';
+                if (totalPages > 1) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        const btn = document.createElement('button');
+                        btn.textContent = i;
+                        btn.className = `px-3 py-1 rounded-lg text-sm font-medium transition ${i === bcNhapCurrentPage ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`;
+                        btn.onclick = () => { bcNhapCurrentPage = i; renderBcNhap(); };
+                        pag.appendChild(btn);
+                    }
+                }
+            }
+        }
+
+        function exportBcNhapExcel() {
+            if (!window.XLSX) return alert('Thư viện Excel chưa sẵn sàng!');
+            const rows = [['ID ĐH','Ngày','Mã SP','Tên SP','NCC','Tên NCC','Kho nhập','SL','Đơn giá','Thành tiền']];
+            bcNhapFiltered.forEach(o => {
+                const prod = productsData.find(p => p.id === o.id_sp);
+                const nccInfo = nccData.find(n => n.id === o.ncc);
+                const khoInfo = khoData.find(k => k.id === o.npp);
+                rows.push([o.id_dh||'', o.date||'', o.id_sp||'', prod?prod.name:'', o.ncc||'', nccInfo?nccInfo.name:'', khoInfo?khoInfo.kho:(o.npp||''), parseFloat(o.qty)||0, parseFloat(o.price)||0, parseFloat(o.total)||0]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'BC Nhap Hang');
+            XLSX.writeFile(wb, 'BaoCao_NhapHang.xlsx');
+        }
+
+        // ═══════════════════════════════════════════════
+        // MODULE: BÁO CÁO KHO HÀNG
+        // ═══════════════════════════════════════════════
+        function populateBcKhoFilters() {
+            const khoSel = document.getElementById('bcKhoFilterKho');
+            if (khoSel) {
+                const set = new Set(khospData.map(k => k.kho).filter(Boolean));
+                khoSel.innerHTML = '<option value="">Tất cả kho</option>';
+                [...set].sort().forEach(v => khoSel.innerHTML += `<option value="${v}">${v}</option>`);
+            }
+            const spSel = document.getElementById('bcKhoFilterSp');
+            if (spSel) {
+                const set = new Set(khospData.map(k => k.id_sp).filter(Boolean));
+                spSel.innerHTML = '<option value="">Tất cả sản phẩm</option>';
+                [...set].sort().forEach(v => {
+                    const p = productsData.find(x => x.id === v);
+                    spSel.innerHTML += `<option value="${v}">${v}${p?' - '+p.name:''}</option>`;
+                });
+            }
+        }
+
+        function renderBcKho() {
+            const filterKho    = document.getElementById('bcKhoFilterKho')?.value    || '';
+            const filterSp     = document.getElementById('bcKhoFilterSp')?.value     || '';
+            const filterStatus = document.getElementById('bcKhoFilterStatus')?.value || '';
+
+            // Build rows with tồn cuối
+            let rows = khospData.map(k => {
+                const nhap = ordersData.filter(o => o.npp    === k.kho && o.id_sp === k.id_sp).reduce((s,o)=>s+(parseFloat(o.qty)||0),0);
+                const xuat = ordersData.filter(o => o.kho_di === k.kho && o.id_sp === k.id_sp).reduce((s,o)=>s+(parseFloat(o.qty)||0),0);
+                const tonCuoi = k.ton_dau + nhap - xuat;
+                const prod = productsData.find(p => p.id === k.id_sp);
+                return { kho: k.kho||'', id_sp: k.id_sp||'', name: prod?prod.name:'', ton_dau: k.ton_dau, nhap, xuat, tonCuoi };
+            });
+
+            // All-items stats (before filter)
+            const el = id => document.getElementById(id);
+            if (el('bcKhoTotalItems')) el('bcKhoTotalItems').textContent = rows.length.toLocaleString('vi-VN');
+            if (el('bcKhoCountHet'))   el('bcKhoCountHet').textContent   = rows.filter(r=>r.tonCuoi<=0).length;
+            if (el('bcKhoCountThap'))  el('bcKhoCountThap').textContent  = rows.filter(r=>r.tonCuoi>0&&r.tonCuoi<=5).length;
+            if (el('bcKhoCountDu'))    el('bcKhoCountDu').textContent    = rows.filter(r=>r.tonCuoi>5).length;
+
+            // Apply filters
+            if (filterKho) rows = rows.filter(r => r.kho === filterKho);
+            if (filterSp)  rows = rows.filter(r => r.id_sp === filterSp);
+            if (filterStatus === 'het')  rows = rows.filter(r => r.tonCuoi <= 0);
+            if (filterStatus === 'thap') rows = rows.filter(r => r.tonCuoi > 0 && r.tonCuoi <= 5);
+            if (filterStatus === 'du')   rows = rows.filter(r => r.tonCuoi > 5);
+
+            // Sort: hết → thấp → đủ
+            rows.sort((a,b) => a.tonCuoi - b.tonCuoi);
+
+            const countEl = el('bcKhoCount');
+            if (countEl) countEl.textContent = rows.length.toLocaleString('vi-VN') + ' mặt hàng';
+
+            const tbody = el('bcKhoTable');
+            if (!tbody) return;
+
+            if (rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-slate-400">Không có dữ liệu</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rows.map(r => {
+                let badge, colorClass;
+                if (r.tonCuoi <= 0) {
+                    badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600">Hết hàng</span>';
+                    colorClass = 'text-red-600 font-bold';
+                } else if (r.tonCuoi <= 5) {
+                    badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600">Tồn thấp</span>';
+                    colorClass = 'text-amber-600 font-bold';
+                } else {
+                    badge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-600">Còn hàng</span>';
+                    colorClass = 'text-emerald-600 font-bold';
+                }
+                return `<tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3 font-medium text-slate-700">${r.kho}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-slate-500">${r.id_sp}</td>
+                    <td class="px-4 py-3 text-slate-700">${r.name}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${r.ton_dau.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right text-blue-600 font-medium">+${r.nhap.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right text-rose-500 font-medium">-${r.xuat.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-right ${colorClass}">${r.tonCuoi.toLocaleString('vi-VN')}</td>
+                    <td class="px-4 py-3 text-center">${badge}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function exportBcKhoExcel() {
+            if (!window.XLSX) return alert('Thư viện Excel chưa sẵn sàng!');
+            const rows = [['Kho','Mã SP','Tên SP','Tồn đầu','Nhập','Xuất','Tồn cuối','Trạng thái']];
+            khospData.forEach(k => {
+                const nhap = ordersData.filter(o => o.npp    === k.kho && o.id_sp === k.id_sp).reduce((s,o)=>s+(parseFloat(o.qty)||0),0);
+                const xuat = ordersData.filter(o => o.kho_di === k.kho && o.id_sp === k.id_sp).reduce((s,o)=>s+(parseFloat(o.qty)||0),0);
+                const tonCuoi = k.ton_dau + nhap - xuat;
+                const prod = productsData.find(p => p.id === k.id_sp);
+                const status = tonCuoi <= 0 ? 'Hết hàng' : tonCuoi <= 5 ? 'Tồn thấp' : 'Còn hàng';
+                rows.push([k.kho||'', k.id_sp||'', prod?prod.name:'', k.ton_dau, nhap, xuat, tonCuoi, status]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'BC Kho Hang');
+            XLSX.writeFile(wb, 'BaoCao_KhoHang.xlsx');
         }
     </script>
 </body>
