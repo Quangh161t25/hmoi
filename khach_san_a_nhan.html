@@ -1800,6 +1800,90 @@
             font-size: 1.5rem;
         }
 
+        .dv-clickable {
+            cursor: pointer;
+            color: #4f46e5;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .dv-clickable:hover {
+            background-color: rgba(79, 70, 229, 0.08);
+            color: #4338ca;
+            transition: 0.2s;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .dv-picker-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 6000;
+        }
+
+        .dv-picker-card {
+            width: 520px;
+            max-width: calc(100vw - 24px);
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .dv-picker-header {
+            padding: 0.9rem 1.1rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dv-picker-body {
+            padding: 0.9rem 1.1rem;
+            max-height: 60vh;
+            overflow: auto;
+        }
+
+        .dv-picker-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .dv-picker-item:hover {
+            background: #f8fafc;
+            border-color: #c7d2fe;
+        }
+
+        .dv-picker-item-title {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.95rem;
+        }
+
+        .dv-picker-item-sub {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .dv-picker-item-amount {
+            font-weight: 800;
+            color: #10b981;
+            white-space: nowrap;
+        }
+
         .price-chip {
             background: #f1f5f9;
             padding: 2px 8px;
@@ -2015,6 +2099,20 @@
         <div class="blob blob-3"></div>
     </div>
     <div id="toastContainer"></div>
+
+    <!-- Popup chọn phòng để xem chi tiết DV -->
+    <div id="dvPickerModal" class="dv-picker-overlay" onclick="closeDvPickerIfOutside(event)">
+        <div class="dv-picker-card" onclick="event.stopPropagation()">
+            <div class="dv-picker-header">
+                <div style="font-weight:800;">Chọn phòng để xem dịch vụ</div>
+                <button onclick="closeDvPicker()"
+                    style="background:rgba(255,255,255,0.2); color:white; border:none; padding:0.35rem 0.7rem; border-radius:8px; cursor:pointer; font-size:1rem;">✕</button>
+            </div>
+            <div class="dv-picker-body" id="dvPickerBody">
+                <!-- render bằng JS -->
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <!-- Tab Navigation -->
@@ -2451,12 +2549,18 @@
                                 <th
                                     style="padding:0.7rem 0.8rem; text-align:right; font-size:0.72rem; font-weight:700; color:#64748b; text-transform:uppercase;">
                                     Thành tiền</th>
+                                <th
+                                    style="padding:0.7rem 0.8rem; text-align:left; font-size:0.72rem; font-weight:700; color:#64748b; text-transform:uppercase;">
+                                    Thanh toán</th>
+                                <th
+                                    style="padding:0.7rem 0.8rem; text-align:left; font-size:0.72rem; font-weight:700; color:#64748b; text-transform:uppercase;">
+                                    Tài khoản</th>
                                 <th style="padding:0.7rem 0.8rem; width:80px;"></th>
                             </tr>
                         </thead>
                         <tbody id="dvTableBody">
                             <tr>
-                                <td colspan="6" style="padding:2rem; text-align:center; color:#94a3b8;">Chưa có dịch vụ
+                                <td colspan="8" style="padding:2rem; text-align:center; color:#94a3b8;">Chưa có dịch vụ
                                 </td>
                             </tr>
                         </tbody>
@@ -2465,9 +2569,25 @@
                                 <td colspan="4"
                                     style="padding:0.75rem 0.8rem; font-weight:700; color:#166534; font-size:0.9rem;">💰
                                     Tổng tiền dịch vụ</td>
-                                <td colspan="2"
+                                <td colspan="4"
                                     style="padding:0.75rem 0.8rem; text-align:right; font-weight:800; color:#10b981; font-size:1rem;"
                                     id="dvTotalRow">0 ₫</td>
+                            </tr>
+                            <tr style="background:#f8fafc;">
+                                <td colspan="4"
+                                    style="padding:0.6rem 0.8rem; font-weight:700; color:#0f172a; font-size:0.85rem;">
+                                    ✅ Đã thanh toán</td>
+                                <td colspan="4"
+                                    style="padding:0.6rem 0.8rem; text-align:right; font-weight:800; color:#10b981; font-size:0.95rem;"
+                                    id="dvPaidRow">0 ₫</td>
+                            </tr>
+                            <tr style="background:#fff7ed;">
+                                <td colspan="4"
+                                    style="padding:0.6rem 0.8rem; font-weight:700; color:#9a3412; font-size:0.85rem;">
+                                    ⏳ Chưa thanh toán</td>
+                                <td colspan="4"
+                                    style="padding:0.6rem 0.8rem; text-align:right; font-weight:800; color:#ef4444; font-size:0.95rem;"
+                                    id="dvUnpaidRow">0 ₫</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -2483,10 +2603,15 @@
                             <label
                                 style="font-size:0.78rem; color:#64748b; font-weight:600; display:block; margin-bottom:4px;">Sản
                                 phẩm *</label>
-                            <select id="dvSelSp" onchange="dvOnSelectSp()"
-                                style="width:100%; padding:0.6rem 0.8rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.9rem; outline:none; background:white;">
-                                <option value="">-- Chọn sản phẩm --</option>
-                            </select>
+                            <div style="display:flex; gap:5px;">
+                                <select id="dvSelSp" onchange="checkCustomService(this.value)"
+                                    style="flex:1; padding:0.6rem 0.8rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.9rem; outline:none; background:white;">
+                                    <option value="">-- Chọn sản phẩm --</option>
+                                    <option value="CUSTOM">-- Tự nhập dịch vụ mới --</option>
+                                </select>
+                                <input type="text" id="dvCustomName" placeholder="Tên dịch vụ mới"
+                                    style="display:none; flex:1; padding:0.6rem 0.8rem; border:1px solid #4f46e5; border-radius:8px; font-size:0.9rem; outline:none;">
+                            </div>
                         </div>
                         <div>
                             <label
@@ -2501,6 +2626,29 @@
                                 lượng *</label>
                             <input type="number" id="dvInputSlg" value="1" min="1" oninput="recalcDvThanhtien()"
                                 style="width:100%; padding:0.6rem 0.8rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.9rem; outline:none;">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:0.78rem; color:#64748b; font-weight:600; display:block; margin-bottom:4px;">Trạng
+                                thái</label>
+                            <div style="display:flex; gap:4px;">
+                                <button type="button" id="btnPaidNo" onclick="setPaymentStatus('Chưa thanh toán')"
+                                    style="flex:1; padding:0.5rem; font-size:0.7rem; border-radius:6px; border:1px solid #ccc; cursor:pointer;">Chưa</button>
+                                <button type="button" id="btnPaidYes" onclick="setPaymentStatus('Đã thanh toán')"
+                                    style="flex:1; padding:0.5rem; font-size:0.7rem; border-radius:6px; border:1px solid #ccc; cursor:pointer;">Đã xong</button>
+                                <input type="hidden" id="dvThanhToan" value="Chưa thanh toán">
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:0.78rem; color:#64748b; font-weight:600; display:block; margin-bottom:4px;">TK
+                                thanh toán</label>
+                            <select id="dvTkThanhToan"
+                                style="width:100%; padding:0.6rem 0.8rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.9rem; outline:none; background:white;">
+                                <option value="Tiền mặt">Tiền mặt</option>
+                                <option value="Chuyển khoản">Chuyển khoản</option>
+                                <option value="Thẻ">Thẻ</option>
+                            </select>
                         </div>
                         <div style="grid-column:1/-1;">
                             <label
@@ -2524,7 +2672,7 @@
             <!-- Footer -->
             <div
                 style="padding:0.9rem 1.25rem; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-                <button onclick="openDvAddSection()"
+                <button id="dvAddBtnFooter" onclick="openDvAddSection()"
                     style="padding:0.55rem 1.2rem; border-radius:10px; background:#6366f1; color:white; border:none; cursor:pointer; font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:6px;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -2785,11 +2933,26 @@
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Tiền dịch vụ (DV)</span>
-                                <span class="summary-value" id="summaryServiceTotal">0 ₫</span>
+                                <span class="summary-value dv-clickable" id="summaryServiceTotal"
+                                    onclick="openServiceDetailFromSummary()"
+                                    title="Click để xem chi tiết dịch vụ theo từng phòng">0 ₫</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label" style="text-transform:none; letter-spacing:0;">DV đã thanh toán</span>
+                                <span class="summary-value" id="summaryServicePaid">0 ₫</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label" style="text-transform:none; letter-spacing:0;">DV chưa thanh toán</span>
+                                <span class="summary-value" id="summaryServiceUnpaid">0 ₫</span>
                             </div>
                             <div class="summary-row summary-total">
-                                <span class="summary-label">TỔNG CỘNG (Thành tiền)</span>
+                                <span class="summary-label">TIỀN CHƯA THANH TOÁN</span>
                                 <span class="summary-value" id="summaryGrandTotal">0 ₫</span>
+                            </div>
+                            <div class="summary-row summary-total" style="margin-top:0.35rem;">
+                                <span class="summary-label" style="color:#0f172a;">TỔNG TOÀN BỘ TIỀN</span>
+                                <span class="summary-value" id="summaryAllTotal"
+                                    style="color:#0f172a; font-size:1.2rem;">0 ₫</span>
                             </div>
                         </div>
                     </div>
@@ -3410,7 +3573,10 @@
             floor: ['tang', 'tầng', 'floor'],
             phone: ['sdt', 'điện thoại', 'phone'],
             note: ['ghi_chu', 'ghi chú', 'nội dung', 'note'],
-            price: ['thanh_tien', 'thành tiền', 'tiền'],
+            createdDate: ['ngay', 'ngày', 'ngày tạo', 'date'],
+            nights: ['so_ngay', 'số ngày', 'songay'],
+            price: ['tien_phong', 'tiền phòng', 'giá', 'đơn giá', 'don_gia', 'price', 'gia'],
+            roomAmount: ['thanh_tien', 'thành tiền', 'thanh tien'],
             reason: ['ly_do', 'lý do', 'reason'],
             fee: ['phi_chuyen_phong', 'phí chuyển', 'phí', 'fee', 'phi'],
             adults: ['so_ng_lon', 'người lớn', 'n người lớn', 'adults', 'nl'],
@@ -3467,6 +3633,8 @@
             const cPhone = findColIndex(rawHeaders, COL_MAPPING.phone);
             const cNote = findColIndex(rawHeaders, COL_MAPPING.note);
             const cPrice = findColIndex(rawHeaders, COL_MAPPING.price);
+            const cRoomAmount = findColIndex(rawHeaders, COL_MAPPING.roomAmount);
+            const cNights = findColIndex(rawHeaders, COL_MAPPING.nights);
 
             const roomsMap = {}; // Holds data based on currentGroupMode
 
@@ -3533,7 +3701,11 @@
                         status: cStatus !== -1 ? row[cStatus].toString().toLowerCase() : '',
                         phone: cPhone !== -1 ? row[cPhone] : '',
                         note: cNote !== -1 ? row[cNote] : '',
-                        price: cPrice !== -1 ? row[cPrice] : ''
+                        price: cPrice !== -1 ? row[cPrice] : (
+                            (cRoomAmount !== -1 && cNights !== -1 && (parseFloat(row[cNights]) || 0) > 0)
+                                ? (parseFloat(row[cRoomAmount]) || 0) / (parseFloat(row[cNights]) || 1)
+                                : (cRoomAmount !== -1 ? row[cRoomAmount] : '')
+                        )
                     });
                 }
             });
@@ -3718,15 +3890,21 @@
             const currentType = (row[cType] || 'Khác').toString().trim();
 
             const cPrice = findColIndex(currentData[0], COL_MAPPING.price);
+            const cRoomAmount = findColIndex(currentData[0], COL_MAPPING.roomAmount);
+            const cNights = findColIndex(currentData[0], COL_MAPPING.nights);
             const currentPrice = row[cPrice] || 0;
+            const fallbackPrice = (cPrice === -1 && cRoomAmount !== -1 && cNights !== -1 && (parseFloat(row[cNights]) || 0) > 0)
+                ? (parseFloat(row[cRoomAmount]) || 0) / (parseFloat(row[cNights]) || 1)
+                : (cRoomAmount !== -1 ? (row[cRoomAmount] || 0) : 0);
+            const effectivePrice = cPrice !== -1 ? (row[cPrice] || 0) : fallbackPrice;
 
             document.getElementById('crOldRoomLabel').textContent = oldRoom;
             document.getElementById('crGuestLabel').textContent = guestName;
             document.getElementById('crReason').value = '';
 
             // Populate Prices
-            document.getElementById('crOldPriceLabel').textContent = formatNumberVi(currentPrice);
-            document.getElementById('crNewPriceInput').value = parseInt(currentPrice.toString().replace(/[^0-9]/g, ''), 10) || 0;
+            document.getElementById('crOldPriceLabel').textContent = formatNumberVi(effectivePrice);
+            document.getElementById('crNewPriceInput').value = parseInt(effectivePrice.toString().replace(/[^0-9]/g, ''), 10) || 0;
 
             // Populate Room Types dropdown
             const typeSelect = document.getElementById('crRoomTypeSelect');
@@ -3899,6 +4077,9 @@
                 const cRoom = findColIndex(headers, COL_MAPPING.roomName);
                 const cType = findColIndex(headers, COL_MAPPING.roomType);
                 const cPrice = findColIndex(headers, COL_MAPPING.price);
+                const cRoomAmount = findColIndex(headers, COL_MAPPING.roomAmount);
+                const cNights = findColIndex(headers, COL_MAPPING.nights);
+                const cCreated = findColIndex(headers, COL_MAPPING.createdDate, [cRoom, cType]);
                 const cIn = findColIndex(headers, COL_MAPPING.checkIn);
                 const cOut = findColIndex(headers, COL_MAPPING.checkOut);
                 const cCustomer = findColIndex(headers, COL_MAPPING.customer);
@@ -3918,7 +4099,13 @@
                         sheetRow: sRow,
                         type: b[cType] || 'Phòng lẻ',
                         roomId: (b[cRoom] || '').toString().trim(),
-                        price: parseInt(b[cPrice]) || 0,
+                        price: (cPrice !== -1)
+                            ? (parseInt(b[cPrice]) || 0)
+                            : (
+                                (cRoomAmount !== -1 && cNights !== -1 && (parseFloat(b[cNights]) || 0) > 0)
+                                    ? Math.round(((parseFloat(b[cRoomAmount]) || 0) / (parseFloat(b[cNights]) || 1)))
+                                    : (parseInt(b[cRoomAmount]) || 0)
+                            ),
                         customer: b[cCustomer] || '',
                         phone: b[cPhone] || '',
                         adults: parseInt(b[cAdl]) || 1,
@@ -3936,6 +4123,7 @@
                         ${isEditMode && groupId ? `<button class="btn-checkout-all" onclick="checkoutAll()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Check out toàn bộ</button>` : ''}
                     </div>
                 `;
+                document.getElementById('bkNgay').value = cCreated !== -1 ? toDateInputValue(base[cCreated]) : '';
                 document.getElementById('bkNgayVao').value = convertDateToIso(base[cIn]);
                 document.getElementById('bkNgayRa').value = convertDateToIso(base[cOut]);
                 document.getElementById('bkTenKhach').value = base[cCustomer] || '';
@@ -3990,10 +4178,21 @@
         }
 
         function convertDateToIso(dateStr) {
+            // Backward-compat wrapper (giữ tên cũ) nhưng trả về đúng "datetime-local" theo LOCAL time
             if (!dateStr) return '';
             const d = parseDateVi(dateStr);
             if (!d) return '';
-            return d.toISOString().substr(0, 16);
+            return formatDatetimeLocal(d);
+        }
+
+        function toDateInputValue(dateStr) {
+            if (!dateStr) return '';
+            const d = parseDateVi(dateStr);
+            if (!d) return '';
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
         }
 
         function closeGroupDetails() {
@@ -4016,12 +4215,18 @@
         let dvItems = [];
         let dvEditIdx = null;
         let dvTotalByConfId = {};   // Cache tổng tiền theo conf.id — KHÔNG reset khi đóng modal
+        let dvPaidByConfId = {};    // Cache tổng DV đã thanh toán theo conf.id
+        let dvUnpaidByConfId = {};  // Cache tổng DV chưa thanh toán theo conf.id
         let allDvData = [];         // Cache toàn bộ sheet DAT_DO — tránh fetch lại nhiều lần
         let dvDataDirty = true;     // true = cần fetch lại từ server
+        let dvGroupMode = false;    // true = xem DV theo đoàn (nhiều phòng)
+        let dvGroupRoomLabelByIdDp = {}; // Map id_dp -> roomLabel
 
         async function openServiceModal(confId) {
             const conf = selectedRoomConfigs.find(c => c.id === confId);
             if (!conf) return;
+            dvGroupMode = false;
+            dvGroupRoomLabelByIdDp = {};
             dvCurrentConfId = confId;
             dvCurrentConf = conf;
             dvEditIdx = null;
@@ -4048,6 +4253,8 @@
             document.getElementById('dvModalIdDp').textContent = idDp || '---';
             document.getElementById('dvModalIdDpAll').textContent = idDpAll || '---';
             document.getElementById('dvAddSection').style.display = 'none';
+            const addBtn = document.getElementById('dvAddBtnFooter');
+            if (addBtn) addBtn.style.display = '';
 
             // Load SHOP data nếu chưa có (chỉ 1 lần)
             if (shopData.length === 0) await loadShopData();
@@ -4060,7 +4267,7 @@
             // Dùng cache nếu có và không bị đánh dấu dirty
             if (!forceRefresh && !dvDataDirty && allDvData.length > 0) {
                 dvFilterAndRender(idDp, idDpAll, allDvData);
-                openDvAddSection();
+                if (!dvGroupMode) openDvAddSection();
                 return;
             }
 
@@ -4071,7 +4278,7 @@
             try {
                 const token = await getAccessToken();
                 const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:G`;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:I`;
                 const res = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
                 if (!res.ok) throw new Error((await res.json()).error?.message || 'Lỗi mạng');
                 const result = await res.json();
@@ -4079,9 +4286,9 @@
                 dvDataDirty = false;
 
                 dvFilterAndRender(idDp, idDpAll, allDvData);
-                openDvAddSection();
+                if (!dvGroupMode) openDvAddSection();
             } catch (err) {
-                document.getElementById('dvTableBody').innerHTML = `<tr><td colspan="6" style="color:#ef4444; padding:1rem; text-align:center;">Lỗi: ${err.message}</td></tr>`;
+                document.getElementById('dvTableBody').innerHTML = `<tr><td colspan="8" style="color:#ef4444; padding:1rem; text-align:center;">Lỗi: ${err.message}</td></tr>`;
             } finally {
                 document.getElementById('dvLoading').style.display = 'none';
             }
@@ -4106,8 +4313,10 @@
         function renderDvTable() {
             const tbody = document.getElementById('dvTableBody');
             let total = 0;
+            let totalPaid = 0;
+            let totalUnpaid = 0;
             if (dvItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="padding:1.5rem; text-align:center; color:#94a3b8;">Chưa có dịch vụ nào</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="padding:1.5rem; text-align:center; color:#94a3b8;">Chưa có dịch vụ nào</td></tr>`;
             } else {
                 tbody.innerHTML = dvItems.map((item, idx) => {
                     const d = item.data;
@@ -4115,39 +4324,57 @@
                     const gia = parseFloat(d[4]) || 0;
                     const slg = parseFloat(d[5]) || 1;
                     const tt = parseFloat(d[6]) || gia * slg;
+                    const thanhToan = d[7] || 'Chưa thanh toán';
+                    const tkThanhToan = d[8] || '';
                     total += tt;
-                    const spName = getShopNameById(idSp);
+                    if (thanhToan === 'Đã thanh toán') totalPaid += tt; else totalUnpaid += tt;
+                    const baseName = getShopNameById(idSp);
+                    const rowIdDp = (d[2] || '').toString().trim();
+                    const roomLabel = dvGroupMode ? (dvGroupRoomLabelByIdDp[rowIdDp] || rowIdDp) : '';
+                    const spName = dvGroupMode && roomLabel ? `${roomLabel} - ${baseName}` : baseName;
+                    const paymentColor = thanhToan === 'Đã thanh toán' ? '#10b981' : '#ef4444';
                     return `<tr>
                         <td style="padding:0.7rem 0.8rem; font-size:0.9rem; font-weight:600; color:var(--primary);">${idSp}</td>
                         <td style="padding:0.7rem 0.8rem; font-size:0.9rem;">${spName}</td>
                         <td style="padding:0.7rem 0.8rem; text-align:right; font-size:0.9rem;">${formatShopPrice(gia)}</td>
                         <td style="padding:0.7rem 0.8rem; text-align:center; font-size:0.9rem;">${slg}</td>
                         <td style="padding:0.7rem 0.8rem; text-align:right; font-weight:700; color:#10b981;">${formatShopPrice(tt)}</td>
+                        <td style="padding:0.7rem 0.8rem; font-size:0.82rem; font-weight:700; color:${paymentColor};">${thanhToan}</td>
+                        <td style="padding:0.7rem 0.8rem; font-size:0.82rem;">${tkThanhToan || '-'}</td>
                         <td style="padding:0.7rem 0.6rem; text-align:center;">
                             <div style="display:flex; gap:4px; justify-content:center;">
-                                <button onclick="editDvItem(${idx})" style="background:rgba(99,102,241,0.1); color:var(--primary); border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.78rem;">✏️</button>
-                                <button onclick="deleteDvItem(${idx})" style="background:rgba(239,68,68,0.1); color:#ef4444; border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.78rem;">🗑️</button>
+                                ${dvGroupMode ? '' : `<button onclick="editDvItem(${idx})" style="background:rgba(99,102,241,0.1); color:var(--primary); border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.78rem;">✏️</button>
+                                <button onclick="deleteDvItem(${idx})" style="background:rgba(239,68,68,0.1); color:#ef4444; border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.78rem;">🗑️</button>`}
                             </div>
                         </td>
                     </tr>`;
                 }).join('');
             }
             document.getElementById('dvTotalRow').textContent = total.toLocaleString('vi-VN') + ' ₫';
+            if (document.getElementById('dvPaidRow')) {
+                document.getElementById('dvPaidRow').textContent = totalPaid.toLocaleString('vi-VN') + ' ₫';
+            }
+            if (document.getElementById('dvUnpaidRow')) {
+                document.getElementById('dvUnpaidRow').textContent = totalUnpaid.toLocaleString('vi-VN') + ' ₫';
+            }
 
             // Cập nhật cache tổng tiền cho nút DV
             if (dvCurrentConfId) {
                 dvTotalByConfId[dvCurrentConfId] = total;
+                dvPaidByConfId[dvCurrentConfId] = totalPaid;
+                dvUnpaidByConfId[dvCurrentConfId] = totalUnpaid;
             }
             updateDvButtonLabels();
             updateBookingSummary(); // Cập nhật tổng tiền ở Modal chính
         }
 
         function getShopNameById(id) {
-            if (!id || shopData.length === 0) return '';
+            if (!id) return '';
+            if (shopData.length === 0) return id;
             for (let i = 1; i < shopData.length; i++) {
                 if ((shopData[i][0] || '') == id) return shopData[i][1] || id;
             }
-            return '';
+            return id;
         }
 
         function updateDvButtonLabels() {
@@ -4174,15 +4401,20 @@
             document.getElementById('dvAddSection').style.display = 'block';
             document.getElementById('dvFormTitle').textContent = '➕ Thêm dịch vụ';
             document.getElementById('dvSelSp').value = '';
+            document.getElementById('dvCustomName').value = '';
             document.getElementById('dvInputGia').value = '';
             document.getElementById('dvInputSlg').value = '1';
+            document.getElementById('dvTkThanhToan').value = 'Tiền mặt';
             // Populate shop select
             populateDvShopSelect();
+            checkCustomService('');
+            setPaymentStatus('Chưa thanh toán');
+            recalcDvThanhtien();
         }
 
         function populateDvShopSelect() {
             const sel = document.getElementById('dvSelSp');
-            sel.innerHTML = '<option value="">-- Chọn sản phẩm --</option>';
+            sel.innerHTML = '<option value="">-- Chọn sản phẩm --</option><option value="CUSTOM">-- Tự nhập dịch vụ mới --</option>';
             for (let i = 1; i < shopData.length; i++) {
                 const id = shopData[i][0] || '';
                 const ten = shopData[i][1] || id;
@@ -4195,12 +4427,48 @@
             }
         }
 
+        function checkCustomService(val) {
+            const customInput = document.getElementById('dvCustomName');
+            const priceInput = document.getElementById('dvInputGia');
+            if (val === 'CUSTOM') {
+                customInput.style.display = 'block';
+                priceInput.value = '';
+                priceInput.readOnly = false;
+                recalcDvThanhtien();
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+                dvOnSelectSp();
+            }
+        }
+
         function dvOnSelectSp() {
             const sel = document.getElementById('dvSelSp');
             const opt = sel.options[sel.selectedIndex];
             if (opt && opt.dataset.gia) {
                 document.getElementById('dvInputGia').value = opt.dataset.gia;
                 recalcDvThanhtien();
+            } else if (sel.value !== 'CUSTOM') {
+                document.getElementById('dvInputGia').value = '';
+                recalcDvThanhtien();
+            }
+        }
+
+        function setPaymentStatus(status) {
+            document.getElementById('dvThanhToan').value = status;
+            const btnNo = document.getElementById('btnPaidNo');
+            const btnYes = document.getElementById('btnPaidYes');
+
+            if (status === 'Đã thanh toán') {
+                btnYes.style.background = '#10b981';
+                btnYes.style.color = 'white';
+                btnNo.style.background = 'white';
+                btnNo.style.color = '#334155';
+            } else {
+                btnNo.style.background = '#ef4444';
+                btnNo.style.color = 'white';
+                btnYes.style.background = 'white';
+                btnYes.style.color = '#334155';
             }
         }
 
@@ -4216,19 +4484,36 @@
             document.getElementById('dvAddSection').style.display = 'block';
             document.getElementById('dvFormTitle').textContent = '✏️ Sửa dịch vụ';
             populateDvShopSelect();
-            document.getElementById('dvSelSp').value = d[3] || '';
+            const savedService = d[3] || '';
+            const hasPresetService = Array.from(document.getElementById('dvSelSp').options).some(opt => opt.value === savedService);
+            if (hasPresetService) {
+                document.getElementById('dvSelSp').value = savedService;
+                document.getElementById('dvCustomName').value = '';
+                checkCustomService(savedService);
+            } else {
+                document.getElementById('dvSelSp').value = 'CUSTOM';
+                document.getElementById('dvCustomName').value = savedService;
+                checkCustomService('CUSTOM');
+            }
             document.getElementById('dvInputGia').value = d[4] || '';
             document.getElementById('dvInputSlg').value = d[5] || '1';
+            document.getElementById('dvTkThanhToan').value = d[8] || 'Tiền mặt';
+            setPaymentStatus(d[7] || 'Chưa thanh toán');
             recalcDvThanhtien();
         }
 
         async function saveDvItem() {
-            const idSp = document.getElementById('dvSelSp').value;
+            const selectedService = document.getElementById('dvSelSp').value;
+            const customServiceName = document.getElementById('dvCustomName').value.trim();
             const gia = parseFloat(document.getElementById('dvInputGia').value) || 0;
             const slg = parseFloat(document.getElementById('dvInputSlg').value) || 1;
             const tt = gia * slg;
+            const thanhToan = document.getElementById('dvThanhToan').value || 'Chưa thanh toán';
+            const tkThanhToan = document.getElementById('dvTkThanhToan').value || 'Tiền mặt';
+            const idSp = selectedService === 'CUSTOM' ? customServiceName : selectedService;
 
-            if (!idSp) { alert('Vui lòng chọn sản phẩm'); return; }
+            if (!selectedService) { alert('Vui lòng chọn sản phẩm'); return; }
+            if (selectedService === 'CUSTOM' && !customServiceName) { alert('Vui lòng nhập tên dịch vụ'); return; }
 
             const conf = dvCurrentConf;
             const idDp = conf._idDp || '';
@@ -4244,8 +4529,8 @@
                 if (dvEditIdx === null) {
                     // THÊM MỚI
                     const newId = 'DV' + Date.now();
-                    const newRow = [newId, idDpAll, idDp, idSp, gia, slg, tt];
-                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:G:append?valueInputOption=USER_ENTERED`;
+                    const newRow = [newId, idDpAll, idDp, idSp, gia, slg, tt, thanhToan, tkThanhToan];
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:I:append?valueInputOption=USER_ENTERED`;
                     const res = await fetch(url, {
                         method: 'POST',
                         headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
@@ -4259,8 +4544,8 @@
                     // SỬA
                     const absRow = dvItems[dvEditIdx].sheetAbsRow;
                     const updId = dvItems[dvEditIdx].data[0] || 'DV' + Date.now();
-                    const updRow = [updId, idDpAll, idDp, idSp, gia, slg, tt];
-                    const range = `${DAT_DO_SHEET}!A${absRow}:G${absRow}`;
+                    const updRow = [updId, idDpAll, idDp, idSp, gia, slg, tt, thanhToan, tkThanhToan];
+                    const range = `${DAT_DO_SHEET}!A${absRow}:I${absRow}`;
                     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`;
                     const res = await fetch(url, {
                         method: 'PUT',
@@ -4297,7 +4582,7 @@
                 const token = await getAccessToken();
                 const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
                 // Clear dòng đó (xóa nội dung)
-                const range = `${DAT_DO_SHEET}!A${absRow}:G${absRow}`;
+                const range = `${DAT_DO_SHEET}!A${absRow}:I${absRow}`;
                 const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}:clear`, {
                     method: 'POST',
                     headers: { "Authorization": `Bearer ${token}` }
@@ -4320,10 +4605,11 @@
             if (conf.sheetRow === undefined || conf.sheetRow === null) return;
 
             const totalService = dvTotalByConfId[conf.id] || 0;
+            const unpaidService = dvUnpaidByConfId[conf.id] || 0;
             const headers = currentData[0] || [];
             const cSvc = findColIndex(headers, COL_MAPPING.serviceAmount);
             const cTotal = findColIndex(headers, COL_MAPPING.totalAmount);
-            const cThanhTien = findColIndex(headers, COL_MAPPING.price || ['thanh_tien']); // Tiền phòng (Giá x Đêm)
+            const cThanhTien = findColIndex(headers, COL_MAPPING.roomAmount || ['thanh_tien']); // Tiền phòng (Giá x Đêm)
 
             try {
                 const token = await getAccessToken();
@@ -4340,7 +4626,7 @@
                 // Tính lại Tổng cộng nếu có cột
                 if (cTotal !== -1) {
                     const roomPriceFull = parseFloat(currentData[rowIndex][cThanhTien]) || 0;
-                    const newGrandTotal = roomPriceFull + totalService;
+                    const newGrandTotal = roomPriceFull + unpaidService;
                     currentData[rowIndex][cTotal] = newGrandTotal;
                     updates.push({ col: cTotal, val: newGrandTotal });
                 }
@@ -4374,7 +4660,7 @@
                     const token = await getAccessToken();
                     const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
                     const res = await fetch(
-                        `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:G`,
+                        `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:I`,
                         { headers: { "Authorization": `Bearer ${token}` } }
                     );
                     if (!res.ok) return;
@@ -4397,6 +4683,8 @@
                     if (!idDp) return;
 
                     let total = 0;
+                    let paid = 0;
+                    let unpaid = 0;
                     for (let i = 1; i < allDvData.length; i++) {
                         const r = allDvData[i];
                         if (!r || r.every(c => !c)) continue;
@@ -4406,9 +4694,13 @@
                             const slg = parseFloat(r[5]) || 1;
                             const tt = parseFloat(r[6]) || gia * slg;
                             total += tt;
+                            const status = (r[7] || 'Chưa thanh toán').toString().trim();
+                            if (status === 'Đã thanh toán') paid += tt; else unpaid += tt;
                         }
                     }
                     dvTotalByConfId[conf.id] = total;
+                    dvPaidByConfId[conf.id] = paid;
+                    dvUnpaidByConfId[conf.id] = unpaid;
                 });
 
                 // Cập nhật nút DV và tổng tiền
@@ -4425,6 +4717,8 @@
             dvCurrentConf = null;
             dvEditIdx = null;
             dvItems = [];
+            dvGroupMode = false;
+            dvGroupRoomLabelByIdDp = {};
             // KHÔNG reset dvTotalByConfId — giữ cache tổng tiền để nút DV hiển thị đúng
             // KHÔNG reset allDvData — giữ cache sheet DAT_DO
             updateDvButtonLabels();  // Chỉ cập nhật nhãn nút, không re-render toàn bộ bảng
@@ -4448,27 +4742,111 @@
         function updateBookingSummary() {
             const soNgay = parseInt(document.getElementById('bkSoNgay').value) || 0;
             let roomTotal = 0;
-            let serviceTotal = 0;
+            let servicePaid = 0;
+            let serviceUnpaid = 0;
 
             selectedRoomConfigs.forEach(conf => {
                 const roomPrice = parseInt(conf.price) || 0;
                 roomTotal += (roomPrice * soNgay);
-                // Lấy tổng DV từ cache dvTotalByConfId (đã load từ DAT_DO)
-                serviceTotal += dvTotalByConfId[conf.id] || 0;
+                servicePaid += dvPaidByConfId[conf.id] || 0;
+                serviceUnpaid += dvUnpaidByConfId[conf.id] || 0;
             });
 
-            const grandTotal = roomTotal + serviceTotal;
+            const unpaidTotal = roomTotal + serviceUnpaid;
+            const allTotal = roomTotal + servicePaid + serviceUnpaid;
 
             // Update UI
             document.getElementById('summaryRoomCount').textContent = selectedRoomConfigs.length;
             document.getElementById('summaryNights').textContent = soNgay;
             document.getElementById('summaryRoomTotal').textContent = formatCurrency(roomTotal);
-            document.getElementById('summaryServiceTotal').textContent = formatCurrency(serviceTotal);
-            document.getElementById('summaryGrandTotal').textContent = formatCurrency(grandTotal);
+            // Hiển thị tổng DV (đã + chưa) ở dòng clickable
+            document.getElementById('summaryServiceTotal').textContent = formatCurrency(servicePaid + serviceUnpaid);
+            // Nếu có 2 dòng phụ thì cập nhật
+            if (document.getElementById('summaryServicePaid')) {
+                document.getElementById('summaryServicePaid').textContent = formatCurrency(servicePaid);
+            }
+            if (document.getElementById('summaryServiceUnpaid')) {
+                document.getElementById('summaryServiceUnpaid').textContent = formatCurrency(serviceUnpaid);
+            }
+            document.getElementById('summaryGrandTotal').textContent = formatCurrency(unpaidTotal);
+            if (document.getElementById('summaryAllTotal')) {
+                document.getElementById('summaryAllTotal').textContent = formatCurrency(allTotal);
+            }
         }
 
         function formatCurrency(num) {
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num).replace('₫', '₫');
+        }
+
+        function openServiceDetailFromSummary() {
+            if (!selectedRoomConfigs || selectedRoomConfigs.length === 0) return;
+
+            // Nếu chỉ có 1 phòng thì mở thẳng DV modal
+            if (selectedRoomConfigs.length === 1) {
+                openServiceModal(selectedRoomConfigs[0].id);
+                return;
+            }
+            // Nhiều phòng: mở thẳng chi tiết DV theo đoàn (id_dp_all)
+            const headers = currentData[0] || [];
+            const cId = findColIndex(headers, 'id');
+            const cDpAll = findColIndex(headers, COL_MAPPING.idDpAll || 'id_dp_all');
+
+            let idDpAll = '';
+            const mapIdDpToRoom = {};
+            selectedRoomConfigs.forEach(conf => {
+                const roomLabel = conf.roomId || conf.type || conf.id;
+                if (conf.sheetRow !== undefined && conf.sheetRow !== null && currentData[conf.sheetRow]) {
+                    const row = currentData[conf.sheetRow];
+                    const idDp = cId !== -1 ? (row[cId] || '').toString().trim() : '';
+                    const rowDpAll = cDpAll !== -1 ? (row[cDpAll] || '').toString().trim() : '';
+                    if (idDp) mapIdDpToRoom[idDp] = roomLabel;
+                    if (!idDpAll && rowDpAll) idDpAll = rowDpAll;
+                }
+            });
+
+            if (!idDpAll) {
+                alert('Không tìm thấy ID đoàn để hiển thị dịch vụ.');
+                return;
+            }
+
+            dvGroupMode = true;
+            dvGroupRoomLabelByIdDp = mapIdDpToRoom;
+            dvCurrentConfId = '__GROUP__';
+            dvCurrentConf = { _idDp: '', _idDpAll: idDpAll };
+            dvEditIdx = null;
+
+            // Hiển thị modal
+            document.getElementById('dvModal').style.display = 'flex';
+            document.getElementById('dvModalRoom').textContent = 'Thông tin đoàn';
+            document.getElementById('dvModalIdDp').textContent = '---';
+            document.getElementById('dvModalIdDpAll').textContent = idDpAll;
+            document.getElementById('dvAddSection').style.display = 'none';
+            const addBtn = document.getElementById('dvAddBtnFooter');
+            if (addBtn) addBtn.style.display = 'none';
+
+            // Load SHOP data nếu chưa có (chỉ 1 lần)
+            (async () => {
+                if (shopData.length === 0) await loadShopData();
+                await loadDvItems('', idDpAll);
+            })();
+        }
+
+        function closeDvPicker() {
+            const el = document.getElementById('dvPickerModal');
+            if (el) el.style.display = 'none';
+        }
+
+        function closeDvPickerIfOutside(e) {
+            if (e.target && e.target.id === 'dvPickerModal') closeDvPicker();
+        }
+
+        function escapeHtml(str) {
+            return (str || '').toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         function handleSort(colIndex) {
@@ -5109,6 +5487,8 @@
             if (id === 'bookingModal') {
                 // Reset DV cache totals vì sang booking khác
                 dvTotalByConfId = {};
+                dvPaidByConfId = {};
+                dvUnpaidByConfId = {};
                 dvDataDirty = true;  // Lần mở DV tiếp theo sẽ fetch lại sheet DAT_DO
                 // Reset to default "New Booking" state
                 isEditMode = false;
@@ -5792,7 +6172,12 @@
 
                 // Helper to map a config object to a sheet row
                 const mapToDatPhongRow = (conf) => {
-                    const roomBookingId = conf.id.startsWith('edit_') ? (currentData[conf.sheetRow] ? currentData[conf.sheetRow][0] : generateBookingId()) : generateBookingId();
+                    // CRITICAL: giữ nguyên id (cột A) khi đang cập nhật booking đã tồn tại,
+                    // vì DAT_DO (dịch vụ) đang liên kết theo id_dp = DAT_PHONG[id].
+                    let roomBookingId = generateBookingId();
+                    if (isEditMode && conf.sheetRow !== undefined && conf.sheetRow !== null && currentData[conf.sheetRow]) {
+                        roomBookingId = (currentData[conf.sheetRow][0] || '').toString().trim() || generateBookingId();
+                    }
                     const dIn = new Date(ngayVao);
                     const dOut = new Date(ngayRa);
                     const tongH = Math.max(0, Math.round((dOut - dIn) / 3600000 * 10) / 10);
