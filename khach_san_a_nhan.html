@@ -373,6 +373,28 @@
             transform: translateY(-1px);
         }
 
+        .btn-bk-invoice {
+            background: #fff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 0.45rem 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+        }
+
+        .btn-bk-invoice:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+
         .animate-spin {
             animation: spin 1s linear infinite;
         }
@@ -802,6 +824,58 @@
             padding: 3px;
         }
 
+        .timeline-quick-stats {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: nowrap;
+            min-height: 26px;
+            padding: 0 0.25rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            -ms-overflow-style: none;
+        }
+
+        .timeline-quick-stats::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .timeline-quick-item {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            line-height: 1.1;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .timeline-quick-item.empty {
+            color: #2f9e44;
+        }
+
+        .timeline-quick-item.booked {
+            color: #b08900;
+        }
+
+        .timeline-quick-item.arrived {
+            color: #1d4ed8;
+        }
+
+        .timeline-quick-item.dirty {
+            color: #111111;
+        }
+
+        .timeline-quick-item .dirty-icon {
+            width: 14px;
+            height: 14px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
         .seg-btn {
             background: transparent;
             border: none;
@@ -842,6 +916,8 @@
             background: #f8fafc;
             z-index: 20;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            width: max-content;
+            min-width: 100%;
         }
 
         .timeline-top-left {
@@ -863,17 +939,25 @@
 
         .timeline-days {
             display: flex;
-            flex: 1;
+            flex: 1 0 auto;
+            min-width: min-content;
         }
 
         .timeline-day {
-            min-width: 120px;
-            flex: 1;
+            min-width: var(--timeline-col-width, 120px);
+            flex: 0 0 auto;
+            width: var(--timeline-col-width, 120px);
+            box-sizing: border-box;
             padding: 0.6rem 0.5rem;
             text-align: center;
             border-right: 1px solid #e2e8f0;
             font-size: 0.85rem;
             color: var(--text-dim);
+        }
+
+        .timeline-day.timeline-day-hour {
+            width: 60px;
+            min-width: 60px;
         }
 
         .timeline-day strong {
@@ -887,6 +971,8 @@
             display: flex;
             flex-direction: column;
             flex: 1;
+            width: max-content;
+            min-width: 100%;
         }
 
         .timeline-row {
@@ -894,6 +980,8 @@
             border-bottom: 1px solid #f1f5f9;
             min-height: 44px;
             position: relative;
+            width: max-content;
+            min-width: 100%;
         }
 
         .timeline-row:hover {
@@ -945,14 +1033,22 @@
 
         .timeline-grid {
             display: flex;
-            flex: 1;
+            flex: 1 0 auto;
+            min-width: min-content;
             position: relative;
         }
 
         .timeline-cell {
-            min-width: 120px;
-            flex: 1;
+            min-width: var(--timeline-col-width, 120px);
+            flex: 0 0 auto;
+            width: var(--timeline-col-width, 120px);
+            box-sizing: border-box;
             border-right: 1px solid #f1f5f9;
+        }
+
+        .timeline-cell.timeline-cell-hour {
+            width: 60px;
+            min-width: 60px;
         }
 
         .booking-block {
@@ -2202,6 +2298,18 @@
 
                 <!-- Config -->
                 <div style="flex: 1; display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center;">
+                    <div id="timelineQuickStats" class="timeline-quick-stats" style="margin-right: auto;">
+                        <span class="timeline-quick-item empty">Trống (0)</span>
+                        <span class="timeline-quick-item booked">Đã đặt (0)</span>
+                        <span class="timeline-quick-item arrived">Có khách (0)</span>
+                        <span class="timeline-quick-item dirty">
+                            <svg class="dirty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"></path>
+                                <path d="M14.5 7L17 9.5"></path>
+                            </svg>
+                            Bẩn (0)
+                        </span>
+                    </div>
                     <button class="btn-add-new" onclick="openBookingModal()" title="Thêm mới đặt phòng" id="btnThemMoi">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -2927,6 +3035,7 @@
                                         <span id="bkIdDisplayText">---</span>
                                     </div>
                                     <button type="button" class="btn-bk-payment" onclick="openBookingPaymentModal()">Thanh toán</button>
+                                    <button type="button" class="btn-bk-invoice" id="btnBkPrintInvoice" onclick="printBookingInvoice()">In hóa đơn</button>
                                     <button type="button" class="btn-primary" onclick="submitBooking()" id="btnSubmitBooking" style="background:#10b981; padding:0.55rem 1rem; border-radius:10px;">Cập nhật thay đổi</button>
                                     <span id="bkIdEditExtra"></span>
                                 </div>
@@ -3207,6 +3316,8 @@
         let isUploading = false; // Cờ theo dõi trạng thái upload ảnh
         let isSaving = false; // Cờ ngăn lưu chồng chéo
         let pendingRoomChange = null; // Lưu booking đang chờ đổi phòng (Drag&Drop)
+        let draggingTimelineSheetRow = null; // Dòng DAT_PHONG đang kéo (timeline)
+        let bookingModalCheckoutLocked = false; // true = có phòng đã trả phòng → khóa sửa/lưu form
 
         // Phân trang & Sắp xếp
         let currentPage = 1;
@@ -3516,7 +3627,31 @@
 
         let timelineStartDate = new Date();
         timelineStartDate.setHours(0, 0, 0, 0);
-        let TIMELINE_DAYS = 7; // Default Tuần
+        (function snapTimelineWeekStart() {
+            const day = timelineStartDate.getDay();
+            const diff = timelineStartDate.getDate() - day + (day === 0 ? -6 : 1);
+            timelineStartDate.setDate(diff);
+        })();
+        /** 'day' | 'week' | 'month' — tách khỏi số cột để cuộn ngang mở rộng */
+        let timelineRangeMode = 'week';
+        /** Số cột ngày đang vẽ (tuần/tháng); vẽ dư để cuộn ngang liên tục */
+        let timelineRenderDays = 21;
+        /** Chế độ Ngày: số cột giờ (24, 48, …) */
+        let timelineHourCount = 24;
+        /** Số ngày nhìn thấy trên màn hình (fit theo width) */
+        const TIMELINE_WEEK_VISIBLE_DAYS = 7;
+        /** Vẽ dư (>= visible) để cuộn sang ngày khác mượt */
+        const TIMELINE_WEEK_INITIAL_DAYS = 21;
+        const TIMELINE_SCROLL_EXTEND_DAYS = 14;
+        const TIMELINE_MAX_RENDER_DAYS = 400;
+        const TIMELINE_DAY_INITIAL_HOURS = 24;
+        const TIMELINE_SCROLL_EXTEND_HOURS = 24;
+        const TIMELINE_MAX_HOUR_COLUMNS = 240;
+        let timelineScrollDebounce = null;
+        let timelineScrollExtending = false;
+        let timelineDayColWidth = 120;
+        /** Chỉ căn giữa cột «hôm nay» sau khi người dùng đổi tháng / chọn ngày — không gọi khi cuộn mở rộng hay tải lại dữ liệu. */
+        let timelineCenterMonthTodayOnNextRender = false;
         let currentGroupMode = 'type';
 
         function syncDatePicker() {
@@ -3533,15 +3668,100 @@
             return new Date(year, month + 1, 0).getDate();
         }
 
+        function renderTimelineQuickStats(stats) {
+            const box = document.getElementById('timelineQuickStats');
+            if (!box) return;
+            box.innerHTML = `
+                <span class="timeline-quick-item empty">Trống (${stats.empty || 0})</span>
+                <span class="timeline-quick-item booked">Đã đặt (${stats.booked || 0})</span>
+                <span class="timeline-quick-item arrived">Có khách (${stats.arrived || 0})</span>
+                <span class="timeline-quick-item dirty">
+                    <svg class="dirty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"></path>
+                        <path d="M14.5 7L17 9.5"></path>
+                    </svg>
+                    Bẩn (${stats.dirty || 0})
+                </span>
+            `;
+        }
+
+        function getTimelineQuickStats() {
+            const stats = {
+                empty: 0,
+                booked: 0,
+                arrived: 0,
+                dirty: 0
+            };
+
+            const now = new Date();
+
+            let occupiedNow = 0;
+            if (currentData && currentData.length > 1) {
+                const headers = currentData[0];
+                const cRoom = findColIndex(headers, COL_MAPPING.roomName);
+                const cIn = findColIndex(headers, COL_MAPPING.checkIn);
+                const cOut = findColIndex(headers, COL_MAPPING.checkOut);
+                const cStatus = findColIndex(headers, COL_MAPPING.status);
+
+                const occupiedSet = new Set();
+
+                for (let i = 1; i < currentData.length; i++) {
+                    const row = currentData[i];
+                    const statusText = cStatus !== -1 ? (row[cStatus] || '').toString().trim().toLowerCase() : '';
+                    const inDate = cIn !== -1 ? parseDateVi(row[cIn]) : null;
+                    const outDate = cOut !== -1 ? parseDateVi(row[cOut]) : null;
+                    const roomId = cRoom !== -1 ? (row[cRoom] || '').toString().trim() : '';
+
+                    if (statusText.includes('trả')) continue;
+
+                    if (inDate && outDate) {
+                        if (now < inDate) {
+                            stats.booked++;
+                        } else if (now >= inDate && now <= outDate) {
+                            stats.arrived++;
+                            if (roomId) occupiedSet.add(roomId);
+                        } else if (now > outDate) {
+                            if (roomId) occupiedSet.add(roomId);
+                        }
+                    }
+                }
+                occupiedNow = occupiedSet.size;
+            }
+
+            if (roomListData && roomListData.length > 1) {
+                const headers = roomListData[0];
+                const cRoom = findColIndex(headers, COL_MAPPING.roomName);
+                const cStatus = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'tinh_trang');
+                let totalRooms = 0;
+
+                for (let i = 1; i < roomListData.length; i++) {
+                    const row = roomListData[i];
+                    const room = cRoom !== -1 ? (row[cRoom] || '').toString().trim() : '';
+                    if (!room) continue;
+                    totalRooms++;
+                    const dirtyVal = cStatus !== -1 ? (row[cStatus] || '').toString().trim().toLowerCase() : '';
+                    if (dirtyVal === 'bẩn') stats.dirty++;
+                }
+
+                stats.empty = Math.max(0, totalRooms - occupiedNow);
+            }
+
+            return stats;
+        }
+
         function changeTimelineDate(delta) {
-            if (TIMELINE_DAYS === 1) {
+            if (timelineRangeMode === 'day') {
                 timelineStartDate.setDate(timelineStartDate.getDate() + delta);
-            } else if (TIMELINE_DAYS === 7) {
+                timelineHourCount = TIMELINE_DAY_INITIAL_HOURS;
+            } else if (timelineRangeMode === 'week') {
                 timelineStartDate.setDate(timelineStartDate.getDate() + (delta * 7));
+                timelineRenderDays = TIMELINE_WEEK_INITIAL_DAYS;
             } else {
                 timelineStartDate.setMonth(timelineStartDate.getMonth() + delta);
-                timelineStartDate.setDate(1); // Luôn về đầu tháng
-                TIMELINE_DAYS = getDaysInMonth(timelineStartDate.getFullYear(), timelineStartDate.getMonth());
+                timelineStartDate.setDate(1);
+                const dim = getDaysInMonth(timelineStartDate.getFullYear(), timelineStartDate.getMonth());
+                timelineRenderDays = Math.min(TIMELINE_MAX_RENDER_DAYS, dim * 2);
+                timelineCenterMonthTodayOnNextRender = true;
             }
             syncDatePicker();
             renderTable();
@@ -3557,9 +3777,14 @@
                     const day = timelineStartDate.getDay();
                     const diff = timelineStartDate.getDate() - day + (day === 0 ? -6 : 1);
                     timelineStartDate.setDate(diff);
+                    timelineRenderDays = TIMELINE_WEEK_INITIAL_DAYS;
                 } else if (document.getElementById('btnViewMonth').classList.contains('active')) {
                     timelineStartDate.setDate(1);
-                    TIMELINE_DAYS = getDaysInMonth(timelineStartDate.getFullYear(), timelineStartDate.getMonth());
+                    const dim = getDaysInMonth(timelineStartDate.getFullYear(), timelineStartDate.getMonth());
+                    timelineRenderDays = Math.min(TIMELINE_MAX_RENDER_DAYS, dim * 2);
+                    timelineCenterMonthTodayOnNextRender = true;
+                } else if (document.getElementById('btnViewDay').classList.contains('active')) {
+                    timelineHourCount = TIMELINE_DAY_INITIAL_HOURS;
                 }
 
                 syncDatePicker();
@@ -3573,14 +3798,17 @@
             timelineStartDate = today;
 
             if (document.getElementById('btnViewWeek').classList.contains('active')) {
-                // Đưa về thứ 2 của tuần hiện tại
                 const day = today.getDay();
                 const diff = today.getDate() - day + (day === 0 ? -6 : 1);
                 timelineStartDate = new Date(today.setDate(diff));
+                timelineRenderDays = TIMELINE_WEEK_INITIAL_DAYS;
             } else if (document.getElementById('btnViewMonth').classList.contains('active')) {
-                // Đưa về mùng 1 tháng hiện tại
                 timelineStartDate.setDate(1);
-                TIMELINE_DAYS = getDaysInMonth(timelineStartDate.getFullYear(), timelineStartDate.getMonth());
+                const dim = getDaysInMonth(timelineStartDate.getFullYear(), timelineStartDate.getMonth());
+                timelineRenderDays = Math.min(TIMELINE_MAX_RENDER_DAYS, dim * 2);
+                timelineCenterMonthTodayOnNextRender = true;
+            } else if (document.getElementById('btnViewDay').classList.contains('active')) {
+                timelineHourCount = TIMELINE_DAY_INITIAL_HOURS;
             }
 
             syncDatePicker();
@@ -3596,22 +3824,26 @@
             anchor.setHours(0, 0, 0, 0);
 
             if (mode === 'day') {
-                TIMELINE_DAYS = 1;
+                timelineRangeMode = 'day';
+                timelineHourCount = TIMELINE_DAY_INITIAL_HOURS;
                 timelineStartDate = anchor;
                 document.getElementById('btnViewDay').classList.add('active');
             } else if (mode === 'week') {
-                TIMELINE_DAYS = 7;
-                // Về thứ 2 tuần này
+                timelineRangeMode = 'week';
+                timelineRenderDays = TIMELINE_WEEK_INITIAL_DAYS;
                 const day = anchor.getDay();
                 const diff = anchor.getDate() - day + (day === 0 ? -6 : 1);
                 timelineStartDate = new Date(anchor.setDate(diff));
                 document.getElementById('btnViewWeek').classList.add('active');
             } else if (mode === 'month') {
+                timelineRangeMode = 'month';
                 const year = anchor.getFullYear();
                 const month = anchor.getMonth();
-                TIMELINE_DAYS = getDaysInMonth(year, month);
-                timelineStartDate = new Date(year, month, 1); // Mùng 1
+                const dim = getDaysInMonth(year, month);
+                timelineRenderDays = Math.min(TIMELINE_MAX_RENDER_DAYS, dim * 2);
+                timelineStartDate = new Date(year, month, 1);
                 document.getElementById('btnViewMonth').classList.add('active');
+                timelineCenterMonthTodayOnNextRender = true;
             }
             syncDatePicker();
             renderTable();
@@ -3703,10 +3935,119 @@
             return -1;
         }
 
+        const TIMELINE_COL_WIDTH_DAY = 120;
+        const TIMELINE_COL_WIDTH_HOUR = 60;
+
+        function clamp(n, min, max) {
+            return Math.max(min, Math.min(max, n));
+        }
+
+        function updateTimelineColumnWidth(container) {
+            if (!container) return;
+            if (timelineRangeMode === 'day') return;
+
+            const leftFixed = 150;
+            const usable = Math.max(200, container.clientWidth - leftFixed);
+            let visibleCols = 7;
+            if (timelineRangeMode === 'week') {
+                visibleCols = TIMELINE_WEEK_VISIBLE_DAYS;
+            } else if (timelineRangeMode === 'month') {
+                visibleCols = getDaysInMonth(timelineStartDate.getFullYear(), timelineStartDate.getMonth());
+            }
+
+            const rawW = usable / Math.max(1, visibleCols);
+            timelineDayColWidth = Math.round(clamp(rawW, 26, 160));
+            container.style.setProperty('--timeline-col-width', `${timelineDayColWidth}px`);
+        }
+
+        function getTimelineDayColumnWidth() {
+            return timelineDayColWidth || TIMELINE_COL_WIDTH_DAY;
+        }
+
+        function setupTimelineInfiniteScroll() {
+            const container = document.getElementById('timelineContainer');
+            if (!container) return;
+            if (container._timelineScrollHandler) {
+                container.removeEventListener('scroll', container._timelineScrollHandler);
+            }
+            const handler = () => {
+                if (timelineScrollExtending) return;
+                if (timelineScrollDebounce) clearTimeout(timelineScrollDebounce);
+                timelineScrollDebounce = setTimeout(() => {
+                    const el = container;
+                    const threshold = 140;
+                    if (timelineRangeMode === 'day') {
+                        if (el.scrollLeft < threshold && timelineHourCount < TIMELINE_MAX_HOUR_COLUMNS) {
+                            const add = Math.min(TIMELINE_SCROLL_EXTEND_HOURS, TIMELINE_MAX_HOUR_COLUMNS - timelineHourCount);
+                            if (add <= 0) return;
+                            timelineScrollExtending = true;
+                            const oldScroll = el.scrollLeft;
+                            timelineStartDate = new Date(timelineStartDate.getTime() - add * 3600000);
+                            timelineHourCount += add;
+                            renderTable();
+                            requestAnimationFrame(() => {
+                                el.scrollLeft = oldScroll + add * TIMELINE_COL_WIDTH_HOUR;
+                                timelineScrollExtending = false;
+                            });
+                            return;
+                        }
+                        if (el.scrollLeft + el.clientWidth > el.scrollWidth - threshold && timelineHourCount < TIMELINE_MAX_HOUR_COLUMNS) {
+                            const add = Math.min(TIMELINE_SCROLL_EXTEND_HOURS, TIMELINE_MAX_HOUR_COLUMNS - timelineHourCount);
+                            if (add <= 0) return;
+                            timelineScrollExtending = true;
+                            const prevScroll = el.scrollLeft;
+                            timelineHourCount += add;
+                            renderTable();
+                            requestAnimationFrame(() => {
+                                el.scrollLeft = prevScroll;
+                                timelineScrollExtending = false;
+                            });
+                        }
+                    } else {
+                        if (el.scrollLeft < threshold && timelineRenderDays < TIMELINE_MAX_RENDER_DAYS) {
+                            const add = Math.min(TIMELINE_SCROLL_EXTEND_DAYS, TIMELINE_MAX_RENDER_DAYS - timelineRenderDays);
+                            if (add <= 0) return;
+                            timelineScrollExtending = true;
+                            const oldScroll = el.scrollLeft;
+                            const colW = getTimelineDayColumnWidth();
+                            const prev = new Date(timelineStartDate);
+                            prev.setDate(prev.getDate() - add);
+                            timelineStartDate = prev;
+                            timelineRenderDays += add;
+                            renderTable();
+                            requestAnimationFrame(() => {
+                                el.scrollLeft = oldScroll + add * colW;
+                                timelineScrollExtending = false;
+                            });
+                            return;
+                        }
+                        if (el.scrollLeft + el.clientWidth > el.scrollWidth - threshold && timelineRenderDays < TIMELINE_MAX_RENDER_DAYS) {
+                            const add = Math.min(TIMELINE_SCROLL_EXTEND_DAYS, TIMELINE_MAX_RENDER_DAYS - timelineRenderDays);
+                            if (add <= 0) return;
+                            timelineScrollExtending = true;
+                            const prevScroll = el.scrollLeft;
+                            timelineRenderDays += add;
+                            renderTable();
+                            requestAnimationFrame(() => {
+                                el.scrollLeft = prevScroll;
+                                timelineScrollExtending = false;
+                            });
+                        }
+                    }
+                }, 90);
+            };
+            container._timelineScrollHandler = handler;
+            container.addEventListener('scroll', handler, { passive: true });
+        }
+
         function renderTable() {
             syncDatePicker();
             const container = document.getElementById('timelineContainer');
             if (!container) return; // Bảo vệ nếu DOM chưa sẵn sàng
+
+            container.setAttribute('data-timeline-mode', timelineRangeMode);
+            updateTimelineColumnWidth(container);
+            renderTimelineQuickStats(getTimelineQuickStats());
 
             if (displayData.length <= 1) {
                 container.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-dim);">Không có thông tin đặt phòng. Hãy cập nhật trên Google Sheets.</div>';
@@ -3804,17 +4145,28 @@
             });
 
             const isXemNgay = document.getElementById('chkXemNgay') && document.getElementById('chkXemNgay').checked;
-            const isDayView = (TIMELINE_DAYS === 1);
+            const isDayView = (timelineRangeMode === 'day');
+            const dayViewEndDate = isDayView
+                ? new Date(timelineStartDate.getTime() + timelineHourCount * 3600000)
+                : null;
+            const dayViewTopLeft = isDayView
+                ? (timelineHourCount <= 24
+                    ? timelineStartDate.toLocaleDateString('vi-VN')
+                    : `${timelineStartDate.toLocaleDateString('vi-VN')} – ${dayViewEndDate.toLocaleDateString('vi-VN')}`)
+                : 'Loại / Phòng';
 
-            let headerHTML = `<div class="timeline-header"><div class="timeline-top-left">${isDayView ? timelineStartDate.toLocaleDateString('vi-VN') : 'Loại / Phòng'}</div><div class="timeline-days">`;
+            let headerHTML = `<div class="timeline-header"><div class="timeline-top-left">${dayViewTopLeft}</div><div class="timeline-days">`;
 
             if (isDayView) {
-                // Hiển thị 24 giờ
-                for (let h = 0; h < 24; h++) {
-                    headerHTML += `<div class="timeline-day" style="min-width: 60px;"><div>Giờ</div><strong>${h}h</strong></div>`;
+                for (let h = 0; h < timelineHourCount; h++) {
+                    const cellDate = new Date(timelineStartDate.getTime() + h * 3600000);
+                    const topLabel = (h === 0 || cellDate.getHours() === 0)
+                        ? cellDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })
+                        : '·';
+                    headerHTML += `<div class="timeline-day timeline-day-hour"><div>${topLabel}</div><strong>${cellDate.getHours()}h</strong></div>`;
                 }
             } else {
-                for (let i = 0; i < TIMELINE_DAYS; i++) {
+                for (let i = 0; i < timelineRenderDays; i++) {
                     const d = new Date(timelineStartDate);
                     d.setDate(d.getDate() + i);
                     const dayName = d.toLocaleDateString('vi-VN', { weekday: 'short' });
@@ -3823,7 +4175,7 @@
                     const bg = isToday ? 'background: #eff6ff;' : '';
                     const formatNum = isXemNgay ? `<strong style="font-size: 1.1em; color: #0284c7;">${dayNum}</strong>` : `<strong>${dayNum}</strong>`;
 
-                    headerHTML += `<div class="timeline-day" style="${bg}"><div>${dayName}</div>${formatNum}</div>`;
+                    headerHTML += `<div class="timeline-day" data-is-today="${isToday ? '1' : '0'}" style="${bg}"><div>${dayName}</div>${formatNum}</div>`;
                 }
             }
             headerHTML += `</div></div>`;
@@ -3839,16 +4191,16 @@
                     const broomIcon = isDirty ? `<svg class="broom-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" title="Phòng bẩn - cần dọn dẹp"><path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"/><path d="M14.5 7L17 9.5"/><path d="M5 14l2 2"/><path d="M7 12l2 2"/><path d="M9 10l2 2"/></svg>` : '';
                     const rowDirtyClass = isDirty ? 'room-status-dirty' : '';
 
-                    bodyHTML += `<div class="timeline-row ${rowDirtyClass}" data-room="${room}" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropBooking(event, '${room}')">`;
+                    bodyHTML += `<div class="timeline-row ${rowDirtyClass}" data-room="${room}" ondragover="allowDropTimeline(event)" ondragleave="dragLeave(event)" ondrop="dropBooking(event, '${room}')">`;
                     bodyHTML += `<div class="room-info"><span class="room-number">${room}${broomIcon}</span></div>`;
 
                     bodyHTML += `<div class="timeline-grid">`;
                     if (isDayView) {
-                        for (let h = 0; h < 24; h++) {
-                            bodyHTML += `<div class="timeline-cell" style="min-width: 60px;"></div>`;
+                        for (let h = 0; h < timelineHourCount; h++) {
+                            bodyHTML += `<div class="timeline-cell timeline-cell-hour"></div>`;
                         }
                     } else {
-                        for (let i = 0; i < TIMELINE_DAYS; i++) {
+                        for (let i = 0; i < timelineRenderDays; i++) {
                             const d = new Date(timelineStartDate);
                             d.setDate(d.getDate() + i);
                             const isToday = (d.toDateString() === new Date().toDateString());
@@ -3861,15 +4213,13 @@
                         let startDiff, duration, totalPeriod;
 
                         if (isDayView) {
-                            // Tính theo giờ
                             startDiff = (b.checkIn.getTime() - timelineStartDate.getTime()) / 3600000;
                             duration = (b.checkOut.getTime() - b.checkIn.getTime()) / 3600000;
-                            totalPeriod = 24;
+                            totalPeriod = timelineHourCount;
                         } else {
-                            // Tính theo ngày
                             startDiff = (b.checkIn.getTime() - timelineStartDate.getTime()) / (1000 * 3600 * 24);
                             duration = (b.checkOut.getTime() - b.checkIn.getTime()) / (1000 * 3600 * 24);
-                            totalPeriod = TIMELINE_DAYS;
+                            totalPeriod = timelineRenderDays;
                         }
 
                         if (duration < 0.2) duration = 0.2; // Min width in day mode is smaller
@@ -3919,6 +4269,7 @@
                             bodyHTML += `<div class="booking-block ${colorClass}" style="left: calc(${displayLeftPct}% + 1px); width: calc(${displayWidthPct}% - 2px);" title="${title}" 
                                             draggable="true" 
                                             ondragstart="dragStart(event, ${b.sheetRow})"
+                                            ondragend="dragEndTimeline(event)"
                                             onclick="openGroupDetails(${b.sheetRow})">
                                 <div style="display: flex; align-items: center; gap: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                                     ${b.customer}
@@ -3933,17 +4284,116 @@
             bodyHTML += `</div>`;
 
             container.innerHTML = headerHTML + bodyHTML;
+
+            setupTimelineInfiniteScroll();
+
+            if (timelineCenterMonthTodayOnNextRender && document.getElementById('btnViewMonth') && document.getElementById('btnViewMonth').classList.contains('active') && !isDayView) {
+                timelineCenterMonthTodayOnNextRender = false;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => scrollTimelineMonthTodayToCenter());
+                });
+            } else if (timelineCenterMonthTodayOnNextRender) {
+                timelineCenterMonthTodayOnNextRender = false;
+            }
+        }
+
+        /** Chế độ Tháng: cuộn ngang để cột ngày hôm nay nằm gần giữa vùng nhìn (nếu hôm nay nằm trong tháng đang xem). */
+        function scrollTimelineMonthTodayToCenter() {
+            const container = document.getElementById('timelineContainer');
+            if (!container) return;
+            const todayEl = container.querySelector('.timeline-day[data-is-today="1"]');
+            if (!todayEl) return;
+
+            const cRect = container.getBoundingClientRect();
+            const tRect = todayEl.getBoundingClientRect();
+            const todayCenter = tRect.left + tRect.width / 2;
+            const viewCenter = cRect.left + cRect.width / 2;
+            container.scrollLeft += todayCenter - viewCenter;
         }
 
         // --- DRAG AND DROP TIMELINE ---
+        function bookingRangesOverlap(aStart, aEnd, bStart, bEnd) {
+            if (!aStart || !aEnd || !bStart || !bEnd) return false;
+            return aStart.getTime() < bEnd.getTime() && aEnd.getTime() > bStart.getTime();
+        }
+
+        /** Trả về thông tin xung đột nếu phòng `targetRoom` đã có dòng booking khác trùng khoảng nhận–trả (kể cả đã trả phòng). Bỏ qua đúng dòng `excludeSheetRowIdx`. */
+        function findTimelineRoomBookingConflict(targetRoom, bookingIn, bookingOut, excludeSheetRowIdx) {
+            if (!currentData || currentData.length < 2 || !currentData[0]) return null;
+            const headers = currentData[0];
+            const cRoom = findColIndex(headers, COL_MAPPING.roomName);
+            const cIn = findColIndex(headers, COL_MAPPING.checkIn);
+            const cOut = findColIndex(headers, COL_MAPPING.checkOut);
+            const cCustomer = findColIndex(headers, COL_MAPPING.customer);
+            if (cRoom === -1 || cIn === -1 || cOut === -1 || !bookingIn || !bookingOut) return null;
+            const tRoom = (targetRoom || '').toString().trim();
+            if (!tRoom) return null;
+
+            for (let i = 1; i < currentData.length; i++) {
+                if (i === excludeSheetRowIdx) continue;
+                const row = currentData[i];
+                if ((row[cRoom] || '').toString().trim() !== tRoom) continue;
+                const oIn = parseDateVi(row[cIn]);
+                const oOut = parseDateVi(row[cOut]);
+                if (!oIn || !oOut) continue;
+                if (bookingRangesOverlap(bookingIn, bookingOut, oIn, oOut)) {
+                    const name = cCustomer !== -1 ? (row[cCustomer] || '').toString().trim() : '';
+                    return { customer: name || 'đặt phòng khác', rowLine: i + 1 };
+                }
+            }
+            return null;
+        }
+
         function dragStart(e, sheetRow) {
+            draggingTimelineSheetRow = sheetRow;
             e.dataTransfer.setData('text/plain', sheetRow);
             e.dataTransfer.effectAllowed = "move";
         }
 
-        function allowDrop(e) {
+        function dragEndTimeline(e) {
+            draggingTimelineSheetRow = null;
+        }
+
+        function allowDropTimeline(e) {
+            const rowEl = e.currentTarget;
+            const newRoom = rowEl.getAttribute('data-room');
+            if (!newRoom) return;
+
+            const rowIdx = draggingTimelineSheetRow;
+            const headers = currentData[0];
+            if (!headers || rowIdx == null || isNaN(rowIdx) || !currentData[rowIdx]) {
+                rowEl.classList.remove('drag-over');
+                return;
+            }
+
+            const cRoom = findColIndex(headers, COL_MAPPING.roomName);
+            const cIn = findColIndex(headers, COL_MAPPING.checkIn);
+            const cOut = findColIndex(headers, COL_MAPPING.checkOut);
+            if (cRoom === -1 || cIn === -1 || cOut === -1) {
+                e.preventDefault();
+                rowEl.classList.add('drag-over');
+                return;
+            }
+
+            const draggedRow = currentData[rowIdx];
+            const oldRoom = (draggedRow[cRoom] || '').toString().trim();
+            if (oldRoom === newRoom) {
+                e.preventDefault();
+                rowEl.classList.add('drag-over');
+                return;
+            }
+
+            const dIn = parseDateVi(draggedRow[cIn]);
+            const dOut = parseDateVi(draggedRow[cOut]);
+            const conflict = findTimelineRoomBookingConflict(newRoom, dIn, dOut, rowIdx);
+            if (conflict) {
+                e.dataTransfer.dropEffect = 'none';
+                rowEl.classList.remove('drag-over');
+                return;
+            }
+
             e.preventDefault();
-            e.currentTarget.classList.add('drag-over');
+            rowEl.classList.add('drag-over');
         }
 
         function dragLeave(e) {
@@ -3953,6 +4403,7 @@
         async function dropBooking(e, newRoom) {
             e.preventDefault();
             e.currentTarget.classList.remove('drag-over');
+            draggingTimelineSheetRow = null;
 
             const sheetRowStr = e.dataTransfer.getData('text/plain');
             if (!sheetRowStr) return;
@@ -3964,7 +4415,17 @@
             if (cRoom === -1) return;
 
             const oldRoom = currentData[rowIdx][cRoom];
-            if (oldRoom === newRoom) return; // No change
+            if (oldRoom === newRoom) return;
+
+            const cIn = findColIndex(currentData[0], COL_MAPPING.checkIn);
+            const cOut = findColIndex(currentData[0], COL_MAPPING.checkOut);
+            const dIn = parseDateVi(currentData[rowIdx][cIn]);
+            const dOut = parseDateVi(currentData[rowIdx][cOut]);
+            const conflict = findTimelineRoomBookingConflict(newRoom, dIn, dOut, rowIdx);
+            if (conflict) {
+                alert(`Không thể chuyển sang phòng "${newRoom}": trùng lịch với ${conflict.customer} (dòng ${conflict.rowLine} trên sheet).`);
+                return;
+            }
 
             openChangeRoomModal(rowIdx, newRoom);
         }
@@ -4063,6 +4524,16 @@
             const newPrice = document.getElementById('crNewPriceInput').value || '0';
 
             const cRoom = findColIndex(currentData[0], COL_MAPPING.roomName);
+            const cIn = findColIndex(currentData[0], COL_MAPPING.checkIn);
+            const cOut = findColIndex(currentData[0], COL_MAPPING.checkOut);
+            const dIn = cIn !== -1 ? parseDateVi(currentData[rowIdx][cIn]) : null;
+            const dOut = cOut !== -1 ? parseDateVi(currentData[rowIdx][cOut]) : null;
+            const conflict = findTimelineRoomBookingConflict(newRoom, dIn, dOut, rowIdx);
+            if (conflict) {
+                alert(`Phòng "${newRoom}" đã có đặt trùng thời gian (${conflict.customer}). Chọn phòng khác hoặc đổi ngày trước.`);
+                return;
+            }
+
             const cNote = findColIndex(currentData[0], COL_MAPPING.note);
             const cType = findColIndex(currentData[0], COL_MAPPING.roomType);
             const cReason = findColIndex(currentData[0], COL_MAPPING.reason);
@@ -4136,10 +4607,154 @@
             }
         }
 
+        function isDatPhongStatusCheckedOut(statusVal) {
+            if (statusVal === undefined || statusVal === null || statusVal === '') return false;
+            const s = statusVal.toString().trim().toLowerCase();
+            if (s === '2') return true;
+            return s.includes('trả');
+        }
+
+        function applyBookingModalCheckoutLockUI() {
+            const locked = bookingModalCheckoutLocked;
+            const rp = document.querySelector('#bookingModal .booking-right-panel');
+            if (rp) {
+                rp.querySelectorAll('input, textarea, select').forEach(el => { el.disabled = !!locked; });
+                rp.querySelectorAll('button.btn-date-shift').forEach(el => { el.disabled = !!locked; });
+            }
+            const sub = document.getElementById('btnSubmitBooking');
+            if (sub) {
+                sub.disabled = !!locked;
+                sub.style.opacity = locked ? '0.55' : '';
+                sub.style.cursor = locked ? 'not-allowed' : '';
+            }
+            const pay = document.querySelector('#bookingModal .btn-bk-payment');
+            if (pay) {
+                pay.disabled = !!locked;
+                pay.style.opacity = locked ? '0.55' : '';
+            }
+            const ban = document.getElementById('bkCheckoutLockBanner');
+            if (!locked) {
+                if (ban) ban.remove();
+                return;
+            }
+            let b = ban;
+            if (!b) {
+                b = document.createElement('div');
+                b.id = 'bkCheckoutLockBanner';
+                b.style.cssText = 'background:#fef3c7;border:1px solid #f59e0b;color:#78350f;padding:9px 11px;border-radius:8px;font-size:0.82rem;margin-bottom:10px;line-height:1.45;';
+                const grid = document.querySelector('#bookingModal .booking-right-content .booking-form-grid');
+                if (grid && grid.parentNode) grid.parentNode.insertBefore(b, grid);
+            }
+            b.innerHTML = 'Đặt đã <strong>check out</strong> — <strong>không thể sửa / lưu</strong> qua form (tránh lệch doanh thu theo ngày). Chỉ dùng nút <strong>« Hoàn tác check out »</strong> dưới bảng phòng nếu check out nhầm.';
+        }
+
+        function clearBookingModalCheckoutLockUI() {
+            bookingModalCheckoutLocked = false;
+            applyBookingModalCheckoutLockUI();
+        }
+
+        async function undoCheckoutForBookingRow(sheetRow) {
+            const idx = parseInt(sheetRow, 10);
+            if (isNaN(idx) || !currentData[idx]) return;
+            const headers = currentData[0] || [];
+            const cStatus = findColIndex(headers, COL_MAPPING.status);
+            const cRoom = findColIndex(headers, COL_MAPPING.roomName);
+            const row = currentData[idx];
+            const st = cStatus !== -1 ? row[cStatus] : '';
+            if (!isDatPhongStatusCheckedOut(st)) {
+                alert('Dòng đặt phòng này chưa ở trạng thái trả phòng.');
+                return;
+            }
+            if (!confirm('Hoàn tác check out?\n\n• DAT_PHONG: Trả phòng → Nhận phòng\n• DS_PHONG: Bẩn → Sạch\n\nChỉ dùng khi check out nhầm — sửa tay sau khi đã out dễ lệch báo cáo doanh thu.')) return;
+
+            const roomName = cRoom !== -1 ? (row[cRoom] || '').toString().trim() : '';
+            if (!roomName) {
+                alert('Không xác định được tên phòng.');
+                return;
+            }
+
+            try {
+                const token = await getAccessToken();
+                const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
+                const rHeaders = roomListData[0] || [];
+                const cId = rHeaders.indexOf('id');
+                const cName = findColIndex(rHeaders, COL_MAPPING.roomName);
+                const cTinhTrang = findColIndex(rHeaders, ['tinh_trang', 'tình trạng']);
+                let roomRowIndex = -1;
+                for (let i = 1; i < roomListData.length; i++) {
+                    const rr = roomListData[i];
+                    if (cName !== -1 && (rr[cName] || '').toString().trim() === roomName) { roomRowIndex = i; break; }
+                    if (cId !== -1 && rr[cId] == roomName) { roomRowIndex = i; break; }
+                }
+                if (roomRowIndex === -1) {
+                    alert('Không tìm thấy phòng trong DS_PHONG.');
+                    return;
+                }
+                if (cTinhTrang === -1) throw new Error('DS_PHONG không có cột tình trạng.');
+                if (cStatus === -1) throw new Error('DAT_PHONG không có cột tình trạng.');
+
+                const rSheetName = CONFIG.roomSheetName;
+                const colLetterRoom = getColLetter(cTinhTrang + 1);
+                const rangeRoom = `${rSheetName}!${colLetterRoom}${roomRowIndex + 1}`;
+                const resRoom = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${rangeRoom}?valueInputOption=USER_ENTERED`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [['Sạch']] })
+                });
+                if (!resRoom.ok) {
+                    const errBody = await resRoom.json().catch(() => ({}));
+                    throw new Error(errBody.error?.message || `Lỗi DS_PHONG (${resRoom.status})`);
+                }
+                roomListData[roomRowIndex][cTinhTrang] = 'Sạch';
+
+                const dpSheetName = CONFIG.sheetName || 'DAT_PHONG';
+                const colLetterDP = getColLetter(cStatus + 1);
+                const rangeDP = `${dpSheetName}!${colLetterDP}${idx + 1}`;
+                const resDP = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${rangeDP}?valueInputOption=USER_ENTERED`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [['Nhận phòng']] })
+                });
+                if (!resDP.ok) {
+                    const errBody = await resDP.json().catch(() => ({}));
+                    throw new Error(errBody.error?.message || `Lỗi DAT_PHONG (${resDP.status})`);
+                }
+                currentData[idx][cStatus] = 'Nhận phòng';
+
+                const matchedConf = selectedRoomConfigs.find(c => c.sheetRow === idx);
+                if (matchedConf) {
+                    matchedConf.status = 'Nhận phòng';
+                    matchedConf.checkoutLocked = false;
+                }
+                bookingModalCheckoutLocked = selectedRoomConfigs.some(c => c.checkoutLocked);
+                applyBookingModalCheckoutLockUI();
+                renderSelectedMiddleTable();
+                renderTable();
+                if (typeof renderRoomList === 'function') renderRoomList();
+                await fetchData();
+                selectedRoomConfigs.forEach(c => {
+                    if (c.sheetRow == null || !currentData[c.sheetRow]) return;
+                    const h = currentData[0] || [];
+                    const cs = findColIndex(h, COL_MAPPING.status);
+                    if (cs === -1) return;
+                    c.status = (currentData[c.sheetRow][cs] || '').toString().trim() || c.status;
+                    c.checkoutLocked = isDatPhongStatusCheckedOut(c.status);
+                });
+                bookingModalCheckoutLocked = selectedRoomConfigs.some(c => c.checkoutLocked);
+                applyBookingModalCheckoutLockUI();
+                renderSelectedMiddleTable();
+                toast.success('Đã hoàn tác check out.');
+            } catch (e) {
+                console.error(e);
+                alert('Lỗi: ' + e.message);
+            }
+        }
+
         // --- MODAL CHI TIẾT ĐOÀN (FOR EDITING) ---
         function openGroupDetails(rowIdx) {
             console.log("Attempting to open group details for sheetRow:", rowIdx);
             try {
+                clearBookingModalCheckoutLockUI();
                 const row = currentData[rowIdx];
                 if (!row) {
                     console.error("No row found at index:", rowIdx);
@@ -4209,9 +4824,12 @@
                         services: b[cNoiDung] || '',
                         status: cStatus !== -1 ? (b[cStatus] || 'Đặt phòng') : 'Đặt phòng',
                         thanhToan: cThanhToan !== -1 ? (b[cThanhToan] || 'Chưa thanh toán') : 'Chưa thanh toán',
-                        tkThanhToan: cTkThanhToan !== -1 ? (b[cTkThanhToan] || 'Tiền mặt') : 'Tiền mặt'
+                        tkThanhToan: cTkThanhToan !== -1 ? (b[cTkThanhToan] || 'Tiền mặt') : 'Tiền mặt',
+                        checkoutLocked: isDatPhongStatusCheckedOut(cStatus !== -1 ? b[cStatus] : '')
                     });
                 });
+
+                bookingModalCheckoutLocked = selectedRoomConfigs.some(c => c.checkoutLocked);
 
                 // 3. Populate Right Panel (Main Info)
                 const base = bookingsToEdit[0];
@@ -4281,6 +4899,7 @@
                 // Render Tables (populateBookingRoomTable builds currentRoomTypesData used by renderSelectedMiddleTable)
                 populateBookingRoomTable();
                 renderSelectedMiddleTable();
+                applyBookingModalCheckoutLockUI();
 
                 // Show Modal
                 document.getElementById('bookingModal').style.display = 'flex';
@@ -4318,6 +4937,7 @@
 
         function changeSelectedField(id, field, value) {
             const conf = selectedRoomConfigs.find(c => c.id === id);
+            if (conf && conf.checkoutLocked) return;
             if (conf) {
                 conf[field] = value;
             }
@@ -4369,6 +4989,10 @@
         async function openServiceModal(confId) {
             const conf = selectedRoomConfigs.find(c => c.id === confId);
             if (!conf) return;
+            if (conf.checkoutLocked) {
+                alert('Phòng đã check out — không thêm/sửa dịch vụ ở đây. Hoàn tác check out trước.');
+                return;
+            }
             dvGroupMode = false;
             dvGroupRoomLabelByIdDp = {};
             dvCurrentConfId = confId;
@@ -4930,8 +5554,136 @@
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num).replace('₫', '₫');
         }
 
+        function escapeInvoiceHtml(s) {
+            if (s == null || s === undefined) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function printBookingInvoice() {
+            if (!selectedRoomConfigs || selectedRoomConfigs.length === 0) {
+                alert('Chưa có phòng trong đặt phòng — không in hóa đơn.');
+                return;
+            }
+            updateBookingSummary();
+
+            const soNgay = parseInt(document.getElementById('bkSoNgay').value, 10) || 0;
+            const maDp = (document.getElementById('bkIdDisplayText') && document.getElementById('bkIdDisplayText').textContent || '').trim();
+            const ngayTao = (document.getElementById('bkNgay') && document.getElementById('bkNgay').value) || '';
+            const ngayVao = (document.getElementById('bkNgayVao') && document.getElementById('bkNgayVao').value) || '';
+            const ngayRa = (document.getElementById('bkNgayRa') && document.getElementById('bkNgayRa').value) || '';
+            const tenKhach = (document.getElementById('bkTenKhach') && document.getElementById('bkTenKhach').value) || '';
+            const sdt = (document.getElementById('bkSdt') && document.getElementById('bkSdt').value) || '';
+            const nguon = (document.getElementById('bkNguonPhong') && document.getElementById('bkNguonPhong').value) || '';
+            const nl = (document.getElementById('bkSoNgLon') && document.getElementById('bkSoNgLon').value) || '';
+            const te = (document.getElementById('bkSoTreEm') && document.getElementById('bkSoTreEm').value) || '';
+            const ghiChu = (document.getElementById('bkGhiChu') && document.getElementById('bkGhiChu').value) || '';
+
+            let roomTotal = 0;
+            let roomUnpaid = 0;
+            let servicePaid = 0;
+            let serviceUnpaid = 0;
+            const rowsHtml = [];
+            selectedRoomConfigs.forEach((conf, i) => {
+                const roomPrice = parseInt(conf.price, 10) || 0;
+                const lineRoom = roomPrice * soNgay;
+                roomTotal += lineRoom;
+                const roomPay = (conf.thanhToan || 'Chưa thanh toán').toString().trim();
+                if (roomPay !== 'Đã thanh toán') roomUnpaid += lineRoom;
+                const sp = dvPaidByConfId[conf.id] || 0;
+                const su = dvUnpaidByConfId[conf.id] || 0;
+                servicePaid += sp;
+                serviceUnpaid += su;
+                rowsHtml.push(`
+                    <tr>
+                        <td style="text-align:center;">${i + 1}</td>
+                        <td>${escapeInvoiceHtml(conf.type || '')}</td>
+                        <td>${escapeInvoiceHtml(conf.roomId || '')}</td>
+                        <td style="text-align:right;">${escapeInvoiceHtml(formatCurrency(roomPrice))}</td>
+                        <td style="text-align:center;">${soNgay}</td>
+                        <td style="text-align:right;">${escapeInvoiceHtml(formatCurrency(lineRoom))}</td>
+                        <td style="text-align:center;">${escapeInvoiceHtml(roomPay)}</td>
+                        <td style="text-align:right;">${escapeInvoiceHtml(formatCurrency(sp + su))}</td>
+                    </tr>
+                `);
+            });
+            const unpaidTotal = roomUnpaid + serviceUnpaid;
+            const allTotal = roomTotal + servicePaid + serviceUnpaid;
+
+            const titleDoc = document.title || 'Hóa đơn đặt phòng';
+            const nowStr = new Date().toLocaleString('vi-VN');
+
+            const html = `<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><title>Hóa đơn — ${escapeInvoiceHtml(maDp || 'Đặt phòng')}</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; color: #0f172a; padding: 24px; max-width: 900px; margin: 0 auto; font-size: 14px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px 0; text-align: center; letter-spacing: 0.02em; }
+  .sub { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin-bottom: 18px; }
+  .grid div { border-bottom: 1px dotted #e2e8f0; padding: 4px 0; }
+  .lbl { color: #64748b; font-size: 0.82rem; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { border: 1px solid #e2e8f0; padding: 8px 10px; }
+  th { background: #f8fafc; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .sum { margin-top: 12px; }
+  .sum-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+  .sum-row strong { color: #0f172a; }
+  .foot { margin-top: 24px; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+  @media print { body { padding: 12px; } }
+</style></head><body>
+  <h1>HÓA ĐƠN / PHIẾU THANH TOÁN</h1>
+  <div class="sub">${escapeInvoiceHtml(titleDoc)}</div>
+  <div class="grid">
+    <div><span class="lbl">Mã đặt phòng</span><br><strong>${escapeInvoiceHtml(maDp || '—')}</strong></div>
+    <div><span class="lbl">Ngày tạo</span><br><strong>${escapeInvoiceHtml(ngayTao)}</strong></div>
+    <div><span class="lbl">Nhận phòng</span><br><strong>${escapeInvoiceHtml(ngayVao)}</strong></div>
+    <div><span class="lbl">Trả phòng</span><br><strong>${escapeInvoiceHtml(ngayRa)}</strong></div>
+    <div><span class="lbl">Tên khách</span><br><strong>${escapeInvoiceHtml(tenKhach)}</strong></div>
+    <div><span class="lbl">Điện thoại</span><br><strong>${escapeInvoiceHtml(sdt)}</strong></div>
+    <div><span class="lbl">Nguồn phòng</span><br><strong>${escapeInvoiceHtml(nguon)}</strong></div>
+    <div><span class="lbl">Người lớn / Trẻ em</span><br><strong>${escapeInvoiceHtml(nl)} / ${escapeInvoiceHtml(te)}</strong></div>
+  </div>
+  ${ghiChu ? `<p style="margin:0 0 12px;"><span class="lbl">Ghi chú:</span> ${escapeInvoiceHtml(ghiChu)}</p>` : ''}
+  <table>
+    <thead>
+      <tr>
+        <th>STT</th><th>Loại phòng</th><th>Phòng</th><th>Đơn giá/đêm</th><th>Đêm</th><th>Tiền phòng</th><th>TT phòng</th><th>Tiền DV</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHtml.join('')}</tbody>
+  </table>
+  <div class="sum">
+    <div class="sum-row"><span>Tiền phòng (${selectedRoomConfigs.length} phòng × ${soNgay} đêm)</span><strong>${escapeInvoiceHtml(formatCurrency(roomTotal))}</strong></div>
+    <div class="sum-row"><span>DV đã thanh toán</span><strong>${escapeInvoiceHtml(formatCurrency(servicePaid))}</strong></div>
+    <div class="sum-row"><span>DV chưa thanh toán</span><strong>${escapeInvoiceHtml(formatCurrency(serviceUnpaid))}</strong></div>
+    <div class="sum-row"><span>Tiền chưa thanh toán (phòng + DV)</span><strong>${escapeInvoiceHtml(formatCurrency(unpaidTotal))}</strong></div>
+    <div class="sum-row" style="font-size:1.1rem;border-bottom:none;padding-top:8px;"><span>Tổng cộng</span><strong>${escapeInvoiceHtml(formatCurrency(allTotal))}</strong></div>
+  </div>
+  <p class="foot">In lúc: ${escapeInvoiceHtml(nowStr)}</p>
+</body></html>`;
+
+            const w = window.open('', '_blank', 'width=820,height=900');
+            if (!w) {
+                alert('Trình duyệt đã chặn cửa sổ mới — hãy cho phép popup để in hóa đơn.');
+                return;
+            }
+            w.document.write(html);
+            w.document.close();
+            w.focus();
+            setTimeout(() => {
+                try { w.print(); } catch (e) { console.error(e); }
+            }, 250);
+        }
+
         function openServiceDetailFromSummary() {
             if (!selectedRoomConfigs || selectedRoomConfigs.length === 0) return;
+            if (bookingModalCheckoutLocked || selectedRoomConfigs.some(c => c.checkoutLocked)) {
+                alert('Có phòng đã check out — không mở dịch vụ từ tổng này. Hoàn tác check out trước.');
+                return;
+            }
 
             // Nếu chỉ có 1 phòng thì mở thẳng DV modal
             if (selectedRoomConfigs.length === 1) {
@@ -5637,6 +6389,7 @@
                 document.getElementById('imageUploadIframe').src = "";
             }
             if (id === 'bookingModal') {
+                clearBookingModalCheckoutLockUI();
                 // Reset DV cache totals vì sang booking khác
                 dvTotalByConfId = {};
                 dvPaidByConfId = {};
@@ -5763,6 +6516,10 @@
                 : selectedRoomConfigs.slice();
             if (targets.length === 0) {
                 alert('Không tìm thấy phòng cần thanh toán.');
+                return;
+            }
+            if (targets.some(c => c.checkoutLocked)) {
+                alert('Có phòng đã check out — không đổi thanh toán ở đây. Hoàn tác check out trước.');
                 return;
             }
 
@@ -5971,6 +6728,10 @@
         }
 
         function openBookingModal() {
+            isEditMode = false;
+            currentBookingId = null;
+            initialRoomSheetRows = [];
+            clearBookingModalCheckoutLockUI();
             const modal = document.getElementById('bookingModal');
             const bookingId = generateBookingId();
             const idTextEl = document.getElementById('bkIdDisplayText');
@@ -6139,6 +6900,10 @@
 
         // --- BULK CHANGE PRICE ---
         function bulkChangePrice(type, currentPrice) {
+            if (selectedRoomConfigs.some(c => c.checkoutLocked)) {
+                alert('Có phòng đã check out — không đổi giá hàng loạt. Hoàn tác check out trước.');
+                return;
+            }
             const newPriceStr = prompt(`Đổi giá hàng loạt cho phòng ${type}:`, currentPrice);
             if (newPriceStr !== null && newPriceStr.trim() !== '') {
                 const newPrice = parseInt(newPriceStr.replace(/[^0-9]/g, ''), 10);
@@ -6306,6 +7071,10 @@
         function removeSelectedConfig(id) {
             const idx = selectedRoomConfigs.findIndex(c => c.id === id);
             if (idx !== -1) {
+                if (selectedRoomConfigs[idx].checkoutLocked) {
+                    alert('Không thể bỏ phòng đã check out khỏi đoàn tại đây.');
+                    return;
+                }
                 const type = selectedRoomConfigs[idx].type;
                 selectedRoomConfigs.splice(idx, 1);
                 renderSelectedMiddleTable();
@@ -6317,6 +7086,7 @@
 
         function changeSelectedRoom(confId, newRoomKey) {
             const conf = selectedRoomConfigs.find(c => c.id === confId);
+            if (conf && conf.checkoutLocked) return;
             if (conf) {
                 conf.roomId = newRoomKey;
                 renderSelectedMiddleTable(); // re-render to update disabled states in other selects
@@ -6325,6 +7095,7 @@
 
         function changeSelectedPrice(confId, newPrice) {
             const conf = selectedRoomConfigs.find(c => c.id === confId);
+            if (conf && conf.checkoutLocked) return;
             if (conf) {
                 conf.price = newPrice;
                 updateBookingSummary();
@@ -6333,6 +7104,7 @@
 
         function changeSelectedField(confId, field, value) {
             const conf = selectedRoomConfigs.find(c => c.id === confId);
+            if (conf && conf.checkoutLocked) return;
             if (conf) {
                 conf[field] = value;
                 if (field === 'price') updateBookingSummary();
@@ -6372,7 +7144,9 @@
 
             let html = '';
             for (const [type, configs] of Object.entries(groupedConfigs)) {
+                const typeCheckoutLocked = configs.some(c => c.checkoutLocked);
                 configs.forEach((conf, idx) => {
+                    const rowLocked = !!conf.checkoutLocked;
                     const typeData = currentRoomTypesData[conf.type];
                     // Show current room as available even if occupied (for edit mode)
                     const availableRooms = typeData ? typeData.rooms.filter(r => !r.isOccupied || r.name === conf.roomId) : [];
@@ -6381,7 +7155,7 @@
                     availableRooms.forEach(r => {
                         const roomKey = r.id || r.name;
                         const isSelectedByOther = selectedRoomConfigs.some(c => c.id !== conf.id && c.roomId === roomKey);
-                        const disabledStr = isSelectedByOther ? 'disabled' : '';
+                        const disabledStr = (rowLocked || isSelectedByOther) ? 'disabled' : '';
                         const selectedStr = (conf.roomId === roomKey) ? 'selected' : '';
                         options += `<option value="${roomKey}" ${disabledStr} ${selectedStr}>${r.name}</option>`;
                     });
@@ -6391,9 +7165,10 @@
                     // Column 1: Room Type (Grouped)
                     if (idx === 0) {
                         const typeParam = conf.type.replace(/'/g, "\\'");
+                        const bulkOn = typeCheckoutLocked ? '' : `onclick="bulkChangePrice('${typeParam}', ${conf.price})"`;
                         html += `<td rowspan="${configs.length}" 
-                                    onclick="bulkChangePrice('${typeParam}', ${conf.price})" 
-                                    style="vertical-align: middle; background: #f8fafc; border-right: 1px solid #e2e8f0; font-weight: 700; color: var(--primary); font-size: 0.8rem; cursor: pointer; text-align: center;">
+                                    ${bulkOn}
+                                    style="vertical-align: middle; background: #f8fafc; border-right: 1px solid #e2e8f0; font-weight: 700; color: var(--primary); font-size: 0.8rem; cursor: ${typeCheckoutLocked ? 'not-allowed' : 'pointer'}; text-align: center; opacity: ${typeCheckoutLocked ? '0.72' : '1'};">
                             ${conf.type}
                             <div style="font-size: 0.6rem; font-weight: normal; color: #94a3b8; margin-top: 4px;">Đổi giá chung</div>
                         </td>`;
@@ -6402,7 +7177,7 @@
                     // Column 2: Specific Room Selection
                     html += `
                         <td>
-                            <select class="bk-room-select" onchange="changeSelectedRoom('${conf.id}', this.value)" style="width:100%; border:1px solid #e2e8f0; border-radius:6px; padding:6px 4px; font-size: 0.85rem; background: white;">
+                            <select class="bk-room-select" ${rowLocked ? 'disabled' : ''} onchange="changeSelectedRoom('${conf.id}', this.value)" style="width:100%; border:1px solid #e2e8f0; border-radius:6px; padding:6px 4px; font-size: 0.85rem; background: white;">
                                 ${options}
                             </select>
                         </td>`;
@@ -6410,7 +7185,7 @@
                     // Column 3: Customer Name
                     html += `
                         <td>
-                            <input type="text" value="${conf.customer || ''}" placeholder="Tên khách lẻ" 
+                            <input type="text" value="${conf.customer || ''}" placeholder="Tên khách lẻ" ${rowLocked ? 'disabled' : ''}
                                    onchange="changeSelectedField('${conf.id}', 'customer', this.value)" 
                                    style="width:100%; border:none; background:transparent; font-size: 0.85rem; padding: 4px;" />
                         </td>`;
@@ -6418,7 +7193,7 @@
                     // Column 4: Phone
                     html += `
                         <td>
-                            <input type="text" value="${conf.phone || ''}" placeholder="Số ĐT" 
+                            <input type="text" value="${conf.phone || ''}" placeholder="Số ĐT" ${rowLocked ? 'disabled' : ''}
                                    onchange="changeSelectedField('${conf.id}', 'phone', this.value)" 
                                    style="width:100%; border:none; background:transparent; font-size: 0.85rem; padding: 4px;" />
                         </td>`;
@@ -6426,7 +7201,7 @@
                     // Column 5: Adults (NL)
                     html += `
                         <td style="text-align: center;">
-                            <input type="number" min="0" value="${conf.adults || 0}" 
+                            <input type="number" min="0" value="${conf.adults || 0}" ${rowLocked ? 'disabled' : ''}
                                    onchange="changeSelectedField('${conf.id}', 'adults', this.value)" 
                                    style="width:40px; border:none; background:transparent; text-align:center; font-size: 0.85rem;" />
                         </td>`;
@@ -6434,7 +7209,7 @@
                     // Column 6: Children (TE)
                     html += `
                         <td style="text-align: center;">
-                            <input type="number" min="0" value="${conf.children || 0}" 
+                            <input type="number" min="0" value="${conf.children || 0}" ${rowLocked ? 'disabled' : ''}
                                    onchange="changeSelectedField('${conf.id}', 'children', this.value)" 
                                    style="width:40px; border:none; background:transparent; text-align:center; font-size: 0.85rem;" />
                         </td>`;
@@ -6442,7 +7217,7 @@
                     // Column 7: Price
                     html += `
                         <td>
-                            <input type="number" class="bk-room-price" min="0" value="${conf.price}" 
+                            <input type="number" class="bk-room-price" min="0" value="${conf.price}" ${rowLocked ? 'disabled' : ''}
                                    oninput="changeSelectedPrice('${conf.id}', this.value)" 
                                    style="width:100%; border:none; background:transparent; text-align:right; font-weight:600; font-size: 0.85rem;" />
                         </td>`;
@@ -6468,18 +7243,21 @@
                             <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
                                 <span style="display:inline-block; padding:3px 8px; border-radius:99px; font-size:0.74rem; font-weight:700; background:${payBg}; color:${payFg}; white-space:nowrap;">${thanhToanVal}</span>
                                 <span style="font-size:0.72rem; color:#64748b;">${tkThanhToanVal || '-'}</span>
-                                <button type="button" onclick="openBookingPaymentModal('${conf.id}')" style="margin-top:2px; padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; color:#334155; font-size:0.72rem; cursor:pointer; font-weight:600;">Thanh toán phòng</button>
+                                <button type="button" ${rowLocked ? 'disabled' : ''} onclick="openBookingPaymentModal('${conf.id}')" style="margin-top:2px; padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; color:#334155; font-size:0.72rem; cursor:pointer; font-weight:600;">Thanh toán phòng</button>
                             </div>
                         </td>`;
 
-                    // Column 10: Check Out (CO)
+                    // Column 10: Check Out (CO) / Hoàn tác check out
+                    const roomEsc = String(conf.roomId || '').replace(/'/g, "\\'");
                     html += `
                         <td style="text-align: center;">
-                            ${isEditMode && conf.roomId ? `
-                                <button class="btn-checkout" onclick="checkoutRoom(null, '${conf.roomId}', false, ${conf.sheetRow})" title="Check out phòng này">
+                            ${isEditMode && conf.roomId && conf.sheetRow != null ? (
+                                rowLocked
+                                    ? `<button type="button" class="btn-checkout" style="background:#fff7ed;border:1px solid #ea580c;color:#c2410c;padding:4px 8px;border-radius:8px;font-size:0.72rem;font-weight:600;" onclick="undoCheckoutForBookingRow(${conf.sheetRow})" title="Hoàn tác check out khi thao tác nhầm">↩ Hoàn tác CO</button>`
+                                    : `<button class="btn-checkout" onclick="checkoutRoom(null, '${roomEsc}', false, ${conf.sheetRow})" title="Check out phòng này">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                                </button>
-                            ` : '-'}
+                                </button>`
+                            ) : '-'}
                         </td>`;
 
                     // Column 11: Service Button
@@ -6490,8 +7268,8 @@
                         : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>`;
                     html += `
                         <td style="text-align: center;">
-                            <button class="dv-btn" onclick="openServiceModal('${conf.id}')" 
-                                    style="background:none; border:none; cursor:pointer; color:${svcColor}; padding: 4px;"
+                            <button class="dv-btn" ${rowLocked ? 'disabled' : ''} onclick="openServiceModal('${conf.id}')" 
+                                    style="background:none; border:none; cursor:${rowLocked ? 'not-allowed' : 'pointer'}; color:${svcColor}; padding: 4px; opacity:${rowLocked ? '0.45' : '1'};"
                                     title="${dvTotal > 0 ? 'DV: ' + dvTotal.toLocaleString('vi-VN') + ' ₫' : 'Thêm dịch vụ cho phòng này'}">
                                 ${svcLabel}
                             </button>
@@ -6500,8 +7278,8 @@
                     // Column 12: Remove Button
                     html += `
                         <td style="text-align: center;">
-                            <button onclick="removeSelectedConfig('${conf.id}')" 
-                                    style="background:none; border:none; cursor:pointer; color:#f43f5e; padding: 4px;">
+                            <button ${rowLocked ? 'disabled' : ''} onclick="removeSelectedConfig('${conf.id}')" 
+                                    style="background:none; border:none; cursor:${rowLocked ? 'not-allowed' : 'pointer'}; color:#f43f5e; padding: 4px; opacity:${rowLocked ? '0.45' : '1'};">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                             </button>
                         </td>`;
@@ -6518,6 +7296,7 @@
 
         function scheduleBookingAutoSave() {
             if (!isEditMode) return;
+            if (bookingModalCheckoutLocked) return;
             if (autoSaveBookingTimer) clearTimeout(autoSaveBookingTimer);
             autoSaveBookingTimer = setTimeout(() => {
                 skipBookingConfirm = true;
@@ -6549,6 +7328,11 @@
             selectedRoomConfigs.forEach(conf => { if (!conf.roomId) isMissingSpecificRoom = true; });
             if (isMissingSpecificRoom) {
                 return alert('Vui lòng gán cụ thể cho tất cả các phòng đang được chọn.');
+            }
+
+            if (isEditMode && (bookingModalCheckoutLocked || selectedRoomConfigs.some(c => c.checkoutLocked))) {
+                alert('Đặt phòng đã check out — không thể lưu chỉnh sửa qua form (tránh lệch doanh thu). Dùng nút « Hoàn tác CO » ở bảng phòng nếu check out nhầm.');
+                return;
             }
 
             // 3. Confirm
@@ -6834,6 +7618,7 @@
                         const matchedConf = selectedRoomConfigs.find(c => c.sheetRow === bookingRowIndex || c.roomId === roomName || c.roomId === roomId);
                         if (matchedConf) {
                             matchedConf.status = "Trả phòng";
+                            matchedConf.checkoutLocked = true;
                         }
                     }
                 }
@@ -6842,6 +7627,21 @@
                 renderTable();
                 if (typeof renderRoomList === 'function') renderRoomList();
                 if (shouldRefresh) await fetchData();
+
+                if (selectedRoomConfigs && selectedRoomConfigs.length) {
+                    const h = currentData[0] || [];
+                    const cs = findColIndex(h, COL_MAPPING.status);
+                    if (cs !== -1) {
+                        selectedRoomConfigs.forEach(c => {
+                            if (c.sheetRow == null || !currentData[c.sheetRow]) return;
+                            c.status = (currentData[c.sheetRow][cs] || '').toString().trim() || c.status;
+                            c.checkoutLocked = isDatPhongStatusCheckedOut(c.status);
+                        });
+                    }
+                    bookingModalCheckoutLocked = selectedRoomConfigs.some(c => c.checkoutLocked);
+                    applyBookingModalCheckoutLockUI();
+                    renderSelectedMiddleTable();
+                }
 
                 if (!silent) toast.success(`Đã trả phòng ${roomName || roomId} thành công.`);
                 return true;
@@ -6876,6 +7676,20 @@
 
             alert(`Đã hoàn tất trả phòng! (${successCount}/${selectedRoomConfigs.length} phòng được đánh dấu bẩn)`);
             await fetchData();
+            if (selectedRoomConfigs.length) {
+                const h = currentData[0] || [];
+                const cs = findColIndex(h, COL_MAPPING.status);
+                if (cs !== -1) {
+                    selectedRoomConfigs.forEach(c => {
+                        if (c.sheetRow == null || !currentData[c.sheetRow]) return;
+                        c.status = (currentData[c.sheetRow][cs] || '').toString().trim() || c.status;
+                        c.checkoutLocked = isDatPhongStatusCheckedOut(c.status);
+                    });
+                }
+                bookingModalCheckoutLocked = selectedRoomConfigs.some(c => c.checkoutLocked);
+                applyBookingModalCheckoutLockUI();
+                renderSelectedMiddleTable();
+            }
         }
 
         async function handleImageUpload(input, colIndex) {
