@@ -5730,13 +5730,27 @@
             }
         }
 
-        function openBookingPaymentModal() {
+        let bkPayTargetConfIds = null;
+        let bkPayTargetLabel = 'toàn bộ';
+
+        function openBookingPaymentModal(confId = null) {
             if (!selectedRoomConfigs || selectedRoomConfigs.length === 0) {
                 alert('Chưa có phòng nào trong đặt phòng.');
                 return;
             }
-            updateBookingSummary();
-            const first = selectedRoomConfigs[0];
+
+            const targets = confId
+                ? selectedRoomConfigs.filter(c => c.id === confId)
+                : selectedRoomConfigs.slice();
+            if (targets.length === 0) {
+                alert('Không tìm thấy phòng cần thanh toán.');
+                return;
+            }
+
+            bkPayTargetConfIds = targets.map(c => c.id);
+            bkPayTargetLabel = confId ? '1 phòng' : 'toàn bộ';
+
+            const first = targets[0];
             const tt = (first.thanhToan || 'Chưa thanh toán').toString().trim();
             const tk = (first.tkThanhToan || 'Tiền mặt').toString().trim();
             const hid = document.getElementById('bkPayThanhToan');
@@ -5744,14 +5758,23 @@
             const sel = document.getElementById('bkPayTk');
             if (sel) sel.value = ['Tiền mặt', 'Chuyển khoản', 'Thẻ'].includes(tk) ? tk : 'Tiền mặt';
             setBkPayStatus(tt);
+
             const cnt = document.getElementById('bkPayRoomCount');
-            if (cnt) cnt.textContent = String(selectedRoomConfigs.length);
-            const u = document.getElementById('summaryGrandTotal');
-            const t = document.getElementById('summaryAllTotal');
+            if (cnt) cnt.textContent = String(targets.length);
+            const p = document.querySelector('#bkPaymentModal p');
+            if (p) p.innerHTML = `Áp dụng cùng trạng thái và hình thức cho <strong id="bkPayRoomCount">${targets.length}</strong> phòng trong ${confId ? 'phòng này' : 'đặt phòng này'}.`;
+
+            const roomTotals = targets.reduce((sum, conf) => sum + ((parseInt(conf.price) || 0) * (parseInt(document.getElementById('bkSoNgay')?.value) || 0)), 0);
+            const unpaidService = targets.reduce((sum, conf) => sum + (dvUnpaidByConfId[conf.id] || 0), 0);
+            const allService = targets.reduce((sum, conf) => sum + ((dvPaidByConfId[conf.id] || 0) + (dvUnpaidByConfId[conf.id] || 0)), 0);
+            const unpaidTotal = roomTotals + unpaidService;
+            const allTotal = roomTotals + allService;
+
             const au = document.getElementById('bkPayAmountUnpaid');
             const at = document.getElementById('bkPayAmountTotal');
-            if (au && u) au.textContent = u.textContent;
-            if (at && t) at.textContent = t.textContent;
+            if (au) au.textContent = formatCurrency(unpaidTotal);
+            if (at) at.textContent = formatCurrency(allTotal);
+
             const m = document.getElementById('bkPaymentModal');
             if (m) m.style.display = 'flex';
         }
@@ -5763,18 +5786,21 @@
 
         /** Cập nhật thanh_toan + tk_thanh_toan trên DAT_DO cho mọi dòng thuộc đoàn (theo id_dp từng phòng hoặc id_dp_all khi dòng chỉ gắn đoàn). */
         async function syncDatDoPaymentWithBooking(idDpSet, idDpAllVal, tt, tk) {
+            const targetStatus = (tt || 'Chưa thanh toán').toString().trim();
+            if (targetStatus !== 'Đã thanh toán') return 0;
+
             const token = await getAccessToken();
             const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
-            if (dvDataDirty || allDvData.length === 0) {
-                const res = await fetch(
-                    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:I`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                if (!res.ok) throw new Error((await res.json()).error?.message || 'Không đọc được DAT_DO');
-                const result = await res.json();
-                allDvData = result.values || [];
-                dvDataDirty = false;
-            }
+
+            // Luôn đọc lại DAT_DO từ sheet để tránh ghi đè bằng cache cũ.
+            const res = await fetch(
+                `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:I`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (!res.ok) throw new Error((await res.json()).error?.message || 'Không đọc được DAT_DO');
+            const result = await res.json();
+            allDvData = result.values || [];
+            dvDataDirty = false;
 
             function rowMatchesDvBooking(r) {
                 const rDp = (r[2] || '').toString().trim();
@@ -5789,9 +5815,15 @@
                 const r = allDvData[i];
                 if (!r || r.every(c => !c)) continue;
                 if (!rowMatchesDvBooking(r)) continue;
+
+                const currStatus = (r[7] || 'Chưa thanh toán').toString().trim();
+                const currTk = (r[8] || '').toString().trim();
+                if (currStatus === 'Đã thanh toán') continue;
+                if (currTk && currStatus !== 'Chưa thanh toán') continue;
+
                 const updRow = r.slice();
                 while (updRow.length < 9) updRow.push('');
-                updRow[7] = tt;
+                updRow[7] = targetStatus;
                 updRow[8] = tk;
                 const range = `${DAT_DO_SHEET}!A${i + 1}:I${i + 1}`;
                 const putRes = await fetch(
@@ -5814,14 +5846,19 @@
             const sel = document.getElementById('bkPayTk');
             const tt = (hid && hid.value) ? hid.value.trim() : 'Chưa thanh toán';
             const tk = (sel && sel.value) ? sel.value.trim() : 'Tiền mặt';
+
+            const targetIds = Array.isArray(bkPayTargetConfIds) && bkPayTargetConfIds.length > 0
+                ? new Set(bkPayTargetConfIds)
+                : new Set(selectedRoomConfigs.map(c => c.id));
             selectedRoomConfigs.forEach(c => {
+                if (!targetIds.has(c.id)) return;
                 c.thanhToan = tt;
                 c.tkThanhToan = tk;
             });
             renderSelectedMiddleTable();
             closeBookingPaymentModal();
 
-            const rowsToSync = selectedRoomConfigs.filter(c => c.sheetRow !== undefined && c.sheetRow !== null);
+            const rowsToSync = selectedRoomConfigs.filter(c => targetIds.has(c.id) && c.sheetRow !== undefined && c.sheetRow !== null);
             const headers = currentData[0] || [];
             const cPay = findColIndex(headers, COL_MAPPING.paymentStatus);
             const cTk = findColIndex(headers, COL_MAPPING.paymentAccount);
@@ -5882,7 +5919,7 @@
                 }
 
                 let dvSynced = 0;
-                if (idDpSet.size > 0 || idDpAllVal) {
+                if (tt === 'Đã thanh toán' && (idDpSet.size > 0 || idDpAllVal)) {
                     dvSynced = await syncDatDoPaymentWithBooking(idDpSet, idDpAllVal, tt, tk);
                 }
 
@@ -6403,6 +6440,7 @@
                             <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
                                 <span style="display:inline-block; padding:3px 8px; border-radius:99px; font-size:0.74rem; font-weight:700; background:${payBg}; color:${payFg}; white-space:nowrap;">${thanhToanVal}</span>
                                 <span style="font-size:0.72rem; color:#64748b;">${tkThanhToanVal || '-'}</span>
+                                <button type="button" onclick="openBookingPaymentModal('${conf.id}')" style="margin-top:2px; padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; color:#334155; font-size:0.72rem; cursor:pointer; font-weight:600;">Thanh toán phòng</button>
                             </div>
                         </td>`;
 
@@ -6717,6 +6755,13 @@
                 if (bookingRowIndex !== null) {
                     const dpHeaders = currentData[0] || [];
                     const cDpStatus = findColIndex(dpHeaders, COL_MAPPING.status);
+                    const cDpPay = findColIndex(dpHeaders, COL_MAPPING.paymentStatus);
+                    const payStatus = cDpPay !== -1 ? (currentData[bookingRowIndex][cDpPay] || '').toString().trim() : '';
+
+                    if (payStatus !== 'Đã thanh toán') {
+                        if (!silent) alert('Phòng này phải thanh toán trước khi check out.');
+                        return false;
+                    }
 
                     if (cDpStatus !== -1) {
                         const dpSheetName = CONFIG.sheetName || 'DAT_PHONG';
@@ -6726,7 +6771,7 @@
 
                         await fetch(urlDP, {
                             method: "PUT",
-                            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                            headers: { "Authorization": "Bearer ${token}", "Content-Type": "application/json" },
                             body: JSON.stringify({ values: [["Trả phòng"]] })
                         });
 
