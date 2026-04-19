@@ -2927,6 +2927,7 @@
                                         <span id="bkIdDisplayText">---</span>
                                     </div>
                                     <button type="button" class="btn-bk-payment" onclick="openBookingPaymentModal()">Thanh toán</button>
+                                    <button type="button" class="btn-primary" onclick="submitBooking()" id="btnSubmitBooking" style="background:#10b981; padding:0.55rem 1rem; border-radius:10px;">Cập nhật thay đổi</button>
                                     <span id="bkIdEditExtra"></span>
                                 </div>
                             </div>
@@ -2965,8 +2966,14 @@
                                 <input type="text" id="bkSdt" placeholder="0xxx xxx xxx" />
                             </div>
                             <div class="booking-form-group">
-                                <label>Mã khách hàng</label>
-                                <input type="text" id="bkIdKhach" placeholder="Nếu có" />
+                                <label>Nguồn phòng</label>
+                                <input type="text" id="bkNguonPhong" list="bkNguonPhongList"
+                                    placeholder="Chọn gợi ý hoặc nhập tay…" autocomplete="off" />
+                                <datalist id="bkNguonPhongList">
+                                    <option value="Từ app"></option>
+                                    <option value="Từ fb"></option>
+                                    <option value="Từ người quen"></option>
+                                </datalist>
                             </div>
                             <div class="booking-form-group">
                                 <label>Số người lớn</label>
@@ -3019,13 +3026,6 @@
 
             <div class="booking-modal-footer">
                 <button class="btn-cancel" onclick="closeModal('bookingModal')">Hủy</button>
-                <button class="btn-success" onclick="submitBooking()" id="btnSubmitBooking">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Lưu đặt phòng
-                </button>
             </div>
         </div>
     </div>
@@ -3675,7 +3675,8 @@
             serviceAmount: ['tiền dịch vụ', 'tiền dv', 'dịch vụ', 'service', 'dv_price'],
             totalAmount: ['tổng cộng', 'tổng thanh toán', 'khách trả', 'total'],
             paymentStatus: ['thanh_toan', 'thanh toán', 'trạng thái thanh toán'],
-            paymentAccount: ['tk_thanh_toan', 'tk thanh toán', 'hình thức thanh toán']
+            paymentAccount: ['tk_thanh_toan', 'tk thanh toán', 'hình thức thanh toán'],
+            nguonPhong: ['nguon_phong', 'nguồn phòng', 'nguồn', 'nguon phong']
         };
 
         function findColIndex(headers, keywords, excludeIndices = []) {
@@ -4183,6 +4184,7 @@
                 const cTkThanhToan = findColIndex(headers, ['tk_thanh_toan', 'tài khoản thanh toán', 'tk thanh toán']);
                 const cNoiDung = findColIndex(headers, "noi_dung");
                 const cStatus = findColIndex(headers, COL_MAPPING.status);
+                const cNguonPhong = findColIndex(headers, COL_MAPPING.nguonPhong);
 
                 bookingsToEdit.forEach(b => {
                     const sRow = currentData.indexOf(b);
@@ -4226,6 +4228,15 @@
                 document.getElementById('bkNgayRa').value = convertDateToIso(base[cOut]);
                 document.getElementById('bkTenKhach').value = base[cCustomer] || '';
                 document.getElementById('bkSdt').value = base[cPhone] || '';
+                {
+                    const elNguon = document.getElementById('bkNguonPhong');
+                    if (elNguon) {
+                        let nv = '';
+                        if (cNguonPhong !== -1) nv = (base[cNguonPhong] || '').toString().trim();
+                        else if (base.length > 30) nv = (base[30] || '').toString().trim();
+                        elNguon.value = nv;
+                    }
+                }
                 document.getElementById('bkSoNgLon').value = base[cAdl] || 1;
                 document.getElementById('bkSoTreEm').value = base[cChl] || 0;
                 document.getElementById('bkGhiChu').value = base[cNote] || '';
@@ -4255,9 +4266,17 @@
                     btnSubmit.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Cập nhật thay đổi`;
                 }
 
+                ['bkTenKhach', 'bkSdt', 'bkNguonPhong', 'bkSoNgLon', 'bkSoTreEm', 'bkGhiChu', 'bkNgay'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.oninput = scheduleBookingAutoSave;
+                        el.onchange = scheduleBookingAutoSave;
+                    }
+                });
+
                 // Setup Date Listeners (same as Add New)
-                document.getElementById('bkNgayVao').onchange = () => { calcSoNgay(); populateBookingRoomTable(); };
-                document.getElementById('bkNgayRa').onchange = () => { calcSoNgay(); populateBookingRoomTable(); };
+                document.getElementById('bkNgayVao').onchange = () => { calcSoNgay(); populateBookingRoomTable(); scheduleBookingAutoSave(); };
+                document.getElementById('bkNgayRa').onchange = () => { calcSoNgay(); populateBookingRoomTable(); scheduleBookingAutoSave(); };
 
                 // Render Tables (populateBookingRoomTable builds currentRoomTypesData used by renderSelectedMiddleTable)
                 populateBookingRoomTable();
@@ -5782,17 +5801,17 @@
         function closeBookingPaymentModal() {
             const m = document.getElementById('bkPaymentModal');
             if (m) m.style.display = 'none';
+            bkPayTargetConfIds = null;
         }
 
-        /** Cập nhật thanh_toan + tk_thanh_toan trên DAT_DO cho mọi dòng thuộc đoàn (theo id_dp từng phòng hoặc id_dp_all khi dòng chỉ gắn đoàn). */
+        /** Cập nhật cột thanh toán (H,I) trên DAT_DO cho mọi dòng thuộc đặt phòng: khớp id_dp (cột C) hoặc chỉ id_dp_all (cột B) khi id_dp trống — đồng bộ với modal thanh toán đặt phòng. */
         async function syncDatDoPaymentWithBooking(idDpSet, idDpAllVal, tt, tk) {
             const targetStatus = (tt || 'Chưa thanh toán').toString().trim();
-            if (targetStatus !== 'Đã thanh toán') return 0;
+            const targetTk = (tk || 'Tiền mặt').toString().trim();
 
             const token = await getAccessToken();
             const sid = localStorage.getItem('gs_id') || CONFIG.spreadsheetId;
 
-            // Luôn đọc lại DAT_DO từ sheet để tránh ghi đè bằng cache cũ.
             const res = await fetch(
                 `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${DAT_DO_SHEET}!A:I`,
                 { headers: { Authorization: `Bearer ${token}` } }
@@ -5816,15 +5835,14 @@
                 if (!r || r.every(c => !c)) continue;
                 if (!rowMatchesDvBooking(r)) continue;
 
-                const currStatus = (r[7] || 'Chưa thanh toán').toString().trim();
-                const currTk = (r[8] || '').toString().trim();
-                if (currStatus === 'Đã thanh toán') continue;
-                if (currTk && currStatus !== 'Chưa thanh toán') continue;
+                const currStatus = (r[7] != null ? r[7] : '').toString().trim();
+                const currTk = (r[8] != null ? r[8] : '').toString().trim();
+                if (currStatus === targetStatus && currTk === targetTk) continue;
 
                 const updRow = r.slice();
                 while (updRow.length < 9) updRow.push('');
                 updRow[7] = targetStatus;
-                updRow[8] = tk;
+                updRow[8] = targetTk;
                 const range = `${DAT_DO_SHEET}!A${i + 1}:I${i + 1}`;
                 const putRes = await fetch(
                     `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${range}?valueInputOption=USER_ENTERED`,
@@ -5858,11 +5876,20 @@
             renderSelectedMiddleTable();
             closeBookingPaymentModal();
 
+            if (!isEditMode) {
+                toast.success('Đã cập nhật thanh toán (sẽ ghi vào sheet khi bấm Lưu đặt phòng).');
+                return;
+            }
+
             const rowsToSync = selectedRoomConfigs.filter(c => targetIds.has(c.id) && c.sheetRow !== undefined && c.sheetRow !== null);
+            if (rowsToSync.length === 0) {
+                toast.success('Đã cập nhật thanh toán.');
+                return;
+            }
             const headers = currentData[0] || [];
             const cPay = findColIndex(headers, COL_MAPPING.paymentStatus);
             const cTk = findColIndex(headers, COL_MAPPING.paymentAccount);
-            const cId = findColIndex(headers, 'id');
+            const cId = findColIndex(headers, ['id']);
             const cDpAll = findColIndex(headers, COL_MAPPING.idDpAll);
 
             const idDpSet = new Set();
@@ -5919,12 +5946,12 @@
                 }
 
                 let dvSynced = 0;
-                if (tt === 'Đã thanh toán' && (idDpSet.size > 0 || idDpAllVal)) {
+                if (idDpSet.size > 0 || idDpAllVal) {
                     dvSynced = await syncDatDoPaymentWithBooking(idDpSet, idDpAllVal, tt, tk);
                 }
 
                 if (!canSyncBookingSheet && dvSynced === 0) {
-                    toast.show('Đã cập nhật trên giao diện. Thêm cột thanh_toan / tk_thanh_toan trên DAT_PHONG hoặc kiểm tra liên kết id_dp trên DAT_DO.', 'info');
+                    toast.show('Đã cập nhật trên giao diện. Thêm cột thanh_toan / tk_thanh_toan trên DAT_PHONG hoặc kiểm tra id_dp / id_dp_all trên DAT_DO.', 'success');
                 } else {
                     let msg = 'Đã lưu thanh toán';
                     if (canSyncBookingSheet) msg += ' (DAT_PHONG)';
@@ -5973,7 +6000,8 @@
             // Reset fields
             document.getElementById('bkTenKhach').value = '';
             document.getElementById('bkSdt').value = '';
-            document.getElementById('bkIdKhach').value = '';
+            const bkNguon = document.getElementById('bkNguonPhong');
+            if (bkNguon) bkNguon.value = '';
             document.getElementById('bkSoNgLon').value = '1';
             document.getElementById('bkSoTreEm').value = '0';
             document.getElementById('bkGhiChu').value = '';
@@ -6485,6 +6513,18 @@
             updateSelectedCount();
         }
 
+        let autoSaveBookingTimer = null;
+        let skipBookingConfirm = false;
+
+        function scheduleBookingAutoSave() {
+            if (!isEditMode) return;
+            if (autoSaveBookingTimer) clearTimeout(autoSaveBookingTimer);
+            autoSaveBookingTimer = setTimeout(() => {
+                skipBookingConfirm = true;
+                submitBooking().finally(() => { skipBookingConfirm = false; });
+            }, 500);
+        }
+
         async function submitBooking() {
             // 1. Validate
             const idEl = document.getElementById('bkIdDisplayText');
@@ -6495,7 +6535,7 @@
             const soNgay = document.getElementById('bkSoNgay').value;
             const tenKhach = document.getElementById('bkTenKhach').value.trim();
             const sdt = document.getElementById('bkSdt').value.trim();
-            const idKhach = document.getElementById('bkIdKhach').value.trim();
+            const nguonPhong = ((document.getElementById('bkNguonPhong') || {}).value || '').trim();
             const soNgLon = document.getElementById('bkSoNgLon').value;
             const soTreEm = document.getElementById('bkSoTreEm').value;
             const ghiChu = document.getElementById('bkGhiChu').value.trim();
@@ -6515,7 +6555,7 @@
             const confirmMsg = isEditMode
                 ? `Xác nhận CẬP NHẬT thay đổi cho đoàn "${tenKhach}"?`
                 : `Xác nhận ĐẶT PHÒNG mới cho "${tenKhach}" với ${selectedRoomConfigs.length} phòng?`;
-            if (!confirm(confirmMsg)) return;
+            if (!skipBookingConfirm && !confirm(confirmMsg)) return;
 
             const statusLabel = document.getElementById('saveStatus');
             statusLabel.textContent = isEditMode ? 'Đang cập nhật thay đổi...' : 'Đang lưu đặt phòng...';
@@ -6532,7 +6572,7 @@
                 const dpAllRow = [
                     isEditMode && currentBookingId && currentBookingId !== 'Đơn lẻ' ? currentBookingId : (isEditMode ? '---' : generateBookingId()), // id
                     ngayFormatted, ngayVaoFormatted, ngayRaFormatted, soNgay,
-                    tenKhach, sdt, idKhach, soNgLon, soTreEm, ghiChu
+                    tenKhach, sdt, nguonPhong, soNgLon, soTreEm, ghiChu
                 ];
                 const realBookingId = dpAllRow[0];
 
@@ -6600,7 +6640,7 @@
                         '',                 // 22: ghi_don
                         conf.customer || tenKhach, // 23: ten_khach
                         conf.phone || sdt,        // 24: sdt
-                        idKhach,            // 25: id_khach
+                        '',                 // 25: id_khach (không dùng trên form)
                         conf.adults || soNgLon,   // 26: so_ng_lon
                         conf.children || soTreEm  // 27: so_tre_em
                     ];
@@ -6612,6 +6652,11 @@
                     const tkV = (conf.tkThanhToan || 'Tiền mặt').toString().trim();
                     if (cPayMap !== -1) row[cPayMap] = payV;
                     if (cTkMap !== -1) row[cTkMap] = tkV;
+                    const cNguonMap = findColIndex(headers, COL_MAPPING.nguonPhong);
+                    if (cNguonMap !== -1) row[cNguonMap] = nguonPhong;
+                    else if (headers.length > 30) row[30] = nguonPhong;
+                    const cIdKhachMap = findColIndex(headers, ['id_khach', 'mã khách', 'ma_khach', 'mã khách hàng']);
+                    if (cIdKhachMap !== -1) row[cIdKhachMap] = '';
                     return row;
                 };
 
@@ -6723,11 +6768,15 @@
                 const rangeRoom = `${rSheetName}!${colLetterRoom}${roomRowIndex + 1}`;
                 const urlRoom = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${rangeRoom}?valueInputOption=USER_ENTERED`;
 
-                await fetch(urlRoom, {
+                const resRoom = await fetch(urlRoom, {
                     method: "PUT",
                     headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
                     body: JSON.stringify({ values: [["Bẩn"]] })
                 });
+                if (!resRoom.ok) {
+                    const errBody = await resRoom.json().catch(() => ({}));
+                    throw new Error(errBody.error?.message || `Lỗi cập nhật DS_PHONG (${resRoom.status})`);
+                }
 
                 // Cập nhật dữ liệu cục bộ cho DS_PHONG
                 roomListData[roomRowIndex][cTinhTrang] = "Bẩn";
@@ -6769,27 +6818,30 @@
                         const rangeDP = `${dpSheetName}!${colLetterDP}${bookingRowIndex + 1}`;
                         const urlDP = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${rangeDP}?valueInputOption=USER_ENTERED`;
 
-                        await fetch(urlDP, {
+                        const resDP = await fetch(urlDP, {
                             method: "PUT",
-                            headers: { "Authorization": "Bearer ${token}", "Content-Type": "application/json" },
+                            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
                             body: JSON.stringify({ values: [["Trả phòng"]] })
                         });
+                        if (!resDP.ok) {
+                            const errBody = await resDP.json().catch(() => ({}));
+                            throw new Error(errBody.error?.message || `Lỗi cập nhật DAT_PHONG (${resDP.status})`);
+                        }
 
                         // Cập nhật dữ liệu cục bộ cho DAT_PHONG
                         currentData[bookingRowIndex][cDpStatus] = "Trả phòng";
 
-                        // Cập nhật conf.status trong selectedRoomConfigs để badge hiển thị ngay
-                        const matchedConf = selectedRoomConfigs.find(c => c.sheetRow === bookingRowIndex);
+                        const matchedConf = selectedRoomConfigs.find(c => c.sheetRow === bookingRowIndex || c.roomId === roomName || c.roomId === roomId);
                         if (matchedConf) {
                             matchedConf.status = "Trả phòng";
-                            renderSelectedMiddleTable();
-                        }
-
-                        if (shouldRefresh) {
-                            await fetchData();
                         }
                     }
                 }
+
+                renderSelectedMiddleTable();
+                renderTable();
+                if (typeof renderRoomList === 'function') renderRoomList();
+                if (shouldRefresh) await fetchData();
 
                 if (!silent) toast.success(`Đã trả phòng ${roomName || roomId} thành công.`);
                 return true;
@@ -6817,15 +6869,13 @@
                 if (success) successCount++;
             }
 
-            await fetchData();
-
             if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
 
             alert(`Đã hoàn tất trả phòng! (${successCount}/${selectedRoomConfigs.length} phòng được đánh dấu bẩn)`);
-            fetchData(); // Refresh timeline and data
+            await fetchData();
         }
 
         async function handleImageUpload(input, colIndex) {
