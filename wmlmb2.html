@@ -340,77 +340,146 @@
                 <div id="moduleDonhang" class="h-full flex flex-col p-6" style="display: none;">
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
-                        <div class="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
-                            <div class="hidden">
-                                <h2 class="text-lg font-bold text-slate-900">Danh sách đơn chi tiết</h2>
-                                <p class="text-sm text-slate-500 mt-1">Quản lý thông tin đơn hàng chi tiết từ sheet
-                                    UD_CT</p>
-                            </div>
-                            <div class="flex flex-wrap gap-3 items-center">
-                                <div class="flex flex-col">
-                                    <div class="flex gap-2 mb-2 items-center">
-                                        <span class="text-xs font-semibold text-slate-500 uppercase">Chọn nhanh:</span>
-                                        <button onclick="setUDCTQuickDate('today')"
-                                            class="px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 hover:bg-slate-100">Hôm
-                                            nay</button>
-                                        <button onclick="setUDCTQuickDate('thisWeek')"
-                                            class="px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 hover:bg-slate-100">Tuần
-                                            này</button>
-                                        <button onclick="setUDCTQuickDate('thisMonth')"
-                                            class="px-2 py-1 bg-white border border-slate-200 rounded text-xs text-slate-700 hover:bg-slate-100">Tháng
-                                            này</button>
+                        <div class="p-5 border-b border-slate-200 bg-white">
+                            <div class="flex flex-col gap-5">
+                                <!-- Top Row: Time & Search -->
+                                <div class="flex flex-wrap items-center justify-between gap-4">
+                                    <div
+                                        class="flex items-center gap-4 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                        <div class="flex items-center gap-1.5 px-2 border-r border-slate-200">
+                                            <span
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CHỌN
+                                                NHANH</span>
+                                            <div class="flex gap-1">
+                                                <button onclick="setUDCTQuickDate('today')"
+                                                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-primary hover:text-primary transition-all shadow-sm">Hôm
+                                                    nay</button>
+                                                <button onclick="setUDCTQuickDate('thisWeek')"
+                                                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-primary hover:text-primary transition-all shadow-sm">Tuần
+                                                    này</button>
+                                                <button onclick="setUDCTQuickDate('thisMonth')"
+                                                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-primary hover:text-primary transition-all shadow-sm">Tháng
+                                                    này</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3 px-2">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TỪ</span>
+                                                <div
+                                                    class="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                                                    <button onclick="changeUDCTDate('filterUDCTFrom', -1)"
+                                                        class="px-2 py-1 hover:bg-slate-50 text-slate-400 text-xs">➖</button>
+                                                    <input type="date" id="filterUDCTFrom" onchange="filterUDCTTable()"
+                                                        class="border-none focus:ring-0 text-xs py-1.5 bg-transparent outline-none">
+                                                    <button onclick="changeUDCTDate('filterUDCTFrom', 1)"
+                                                        class="px-2 py-1 hover:bg-slate-50 text-slate-400 text-xs">➕</button>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ĐẾN</span>
+                                                <div
+                                                    class="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                                                    <button onclick="changeUDCTDate('filterUDCTTo', -1)"
+                                                        class="px-2 py-1 hover:bg-slate-50 text-slate-400 text-xs">➖</button>
+                                                    <input type="date" id="filterUDCTTo" onchange="filterUDCTTable()"
+                                                        class="border-none focus:ring-0 text-xs py-1.5 bg-transparent outline-none">
+                                                    <button onclick="changeUDCTDate('filterUDCTTo', 1)"
+                                                        class="px-2 py-1 hover:bg-slate-50 text-slate-400 text-xs">➕</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center gap-1">
-                                        <label class="text-xs font-semibold text-slate-500 uppercase mr-1">Từ:</label>
-                                        <button onclick="changeUDCTDate('filterUDCTFrom', -1)"
-                                            class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
-                                        <input type="date" id="filterUDCTFrom" onchange="filterUDCTTable()"
-                                            class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
-                                        <button onclick="changeUDCTDate('filterUDCTFrom', 1)"
-                                            class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➕</button>
 
-                                        <label
-                                            class="text-xs font-semibold text-slate-500 uppercase ml-3 mr-1">Đến:</label>
-                                        <button onclick="changeUDCTDate('filterUDCTTo', -1)"
-                                            class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
-                                        <input type="date" id="filterUDCTTo" onchange="filterUDCTTable()"
-                                            class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
-                                        <button onclick="changeUDCTDate('filterUDCTTo', 1)"
-                                            class="px-2 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➕</button>
+                                    <div class="flex items-center gap-2 flex-1 max-w-md">
+                                        <div class="relative flex-1">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                                        stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                </svg>
+                                            </span>
+                                            <input type="text" id="filterUDCTSearch" oninput="filterUDCTTable()"
+                                                placeholder="Tìm mã vận đơn, mã đơn hàng..."
+                                                class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm outline-none">
+                                        </div>
+                                        <button onclick="filterUDCTTable()"
+                                            class="flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-xl hover:bg-blue-600 transition-all font-semibold text-sm shadow-md shadow-blue-200">
+                                            <span>Lọc dữ liệu</span>
+                                        </button>
                                     </div>
                                 </div>
-                                <input type="hidden" id="filterUDCTSan" value="">
-                                <div id="filterUDCTSanButtons" class="flex flex-wrap gap-1 items-center"></div>
 
-                                <input type="hidden" id="filterUDCTKhungH" value="">
-                                <div id="filterUDCTKhungHButtons" class="flex flex-wrap gap-1 items-center"></div>
+                                <!-- Bottom Row: Multi-select Filters & Batch Actions -->
+                                <div class="flex flex-wrap items-center justify-between gap-4">
+                                    <div class="flex flex-wrap items-center gap-6">
+                                        <!-- Group: Platform -->
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SÀN</span>
+                                            <input type="hidden" id="filterUDCTSan" value="">
+                                            <div id="filterUDCTSanButtons"
+                                                class="flex p-1 bg-slate-100 rounded-xl gap-1"></div>
+                                        </div>
 
-                                <select id="filterUDCTMaGian" onchange="filterUDCTTable()"
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm">
-                                    <option value="">Tất cả Mã gian</option>
-                                </select>
+                                        <!-- Group: Time Slot -->
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">KHUNG
+                                                H</span>
+                                            <input type="hidden" id="filterUDCTKhungH" value="">
+                                            <div id="filterUDCTKhungHButtons"
+                                                class="flex p-1 bg-slate-100 rounded-xl gap-1"></div>
+                                        </div>
 
-                                <input type="hidden" id="filterUDCTTrangThai" value="">
-                                <div id="filterUDCTTrangThaiButtons" class="flex flex-wrap gap-1 items-center"></div>
-                                <input type="text" id="filterUDCTSearch" oninput="filterUDCTTable()"
-                                    placeholder="Tìm kiếm nhanh..."
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-48">
+                                        <!-- Group: Mã Gian -->
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">MÃ
+                                                GIAN</span>
+                                            <select id="filterUDCTMaGian" onchange="filterUDCTTable()"
+                                                class="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 shadow-sm outline-none cursor-pointer">
+                                                <option value="">Tất cả gian hàng</option>
+                                            </select>
+                                        </div>
 
-                                <button onclick="filterUDCTTable()"
-                                    class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium">
-                                    🔍 Lọc
-                                </button>
-                                <button onclick="updateAllPricesBatch()"
-                                    class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium">
-                                    💰 Up đơn giá full ngày
-                                </button>
+                                        <input type="hidden" id="filterUDCTTrangThai" value="">
+                                        <div id="filterUDCTTrangThaiButtons"
+                                            class="flex p-1 bg-slate-100 rounded-xl gap-1 hidden"></div>
+                                    </div>
 
-                                <label
-                                    class="cursor-pointer bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
-                                    📤 Tải Excel
-                                    <input type="file" id="excelUploadDonhang" accept=".xlsx, .xls" class="hidden"
-                                        onchange="handleExcelUploadDonhang(this.files)" multiple>
-                                </label>
+                                    <div class="flex items-center gap-3 ml-auto">
+                                        <button onclick="updateAllPricesBatch()"
+                                            class="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl hover:bg-amber-100 transition-all font-bold text-xs ring-offset-2 focus:ring-2 focus:ring-amber-200">
+                                            <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
+                                                <path
+                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                            <span>Up đơn giá full ngày</span>
+                                        </button>
+
+                                        <label class="cursor-pointer group">
+                                            <div
+                                                class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all font-bold text-xs shadow-md shadow-blue-100">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path
+                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                                        stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                </svg>
+                                                <span>Tải Excel</span>
+                                            </div>
+                                            <input type="file" id="excelUploadDonhang" accept=".xlsx, .xls"
+                                                class="hidden" onchange="handleExcelUploadDonhang(this.files)" multiple>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="mx-4 mt-2 flex gap-2">
@@ -442,6 +511,18 @@
                                         <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã gian
                                         </th>
                                         <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MVD</th>
+                                        <th class="px-2 py-3 text-center text-xs font-semibold text-slate-600 w-10">
+                                            <button onclick="copyUniqueMVD()"
+                                                class="p-1 hover:bg-slate-200 rounded transition-colors"
+                                                title="Copy Unique MVD">
+                                                <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                </svg>
+                                            </button>
+                                        </th>
                                         <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MDH</th>
                                         <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Check trùng
                                         </th>
@@ -466,7 +547,7 @@
                                 </thead>
                                 <tbody id="donhangTableBody">
                                     <tr>
-                                        <td colspan="17" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
+                                        <td colspan="18" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
                                         </td>
                                     </tr>
                                 </tbody>
@@ -778,7 +859,8 @@
                                         <tbody id="detailTableBody">
                                             <tr>
                                                 <td colspan="8" class="text-center py-8 text-slate-500">Chọn ngày để xem
-                                                    chi tiết</td< /tr>
+                                                    chi tiết</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -1253,7 +1335,7 @@
             loadingOverlay.classList.remove('hidden');
             try {
                 const token = await getAccessToken();
-                // so_luong=O, id_sp=P, id_sp_ct=Q, tinh_trang=X, trang_thai=Y, ghi_chu=AA, don_gia=AD
+                // so_luong=O, id_sp=P, id_sp_ct=Q, tinh_trang=X, trang_thai=Y, ghi_chu=AA, don_gia=AE
                 const batchUpdates = [
                     { range: `${CONFIG.udctSheetName}!O${item.rowIndex}`, values: [[newData.so_luong]] },
                     { range: `${CONFIG.udctSheetName}!P${item.rowIndex}`, values: [[newData.id_sp]] },
@@ -1261,7 +1343,7 @@
                     { range: `${CONFIG.udctSheetName}!X${item.rowIndex}`, values: [[newData.tinh_trang]] },
                     { range: `${CONFIG.udctSheetName}!Y${item.rowIndex}`, values: [[newData.trang_thai]] },
                     { range: `${CONFIG.udctSheetName}!AA${item.rowIndex}`, values: [[newData.ghi_chu]] },
-                    { range: `${CONFIG.udctSheetName}!AD${item.rowIndex}`, values: [[newData.don_gia_1]] }
+                    { range: `${CONFIG.udctSheetName}!AE${item.rowIndex}`, values: [[newData.don_gia_1]] }
                 ];
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values:batchUpdate`;
                 const resp = await fetch(url, {
@@ -1508,7 +1590,7 @@
                     id_sp_ct: row[16] || '',
                     ten_sp: row[17] || '',
                     slg_xuat: row[18] || '',
-                    don_gia_1: row[29] || '',
+                    don_gia_1: row[30] || '',
                     tinh_trang: row[23] || '',
                     trang_thai: row[24] || '',
                     ghi_chu: row[26] || '',
@@ -1559,9 +1641,9 @@
             const renderBtns = (id, options, currentVal) => {
                 const container = document.getElementById(id + 'Buttons');
                 if (!container) return;
-                let html = `<button onclick="setUDCTBtnFilter('${id}', '')" class="px-2 py-1.5 text-xs rounded-lg border font-medium transition-colors cursor-pointer ${currentVal === '' ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">Tất cả</button>`;
+                let html = `<button onclick="setUDCTBtnFilter('${id}', '')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${currentVal === '' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">Tất cả</button>`;
                 options.forEach(opt => {
-                    html += `<button onclick="setUDCTBtnFilter('${id}', '${opt}')" class="px-2 py-1.5 text-xs rounded-lg border font-medium transition-colors cursor-pointer ${currentVal === opt ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">${opt}</button>`;
+                    html += `<button onclick="setUDCTBtnFilter('${id}', '${opt}')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${currentVal === opt ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">${opt}</button>`;
                 });
                 container.innerHTML = html;
             };
@@ -1739,7 +1821,7 @@
             });
 
             if (filteredUDCT.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="17" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="18" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
                 document.getElementById('udctPageInfo').innerHTML = 'Không có dữ liệu';
                 document.getElementById('udctPrevPage').disabled = true;
                 document.getElementById('udctNextPage').disabled = true;
@@ -1765,6 +1847,7 @@
                     <td class="px-4 py-3 text-sm text-slate-900">${item.khung_h || '-'}</td>
                     <td class="px-4 py-3 text-sm text-slate-900 font-medium">${item.ma_gian || '-'}</td>
                     <td class="px-4 py-3 text-sm text-slate-900">${item.mvd || '-'}</td>
+                    <td class="px-1 py-3 text-center text-slate-400">-</td>
                     <td class="px-4 py-3 text-sm text-slate-900 font-medium text-blue-600">${item.mdh || '-'}</td>
                     <td class="px-4 py-3 text-sm">
                         ${((item.mvd && mvdMap[item.mvd]?.size > 1) || (item.mdh && mdhMap[item.mdh]?.size > 1))
@@ -1791,6 +1874,41 @@
                     <td class="px-4 py-3 text-sm text-slate-500 italic truncate max-w-[150px]">${item.ghi_chu || '-'}</td>
                 </tr>
             `).join('');
+        }
+
+        function copyUniqueMVD() {
+            if (!filteredUDCT || filteredUDCT.length === 0) {
+                alert("Không có dữ liệu để copy!");
+                return;
+            }
+            const mvds = filteredUDCT
+                .map(item => (item.mvd || '').trim())
+                .filter(mvd => mvd && mvd !== '-');
+            const uniqueMVDs = [...new Set(mvds)];
+
+            if (uniqueMVDs.length === 0) {
+                alert("Không tìm thấy MVD hợp lệ!");
+                return;
+            }
+
+            const textToCopy = uniqueMVDs.join('\n');
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert(`Đã copy ${uniqueMVDs.length} MVD duy nhất!`);
+                }
+            } catch (err) {
+                console.error('Lỗi khi copy:', err);
+                alert('Lỗi khi sao chép!');
+            }
+            document.body.removeChild(textArea);
         }
 
         async function updateSheetValue(sheetName, range, value) {
@@ -1828,8 +1946,8 @@
             const newPrice = sp.gia_ban - sp.gia_dong_goi;
             item.don_gia_1 = newPrice;
 
-            // Sheet index is rowIndex, column AD is index 30 (1-based for range)
-            const success = await updateSheetValue(CONFIG.udctSheetName, `AD${item.rowIndex}`, newPrice);
+            // Sheet index is rowIndex, column AE is index 31 (1-based for range)
+            const success = await updateSheetValue(CONFIG.udctSheetName, `AE${item.rowIndex}`, newPrice);
 
             if (success) {
                 if (!silent) {
@@ -1861,7 +1979,7 @@
                         const newPrice = sp.gia_ban - sp.gia_dong_goi;
                         item.don_gia_1 = newPrice;
                         updates.push({
-                            range: `${CONFIG.udctSheetName}!AD${item.rowIndex}`,
+                            range: `${CONFIG.udctSheetName}!AE${item.rowIndex}`,
                             values: [[newPrice]]
                         });
                     }
@@ -2152,7 +2270,7 @@
             document.getElementById('upmisaNextBtn').disabled = upmisaCurrentPage >= totalPages;
 
             if (!paginated.length) {
-                tbody.innerHTML = '<tr><td colspan="50" class="text-center py-8 text-slate-500">Không có dữ liệu phù hợp</td</tr>';
+                tbody.innerHTML = '<tr><td colspan="50" class="text-center py-8 text-slate-500">Không có dữ liệu phù hợp</td></tr>';
                 return;
             }
 
@@ -2369,7 +2487,7 @@
 
                 const detailBody = document.getElementById('detailTableBody');
                 if (filtered.length === 0) {
-                    detailBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-500">Không có dữ liệu</td</tr>';
+                    detailBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
                 } else {
                     detailBody.innerHTML = filtered.map(item => `
                         <tr class="border-b border-slate-100 hover:bg-slate-50">
@@ -2626,7 +2744,14 @@
 
                         const c_b = (row[1] || '').toString();
                         const c_c = (row[2] || '').toString();
-                        const c_f = fileNameInfo.ngay;
+                        let c_f = fileNameInfo.ngay;
+                        // Chuyển định dạng ngày từ yyyy-mm-dd sang dd/mm/yyyy
+                        if (c_f && c_f.includes('-')) {
+                            const dParts = c_f.split('-');
+                            if (dParts.length === 3 && dParts[0].length === 4) {
+                                c_f = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+                            }
+                        }
                         const c_i = (row[8] || '').toString(); // Tên SP
                         const c_j = (row[9] || '').toString(); // Mã SKU phân loại (sku_shop_up)
 
@@ -2928,7 +3053,7 @@
 
             try {
                 const token = await getAccessToken();
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.dhctSheetName}!A:I`;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.dhctSheetName}!A:P`;
 
                 const response = await fetch(url, {
                     headers: { "Authorization": `Bearer ${token}` }
@@ -2937,15 +3062,15 @@
                 const result = await response.json();
                 if (result.values && result.values.length > 0) {
                     dhctData = result.values.slice(1).map(row => ({
-                        id_dh: row[0],
-                        ngay: row[1],
-                        truong: row[2],
-                        ncc: row[3],
-                        ghi_chu: row[4],
-                        kho: row[5],
-                        id_sp_ct: row[6],
-                        ten: row[7],
-                        so_luong: row[8]
+                        id_dh: row[1], // Cột B
+                        ngay: row[2],  // Cột C
+                        truong: row[3], // Cột D
+                        ncc: row[4],    // Cột E
+                        ghi_chu: row[5], // Cột F
+                        kho: row[6],     // Cột G
+                        id_sp_ct: row[7], // Cột H
+                        ten: row[10],     // Cột K
+                        so_luong: row[11] // Cột L
                     }));
                     renderDHCTTable();
                 } else {
