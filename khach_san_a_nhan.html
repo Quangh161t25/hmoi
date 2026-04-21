@@ -1728,6 +1728,21 @@
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .booking-selected-count .selected-count-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.55rem;
+            height: 1.55rem;
+            padding: 0 0.35rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.28);
+            font-weight: 800;
         }
 
         /* Timeline Status Colors */
@@ -2977,7 +2992,7 @@
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
                     Thêm mới đặt phòng
-                    <span class="booking-selected-count" id="bkSelectedCount">0 phòng đã chọn</span>
+                    <span class="booking-selected-count" id="bkSelectedCount"><span class="selected-count-num">0</span> phòng đã chọn</span>
                 </h2>
                 <button onclick="closeModal('bookingModal')"
                     style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">✕</button>
@@ -7328,7 +7343,9 @@
         function updateSelectedCount() {
             const count = selectedRoomConfigs.length;
             const el = document.getElementById('bkSelectedCount');
-            if (el) el.textContent = `${count} phòng đã chọn`;
+            if (el) {
+                el.innerHTML = `<span class="selected-count-num">${count}</span> phòng đã chọn`;
+            }
         }
 
         function renderSelectedMiddleTable() {
