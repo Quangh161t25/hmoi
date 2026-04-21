@@ -160,10 +160,11 @@
     <div id="mainApp" class="fixed inset-0 bg-white flex">
         <div id="sidebar"
             class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 sidebar-transition relative">
-            <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+            <div class="p-3.5 border-b border-slate-200 flex items-center justify-between">
                 <div class="sidebar-header-text">
-                    <div class="font-bold text-xl text-slate-900">UPMISA</div>
-                    <div class="text-sm text-slate-500 mt-1">Hệ thống quản lý</div>
+                    <div class="font-bold text-lg text-slate-900">UPMISA</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5 uppercase tracking-wider font-medium">Hệ thống quản lý
+                    </div>
                 </div>
                 <button onclick="toggleSidebar()"
                     class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
@@ -173,72 +174,81 @@
                     </svg>
                 </button>
             </div>
-            <div class="flex-1 py-6 overflow-y-auto">
+            <div class="flex-1 py-2 overflow-y-auto">
                 <div onclick="switchModule('home')" id="sidebarHome"
-                    class="sidebar-item active px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 border-r-2 border-primary bg-blue-50 text-primary"
+                    class="sidebar-item active px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 border-r-2 border-primary bg-blue-50 text-primary"
                     title="Trang chủ">
-                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                     <span class="font-medium sidebar-text">Trang chủ</span>
                 </div>
                 <div onclick="switchModule('donhang')" id="sidebarDonhang"
-                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50"
+                    class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
                     title="Đơn chi tiết">
-                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     <span class="font-medium sidebar-text">Đơn chi tiết</span>
                 </div>
                 <div onclick="switchModule('sanpham')" id="sidebarSanpham"
-                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50"
+                    class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
                     title="Sản phẩm PM">
-                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                     <span class="font-medium sidebar-text">Sản phẩm PM</span>
                 </div>
                 <div onclick="switchModule('baocao')" id="sidebarBaocao"
-                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50"
+                    class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
                     title="Báo cáo">
-                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 19v-6a2 2 0 00-2 2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     <span class="font-medium sidebar-text">Báo cáo</span>
                 </div>
                 <div onclick="switchModule('upmisa')" id="sidebarUpmisa"
-                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50"
+                    class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
                     title="UPMISA">
-                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span class="font-medium sidebar-text">UPMISA</span>
                 </div>
                 <div onclick="switchModule('inventory')" id="sidebarInventory"
-                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50"
+                    class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
                     title="Tồn kho">
-                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                     <span class="font-medium sidebar-text">Tồn kho</span>
                 </div>
                 <div onclick="switchModule('dh_ct')" id="sidebarDHCT"
-                    class="sidebar-item px-4 py-3 mx-2 rounded-lg cursor-pointer flex items-center gap-3 text-slate-600 hover:bg-slate-50"
+                    class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
                     title="Đơn hàng chi tiết">
-                    <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                     <span class="font-medium sidebar-text">DH Chi Tiết</span>
                 </div>
+                <div onclick="switchModule('hang_hoan')" id="sidebarHangHoan"
+                    class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
+                    title="Hàng hoàn">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h4l3 8 4-16 3 8h4" />
+                    </svg>
+                    <span class="font-medium sidebar-text">Hàng hoàn</span>
+                </div>
             </div>
-            <div class="p-4 border-t border-slate-200">
+            <div class="p-2.5 border-t border-slate-200">
                 <div class="flex items-center justify-between overflow-hidden">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
@@ -261,13 +271,13 @@
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="h-16 border-b border-slate-200 flex items-center px-6 bg-white shrink-0">
-                <h1 class="text-xl font-bold text-slate-900" id="pageTitle">Trang chủ</h1>
+            <header class="h-12 border-b border-slate-200 flex items-center px-4 bg-white shrink-0">
+                <h1 class="text-lg font-bold text-slate-900" id="pageTitle">Trang chủ</h1>
             </header>
 
             <main class="flex-1 overflow-auto bg-slate-50">
                 <!-- Module Trang chủ -->
-                <div id="moduleHome" class="h-full p-6">
+                <div id="moduleHome" class="h-full p-2">
                     <div class="max-w-7xl mx-auto">
                         <div class="mb-8">
                             <h1 class="text-3xl font-bold text-slate-900">Xin chào, <span id="welcomeUserName"
@@ -337,11 +347,11 @@
                 </div>
 
                 <!-- Module Đơn chi tiết -->
-                <div id="moduleDonhang" class="h-full flex flex-col p-6" style="display: none;">
+                <div id="moduleDonhang" class="h-full flex flex-col p-1" style="display: none;">
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
-                        <div class="p-5 border-b border-slate-200 bg-white">
-                            <div class="flex flex-col gap-5">
+                        <div class="p-3 border-b border-slate-200 bg-white">
+                            <div class="flex flex-col gap-3">
                                 <!-- Top Row: Time & Search -->
                                 <div class="flex flex-wrap items-center justify-between gap-4">
                                     <div
@@ -482,7 +492,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mx-4 mt-2 flex gap-2">
+                        <div class="mx-2 mt-1.5 flex gap-2">
                             <button onclick="setUDCTQuickTab('all')" id="udctTabAll"
                                 class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors">Tất
                                 cả các đơn</button>
@@ -490,27 +500,17 @@
                                 class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Đơn
                                 hủy</button>
                         </div>
-                        <div id="dropZoneDonhang"
-                            class="mx-4 mt-2 border border-dashed border-slate-300 rounded-lg py-3 px-4 text-center cursor-pointer drop-zone hover:bg-slate-50 flex items-center justify-center gap-3"
-                            onclick="document.getElementById('excelUploadDonhang').click()">
-                            <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <p class="text-slate-600 text-sm font-medium">Kéo thả file Excel (Tổng đơn 1) vào đây hoặc
-                                click để chọn</p>
-                        </div>
-                        <div class="flex-1 overflow-auto table-container mt-2">
+                        <div class="flex-1 overflow-auto table-container mt-1">
                             <table class="w-full min-w-[1200px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Sàn</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Khung H
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Ngày</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Sàn</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Khung H
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã gian
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Mã gian
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MVD</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">MVD</th>
                                         <th class="px-2 py-3 text-center text-xs font-semibold text-slate-600 w-10">
                                             <button onclick="copyUniqueMVD()"
                                                 class="p-1 hover:bg-slate-200 rounded transition-colors"
@@ -523,25 +523,25 @@
                                                 </svg>
                                             </button>
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MDH</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Check trùng
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">MDH</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Check trùng
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">SKU Shop Up
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">SKU Shop Up
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số lượng
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Số lượng
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID SP</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID SP CT
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">ID SP</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">ID SP CT
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên SP</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">SLG xuất
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Tên SP</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">SLG xuất
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Đơn giá
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Action</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Trạng thái
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Action</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Trạng thái
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ghi chú
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Ghi chú
                                         </th>
                                     </tr>
                                 </thead>
@@ -572,15 +572,15 @@
                 </div>
 
                 <!-- Module Sản phẩm phần mềm -->
-                <div id="moduleSanpham" class="h-full flex flex-col p-6" style="display: none;">
+                <div id="moduleSanpham" class="h-full flex flex-col p-1" style="display: none;">
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                         <div
-                            class="p-4 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
+                            class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
                             <div>
-                                <h2 class="text-lg font-bold text-slate-900">Danh sách sản phẩm phần mềm</h2>
-                                <p class="text-sm text-slate-500 mt-1">Quản lý thông tin sản phẩm từ sheet DS_SP_PM (32
-                                    cột)</p>
+                                <h2 class="text-base font-bold text-slate-900">Danh sách sản phẩm phần mềm</h2>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Quản lý thông tin sản phẩm từ sheet
+                                    DS_SP_PM (32 cột)</p>
                             </div>
                             <div class="flex flex-wrap gap-2 items-center">
                                 <input type="text" id="spFilterMa" oninput="renderSanphamTable(1)"
@@ -625,17 +625,22 @@
                             <table class="w-full min-w-[2800px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Sản phẩm
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Sản
+                                            phẩm
                                             cha</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá nhập
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Giá
+                                            nhập
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá bán lẻ
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Giá bán
+                                            lẻ
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá đón gói
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Giá đón
+                                            gói
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá bán
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Giá bán
                                             thấp nhất</th>
                                     </tr>
                                 </thead>
@@ -651,7 +656,7 @@
                 </div>
 
                 <!-- Module Báo cáo -->
-                <div id="moduleBaocao" class="h-full flex flex-col p-6" style="display: none;">
+                <div id="moduleBaocao" class="h-full flex flex-col p-1" style="display: none;">
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                         <div class="p-4 border-b border-slate-200 bg-white hidden">
@@ -659,10 +664,11 @@
                             <p class="text-sm text-slate-500 mt-1">Thống kê đơn hàng theo khoảng thời gian</p>
                         </div>
 
-                        <div class="p-4 bg-slate-50 border-b border-slate-200">
+                        <div class="p-2.5 bg-slate-50 border-b border-slate-200">
                             <!-- Nút chọn nhanh ngày -->
-                            <div class="flex gap-2 mb-3">
-                                <span class="text-sm font-semibold text-slate-600 self-center mr-2">Chọn nhanh:</span>
+                            <div class="flex gap-2 mb-2">
+                                <span class="text-[11px] font-semibold text-slate-600 self-center mr-2 uppercase">Chọn
+                                    nhanh:</span>
                                 <button onclick="setQuickDate('today')"
                                     class="px-3 py-1 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors">Hôm
                                     nay</button>
@@ -676,7 +682,8 @@
 
                             <div class="flex gap-4 items-end flex-wrap">
                                 <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Từ ngày</label>
+                                    <label class="block text-[11px] font-semibold text-slate-700 mb-0.5 uppercase">Từ
+                                        ngày</label>
                                     <div class="flex items-center gap-1">
                                         <button onclick="changeReportDate('fromDate', -1)"
                                             class="px-2 py-1.5 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
@@ -687,7 +694,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Đến ngày</label>
+                                    <label class="block text-[11px] font-semibold text-slate-700 mb-0.5 uppercase">Đến
+                                        ngày</label>
                                     <div class="flex items-center gap-1">
                                         <button onclick="changeReportDate('toDate', -1)"
                                             class="px-2 py-1.5 bg-white border border-slate-200 rounded-md text-slate-600 hover:bg-slate-100">➖</button>
@@ -698,42 +706,44 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Mã gian</label>
+                                    <label class="block text-[11px] font-semibold text-slate-700 mb-0.5 uppercase">Mã
+                                        gian</label>
                                     <input type="text" list="maGianList" id="filterMaGian" oninput="autoFilterReport()"
                                         placeholder="Tất cả"
                                         class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20">
                                     <datalist id="maGianList"></datalist>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">id_sp_ct</label>
+                                    <label
+                                        class="block text-[11px] font-semibold text-slate-700 mb-0.5 uppercase">id_sp_ct</label>
                                     <input type="text" id="filterReportIdSp" oninput="autoFilterReport()"
                                         placeholder="Nhập id_sp_ct..."
                                         class="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 w-32">
                                 </div>
                                 <div class="flex gap-2">
                                     <button onclick="filterReport()"
-                                        class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">🔍
-                                        Lọc báo cáo</button>
+                                        class="bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium">🔍
+                                        Lọc</button>
                                     <button onclick="exportReportToExcel()"
-                                        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">📥
+                                        class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">📥
                                         Xuất Excel</button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex-1 overflow-auto p-4">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white">
-                                    <div class="text-sm opacity-90">Tổng số đơn</div>
-                                    <div class="text-3xl font-bold" id="totalOrders">0</div>
+                        <div class="flex-1 overflow-auto p-2">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-3 text-white">
+                                    <div class="text-[11px] opacity-90 uppercase font-medium">Tổng số đơn</div>
+                                    <div class="text-2xl font-bold" id="totalOrders">0</div>
                                 </div>
-                                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white">
-                                    <div class="text-sm opacity-90">Tổng doanh thu</div>
-                                    <div class="text-3xl font-bold" id="totalRevenue">0</div>
+                                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-3 text-white">
+                                    <div class="text-[11px] opacity-90 uppercase font-medium">Tổng doanh thu</div>
+                                    <div class="text-2xl font-bold" id="totalRevenue">0</div>
                                 </div>
-                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white">
-                                    <div class="text-sm opacity-90">Số sàn</div>
-                                    <div class="text-3xl font-bold" id="totalSan">0</div>
+                                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-3 text-white">
+                                    <div class="text-[11px] opacity-90 uppercase font-medium">Số sàn</div>
+                                    <div class="text-2xl font-bold" id="totalSan">0</div>
                                 </div>
                             </div>
 
@@ -741,8 +751,8 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <!-- Thống kê theo mã gian -->
                                 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                                    <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                                        <h3 class="font-semibold text-slate-900">Thống kê theo Mã gian</h3>
+                                    <div class="px-3 py-2 bg-slate-50 border-b border-slate-200">
+                                        <h3 class="text-sm font-semibold text-slate-900">Thống kê theo Mã gian</h3>
                                     </div>
                                     <div class="overflow-x-auto max-h-64">
                                         <table class="w-full">
@@ -771,8 +781,8 @@
                                 <!-- Thống kê theo ID SP -->
                                 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
                                     <div
-                                        class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                                        <h3 class="font-semibold text-slate-900">Thống kê theo id_sp_ct</h3>
+                                        class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                                        <h3 class="text-sm font-semibold text-slate-900">Thống kê theo id_sp_ct</h3>
                                         <button onclick="exportIdSPExcel()"
                                             class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 flex items-center gap-1 rounded text-xs font-medium transition-colors"
                                             title="Xuất (ID SP, SL xuất) ra Excel">
@@ -838,21 +848,35 @@
                                     <table class="w-full min-w-[1000px]">
                                         <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                             <tr>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
                                                     Ngày</th>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Sàn
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    Sàn
                                                 </th>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MVD
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    MVD
                                                 </th>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">MDH
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    MDH
                                                 </th>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    Tên
                                                     SP</th>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">SLG
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    SLG
                                                     xuất</th>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    Đơn
                                                     giá</th>
-                                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
                                                     Thành tiền</th>
                                             </tr>
                                         </thead>
@@ -870,7 +894,7 @@
                 </div>
 
                 <!-- MODULE UPMISA -->
-                <div id="moduleUpmisa" class="h-full flex flex-col p-6" style="display: none;">
+                <div id="moduleUpmisa" class="h-full flex flex-col p-1" style="display: none;">
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                         <div class="p-4 border-b border-slate-200 bg-white hidden">
@@ -878,7 +902,7 @@
                             <p class="text-sm text-slate-500 mt-1">Chuyển đổi dữ liệu từ sheet UD_CT sang định dạng MISA
                             </p>
                         </div>
-                        <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-4 items-center">
+                        <div class="p-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-4 items-center">
                             <div class="flex items-center gap-2">
                                 <label class="text-sm font-semibold text-slate-700">Lọc ngày:</label>
                                 <button onclick="changeUpmisaDate(-1)"
@@ -937,100 +961,146 @@
                             <table class="w-full min-w-[1800px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hiển thị
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Hiển
+                                            thị
                                             trên sổ</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hình thức
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Hình
+                                            thức
                                             bán hàng</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Phương thức
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Phương
+                                            thức
                                             thanh toán</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Kiêm phiếu
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kiêm
+                                            phiếu
                                             xuất kho</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Lập kèm hóa
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Lập kèm
+                                            hóa
                                             đơn</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đã lập hóa
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Đã lập
+                                            hóa
                                             đơn</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày hạch
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày
+                                            hạch
                                             toán (*)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày chứng
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày
+                                            chứng
                                             từ (*)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số chứng từ
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Số
+                                            chứng từ
                                             (*)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số phiếu
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Số
+                                            phiếu
                                             xuất</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Lý do xuất
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Lý do
+                                            xuất
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số hóa đơn
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Số hóa
+                                            đơn
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày hóa
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày
+                                            hóa
                                             đơn</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã đơn hàng
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã đơn
+                                            hàng
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã thống kê
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã
+                                            thống kê
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã khách
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã
+                                            khách
                                             hàng</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên khách
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên
+                                            khách
                                             hàng</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Địa chỉ
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Địa chỉ
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã số thuế
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã số
+                                            thuế
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Diễn giải
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Diễn
+                                            giải
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Nộp vào TK
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Nộp vào
+                                            TK
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">NV bán hàng
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">NV bán
+                                            hàng
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Mã hàng (*)
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã hàng
+                                            (*)
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên hàng
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên
+                                            hàng
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hàng khuyến
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Hàng
+                                            khuyến
                                             mại</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK Tiền/Chi
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">TK
+                                            Tiền/Chi
                                             phí/Nợ (*)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK Doanh
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">TK
+                                            Doanh
                                             thu/Có (*)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ĐVT</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Số lượng
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">ĐVT
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá sau
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Số
+                                            lượng
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Đơn giá
+                                            sau
                                             thuế</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Đơn giá
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Thành tiền
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Thành
+                                            tiền
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tỷ lệ CK
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tỷ lệ
+                                            CK
                                             (%)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền chiết
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tiền
+                                            chiết
                                             khấu</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK chiết
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">TK
+                                            chiết
                                             khấu</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Giá tính
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Giá
+                                            tính
                                             thuế XK</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">% thuế XK
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">% thuế
+                                            XK
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền thuế
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tiền
+                                            thuế
                                             XK</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK thuế XK
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">TK thuế
+                                            XK
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">% thuế GTGT
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">% thuế
+                                            GTGT
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền thuế
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tiền
+                                            thuế
                                             GTGT</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK thuế
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">TK thuế
                                             GTGT</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">HH không TH
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">HH
+                                            không TH
                                             trên tờ khai thuế GTGT</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Kho</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK giá vốn
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kho
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">TK Kho</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Đơn giá vốn
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">TK giá
+                                            vốn
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tiền vốn
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">TK Kho
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Hàng hóa
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Đơn giá
+                                            vốn
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tiền
+                                            vốn
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Hàng
+                                            hóa
                                             giữ hộ/bán hộ</th>
                                     </tr>
                                 </thead>
@@ -1046,14 +1116,14 @@
                 </div>
 
                 <!-- Module Tồn kho -->
-                <div id="moduleInventory" class="h-full flex flex-col p-6" style="display: none;">
+                <div id="moduleInventory" class="h-full flex flex-col p-1" style="display: none;">
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                         <div
-                            class="p-4 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
+                            class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
                             <div>
-                                <h2 class="text-lg font-bold text-slate-900">Quản lý Tồn Kho</h2>
-                                <p class="text-sm text-slate-500 mt-1">Dữ liệu từ sheet TON_KHO</p>
+                                <h2 class="text-base font-bold text-slate-900">Quản lý Tồn Kho</h2>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Dữ liệu từ sheet TON_KHO</p>
                             </div>
                             <div class="flex flex-wrap gap-2 items-center">
                                 <input type="text" id="inventorySearch" oninput="filterInventory()"
@@ -1070,20 +1140,41 @@
                                 </button>
                             </div>
                         </div>
+                        <!-- Phân trang Tồn kho -->
+                        <div class="px-4 py-2 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                            <span id="inventoryStatsText" class="text-xs font-medium text-slate-500">Hiển thị: 0/0 sản
+                                phẩm</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeInventoryPage(-1)" id="inventoryPrevBtn"
+                                    class="px-2 py-1 bg-white border border-slate-200 rounded text-xs hover:bg-slate-50 disabled:opacity-40">←
+                                    Trước</button>
+                                <span id="inventoryPageInfo" class="text-xs font-semibold text-slate-700">Trang 1 /
+                                    1</span>
+                                <button onclick="changeInventoryPage(1)" id="inventoryNextBtn"
+                                    class="px-2 py-1 bg-white border border-slate-200 rounded text-xs hover:bg-slate-50 disabled:opacity-40">Sau
+                                    →</button>
+                            </div>
+                        </div>
                         <div class="flex-1 overflow-auto table-container">
                             <table class="w-full">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Kho</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID SP CT
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kho
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên Sản
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">ID SP
+                                            CT
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên Sản
                                             Phẩm</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600">Tồn đầu
+                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">Tồn
+                                            đầu
                                         </th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600">Nhập</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600">Xuất</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600">Tồn cuối
+                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">Nhập
+                                        </th>
+                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">Xuất
+                                        </th>
+                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">Tồn
+                                            cuối
                                         </th>
                                     </tr>
                                 </thead>
@@ -1098,14 +1189,14 @@
                 </div>
 
                 <!-- Module DH_CT -->
-                <div id="moduleDHCT" class="h-full flex flex-col p-6" style="display: none;">
+                <div id="moduleDHCT" class="h-full flex flex-col p-1" style="display: none;">
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                         <div
-                            class="p-4 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
+                            class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
                             <div>
-                                <h2 class="text-lg font-bold text-slate-900">Dữ liệu DH_CT từ Sheet</h2>
-                                <p class="text-sm text-slate-500 mt-1">Quản lý chi tiết đơn hàng nhập/xuất</p>
+                                <h2 class="text-base font-bold text-slate-900">Dữ liệu DH_CT từ Sheet</h2>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Quản lý chi tiết đơn hàng nhập/xuất</p>
                             </div>
                             <div class="flex flex-wrap gap-2 items-center">
                                 <input type="text" id="filterDHCTSearch" oninput="renderDHCTTable()"
@@ -1121,23 +1212,93 @@
                             <table class="w-full">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID DH</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ngày</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Trường</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">NCC</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Ghi chú
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">ID DH
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Kho</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">ID SP CT
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Tên</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600">Số lượng
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Trường
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">NCC
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ghi chú
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kho
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">ID SP
+                                            CT
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên
+                                        </th>
+                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">Số
+                                            lượng
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody id="dhctTableBody">
                                     <tr>
                                         <td colspan="9" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Hàng hoàn -->
+                <div id="moduleHangHoan" class="h-full flex flex-col p-1" style="display: none;">
+                    <div
+                        class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                        <div
+                            class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900">Dữ liệu Hàng hoàn</h2>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Nguồn dữ liệu từ sheet HH_BH</p>
+                                <div id="hangHoanStats" class="text-[11px] text-slate-500 mt-1">Số đơn: 0</div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 items-center">
+                                <button onclick="setHangHoanToday()"
+                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100">Hôm nay</button>
+                                <button onclick="changeHangHoanDate(-1)"
+                                    class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">-</button>
+                                <input type="date" id="filterHHNgayNhan" onchange="filterHangHoanData()"
+                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <button onclick="changeHangHoanDate(1)"
+                                    class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">+</button>
+                                <input type="hidden" id="filterHHKho" value="">
+                                <div id="filterHHKhoButtons"
+                                    class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg"></div>
+                                <select id="filterHHMaGian" onchange="filterHangHoanData()"
+                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                    <option value="">Tất cả gian hàng</option>
+                                </select>
+                                <input type="text" id="filterHHSearch" oninput="filterHangHoanData()"
+                                    placeholder="Tìm: MVD, Mã gian, SKU, SKU CT, Tên SP, Tình trạng..."
+                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-80 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <button onclick="fetchHangHoanData()"
+                                    class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    🔄 Làm mới
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-auto table-container">
+                            <table class="w-full">
+                                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày nhận</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã gian</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU CT</th>
+                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">SLG</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên SP</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tình trạng</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kho</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ảnh</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hangHoanTableBody">
+                                    <tr>
+                                        <td colspan="11" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1152,10 +1313,10 @@
         onclick="closeDetailDrawer()"></div>
     <div id="detailDrawer"
         class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
-        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
             <div>
-                <h3 class="text-lg font-bold text-slate-900">Chi tiết đơn hàng</h3>
-                <p class="text-xs text-slate-500 mt-1" id="drawerRowId">Row ID: -</p>
+                <h3 class="text-base font-bold text-slate-900">Chi tiết đơn hàng</h3>
+                <p class="text-[10px] text-slate-500 mt-1 uppercase" id="drawerRowId">Row ID: -</p>
             </div>
             <button onclick="closeDetailDrawer()"
                 class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
@@ -1164,7 +1325,7 @@
                 </svg>
             </button>
         </div>
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tên SP</label>
@@ -1240,6 +1401,11 @@
             <p class="text-slate-700 font-medium">Đang xử lý dữ liệu...</p>
         </div>
     </div>
+    <div id="imagePreviewOverlay" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+        onclick="closeImagePreview()">
+        <img id="imagePreviewContent" src="" alt="Ảnh hàng hoàn"
+            class="max-w-full max-h-full rounded-lg shadow-2xl border border-white/20" onclick="event.stopPropagation()">
+    </div>
 
     <script>
         const CONFIG = {
@@ -1249,6 +1415,7 @@
             sanphamSheetName: "DS_SP_PM",
             inventorySheetName: "TON_KHO",
             dhctSheetName: "DH_CT",
+            hhbhSheetName: "HH_BH",
             serviceAccountEmail: "test-gia-ason@api-test-sheet-161.iam.gserviceaccount.com",
             privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NN84hLTkQPZd\nLj7niXZTICq7nHsuTn3J6r2Paq12m70/lYSmrwh1i0EStr9bO19QM8cevGlslwGr\nWSVOLJlc6+w1HGPKvRXtA41kYV9MYIvpzIPQtkFE7Hxq71QyBARcv39Lfzze6Ioj\n3G8VBvAKFLAnCUr97GHRv+KbCTFxPZupd3PEB+xS5ZUlzdBCEZvDid3iXaaEJJ+l\nTd1apAGQHjtnDTLOkiTa8zf7X5ebALwnI9MziOdN8VyprHXGhkachPbKyrG0QwEs\n2jtiI6Y5ULsBPjNefoavH8MKU5DEAT9h0fZ7KfsKYVMDuXqmEKBs0D3B4Z6aDZQW\nwT2dDRZDAgMBAAECggEAEIuVoSzZVuFhaz1GI9ji0IacjvO50cIq7M8Zrj4/F756\nEw6PIhKENafAb7U4INm2AnzUMO8CqL9Jpxs85qUM3W4JysSByqLUiRW2184amIyb\nj7jCXfLBTQn8AbHgrUepl5d/vBmFYMgon/mqjbNiGDb4FZgEQSkie5o6fi/dWp5d\nNahbZl+WTOB/znhAfKh/zferHNxldR/ERmwOubZUerkqysWiBigc3ovpLSUof9ur\nz3hNPPp0CKQjF40xuQc6FYTHUHMLuMvp78PXuc/mYqQmZ8VOGhU+faGtZ4m+QJly\ndF5dS8U5cwKEF+ptuAUiWSahn6INb9yKn3+FcsW0UQKBgQDb8N4eWFvbgpRo/vxo\nwBN2u2TWubj6clcrq/1a+VR0njC28Can0ogJHhrFhPxVs5D/rugs3HlbyAXJFptY\nV0DZPCwBxGU5P5RbGjXWWEUXjp4ISKQD8WKfVlXNr79TqLdOg2NZBYQAi06Cpo/T\nPV9l7LSG2Tj/9WdvD7W2wvrpaQKBgQDVPjpJN6xh7+sHtSU0mjKvrqigpHbuSQ/o\nXpUaWSIpJffm5QpFPAOcTT5mHZCyllicJQIrfPSY+sH8n+sF03CUqVkV4Q2UqfOf\npFaLDB4P6SQ8iesZyF4VKFrj/cAvRJmp0e5W/DRnFkoEp+8c+nrru2+Dzm9kb7Uq\n0CiltqYAywKBgBtcfrV1to+7Ue0x84KwintV2rifyDRX7yI+tjkQFYKgf1zyyUxN\nc6D2vsvdvGqI+TvlrXqPPwW8/4NBrbeyux2LT8o0fYc+sp0WyKXOu2Gv21caelUH\nPYam/eultn6Y2Z0J2V0kw4Qx0GWOhQv5cZnDdb3k3iNxixmU8b03ynEpAoGBAKEA\n7O0fNe50QRZ+tOq0ihSPYQ55XrqnO3WNBDLynZJH8pbI1CpWF7vJrpVXOUs9rQWo\nA61mGR/wJMtiywaJEHWOL48PbzuR3jno0NcHfSMyOoPi9jlvSWncIFQH4TVPLF5F\n/Rh8L+ytrZE6YpWUoX6e9KGmGgDRPw5mQGpuL4RlAoGADe9n080SXlsUk4nHVjUz\nEfv7EBoBkgOpqb9T1foRfJl46NxmmTOYV3iGIhjwcDskEg284k4iq/gH6EEFyEBc\nVz13jzB1nBgjfezFesVQz7bA/+Wik6HZtxAxVg38BKMt+Q1tYw9wOjbGPqOn++VC\nsR2Sh8e3h3Knd6j1tceRIFU=\n-----END PRIVATE KEY-----\n",
             tokenUrl: "https://oauth2.googleapis.com/token",
@@ -1267,7 +1434,212 @@
         let upmisaData = [];
         let inventoryData = [];
         let dhctData = [];
+        let hangHoanData = [];
+        let filteredHangHoanData = [];
         let currentEditRowIndex = -1;
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function toYMD(input) {
+            if (!input) return '';
+            const v = String(input).trim().split(' ')[0];
+            if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+                const [d, m, y] = v.split('/');
+                return `${y}-${m}-${d}`;
+            }
+            return '';
+        }
+
+        function fillHangHoanFilterOptions() {
+            const fillSelect = (id, values, label) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = `<option value="">${label}</option>` + values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+            };
+            const renderKhoButtons = (values, currentVal) => {
+                const container = document.getElementById('filterHHKhoButtons');
+                if (!container) return;
+                let html = `<button onclick="setHHKhoFilter('')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${currentVal === '' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}">Tất cả</button>`;
+                values.forEach(v => {
+                    html += `<button onclick="setHHKhoFilter('${escapeHtml(v)}')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${currentVal === v ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}">${escapeHtml(v)}</button>`;
+                });
+                container.innerHTML = html;
+            };
+            const khoList = [...new Set(hangHoanData.map(i => i.kho).filter(Boolean))].sort();
+            const gianList = [...new Set(hangHoanData.map(i => i.ma_gian).filter(Boolean))].sort();
+            const currentKho = document.getElementById('filterHHKho')?.value || '';
+            renderKhoButtons(khoList, currentKho);
+            fillSelect('filterHHMaGian', gianList, 'Tất cả gian hàng');
+        }
+
+        function setHHKhoFilter(value) {
+            const el = document.getElementById('filterHHKho');
+            if (el) el.value = value;
+            fillHangHoanFilterOptions();
+            filterHangHoanData();
+        }
+
+        function setHangHoanToday() {
+            const input = document.getElementById('filterHHNgayNhan');
+            if (!input) return;
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const d = String(today.getDate()).padStart(2, '0');
+            input.value = `${y}-${m}-${d}`;
+            filterHangHoanData();
+        }
+
+        function changeHangHoanDate(step) {
+            const input = document.getElementById('filterHHNgayNhan');
+            if (!input) return;
+            if (!input.value) {
+                setHangHoanToday();
+                return;
+            }
+            const parts = input.value.split('-');
+            if (parts.length !== 3) return;
+            const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+            dt.setDate(dt.getDate() + step);
+            const y = dt.getFullYear();
+            const m = String(dt.getMonth() + 1).padStart(2, '0');
+            const d = String(dt.getDate()).padStart(2, '0');
+            input.value = `${y}-${m}-${d}`;
+            filterHangHoanData();
+        }
+
+        function openImagePreview(url) {
+            if (!url) return;
+            const overlay = document.getElementById('imagePreviewOverlay');
+            const image = document.getElementById('imagePreviewContent');
+            if (!overlay || !image) return;
+            image.src = url;
+            overlay.classList.remove('hidden');
+        }
+
+        function closeImagePreview() {
+            const overlay = document.getElementById('imagePreviewOverlay');
+            const image = document.getElementById('imagePreviewContent');
+            if (!overlay || !image) return;
+            overlay.classList.add('hidden');
+            image.src = '';
+        }
+
+        async function fetchHangHoanData() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const tbody = document.getElementById('hangHoanTableBody');
+            if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td></tr>`;
+
+            try {
+                const token = await getAccessToken();
+                if (!token) return;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.hhbhSheetName}!A:Z`;
+                const response = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+                const result = await response.json();
+
+                if (result.values && result.values.length > 1) {
+                    hangHoanData = result.values.slice(1).map(row => ({
+                        id: row[0] || '',
+                        ngay_nhan: row[1] || '',
+                        mvd: row[2] || '',
+                        ma_gian: row[3] || '',
+                        anh_1: row[4] || '',
+                        anh_2: row[5] || '',
+                        anh_3: row[6] || '',
+                        ngay_xly: row[7] || '',
+                        sku: row[8] || '',
+                        sku_ct: row[9] || '',
+                        slg: row[10] || '',
+                        ten_sp: row[11] || '',
+                        ghi_chu: row[12] || '',
+                        tinh_trang: row[13] || '',
+                        trang_thai: row[14] || '',
+                        sku_slg: row[15] || '',
+                        id_nv: row[16] || '',
+                        udt: row[17] || '',
+                        mvd_gian: row[18] || '',
+                        kho: row[19] || '',
+                        lb3: row[20] || '',
+                        id_dh: row[21] || '',
+                        id_dh_ct: row[22] || '',
+                        stt: row[23] || '',
+                        danh_dau: row[24] || ''
+                    }));
+                    setHangHoanToday();
+                    fillHangHoanFilterOptions();
+                    filterHangHoanData();
+                } else {
+                    hangHoanData = [];
+                    filteredHangHoanData = [];
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-500">Không có dữ liệu hàng hoàn.</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Lỗi tải HH_BH:", err);
+                if (tbody) tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-500">Không thể tải dữ liệu từ HH_BH.</td></tr>`;
+            } finally {
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        function filterHangHoanData() {
+            const fNgay = document.getElementById('filterHHNgayNhan')?.value || '';
+            const fKho = document.getElementById('filterHHKho')?.value || '';
+            const fGian = document.getElementById('filterHHMaGian')?.value || '';
+            const search = (document.getElementById('filterHHSearch')?.value || '').toLowerCase().trim();
+
+            filteredHangHoanData = hangHoanData.filter(item => {
+                if (fNgay && toYMD(item.ngay_nhan) !== fNgay) return false;
+                if (fKho && item.kho !== fKho) return false;
+                if (fGian && item.ma_gian !== fGian) return false;
+                if (search) {
+                    const rowText = `${item.mvd || ''} ${item.ma_gian || ''} ${item.sku || ''} ${item.sku_ct || ''} ${item.ten_sp || ''} ${item.tinh_trang || ''}`.toLowerCase();
+                    if (!rowText.includes(search)) return false;
+                }
+                return true;
+            });
+            renderHangHoanTable();
+        }
+
+        function renderHangHoanTable() {
+            const tbody = document.getElementById('hangHoanTableBody');
+            const stats = document.getElementById('hangHoanStats');
+            if (!tbody) return;
+            if (stats) stats.textContent = `Số đơn: ${filteredHangHoanData.length.toLocaleString('vi-VN')}`;
+            if (!filteredHangHoanData.length) {
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-slate-500">Không có dữ liệu phù hợp bộ lọc.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredHangHoanData.map(item => {
+                const imgUrl = (item.anh_3 || '').trim();
+                const imgHtml = imgUrl
+                    ? `<img src="${escapeHtml(imgUrl)}" alt="Ảnh hàng hoàn" class="w-12 h-12 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80" onclick="openImagePreview('${escapeHtml(imgUrl)}')">`
+                    : '<span class="text-xs text-slate-400">Không có</span>';
+                return `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                        <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.ngay_nhan)}</td>
+                        <td class="px-3 py-2 text-sm font-medium text-slate-900">${escapeHtml(item.mvd)}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.ma_gian)}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.sku)}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.sku_ct)}</td>
+                        <td class="px-3 py-2 text-sm text-right font-semibold text-slate-900">${(parseFloat(item.slg) || 0).toLocaleString('vi-VN')}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700 max-w-[240px] truncate" title="${escapeHtml(item.ten_sp)}">${escapeHtml(item.ten_sp)}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.tinh_trang)}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.kho)}</td>
+                        <td class="px-3 py-2 text-sm">${imgHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -1675,7 +2047,7 @@
 
         let filteredUDCT = [];
         let udctCurrentPage = 1;
-        const uitItemsPerPage = 200;
+        const uitItemsPerPage = 500; // tăng lên 500 dòng 
         let udctQuickStatusTab = 'all'; // 'all' or 'cancelled'
 
         function setUDCTQuickTab(tab) {
@@ -1842,36 +2214,36 @@
 
             tbody.innerHTML = pageData.map((item) => `
                 <tr onclick="openDetailDrawer(${udctData.indexOf(item)})" class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer group">
-                    <td class="px-4 py-3 text-sm text-slate-900">${item.ngay || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900">${item.san || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900">${item.khung_h || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 font-medium">${item.ma_gian || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900">${item.mvd || '-'}</td>
-                    <td class="px-1 py-3 text-center text-slate-400">-</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 font-medium text-blue-600">${item.mdh || '-'}</td>
-                    <td class="px-4 py-3 text-sm">
+                    <td class="px-3 py-2 text-[13px] text-slate-900">${item.ngay || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900">${item.san || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900">${item.khung_h || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 font-medium">${item.ma_gian || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900">${item.mvd || '-'}</td>
+                    <td class="px-1 py-2 text-center text-slate-400">-</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 font-medium text-blue-600">${item.mdh || '-'}</td>
+                    <td class="px-3 py-2 text-[13px]">
                         ${((item.mvd && mvdMap[item.mvd]?.size > 1) || (item.mdh && mdhMap[item.mdh]?.size > 1))
                     ? '<span class="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">TRÙNG</span>'
                     : '<span class="text-slate-400">-</span>'}
                     </td>
-                    <td class="px-4 py-3 text-sm text-slate-500 font-mono">${item.sku_shop_up || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900">${item.so_luong || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-500">${item.id_sp || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-500">${item.id_sp_ct || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 max-w-xs truncate">${item.ten_sp || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 font-semibold">${item.slg_xuat || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900">${parseFloat(item.don_gia_1 || 0).toLocaleString('vi-VN')}</td>
-                    <td class="px-4 py-3 text-sm">
-                        <button onclick="event.stopPropagation(); updateUDCTPrice(${udctData.indexOf(item)})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Up đơn giá">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <td class="px-3 py-2 text-[13px] text-slate-500 font-mono">${item.sku_shop_up || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900">${item.so_luong || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-500">${item.id_sp || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-500">${item.id_sp_ct || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 max-w-xs truncate">${item.ten_sp || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 font-semibold">${item.slg_xuat || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900">${parseFloat(item.don_gia_1 || 0).toLocaleString('vi-VN')}</td>
+                    <td class="px-3 py-2 text-[13px]">
+                        <button onclick="event.stopPropagation(); updateUDCTPrice(${udctData.indexOf(item)})" class="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-100" title="Up đơn giá">
+                            <span class="text-[10px]">Up giá</span>
                         </button>
                     </td>
-                    <td class="px-4 py-3 text-sm">
-                        <span class="px-2 py-1 rounded-full text-xs font-medium ${item.trang_thai === '0 THAY THẾ' ? 'bg-green-100 text-green-700' : (item.trang_thai === '1 HỦY' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700')}">
+                    <td class="px-3 py-2 text-[13px]">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium ${item.trang_thai === '0 THAY THẾ' ? 'bg-green-100 text-green-700' : (item.trang_thai === '1 HỦY' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700')}">
                             ${item.trang_thai || '-'}
                         </span>
                     </td>
-                    <td class="px-4 py-3 text-sm text-slate-500 italic truncate max-w-[150px]">${item.ghi_chu || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-500 italic truncate max-w-[150px]">${item.ghi_chu || '-'}</td>
                 </tr>
             `).join('');
         }
@@ -1881,7 +2253,13 @@
                 alert("Không có dữ liệu để copy!");
                 return;
             }
-            const mvds = filteredUDCT
+
+            // Chỉ copy trong trang hiện tại (lọc theo trang)
+            const startIndex = (udctCurrentPage - 1) * uitItemsPerPage;
+            const endIndex = Math.min(startIndex + uitItemsPerPage, filteredUDCT.length);
+            const pageData = filteredUDCT.slice(startIndex, endIndex);
+
+            const mvds = pageData
                 .map(item => (item.mvd || '').trim())
                 .filter(mvd => mvd && mvd !== '-');
             const uniqueMVDs = [...new Set(mvds)];
@@ -2093,13 +2471,13 @@
 
             tbody.innerHTML = paginated.map(item => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[1] || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[2] || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[5] || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[7] || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[9] || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[11] || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-slate-900 whitespace-nowrap">${item.mapping[31] || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[1] || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[2] || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[5] || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[7] || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[9] || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[11] || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[31] || '-'}</td>
                 </tr>
             `).join('');
         }
@@ -2276,7 +2654,7 @@
 
             tbody.innerHTML = paginated.map(row => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
-                    ${row.map(cell => `<td class="px-4 py-3 text-sm text-slate-900">${cell || '-'}</td>`).join('')}
+                    ${row.map(cell => `<td class="px-3 py-2 text-[13px] text-slate-900">${cell || '-'}</td>`).join('')}
                 </tr>
             `).join('');
         }
@@ -2955,6 +3333,7 @@
             const baocaoModule = document.getElementById('moduleBaocao');
             const upmisaModule = document.getElementById('moduleUpmisa');
             const inventoryModule = document.getElementById('moduleInventory');
+            const hangHoanModule = document.getElementById('moduleHangHoan');
             const pageTitle = document.getElementById('pageTitle');
             const sidebarHome = document.getElementById('sidebarHome');
             const sidebarDonhang = document.getElementById('sidebarDonhang');
@@ -2963,6 +3342,7 @@
             const sidebarUpmisa = document.getElementById('sidebarUpmisa');
             const sidebarInventory = document.getElementById('sidebarInventory');
             const sidebarDHCT = document.getElementById('sidebarDHCT');
+            const sidebarHangHoan = document.getElementById('sidebarHangHoan');
 
             homeModule.style.display = 'none';
             donhangModule.style.display = 'none';
@@ -2970,11 +3350,12 @@
             baocaoModule.style.display = 'none';
             upmisaModule.style.display = 'none';
             inventoryModule.style.display = 'none';
+            if (hangHoanModule) hangHoanModule.style.display = 'none';
             const dhctModule = document.getElementById('moduleDHCT');
             if (dhctModule) dhctModule.style.display = 'none';
 
             const resetSidebar = () => {
-                [sidebarHome, sidebarDonhang, sidebarSanpham, sidebarBaocao, sidebarUpmisa, sidebarInventory, sidebarDHCT].forEach(s => {
+                [sidebarHome, sidebarDonhang, sidebarSanpham, sidebarBaocao, sidebarUpmisa, sidebarInventory, sidebarDHCT, sidebarHangHoan].forEach(s => {
                     if (s) {
                         s.classList.remove('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
                         s.classList.add('text-slate-600');
@@ -2994,7 +3375,6 @@
                 resetSidebar();
                 sidebarDonhang.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
                 sidebarDonhang.classList.remove('text-slate-600');
-                setTimeout(() => setupDragAndDropDonhang(), 100);
             } else if (module === 'sanpham') {
                 sanphamModule.style.display = 'flex';
                 pageTitle.textContent = 'Sản phẩm phần mềm';
@@ -3043,6 +3423,15 @@
                     sidebarDHCT.classList.remove('text-slate-600');
                 }
                 fetchDHCTData();
+            } else if (module === 'hang_hoan') {
+                if (hangHoanModule) hangHoanModule.style.display = 'flex';
+                pageTitle.textContent = 'Dữ liệu Hàng hoàn';
+                resetSidebar();
+                if (sidebarHangHoan) {
+                    sidebarHangHoan.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
+                    sidebarHangHoan.classList.remove('text-slate-600');
+                }
+                fetchHangHoanData();
             }
         }
 
@@ -3115,6 +3504,10 @@
             `).join('');
         }
 
+        let inventoryCurrentPage = 1;
+        const INVENTORY_PER_PAGE = 100;
+        let filteredInventoryData = [];
+
         // Logic module Tồn Kho
         async function fetchInventoryData() {
             const loadingOverlay = document.getElementById('loadingOverlay');
@@ -3133,7 +3526,8 @@
                 if (result.values && result.values.length > 0) {
                     // Lưu dữ liệu (bỏ dòng tiêu đề đầu tiên)
                     inventoryData = result.values.slice(1);
-                    renderInventory(inventoryData);
+                    inventoryCurrentPage = 1;
+                    filterInventory();
                 } else {
                     document.getElementById('inventoryTableBody').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-500">Không có dữ liệu tồn kho.</td></tr>';
                 }
@@ -3145,16 +3539,29 @@
             }
         }
 
-        function renderInventory(data) {
+        function renderInventory() {
             const tbody = document.getElementById('inventoryTableBody');
             if (!tbody) return;
 
-            if (data.length === 0) {
+            const totalRows = filteredInventoryData.length;
+            const totalPages = Math.max(1, Math.ceil(totalRows / INVENTORY_PER_PAGE));
+            inventoryCurrentPage = Math.min(inventoryCurrentPage, totalPages);
+            if (inventoryCurrentPage < 1) inventoryCurrentPage = 1;
+
+            const start = (inventoryCurrentPage - 1) * INVENTORY_PER_PAGE;
+            const paginated = filteredInventoryData.slice(start, start + INVENTORY_PER_PAGE);
+
+            document.getElementById('inventoryStatsText').textContent = `Hiển thị: ${paginated.length}/${totalRows} sản phẩm (Tổng: ${inventoryData.length})`;
+            document.getElementById('inventoryPageInfo').textContent = `Trang ${inventoryCurrentPage} / ${totalPages}`;
+            document.getElementById('inventoryPrevBtn').disabled = inventoryCurrentPage <= 1;
+            document.getElementById('inventoryNextBtn').disabled = inventoryCurrentPage >= totalPages;
+
+            if (paginated.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = data.map(row => {
+            tbody.innerHTML = paginated.map(row => {
                 // Ánh xạ cột dựa trên cấu trúc: id(0), kho(1), id_sp_ct(2), id_sp(3), ten_sp(4), kt1(5), kt2(6), ton_dau(7), nhap(8), xuat(9), ton_cuoi(10)
                 const ton_dau = parseFloat(row[7]) || 0;
                 const nhap = parseFloat(row[8]) || 0;
@@ -3163,13 +3570,13 @@
 
                 return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                        <td class="px-4 py-3 text-sm text-slate-700">${row[1] || ''}</td>
-                        <td class="px-4 py-3 text-sm font-semibold text-slate-900">${row[2] || ''}</td>
-                        <td class="px-4 py-3 text-sm text-slate-700">${row[4] || ''}</td>
-                        <td class="px-4 py-3 text-sm text-right text-slate-700">${ton_dau.toLocaleString('vi-VN')}</td>
-                        <td class="px-4 py-3 text-sm text-right text-emerald-600 font-medium">+${nhap.toLocaleString('vi-VN')}</td>
-                        <td class="px-4 py-3 text-sm text-right text-rose-500 font-medium">-${xuat.toLocaleString('vi-VN')}</td>
-                        <td class="px-4 py-3 text-sm text-right font-bold text-slate-900">${ton_cuoi.toLocaleString('vi-VN')}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700">${row[1] || ''}</td>
+                        <td class="px-3 py-2 text-sm font-semibold text-slate-900">${row[2] || ''}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700">${row[4] || ''}</td>
+                        <td class="px-3 py-2 text-sm text-right text-slate-700">${ton_dau.toLocaleString('vi-VN')}</td>
+                        <td class="px-3 py-2 text-sm text-right text-emerald-600 font-medium">+${nhap.toLocaleString('vi-VN')}</td>
+                        <td class="px-3 py-2 text-sm text-right text-rose-500 font-medium">-${xuat.toLocaleString('vi-VN')}</td>
+                        <td class="px-3 py-2 text-sm text-right font-bold text-slate-900">${ton_cuoi.toLocaleString('vi-VN')}</td>
                     </tr>
                 `;
             }).join('');
@@ -3178,14 +3585,20 @@
         function filterInventory() {
             const searchTerm = document.getElementById('inventorySearch').value.toLowerCase().trim();
 
-            const filtered = inventoryData.filter(row => {
+            filteredInventoryData = inventoryData.filter(row => {
                 const idSpCt = (row[2] || '').toLowerCase();
                 const tenSp = (row[4] || '').toLowerCase();
                 // Tìm theo id_sp_ct hoặc (tên + id_sp_ct)
                 return idSpCt.includes(searchTerm) || (tenSp + " " + idSpCt).includes(searchTerm);
             });
 
-            renderInventory(filtered);
+            inventoryCurrentPage = 1;
+            renderInventory();
+        }
+
+        function changeInventoryPage(delta) {
+            inventoryCurrentPage += delta;
+            renderInventory();
         }
 
         function changeUpmisaDate(step) {
@@ -3212,7 +3625,7 @@
 
         function applyRoleUI(role) {
             const isDemo = role === 'demo';
-            const hideIds = ['sidebarUpmisa', 'sidebarBaocao', 'sidebarInventory', 'sidebarDHCT', 'dropZoneDonhang', 'dropZone'];
+            const hideIds = ['sidebarUpmisa', 'sidebarBaocao', 'sidebarInventory', 'sidebarDHCT', 'sidebarHangHoan', 'dropZoneDonhang', 'dropZone'];
             hideIds.forEach(hid => {
                 const el = document.getElementById(hid);
                 if (el) el.style.display = isDemo ? 'none' : '';
@@ -3274,7 +3687,8 @@
                 'bao_cao': 'baocao',
                 'upmisa': 'upmisa',
                 'ton_kho': 'inventory',
-                'dh_ct': 'dh_ct'
+                'dh_ct': 'dh_ct',
+                'hang_hoan': 'hang_hoan'
             };
 
             if (link && moduleMapping[link]) {
