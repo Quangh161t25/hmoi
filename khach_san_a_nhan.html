@@ -2236,6 +2236,7 @@
         <!-- Tab Navigation -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tab-sheet')" id="btn-tab-sheet">Xem đặt phòng</button>
+            <button class="tab-btn" onclick="switchTab('tab-room-overview')" id="btn-tab-room-overview">Xem phòng</button>
             <button class="tab-btn" onclick="switchTab('tab-room-list')" id="btn-tab-room-list">Danh sách phòng</button>
             <button class="tab-btn" onclick="switchTab('tab-report')" id="btn-tab-report">Báo cáo</button>
             <button class="tab-btn" onclick="switchTab('tab-shop')" id="btn-tab-shop">🛒 Shop</button>
@@ -2299,16 +2300,17 @@
                 <!-- Config -->
                 <div style="flex: 1; display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center;">
                     <div id="timelineQuickStats" class="timeline-quick-stats" style="margin-right: auto;">
-                        <span class="timeline-quick-item empty">Trống (0)</span>
-                        <span class="timeline-quick-item booked">Đã đặt (0)</span>
-                        <span class="timeline-quick-item arrived">Có khách (0)</span>
-                        <span class="timeline-quick-item dirty">
+                        <button type="button" class="timeline-quick-item empty" onclick="setTimelineStatusFilter('Trống')">Trống (0)</button>
+                        <button type="button" class="timeline-quick-item booked" onclick="setTimelineStatusFilter('Đã đặt')">Đã đặt (0)</button>
+                        <button type="button" class="timeline-quick-item arrived" onclick="setTimelineStatusFilter('Có khách')">Có khách (0)</button>
+                        <button type="button" class="timeline-quick-item dirty" onclick="setTimelineStatusFilter('Bẩn')">
                             <svg class="dirty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"></path>
                                 <path d="M14.5 7L17 9.5"></path>
                             </svg>
                             Bẩn (0)
-                        </span>
+                        </button>
+                        <button type="button" class="timeline-quick-item" onclick="setTimelineStatusFilter('all')">/ Bán (0)</button>
                     </div>
                     <button class="btn-add-new" onclick="openBookingModal()" title="Thêm mới đặt phòng" id="btnThemMoi">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2339,7 +2341,40 @@
             </div>
         </div>
 
-        <!-- Tab 3: Danh sách phòng -->
+        <!-- Tab 3: Xem phòng dạng trạng thái -->
+        <div id="tab-room-overview" class="tab-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+                <div>
+                    <h1 style="margin-bottom:0.35rem;">Xem phòng</h1>
+                    <div style="color:var(--text-dim); font-size:0.9rem;">Tổng hợp nhanh theo trạng thái: Trống, Đã đặt, Có khách, Bẩn</div>
+                </div>
+                <button class="btn-primary" onclick="fetchData()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Tải dữ liệu
+                </button>
+            </div>
+
+            <div id="roomOverviewStats" style="margin-bottom:1rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:0.9rem 1rem; background:#fff; border:1px solid var(--glass-border); border-radius:14px; box-shadow:0 4px 10px rgba(0,0,0,0.03);">
+                <button class="timeline-quick-item empty" style="background:none; border:none; cursor:pointer;" onclick="setRoomOverviewStatusFilter('Trống')">Trống (0)</button>
+                <button class="timeline-quick-item booked" style="background:none; border:none; cursor:pointer;" onclick="setRoomOverviewStatusFilter('Đã đặt')">Đã đặt (0)</button>
+                <button class="timeline-quick-item arrived" style="background:none; border:none; cursor:pointer;" onclick="setRoomOverviewStatusFilter('Có khách')">Có khách (0)</button>
+                <button class="timeline-quick-item dirty" style="background:none; border:none; cursor:pointer;" onclick="setRoomOverviewStatusFilter('Bẩn')">
+                    <svg class="dirty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"></path>
+                        <path d="M14.5 7L17 9.5"></path>
+                    </svg>
+                    Bẩn (0)
+                </button>
+                <button class="timeline-quick-item" style="background:none; border:none; cursor:pointer; color:#0f172a;" onclick="setRoomOverviewStatusFilter('all')">/ Bán (0)</button>
+            </div>
+
+            <div id="roomOverviewGrid" class="report-stats-grid"></div>
+        </div>
+
+        <!-- Tab 4: Danh sách phòng -->
         <div id="tab-room-list" class="tab-content">
             <header style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -2957,6 +2992,9 @@
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                         Chọn phòng
+                    </div>
+                    <div style="padding: 0.75rem 0.9rem 0;">
+                        <input type="text" id="bookingRoomSearch" placeholder="Tìm phòng, loại phòng, tầng..." oninput="populateBookingRoomTable()" style="width:100%; padding:0.75rem 0.9rem; border:1px solid var(--glass-border); border-radius:12px; outline:none; font-size:0.9rem; background:#fff;">
                     </div>
                     <div class="booking-room-table-wrap" style="border-radius: 0; border: none;">
                         <table class="booking-room-table" id="bookingRoomTable">
@@ -3623,6 +3661,10 @@
                 populateRoomFilters();
                 renderRoomList();
             }
+
+            if (document.getElementById('tab-room-overview') && document.getElementById('tab-room-overview').classList.contains('active')) {
+                renderRoomOverview();
+            }
         }
 
         let timelineStartDate = new Date();
@@ -3653,6 +3695,7 @@
         /** Chỉ căn giữa cột «hôm nay» sau khi người dùng đổi tháng / chọn ngày — không gọi khi cuộn mở rộng hay tải lại dữ liệu. */
         let timelineCenterMonthTodayOnNextRender = false;
         let currentGroupMode = 'type';
+        let timelineStatusFilter = 'all';
 
         function syncDatePicker() {
             const dp = document.getElementById('timelineDatePicker');
@@ -3671,17 +3714,19 @@
         function renderTimelineQuickStats(stats) {
             const box = document.getElementById('timelineQuickStats');
             if (!box) return;
+            const active = timelineStatusFilter || 'all';
             box.innerHTML = `
-                <span class="timeline-quick-item empty">Trống (${stats.empty || 0})</span>
-                <span class="timeline-quick-item booked">Đã đặt (${stats.booked || 0})</span>
-                <span class="timeline-quick-item arrived">Có khách (${stats.arrived || 0})</span>
-                <span class="timeline-quick-item dirty">
+                <button type="button" class="timeline-quick-item empty ${active === 'Trống' ? 'active' : ''}" onclick="setTimelineStatusFilter('Trống')">Trống (${stats.empty || 0})</button>
+                <button type="button" class="timeline-quick-item booked ${active === 'Đã đặt' ? 'active' : ''}" onclick="setTimelineStatusFilter('Đã đặt')">Đã đặt (${stats.booked || 0})</button>
+                <button type="button" class="timeline-quick-item arrived ${active === 'Có khách' ? 'active' : ''}" onclick="setTimelineStatusFilter('Có khách')">Có khách (${stats.arrived || 0})</button>
+                <button type="button" class="timeline-quick-item dirty ${active === 'Bẩn' ? 'active' : ''}" onclick="setTimelineStatusFilter('Bẩn')">
                     <svg class="dirty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"></path>
                         <path d="M14.5 7L17 9.5"></path>
                     </svg>
                     Bẩn (${stats.dirty || 0})
-                </span>
+                </button>
+                <button type="button" class="timeline-quick-item ${active === 'all' ? 'active' : ''}" onclick="setTimelineStatusFilter('all')">/ Bán (${stats.totalRooms || 0})</button>
             `;
         }
 
@@ -3702,7 +3747,6 @@
                 const cIn = findColIndex(headers, COL_MAPPING.checkIn);
                 const cOut = findColIndex(headers, COL_MAPPING.checkOut);
                 const cStatus = findColIndex(headers, COL_MAPPING.status);
-
                 const occupiedSet = new Set();
 
                 for (let i = 1; i < currentData.length; i++) {
@@ -3744,6 +3788,7 @@
                 }
 
                 stats.empty = Math.max(0, totalRooms - occupiedNow);
+                stats.totalRooms = totalRooms;
             }
 
             return stats;
@@ -3853,6 +3898,11 @@
             currentGroupMode = mode;
             document.getElementById('btnGroupType').classList.toggle('active', mode === 'type');
             document.getElementById('btnGroupRoom').classList.toggle('active', mode === 'room');
+            renderTable();
+        }
+
+        function setTimelineStatusFilter(status) {
+            timelineStatusFilter = status || 'all';
             renderTable();
         }
 
@@ -4056,6 +4106,8 @@
 
             const rawHeaders = displayData[0];
             const dataRows = displayData.slice(1);
+            const selectedFilter = timelineStatusFilter || 'all';
+            const filterSet = selectedFilter === 'all' ? null : new Set([selectedFilter]);
 
             const cRoomType = findColIndex(rawHeaders, COL_MAPPING.roomType);
             const cRoomName = findColIndex(rawHeaders, COL_MAPPING.roomName, [cRoomType]);
@@ -4127,6 +4179,12 @@
                 if (cCheckOut !== -1) outDate = parseDateVi(row[cCheckOut]);
 
                 if (inDate && outDate) {
+                    if (filterSet) {
+                        const statusText = (cStatus !== -1 ? (row[cStatus] || '').toString().trim() : '').toLowerCase();
+                        const roomMetaStatus = (roomMetadataMap[room]?.tinhTrang || '').trim();
+                        const rowStatus = statusText.includes('trả') ? 'Bẩn' : (now >= inDate && now <= outDate) ? 'Có khách' : (now < inDate) ? 'Đã đặt' : 'Trống';
+                        if (!filterSet.has(rowStatus) && !(selectedFilter === 'Bẩn' && roomMetaStatus === 'Bẩn')) return;
+                    }
                     roomsMap[type][room].push({
                         sheetRow: currentData.indexOf(row),
                         checkIn: inDate,
@@ -4146,6 +4204,7 @@
 
             const isXemNgay = document.getElementById('chkXemNgay') && document.getElementById('chkXemNgay').checked;
             const isDayView = (timelineRangeMode === 'day');
+            const now = new Date();
             const dayViewEndDate = isDayView
                 ? new Date(timelineStartDate.getTime() + timelineHourCount * 3600000)
                 : null;
@@ -6150,6 +6209,168 @@
             renderTableBody('tableRoomReport', roomStats);
         }
 
+        function getRoomStatusTimeline(roomName) {
+            const result = { status: 'Trống', booking: null, dirty: false, floor: '' };
+            if (!roomName || !currentData || currentData.length <= 1) return result;
+
+            const headers = currentData[0] || [];
+            const cRoom = findColIndex(headers, COL_MAPPING.roomName);
+            const cIn = findColIndex(headers, COL_MAPPING.checkIn);
+            const cOut = findColIndex(headers, COL_MAPPING.checkOut);
+            const cStatus = findColIndex(headers, COL_MAPPING.status);
+            const cCustomer = findColIndex(headers, COL_MAPPING.customer);
+            const cType = findColIndex(headers, COL_MAPPING.roomType);
+            const cFloor = findColIndex(headers, COL_MAPPING.floor);
+
+            let roomMeta = null;
+            if (roomListData && roomListData.length > 1) {
+                const rHeaders = roomListData[0];
+                const rRoom = findColIndex(rHeaders, COL_MAPPING.roomName);
+                const rFloor = findColIndex(rHeaders, COL_MAPPING.floor);
+                const rType = findColIndex(rHeaders, COL_MAPPING.roomType);
+                const rDirty = rHeaders.findIndex(h => h && h.toString().trim().toLowerCase() === 'tinh_trang');
+                for (let i = 1; i < roomListData.length; i++) {
+                    const rr = roomListData[i];
+                    if ((rr[rRoom] || '').toString().trim() === roomName) {
+                        roomMeta = { floor: rFloor !== -1 ? (rr[rFloor] || '') : '', type: rType !== -1 ? (rr[rType] || '') : '', dirty: rDirty !== -1 && (rr[rDirty] || '').toString().trim() === 'Bẩn' };
+                        break;
+                    }
+                }
+            }
+            if (roomMeta) result.floor = roomMeta.floor || '';
+            result.dirty = !!(roomMeta && roomMeta.dirty);
+
+            let latest = null;
+            for (let i = 1; i < currentData.length; i++) {
+                const row = currentData[i];
+                if ((row[cRoom] || '').toString().trim() !== roomName) continue;
+                const st = (cStatus !== -1 ? (row[cStatus] || '').toString().trim() : '').toLowerCase();
+                const inD = cIn !== -1 ? parseDateVi(row[cIn]) : null;
+                const outD = cOut !== -1 ? parseDateVi(row[cOut]) : null;
+                const now = new Date();
+                if (inD && outD && now >= inD && now <= outD) {
+                    latest = { status: 'Có khách', booking: row };
+                    break;
+                } else if (inD && now < inD) {
+                    if (!latest || latest.status === 'Trống') latest = { status: 'Đã đặt', booking: row };
+                } else if (st.includes('trả')) {
+                    if (!latest) latest = { status: 'Trống', booking: row };
+                }
+            }
+            if (latest) return { ...result, ...latest };
+            return result;
+        }
+
+        let roomOverviewStatusFilter = 'all';
+
+        function setRoomOverviewStatusFilter(nextStatus) {
+            roomOverviewStatusFilter = nextStatus || 'all';
+            renderRoomOverview();
+        }
+
+        function renderRoomOverview() {
+            const grid = document.getElementById('roomOverviewGrid');
+            if (!grid) return;
+
+            const statsBox = document.getElementById('roomOverviewStats');
+            const rooms = [];
+            if (roomListData && roomListData.length > 1) {
+                const headers = roomListData[0];
+                const cType = findColIndex(headers, COL_MAPPING.roomType);
+                const cName = findColIndex(headers, COL_MAPPING.roomName);
+                const cFloor = findColIndex(headers, COL_MAPPING.floor);
+                roomListData.slice(1).forEach(row => {
+                    rooms.push({
+                        type: cType !== -1 ? (row[cType] || '').toString().trim() : 'Khác',
+                        name: cName !== -1 ? (row[cName] || '').toString().trim() : '',
+                        floor: cFloor !== -1 ? (row[cFloor] || '').toString().trim() : ''
+                    });
+                });
+            }
+
+            const counts = { empty: 0, booked: 0, arrived: 0, dirty: 0 };
+            const allItems = rooms.map(r => ({ ...r, timeline: getRoomStatusTimeline(r.name) }));
+            allItems.forEach(r => {
+                if (r.timeline.status === 'Trống') counts.empty++;
+                else if (r.timeline.status === 'Đã đặt') counts.booked++;
+                else if (r.timeline.status === 'Có khách') counts.arrived++;
+                else if (r.timeline.status === 'Bẩn') counts.dirty++;
+            });
+
+            const selectedStatus = roomOverviewStatusFilter || 'all';
+            const items = selectedStatus === 'all'
+                ? allItems
+                : allItems.filter(r => r.timeline.status === selectedStatus);
+
+            if (statsBox) {
+                statsBox.innerHTML = `
+                    <button class="timeline-quick-item empty" style="background:none; border:none; cursor:pointer; ${selectedStatus === 'Trống' ? 'text-decoration:underline;' : ''}" onclick="setRoomOverviewStatusFilter('Trống')">Trống (${counts.empty})</button>
+                    <button class="timeline-quick-item booked" style="background:none; border:none; cursor:pointer; ${selectedStatus === 'Đã đặt' ? 'text-decoration:underline;' : ''}" onclick="setRoomOverviewStatusFilter('Đã đặt')">Đã đặt (${counts.booked})</button>
+                    <button class="timeline-quick-item arrived" style="background:none; border:none; cursor:pointer; ${selectedStatus === 'Có khách' ? 'text-decoration:underline;' : ''}" onclick="setRoomOverviewStatusFilter('Có khách')">Có khách (${counts.arrived})</button>
+                    <button class="timeline-quick-item dirty" style="background:none; border:none; cursor:pointer; ${selectedStatus === 'Bẩn' ? 'text-decoration:underline;' : ''}" onclick="setRoomOverviewStatusFilter('Bẩn')"><svg class="dirty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"></path><path d="M14.5 7L17 9.5"></path></svg> Bẩn (${counts.dirty})</button>
+                    <button class="timeline-quick-item" style="background:none; border:none; cursor:pointer; color:#0f172a; ${selectedStatus === 'all' ? 'text-decoration:underline;' : ''}" onclick="setRoomOverviewStatusFilter('all')">/ Bán (${allItems.length})</button>
+                `;
+            }
+
+            if (items.length === 0) {
+                grid.innerHTML = '<div style="padding:2rem; background:#fff; border:1px solid var(--glass-border); border-radius:14px; color:var(--text-dim);">Không có phòng phù hợp.</div>';
+                return;
+            }
+
+            const order = ['Trống', 'Đã đặt', 'Có khách', 'Bẩn'];
+            const grouped = order.map(status => ({
+                status,
+                rooms: items.filter(r => r.timeline.status === status)
+            })).filter(g => g.rooms.length > 0);
+
+            grid.style.display = 'flex';
+            grid.style.flexDirection = 'column';
+            grid.style.gap = '1rem';
+            grid.innerHTML = grouped.map(group => {
+                const status = group.status;
+                const color = status === 'Có khách' ? '#dbeafe' : status === 'Đã đặt' ? '#fef3c7' : status === 'Bẩn' ? '#fee2e2' : '#dcfce7';
+                const fg = status === 'Có khách' ? '#1d4ed8' : status === 'Đã đặt' ? '#b45309' : status === 'Bẩn' ? '#dc2626' : '#166534';
+                return `
+                    <section style="background:#fff; border:1px solid var(--glass-border); border-radius:16px; padding:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.03);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.9rem; gap:1rem; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:0.7rem;">
+                                <span style="padding:0.4rem 0.8rem; border-radius:999px; background:${color}; color:${fg}; font-size:0.8rem; font-weight:800;">${status}</span>
+                                <strong style="color:var(--text-main);">${group.rooms.length} phòng</strong>
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.85rem;">
+                            ${group.rooms.map(r => `
+                                <div class="report-card" style="align-items:flex-start; flex-direction:column; gap:0.75rem; min-height:140px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; gap:1rem;">
+                                        <div>
+                                            <div style="font-size:1.1rem; font-weight:800; color:var(--text-main);">${escapeHtml(r.name)}</div>
+                                            <div style="color:var(--text-dim); font-size:0.85rem; margin-top:2px;">${escapeHtml(r.type)}${r.floor ? ' • Tầng ' + escapeHtml(r.floor) : ''}</div>
+                                        </div>
+                                        <span style="padding:4px 10px; border-radius:99px; font-size:0.75rem; font-weight:700; background:${color}; color:${fg}; white-space:nowrap;">${status}</span>
+                                    </div>
+                                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; width:100%; margin-top:auto;">
+                                        <button class="tool-btn-outline" onclick="openBookingModal()" style="padding:0.45rem 0.8rem;">Đặt phòng</button>
+                                        ${status === 'Có khách' || status === 'Đã đặt' ? `<button class="tool-btn-outline" onclick="handleRoomQuickOpen('${escapeHtml(r.name)}')" style="padding:0.45rem 0.8rem;">Xem chi tiết</button>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>`;
+            }).join('');
+        }
+
+        function handleRoomQuickOpen(roomName) {
+            const headers = currentData[0] || [];
+            const cRoom = findColIndex(headers, COL_MAPPING.roomName);
+            const idx = currentData.findIndex((row, i) => i > 0 && (row[cRoom] || '').toString().trim() === roomName);
+            if (idx !== -1) openGroupDetails(idx);
+        }
+
+        function setRoomOverviewStatusFilter(nextStatus) {
+            roomOverviewStatusFilter = nextStatus || 'all';
+            renderRoomOverview();
+        }
+
         function renderRoomList() {
             const tbody = document.getElementById('roomListTableBody');
             if (!tbody) return;
@@ -6170,7 +6391,6 @@
             const cTrangThai = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'trang_thai');
             const cTinhTrang = headers.findIndex(h => h && h.toString().trim().toLowerCase() === 'tinh_trang');
 
-            // Lấy giá trị lọc
             const fType = document.getElementById('roomFilterType') ? document.getElementById('roomFilterType').value : '';
             const fName = document.getElementById('roomFilterName') ? document.getElementById('roomFilterName').value.trim().toLowerCase() : '';
             const fFloor = document.getElementById('roomFilterFloor') ? document.getElementById('roomFilterFloor').value : '';
@@ -6178,20 +6398,13 @@
             const fDirty = document.getElementById('roomFilterDirty') ? document.getElementById('roomFilterDirty').value : '';
 
             let filteredRows = rows.map((row, idx) => ({ data: row, originalIndex: idx + 1 }));
-
-            // Áp dụng bộ lọc
             if (fType) filteredRows = filteredRows.filter(r => r.data[cType] === fType);
             if (fName) filteredRows = filteredRows.filter(r => (r.data[cName] || '').toString().toLowerCase().includes(fName));
             if (fFloor) filteredRows = filteredRows.filter(r => r.data[cFloor] === fFloor);
             if (fStatus) filteredRows = filteredRows.filter(r => r.data[cTrangThai] === fStatus);
-            if (fDirty) {
-                if (fDirty === 'Bẩn') filteredRows = filteredRows.filter(r => r.data[cTinhTrang] === 'Bẩn');
-                else filteredRows = filteredRows.filter(r => r.data[cTinhTrang] !== 'Bẩn');
-            }
+            if (fDirty) filteredRows = filteredRows.filter(r => fDirty === 'Bẩn' ? r.data[cTinhTrang] === 'Bẩn' : r.data[cTinhTrang] !== 'Bẩn');
 
-            // Lưu danh sách đã lọc vào biến toàn cục để dùng cho Bulk Clear
             window.currentFilteredRooms = filteredRows;
-
             tbody.innerHTML = filteredRows.map(r => {
                 const row = r.data;
                 const roomName = cName !== -1 ? row[cName] : (cId !== -1 ? row[cId] : 'N/A');
@@ -6199,7 +6412,6 @@
                 const isDirty = (tinhTrang === 'Bẩn');
                 const rowClass = isDirty ? 'room-status-dirty' : '';
                 const broomIcon = isDirty ? `<svg class="broom-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 17L3 21l4-1.5L18.5 8 16 5.5 4.5 17z"/><path d="M14.5 7L17 9.5"/><path d="M5 14l2 2"/><path d="M7 12l2 2"/><path d="M9 10l2 2"/></svg>` : '';
-
                 return `
                     <tr class="${rowClass}">
                         <td>${cType !== -1 ? (row[cType] || '') : ''}</td>
@@ -6209,19 +6421,10 @@
                         <td><span class="badge ${row[cTrangThai] === 'Sẵn sàng' ? 'badge-green' : 'badge-orange'}">${cTrangThai !== -1 ? (row[cTrangThai] || '') : ''}</span></td>
                         <td><span class="badge ${isDirty ? 'badge-orange' : 'badge-green'}">${tinhTrang || 'Sạch'}</span></td>
                         <td style="text-align: center; white-space: nowrap; gap: 4px; display: flex; justify-content: center;">
-                            ${isDirty ? `
-                                <button class="tool-btn-outline" onclick="updateRoomStatus(${r.originalIndex}, '')" style="padding: 2px 8px; font-size: 0.75rem; color: #10b981; border-color: #10b981;">
-                                    Sạch
-                                </button>
-                            ` : ''}
-                            ${row[cTrangThai] !== 'Sẵn sàng' ? `
-                                <button class="tool-btn-outline" onclick="handleCheckout(${r.originalIndex})" style="padding: 2px 8px; font-size: 0.75rem; color: #f43f5e; border-color: #f43f5e;">
-                                    Trả phòng
-                                </button>
-                            ` : ''}
+                            ${isDirty ? `<button class="tool-btn-outline" onclick="updateRoomStatus(${r.originalIndex}, '')" style="padding: 2px 8px; font-size: 0.75rem; color: #10b981; border-color: #10b981;">Sạch</button>` : ''}
+                            ${row[cTrangThai] !== 'Sẵn sàng' ? `<button class="tool-btn-outline" onclick="handleCheckout(${r.originalIndex})" style="padding: 2px 8px; font-size: 0.75rem; color: #f43f5e; border-color: #f43f5e;">Trả phòng</button>` : ''}
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             }).join('') || '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-dim);">Không có phòng nào phù hợp với bộ lọc.</td></tr>';
         }
 
@@ -6936,18 +7139,17 @@
                     return;
                 }
 
-                // Get desired check-in/check-out from form
+                const searchText = (document.getElementById('bookingRoomSearch')?.value || '').trim().toLowerCase();
+
                 const wantInStr = document.getElementById('bkNgayVao').value;
                 const wantOutStr = document.getElementById('bkNgayRa').value;
                 const wantIn = wantInStr ? new Date(wantInStr) : new Date();
                 const wantOut = wantOutStr ? new Date(wantOutStr) : new Date(Date.now() + 86400000);
 
-                // Build occupied map from DAT_PHONG
                 const occupiedMap = getOccupiedRooms();
 
                 const rHeaders = roomListData[0];
                 const rRows = roomListData.slice(1);
-
                 const crId = rHeaders.indexOf('id');
                 const crType = findColIndex(rHeaders, COL_MAPPING.roomType);
                 const crName = findColIndex(rHeaders, COL_MAPPING.roomName, [crType]);
@@ -6956,7 +7158,7 @@
 
                 currentRoomTypesData = {};
 
-                rRows.forEach((row, idx) => {
+                rRows.forEach((row) => {
                     const roomId = crId !== -1 ? (row[crId] || '') : '';
                     const roomName = crName !== -1 ? (row[crName] || '') : roomId;
                     const roomType = crType !== -1 ? (row[crType] || 'Khác').toString().trim() : 'Khác';
@@ -6964,6 +7166,11 @@
                     const banNgay = crBanNgay !== -1 ? (row[crBanNgay] || '0') : '0';
 
                     if (!roomName && !roomId) return;
+
+                    if (searchText) {
+                        const haystack = `${roomId} ${roomName} ${roomType} ${roomFloor}`.toLowerCase();
+                        if (!haystack.includes(searchText)) return;
+                    }
 
                     const conflict = isRoomOccupied(roomId, occupiedMap, wantIn, wantOut)
                         || isRoomOccupied(roomName, occupiedMap, wantIn, wantOut);
@@ -6974,22 +7181,15 @@
                     }
                     currentRoomTypesData[roomType].total++;
                     if (!isOccupied) currentRoomTypesData[roomType].available++;
-
-                    currentRoomTypesData[roomType].rooms.push({
-                        id: roomId,
-                        name: roomName,
-                        floor: roomFloor,
-                        price: banNgay,
-                        isOccupied: isOccupied
-                    });
+                    currentRoomTypesData[roomType].rooms.push({ id: roomId, name: roomName, floor: roomFloor, price: banNgay, isOccupied });
                 });
 
+                const typeEntries = Object.entries(currentRoomTypesData);
                 let html = '';
-                for (const [type, data] of Object.entries(currentRoomTypesData)) {
+
+                typeEntries.forEach(([type, data]) => {
                     const rowClass = data.available === 0 ? 'room-occupied' : '';
                     const safeType = type.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
-
-                    // Escape string parameter for inline onclick
                     const typeParam = type.replace(/'/g, "\\'");
 
                     html += `<tr class="${rowClass}">
@@ -7006,15 +7206,20 @@
                         </td>
                         <td style="text-align: right;">${formatNumberVi(data.price)}</td>
                     </tr>`;
-                }
+                });
 
                 tbody.innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-dim);">Không có loại phòng nào.</td></tr>';
-
                 renderSelectedMiddleTable();
                 updateSelectedCount();
             } catch (e) {
                 tbody.innerHTML = `<tr><td colspan="3" style="color: red; padding: 2rem;">Lỗi kỹ thuật: ${e.message}<br><pre>${e.stack}</pre></td></tr>`;
             }
+        }
+
+        function clearBookingRoomSearch() {
+            const input = document.getElementById('bookingRoomSearch');
+            if (input) input.value = '';
+            populateBookingRoomTable();
         }
 
         function increaseRoomTypeQty(type) {
@@ -7749,17 +7954,19 @@
         }
 
         function switchTab(tabId) {
-            // Cập nhật Buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + tabId).classList.add('active');
 
-            // Cập nhật Contents
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
 
             if (tabId === 'tab-report') {
                 populateReportFilters();
                 renderReports();
+            }
+
+            if (tabId === 'tab-room-overview') {
+                renderRoomOverview();
             }
 
             if (tabId === 'tab-room-list') {
@@ -7770,6 +7977,28 @@
             if (tabId === 'tab-shop') {
                 if (shopData.length === 0) loadShopData();
             }
+        }
+
+        function escapeHtml(text) {
+            return String(text ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function populateRoomOverviewFilters() {
+            const typeSel = document.getElementById('roomOverviewFilterType');
+            const floorSel = document.getElementById('roomOverviewFilterFloor');
+            if (!typeSel || !floorSel || !roomListData || roomListData.length <= 1) return;
+            const headers = roomListData[0];
+            const cType = findColIndex(headers, COL_MAPPING.roomType);
+            const cFloor = findColIndex(headers, COL_MAPPING.floor);
+            const types = [...new Set(roomListData.slice(1).map(r => (cType !== -1 ? (r[cType] || '').toString().trim() : '')).filter(Boolean))];
+            const floors = [...new Set(roomListData.slice(1).map(r => (cFloor !== -1 ? (r[cFloor] || '').toString().trim() : '')).filter(Boolean))];
+            typeSel.innerHTML = '<option value="">Tất cả</option>' + types.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+            floorSel.innerHTML = '<option value="">Tất cả</option>' + floors.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
         }
 
         // =============================================
