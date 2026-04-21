@@ -475,7 +475,7 @@
 
                                         <label class="cursor-pointer group">
                                             <div
-                                                class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all font-bold text-xs shadow-md shadow-blue-100">
+                                                class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all font-bold text-xs shadow-md shadow-emerald-200 ring-1 ring-emerald-100">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
                                                     stroke="currentColor">
                                                     <path
@@ -725,7 +725,7 @@
                                         class="bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium">🔍
                                         Lọc</button>
                                     <button onclick="exportReportToExcel()"
-                                        class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">📥
+                                        class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-3 py-1.5 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all text-xs font-medium shadow-sm shadow-emerald-200 ring-1 ring-emerald-100">📥
                                         Xuất Excel</button>
                                 </div>
                             </div>
@@ -784,7 +784,7 @@
                                         class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
                                         <h3 class="text-sm font-semibold text-slate-900">Thống kê theo id_sp_ct</h3>
                                         <button onclick="exportIdSPExcel()"
-                                            class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 flex items-center gap-1 rounded text-xs font-medium transition-colors"
+                                            class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-2 py-1 flex items-center gap-1 rounded text-xs font-medium transition-all shadow-sm shadow-emerald-200 ring-1 ring-emerald-100"
                                             title="Xuất (ID SP, SL xuất) ra Excel">
                                             📥 Tải Excel
                                         </button>
@@ -933,7 +933,7 @@
                             </div>
                             <div class="flex gap-2 ml-auto">
                                 <button onclick="exportUpmisaToExcel()"
-                                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all text-sm font-medium flex items-center gap-2 shadow-sm shadow-emerald-200 ring-1 ring-emerald-100">
                                     📥 Xuất Excel UPMISA
                                 </button>
                                 <button onclick="refreshUpmisaData()"
@@ -1274,6 +1274,14 @@
                                 <input type="text" id="filterHHSearch" oninput="filterHangHoanData()"
                                     placeholder="Tìm: MVD, Mã gian, SKU, SKU CT, Tên SP, Tình trạng..."
                                     class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-80 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <button onclick="exportHangHoanToExcel()"
+                                    class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all text-sm font-medium flex items-center gap-2 shadow-sm shadow-emerald-200 ring-1 ring-emerald-100">
+                                    📥 Tải Excel
+                                </button>
+                                <button onclick="exportHangHoanToMisa()"
+                                    class="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all text-sm font-medium flex items-center gap-2 shadow-sm shadow-orange-200 ring-1 ring-orange-100">
+                                    📤 Xuất MISA
+                                </button>
                                 <button onclick="fetchHangHoanData()"
                                     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     🔄 Làm mới
@@ -1639,6 +1647,81 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        function exportHangHoanToExcel() {
+            if (!filteredHangHoanData || !filteredHangHoanData.length) {
+                alert('Không có dữ liệu hợp lệ để xuất!');
+                return;
+            }
+
+            const headers = ['Ngày nhận', 'MVD', 'Mã gian', 'SKU', 'SKU CT', 'SLG', 'Tên SP', 'Tình trạng', 'Kho', 'Ảnh 1', 'Ảnh 2', 'Ảnh 3', 'Ngày xử lý', 'Ghi chú', 'Trạng thái', 'SKU-SLG', 'ID NV', 'UDT', 'MVD-Gian', 'LB3', 'ID ĐH', 'ID ĐH CT', 'STT', 'Đánh dấu'];
+            const excelData = [headers, ...filteredHangHoanData.map(item => [
+                item.ngay_nhan || '', item.mvd || '', item.ma_gian || '', item.sku || '', item.sku_ct || '', item.slg || '', item.ten_sp || '', item.tinh_trang || '', item.kho || '',
+                item.anh_1 || '', item.anh_2 || '', item.anh_3 || '', item.ngay_xly || '', item.ghi_chu || '', item.trang_thai || '', item.sku_slg || '', item.id_nv || '', item.udt || '',
+                item.mvd_gian || '', item.lb3 || '', item.id_dh || '', item.id_dh_ct || '', item.stt || '', item.danh_dau || ''
+            ])];
+
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'HH_BH');
+            const filterDate = document.getElementById('filterHHNgayNhan')?.value || 'TatCa';
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + 'h' + now.getMinutes().toString().padStart(2, '0');
+            XLSX.writeFile(wb, `HH_BH_${filterDate}_${timeStr}.xlsx`);
+        }
+
+        function exportHangHoanToMisa() {
+            if (!filteredHangHoanData || !filteredHangHoanData.length) {
+                alert('Không có dữ liệu hợp lệ để xuất MISA!');
+                return;
+            }
+
+            const headers = ['Hiển thị trên sổ', 'Hình thức bán hàng', 'Phương thức thanh toán', 'Kiêm phiếu xuất kho', 'Lập kèm hóa đơn', 'Đã lập hóa đơn', 'Ngày hạch toán (*)', 'Ngày chứng từ (*)', 'Số chứng từ (*)', 'Số phiếu xuất', 'Lý do xuất', 'Số hóa đơn', 'Ngày hóa đơn', 'Mã đơn hàng', 'Mã thống kê', 'Mã khách hàng', 'Tên khách hàng', 'Địa chỉ', 'Mã số thuế', 'Diễn giải', 'Nộp vào TK', 'NV bán hàng', 'Mã hàng (*)', 'Tên hàng', 'Hàng khuyến mại', 'TK Tiền/Chi phí/Nợ (*)', 'TK Doanh thu/Có (*)', 'ĐVT', 'Số lượng', 'Đơn giá sau thuế', 'Đơn giá', 'Thành tiền', 'Tỷ lệ CK (%)', 'Tiền chiết khấu', 'TK chiết khấu', 'Giá tính thuế XK', '% thuế XK', 'Tiền thuế XK', 'TK thuế XK', '% thuế GTGT', 'Tiền thuế GTGT', 'TK thuế GTGT', 'HH không TH trên tờ khai thuế GTGT', 'Kho', 'TK giá vốn', 'TK Kho', 'Đơn giá vốn', 'Tiền vốn', 'Hàng hóa giữ hộ/bán hộ'];
+
+            const formatDateShortFromStr = (dateStr) => {
+                if (!dateStr) return '';
+                const dt = new Date(dateStr);
+                if (isNaN(dt.getTime())) return '';
+                const d = String(dt.getDate()).padStart(2, '0');
+                const m = String(dt.getMonth() + 1).padStart(2, '0');
+                const y = String(dt.getFullYear()).slice(-2);
+                return `${d}${m}${y}`;
+            };
+
+            const getMisaValue = (item, colName) => {
+                const ngayStr = (item.ngay_nhan || '').split(' ')[0];
+                const ngayVN = toYMD(item.ngay_nhan) ? item.ngay_nhan.split(' ')[0].includes('/') ? item.ngay_nhan.split(' ')[0] : `${String(new Date(ngayStr).getDate()).padStart(2,'0')}/${String(new Date(ngayStr).getMonth()+1).padStart(2,'0')}/${new Date(ngayStr).getFullYear()}` : '';
+                const san = (item.ma_gian || '').trim();
+                const kh = (item.sku || '').toString().trim();
+
+                if (colName === 'Ngày hạch toán (*)' || colName === 'Ngày chứng từ (*)') return ngayVN;
+                if (colName === 'Số chứng từ (*)' || colName === 'Số phiếu xuất') return item.mvd ? `HH-${item.mvd}-${formatDateShortFromStr(ngayStr)}` : '';
+                if (colName === 'Mã đơn hàng') return item.id_dh || '';
+                if (colName === 'Mã thống kê') return item.ma_gian || '';
+                if (colName === 'Mã khách hàng') return item.ma_gian || '';
+                if (colName === 'Tên khách hàng') return item.ma_gian || '';
+                if (colName === 'Diễn giải') return `${item.kho || ''} HÀNG HOÀN NGÀY ${ngayVN || ''}`.trim();
+                if (colName === 'Mã hàng (*)') return item.sku_ct || item.sku || '';
+                if (colName === 'Tên hàng') return item.ten_sp || '';
+                if (colName === 'TK Tiền/Chi phí/Nợ (*)') return '131';
+                if (colName === 'TK Doanh thu/Có (*)') return '5111';
+                if (colName === 'ĐVT') return 'Cái';
+                if (colName === 'Số lượng') return item.slg || '';
+                if (colName === 'Đơn giá') return '';
+                if (colName === 'Thành tiền') return '';
+                if (colName === 'Kho') return item.kho || '';
+                return '';
+            };
+
+            const rows = filteredHangHoanData.map(item => headers.map(h => getMisaValue(item, h)));
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'MISA');
+            const filterDate = document.getElementById('filterHHNgayNhan')?.value || 'TatCa';
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + 'h' + now.getMinutes().toString().padStart(2, '0');
+            XLSX.writeFile(wb, `MISA_HH_BH_${filterDate}_${timeStr}.xlsx`);
         }
 
         function toggleSidebar() {
