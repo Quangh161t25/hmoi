@@ -3432,7 +3432,10 @@
                 const rname = CONFIG.roomSheetName;
                 const dpAllName = CONFIG.dpAllSheetName;
                 // Sử dụng batchGet để lấy dữ liệu từ cả 3 sheet một lúc
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values:batchGet?ranges=${sname}!A:AZ&ranges=${rname}!A:Z&ranges=${dpAllName}!A:Z`;
+                const rangeMain = `'${sname}'!A:AZ`;
+                const rangeRooms = `'${rname}'!A:Z`;
+                const rangeDpAll = `'${dpAllName}'!A:Z`;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values:batchGet?ranges=${encodeURIComponent(rangeMain)}&ranges=${encodeURIComponent(rangeRooms)}&ranges=${encodeURIComponent(rangeDpAll)}`;
 
                 const response = await fetch(url, {
                     headers: { "Authorization": `Bearer ${token}` }
