@@ -529,18 +529,20 @@
                                         </th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Mã gian
                                         </th>
-                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">MVD</th>
-                                        <th class="px-2 py-3 text-center text-xs font-semibold text-slate-600 w-10">
-                                            <button onclick="copyUniqueMVD()"
-                                                class="p-1 hover:bg-slate-200 rounded transition-colors"
-                                                title="Copy Unique MVD">
-                                                <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                                </svg>
-                                            </button>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">
+                                            <div class="inline-flex items-center gap-1">
+                                                <span>MVD</span>
+                                                <button onclick="copyUniqueMVD()"
+                                                    class="p-1 hover:bg-slate-200 rounded transition-colors"
+                                                    title="Copy Unique MVD">
+                                                    <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">MDH</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Check trùng
@@ -566,7 +568,7 @@
                                 </thead>
                                 <tbody id="donhangTableBody">
                                     <tr>
-                                        <td colspan="19" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
+                                        <td colspan="18" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1305,6 +1307,10 @@
                                 <input type="text" id="filterHHSearch" oninput="filterHangHoanData()"
                                     placeholder="Tìm: MVD, Mã gian, SKU, SKU CT, Tên SP, Tình trạng..."
                                     class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-80 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <button onclick="exportHangHoanSummaryToExcel()"
+                                    class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    📥 Excel MVD + SKU tổng
+                                </button>
                                 <button onclick="exportHangHoanToExcel()"
                                     class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     📥 Tải Excel
@@ -1332,6 +1338,7 @@
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên SP</th>
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tình trạng</th>
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kho</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU tổng</th>
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ảnh</th>
                                     </tr>
                                 </thead>
@@ -1616,7 +1623,8 @@
                 const result = await response.json();
 
                 if (result.values && result.values.length > 1) {
-                    hangHoanData = result.values.slice(1).map(row => ({
+                    hangHoanData = result.values.slice(1).map((row, idx) => ({
+                        rowIndex: idx + 2,
                         id: row[0] || '',
                         ngay_nhan: row[1] || '',
                         mvd: row[2] || '',
@@ -1725,23 +1733,26 @@
                     tinh_trang: document.getElementById('hhEditTinhTrang').value,
                     kho: document.getElementById('hhEditKho').value
                 };
+                const rowIndex = item.rowIndex || (hangHoanData.indexOf(item) + 2);
                 const batchUpdates = [
-                    { range: `${CONFIG.hhbhSheetName}!C${item.rowIndex}`, values: [[newData.mvd]] },
-                    { range: `${CONFIG.hhbhSheetName}!D${item.rowIndex}`, values: [[newData.ma_gian]] },
-                    { range: `${CONFIG.hhbhSheetName}!H${item.rowIndex}`, values: [[newData.sku]] },
-                    { range: `${CONFIG.hhbhSheetName}!I${item.rowIndex}`, values: [[newData.sku_ct]] },
-                    { range: `${CONFIG.hhbhSheetName}!J${item.rowIndex}`, values: [[newData.slg]] },
-                    { range: `${CONFIG.hhbhSheetName}!N${item.rowIndex}`, values: [[newData.tinh_trang]] },
-                    { range: `${CONFIG.hhbhSheetName}!T${item.rowIndex}`, values: [[newData.kho]] }
+                    { range: `${CONFIG.hhbhSheetName}!C${rowIndex}`, values: [[newData.mvd]] },
+                    { range: `${CONFIG.hhbhSheetName}!D${rowIndex}`, values: [[newData.ma_gian]] },
+                    { range: `${CONFIG.hhbhSheetName}!H${rowIndex}`, values: [[newData.sku]] },
+                    { range: `${CONFIG.hhbhSheetName}!I${rowIndex}`, values: [[newData.sku_ct]] },
+                    { range: `${CONFIG.hhbhSheetName}!J${rowIndex}`, values: [[newData.slg]] },
+                    { range: `${CONFIG.hhbhSheetName}!N${rowIndex}`, values: [[newData.tinh_trang]] },
+                    { range: `${CONFIG.hhbhSheetName}!T${rowIndex}`, values: [[newData.kho]] }
                 ];
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values:batchUpdate`;
                 const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: batchUpdates }) });
                 if (resp.ok) {
-                    Object.assign(item, newData);
+                    Object.assign(item, newData, { rowIndex });
                     filterHangHoanData();
                     closeHhDetailDrawer();
                     alert('Cập nhật Hàng hoàn thành công!');
                 } else {
+                    const errText = await resp.text();
+                    console.error('Save HH error:', errText);
                     alert('Lỗi khi lưu dữ liệu Hàng hoàn vào Google Sheet.');
                 }
             } catch (err) {
@@ -1750,6 +1761,29 @@
             } finally {
                 loadingOverlay.classList.add('hidden');
             }
+        }
+
+        function buildSkuTongMap(data) {
+            const byMvd = new Map();
+            data.forEach(item => {
+                const key = (item.mvd || '').toString().trim();
+                if (!key) return;
+                if (!byMvd.has(key)) byMvd.set(key, []);
+                const skuVal = (item.sku || '').toString().trim();
+                if (skuVal) byMvd.get(key).push(skuVal);
+            });
+
+            const result = new Map();
+            byMvd.forEach((list, mvd) => {
+                const uniqueSkus = [...new Set(list.filter(Boolean))];
+                result.set(mvd, uniqueSkus.join(' + '));
+            });
+            return result;
+        }
+
+        function getSkuTongForItem(item, skuTongMap) {
+            const key = (item.mvd || '').toString().trim();
+            return key ? (skuTongMap.get(key) || '') : '';
         }
 
         function renderHangHoanTable() {
@@ -1762,11 +1796,14 @@
                 return;
             }
 
+            const skuTongMap = buildSkuTongMap(filteredHangHoanData);
+
             tbody.innerHTML = filteredHangHoanData.map((item, index) => {
                 const imgUrl = (item.anh_3 || '').trim();
                 const imgHtml = imgUrl
                     ? `<img src="${escapeHtml(imgUrl)}" alt="Ảnh hàng hoàn" class="w-12 h-12 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80" onclick="openImagePreview('${escapeHtml(imgUrl)}')">`
                     : '<span class="text-xs text-slate-400">Không có</span>';
+                const skuTong = getSkuTongForItem(item, skuTongMap);
                 return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer" ondblclick="openHhDetail(${index})">
                         <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.ngay_nhan)}</td>
@@ -1778,10 +1815,37 @@
                         <td class="px-3 py-2 text-sm text-slate-700 max-w-[240px] truncate" title="${escapeHtml(item.ten_sp)}">${escapeHtml(item.ten_sp)}</td>
                         <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.tinh_trang)}</td>
                         <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.kho)}</td>
+                        <td class="px-3 py-2 text-sm text-slate-700 max-w-[260px] truncate" title="${escapeHtml(skuTong)}">${escapeHtml(skuTong || '-')}</td>
                         <td class="px-3 py-2 text-sm">${imgHtml}</td>
                     </tr>
                 `;
             }).join('');
+        }
+
+        function exportHangHoanSummaryToExcel() {
+            if (!filteredHangHoanData || !filteredHangHoanData.length) {
+                alert('Không có dữ liệu hợp lệ để xuất!');
+                return;
+            }
+
+            const skuTongMap = buildSkuTongMap(filteredHangHoanData);
+            const uniqueMvds = [...new Set(filteredHangHoanData
+                .map(item => (item.mvd || '').toString().trim())
+                .filter(Boolean))];
+
+            const headers = ['MVD', 'SKU tổng'];
+            const excelData = [headers, ...uniqueMvds.map(mvd => [
+                mvd,
+                skuTongMap.get(mvd) || ''
+            ])];
+
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'MVD_SKU_Tong');
+            const filterDate = document.getElementById('filterHHNgayNhan')?.value || 'TatCa';
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + 'h' + now.getMinutes().toString().padStart(2, '0');
+            XLSX.writeFile(wb, `MVD_SKU_Tong_${filterDate}_${timeStr}.xlsx`);
         }
 
         function exportHangHoanToExcel() {
@@ -1790,9 +1854,10 @@
                 return;
             }
 
-            const headers = ['Ngày nhận', 'MVD', 'Mã gian', 'SKU', 'SKU CT', 'SLG', 'Tên SP', 'Tình trạng', 'Kho', 'Ảnh 1', 'Ảnh 2', 'Ảnh 3', 'Ngày xử lý', 'Ghi chú', 'Trạng thái', 'SKU-SLG', 'ID NV', 'UDT', 'MVD-Gian', 'LB3', 'ID ĐH', 'ID ĐH CT', 'STT', 'Đánh dấu'];
+            const headers = ['Ngày nhận', 'MVD', 'Mã gian', 'SKU', 'SKU CT', 'SKU tổng', 'SLG', 'Tên SP', 'Tình trạng', 'Kho', 'Ảnh 1', 'Ảnh 2', 'Ảnh 3', 'Ngày xử lý', 'Ghi chú', 'Trạng thái', 'SKU-SLG', 'ID NV', 'UDT', 'MVD-Gian', 'LB3', 'ID ĐH', 'ID ĐH CT', 'STT', 'Đánh dấu'];
+            const skuTongMap = buildSkuTongMap(filteredHangHoanData);
             const excelData = [headers, ...filteredHangHoanData.map(item => [
-                item.ngay_nhan || '', item.mvd || '', item.ma_gian || '', item.sku || '', item.sku_ct || '', item.slg || '', item.ten_sp || '', item.tinh_trang || '', item.kho || '',
+                item.ngay_nhan || '', item.mvd || '', item.ma_gian || '', item.sku || '', item.sku_ct || '', getSkuTongForItem(item, skuTongMap) || '', item.slg || '', item.ten_sp || '', item.tinh_trang || '', item.kho || '',
                 item.anh_1 || '', item.anh_2 || '', item.anh_3 || '', item.ngay_xly || '', item.ghi_chu || '', item.trang_thai || '', item.sku_slg || '', item.id_nv || '', item.udt || '',
                 item.mvd_gian || '', item.lb3 || '', item.id_dh || '', item.id_dh_ct || '', item.stt || '', item.danh_dau || ''
             ])];
@@ -2252,11 +2317,11 @@
         }
 
         async function loadUDCTData() {
-            document.getElementById('donhangTableBody').innerHTML = generateSkeletonRows(19, 5);
+            document.getElementById('donhangTableBody').innerHTML = generateSkeletonRows(18, 5);
             try {
                 const data = await fetchSheetData(CONFIG.udctSheetName);
                 if (data.length <= 1) {
-                    document.getElementById('donhangTableBody').innerHTML = '<tr><td colspan="19" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
+                    document.getElementById('donhangTableBody').innerHTML = '<tr><td colspan="18" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
                     return;
                 }
 
@@ -2571,7 +2636,7 @@
             });
 
             if (filteredUDCT.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="19" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="18" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
                 document.getElementById('udctPageInfo').innerHTML = 'Không có dữ liệu';
                 document.getElementById('udctPrevPage').disabled = true;
                 document.getElementById('udctNextPage').disabled = true;
@@ -2602,7 +2667,6 @@
                     <td class="px-3 py-2 text-[13px] text-slate-900">${item.khung_h || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900 font-medium">${item.ma_gian || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900">${item.mvd || '-'}</td>
-                    <td class="px-1 py-2 text-center text-slate-400">-</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900 font-medium text-blue-600">${item.mdh || '-'}</td>
                     <td class="px-3 py-2 text-[13px]">
                         ${((item.mvd && mvdMap[item.mvd]?.size > 1) || (item.mdh && mdhMap[item.mdh]?.size > 1))
