@@ -125,6 +125,15 @@
             transform: translateX(0);
         }
 
+        #hhDrawer {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+
+        #hhDrawer.open {
+            transform: translateX(0);
+        }
+
         .table-container::-webkit-scrollbar {
             height: 8px;
             width: 8px;
@@ -456,9 +465,14 @@
                                             </select>
                                         </div>
 
-                                        <input type="hidden" id="filterUDCTTrangThai" value="">
-                                        <div id="filterUDCTTrangThaiButtons"
-                                            class="flex p-1 bg-slate-100 rounded-xl gap-1 hidden"></div>
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TRẠNG
+                                                THÁI</span>
+                                            <input type="hidden" id="filterUDCTTrangThai" value="">
+                                            <div id="filterUDCTTrangThaiButtons"
+                                                class="flex p-1 bg-slate-100 rounded-xl gap-1"></div>
+                                        </div>
                                     </div>
 
                                     <div class="flex items-center gap-3 ml-auto">
@@ -475,7 +489,7 @@
 
                                         <label class="cursor-pointer group">
                                             <div
-                                                class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all font-bold text-xs shadow-md shadow-emerald-200 ring-1 ring-emerald-100">
+                                                class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all font-bold text-xs shadow-md shadow-blue-100">
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
                                                     stroke="currentColor">
                                                     <path
@@ -504,6 +518,11 @@
                             <table class="w-full min-w-[1200px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
+                                        <th class="px-2 py-2 text-center text-xs font-semibold text-slate-600 w-10">
+                                            <input type="checkbox" id="udctSelectAll" onchange="toggleSelectAllUDCT(this)"
+                                                onclick="event.stopPropagation()"
+                                                class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/30 cursor-pointer">
+                                        </th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Ngày</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Sàn</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Khung H
@@ -547,7 +566,7 @@
                                 </thead>
                                 <tbody id="donhangTableBody">
                                     <tr>
-                                        <td colspan="18" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
+                                        <td colspan="19" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
                                         </td>
                                     </tr>
                                 </tbody>
@@ -622,7 +641,7 @@
                             </div>
                         </div>
                         <div class="flex-1 overflow-auto table-container">
-                            <table class="w-full min-w-[2800px]">
+                            <table class="w-full min-w-[980px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên
@@ -646,7 +665,7 @@
                                 </thead>
                                 <tbody id="sanphamTableBody">
                                     <tr>
-                                        <td colspan="32" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
+                                        <td colspan="7" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
                                         </td>
                                     </tr>
                                 </tbody>
@@ -725,7 +744,7 @@
                                         class="bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium">🔍
                                         Lọc</button>
                                     <button onclick="exportReportToExcel()"
-                                        class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-3 py-1.5 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all text-xs font-medium shadow-sm shadow-emerald-200 ring-1 ring-emerald-100">📥
+                                        class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">📥
                                         Xuất Excel</button>
                                 </div>
                             </div>
@@ -784,7 +803,7 @@
                                         class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
                                         <h3 class="text-sm font-semibold text-slate-900">Thống kê theo id_sp_ct</h3>
                                         <button onclick="exportIdSPExcel()"
-                                            class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-2 py-1 flex items-center gap-1 rounded text-xs font-medium transition-all shadow-sm shadow-emerald-200 ring-1 ring-emerald-100"
+                                            class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 flex items-center gap-1 rounded text-xs font-medium transition-colors"
                                             title="Xuất (ID SP, SL xuất) ra Excel">
                                             📥 Tải Excel
                                         </button>
@@ -933,7 +952,7 @@
                             </div>
                             <div class="flex gap-2 ml-auto">
                                 <button onclick="exportUpmisaToExcel()"
-                                    class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all text-sm font-medium flex items-center gap-2 shadow-sm shadow-emerald-200 ring-1 ring-emerald-100">
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     📥 Xuất Excel UPMISA
                                 </button>
                                 <button onclick="refreshUpmisaData()"
@@ -1251,19 +1270,31 @@
                         <div
                             class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
                             <div>
-                                <h2 class="text-base font-bold text-slate-900">Dữ liệu Hàng hoàn</h2>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Nguồn dữ liệu từ sheet HH_BH</p>
+                                <h2 class="hidden text-base font-bold text-slate-900">Dữ liệu Hàng hoàn</h2>
+                                <p class="hidden text-[11px] text-slate-500 mt-0.5">Nguồn dữ liệu từ sheet HH_BH</p>
                                 <div id="hangHoanStats" class="text-[11px] text-slate-500 mt-1">Số đơn: 0</div>
                             </div>
                             <div class="flex flex-wrap gap-2 items-center">
                                 <button onclick="setHangHoanToday()"
                                     class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100">Hôm nay</button>
-                                <button onclick="changeHangHoanDate(-1)"
-                                    class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">-</button>
-                                <input type="date" id="filterHHNgayNhan" onchange="filterHangHoanData()"
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                                <button onclick="changeHangHoanDate(1)"
-                                    class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">+</button>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold text-slate-600">TỪ</span>
+                                    <button onclick="changeHangHoanDate('from', -1)"
+                                        class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">−</button>
+                                    <input type="date" id="filterHHFrom" onchange="filterHangHoanData()"
+                                        class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                    <button onclick="changeHangHoanDate('from', 1)"
+                                        class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">+</button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold text-slate-600">ĐẾN</span>
+                                    <button onclick="changeHangHoanDate('to', -1)"
+                                        class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">−</button>
+                                    <input type="date" id="filterHHTo" onchange="filterHangHoanData()"
+                                        class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                    <button onclick="changeHangHoanDate('to', 1)"
+                                        class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">+</button>
+                                </div>
                                 <input type="hidden" id="filterHHKho" value="">
                                 <div id="filterHHKhoButtons"
                                     class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg"></div>
@@ -1275,12 +1306,12 @@
                                     placeholder="Tìm: MVD, Mã gian, SKU, SKU CT, Tên SP, Tình trạng..."
                                     class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-80 focus:outline-none focus:ring-2 focus:ring-primary/20">
                                 <button onclick="exportHangHoanToExcel()"
-                                    class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all text-sm font-medium flex items-center gap-2 shadow-sm shadow-emerald-200 ring-1 ring-emerald-100">
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     📥 Tải Excel
                                 </button>
                                 <button onclick="exportHangHoanToMisa()"
-                                    class="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 py-2 rounded-lg hover:from-orange-600 hover:to-amber-700 transition-all text-sm font-medium flex items-center gap-2 shadow-sm shadow-orange-200 ring-1 ring-orange-100">
-                                    📤 Xuất MISA
+                                    class="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors text-sm font-medium flex items-center gap-2">
+                                    📥 Tải MISA
                                 </button>
                                 <button onclick="fetchHangHoanData()"
                                     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
@@ -1343,23 +1374,23 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Số lượng</label>
-                    <input type="number" id="editSoLuong"
+                    <input type="number" id="editSoLuong" oninput="scheduleUDCTAutoSave()"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none font-medium">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Đơn giá</label>
-                    <input type="number" id="editDonGia"
+                    <input type="number" id="editDonGia" oninput="scheduleUDCTAutoSave()"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none font-medium">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ID SP</label>
-                    <input type="text" id="editIdSP" list="idSpList" oninput="handleIdSPChange()"
+                    <input type="text" id="editIdSP" list="idSpList" oninput="handleIdSPChange(); scheduleUDCTAutoSave()"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
                     <datalist id="idSpList"></datalist>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ID SP CT</label>
-                    <input type="text" id="editIdSPCT" list="idSpCtList" oninput="handleIdSPCTChange()"
+                    <input type="text" id="editIdSPCT" list="idSpCtList" oninput="handleIdSPCTChange(); scheduleUDCTAutoSave()"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
                     <datalist id="idSpCtList"></datalist>
                 </div>
@@ -1374,31 +1405,54 @@
                         <option value="Đã hủy">Đã hủy</option>
                     </select>
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Trạng thái</label>
-                    <select id="editTrangThai"
-                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
-                        <option value="0 THAY THẾ">0 THAY THẾ</option>
-                        <option value="1 HỦY">1 HỦY</option>
-                        <option value="3 KHÁC">3 KHÁC</option>
-                    </select>
+                    <input type="hidden" id="editTrangThai" value="">
+                    <div id="editTrangThaiButtons" class="flex flex-wrap gap-2"></div>
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ghi chú</label>
-                    <textarea id="editGhiChu" rows="3"
+                    <textarea id="editGhiChu" rows="3" oninput="scheduleUDCTAutoSave()"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none"></textarea>
                 </div>
             </div>
 
             <div class="pt-4 border-t border-slate-200 flex gap-3">
-                <button onclick="saveRowDetail()"
-                    class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-primary/25">
-                    Lưu thay đổi
-                </button>
                 <button onclick="closeDetailDrawer()"
-                    class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
+                    class="w-full py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
                     Hủy
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hàng hoàn Drawer -->
+    <div id="hhDrawerOverlay" class="hidden fixed inset-0 bg-black/50 z-40 transition-opacity" onclick="closeHhDetailDrawer()"></div>
+    <div id="hhDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
+        <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Chi tiết hàng hoàn</h3>
+                <p class="text-[10px] text-slate-500 mt-1 uppercase" id="hhDrawerRowId">Row ID: -</p>
+            </div>
+            <button onclick="closeHhDetailDrawer()" class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD</label><input id="hhEditMVD" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mã gian</label><input id="hhEditMaGian" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU</label><input id="hhEditSKU" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU CT</label><input id="hhEditSKUCT" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SLG</label><input type="number" id="hhEditSLG" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tình trạng</label><input id="hhEditTinhTrang" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div class="col-span-2"><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Kho</label><input id="hhEditKho" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+            </div>
+            <div class="pt-4 border-t border-slate-200 flex gap-3">
+                <button onclick="saveHhDetail()" class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-all">Lưu thay đổi</button>
+                <button onclick="closeHhDetailDrawer()" class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">Hủy</button>
             </div>
         </div>
     </div>
@@ -1445,6 +1499,10 @@
         let hangHoanData = [];
         let filteredHangHoanData = [];
         let currentEditRowIndex = -1;
+        let currentHangHoanEditIndex = -1;
+        let currentDrawerMode = 'udct';
+        let udctAutoSaveTimer = null;
+        let suppressUDCTAutoSave = false;
 
         function escapeHtml(value) {
             return String(value || '')
@@ -1496,18 +1554,21 @@
         }
 
         function setHangHoanToday() {
-            const input = document.getElementById('filterHHNgayNhan');
-            if (!input) return;
+            const fromInput = document.getElementById('filterHHFrom');
+            const toInput = document.getElementById('filterHHTo');
+            if (!fromInput || !toInput) return;
             const today = new Date();
             const y = today.getFullYear();
             const m = String(today.getMonth() + 1).padStart(2, '0');
             const d = String(today.getDate()).padStart(2, '0');
-            input.value = `${y}-${m}-${d}`;
+            const todayStr = `${y}-${m}-${d}`;
+            fromInput.value = todayStr;
+            toInput.value = todayStr;
             filterHangHoanData();
         }
 
-        function changeHangHoanDate(step) {
-            const input = document.getElementById('filterHHNgayNhan');
+        function changeHangHoanDate(which, step) {
+            const input = document.getElementById(which === 'from' ? 'filterHHFrom' : 'filterHHTo');
             if (!input) return;
             if (!input.value) {
                 setHangHoanToday();
@@ -1581,7 +1642,11 @@
                         id_dh_ct: row[22] || '',
                         stt: row[23] || '',
                         danh_dau: row[24] || ''
-                    }));
+                    })).sort((a, b) => {
+                        const da = toYMD(a.ngay_nhan);
+                        const db = toYMD(b.ngay_nhan);
+                        return db.localeCompare(da);
+                    });
                     setHangHoanToday();
                     fillHangHoanFilterOptions();
                     filterHangHoanData();
@@ -1599,13 +1664,16 @@
         }
 
         function filterHangHoanData() {
-            const fNgay = document.getElementById('filterHHNgayNhan')?.value || '';
+            const fFrom = document.getElementById('filterHHFrom')?.value || '';
+            const fTo = document.getElementById('filterHHTo')?.value || '';
             const fKho = document.getElementById('filterHHKho')?.value || '';
             const fGian = document.getElementById('filterHHMaGian')?.value || '';
             const search = (document.getElementById('filterHHSearch')?.value || '').toLowerCase().trim();
 
             filteredHangHoanData = hangHoanData.filter(item => {
-                if (fNgay && toYMD(item.ngay_nhan) !== fNgay) return false;
+                const ngay = toYMD(item.ngay_nhan);
+                if (fFrom && ngay < fFrom) return false;
+                if (fTo && ngay > fTo) return false;
                 if (fKho && item.kho !== fKho) return false;
                 if (fGian && item.ma_gian !== fGian) return false;
                 if (search) {
@@ -1613,8 +1681,75 @@
                     if (!rowText.includes(search)) return false;
                 }
                 return true;
-            });
+            }).sort((a, b) => toYMD(b.ngay_nhan).localeCompare(toYMD(a.ngay_nhan)));
             renderHangHoanTable();
+        }
+
+        function openHhDetail(index) {
+            const item = filteredHangHoanData[index];
+            const actualIndex = hangHoanData.indexOf(item);
+            if (!item || actualIndex < 0) return;
+            currentHangHoanEditIndex = actualIndex;
+            document.getElementById('hhDrawerRowId').textContent = `Row ID: ${item.id || item.ngay_nhan || '-'}`;
+            document.getElementById('hhEditMVD').value = item.mvd || '';
+            document.getElementById('hhEditMaGian').value = item.ma_gian || '';
+            document.getElementById('hhEditSKU').value = item.sku || '';
+            document.getElementById('hhEditSKUCT').value = item.sku_ct || '';
+            document.getElementById('hhEditSLG').value = item.slg || '';
+            document.getElementById('hhEditTinhTrang').value = item.tinh_trang || '';
+            document.getElementById('hhEditKho').value = item.kho || '';
+            document.getElementById('hhDrawerOverlay').classList.remove('hidden');
+            document.getElementById('hhDrawer').classList.add('open');
+        }
+
+        function closeHhDetailDrawer() {
+            document.getElementById('hhDrawerOverlay').classList.add('hidden');
+            document.getElementById('hhDrawer').classList.remove('open');
+            currentHangHoanEditIndex = -1;
+        }
+
+        async function saveHhDetail() {
+            if (currentHangHoanEditIndex === -1) return;
+            const item = hangHoanData[currentHangHoanEditIndex];
+            if (!item) return;
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('hidden');
+            try {
+                const token = await getAccessToken();
+                const newData = {
+                    mvd: document.getElementById('hhEditMVD').value,
+                    ma_gian: document.getElementById('hhEditMaGian').value,
+                    sku: document.getElementById('hhEditSKU').value,
+                    sku_ct: document.getElementById('hhEditSKUCT').value,
+                    slg: document.getElementById('hhEditSLG').value,
+                    tinh_trang: document.getElementById('hhEditTinhTrang').value,
+                    kho: document.getElementById('hhEditKho').value
+                };
+                const batchUpdates = [
+                    { range: `${CONFIG.hhbhSheetName}!C${item.rowIndex}`, values: [[newData.mvd]] },
+                    { range: `${CONFIG.hhbhSheetName}!D${item.rowIndex}`, values: [[newData.ma_gian]] },
+                    { range: `${CONFIG.hhbhSheetName}!H${item.rowIndex}`, values: [[newData.sku]] },
+                    { range: `${CONFIG.hhbhSheetName}!I${item.rowIndex}`, values: [[newData.sku_ct]] },
+                    { range: `${CONFIG.hhbhSheetName}!J${item.rowIndex}`, values: [[newData.slg]] },
+                    { range: `${CONFIG.hhbhSheetName}!N${item.rowIndex}`, values: [[newData.tinh_trang]] },
+                    { range: `${CONFIG.hhbhSheetName}!T${item.rowIndex}`, values: [[newData.kho]] }
+                ];
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values:batchUpdate`;
+                const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: batchUpdates }) });
+                if (resp.ok) {
+                    Object.assign(item, newData);
+                    filterHangHoanData();
+                    closeHhDetailDrawer();
+                    alert('Cập nhật Hàng hoàn thành công!');
+                } else {
+                    alert('Lỗi khi lưu dữ liệu Hàng hoàn vào Google Sheet.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Đã xảy ra lỗi khi lưu Hàng hoàn.');
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
         }
 
         function renderHangHoanTable() {
@@ -1627,13 +1762,13 @@
                 return;
             }
 
-            tbody.innerHTML = filteredHangHoanData.map(item => {
+            tbody.innerHTML = filteredHangHoanData.map((item, index) => {
                 const imgUrl = (item.anh_3 || '').trim();
                 const imgHtml = imgUrl
                     ? `<img src="${escapeHtml(imgUrl)}" alt="Ảnh hàng hoàn" class="w-12 h-12 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80" onclick="openImagePreview('${escapeHtml(imgUrl)}')">`
                     : '<span class="text-xs text-slate-400">Không có</span>';
                 return `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer" ondblclick="openHhDetail(${index})">
                         <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.ngay_nhan)}</td>
                         <td class="px-3 py-2 text-sm font-medium text-slate-900">${escapeHtml(item.mvd)}</td>
                         <td class="px-3 py-2 text-sm text-slate-700">${escapeHtml(item.ma_gian)}</td>
@@ -1679,38 +1814,76 @@
 
             const headers = ['Hiển thị trên sổ', 'Hình thức bán hàng', 'Phương thức thanh toán', 'Kiêm phiếu xuất kho', 'Lập kèm hóa đơn', 'Đã lập hóa đơn', 'Ngày hạch toán (*)', 'Ngày chứng từ (*)', 'Số chứng từ (*)', 'Số phiếu xuất', 'Lý do xuất', 'Số hóa đơn', 'Ngày hóa đơn', 'Mã đơn hàng', 'Mã thống kê', 'Mã khách hàng', 'Tên khách hàng', 'Địa chỉ', 'Mã số thuế', 'Diễn giải', 'Nộp vào TK', 'NV bán hàng', 'Mã hàng (*)', 'Tên hàng', 'Hàng khuyến mại', 'TK Tiền/Chi phí/Nợ (*)', 'TK Doanh thu/Có (*)', 'ĐVT', 'Số lượng', 'Đơn giá sau thuế', 'Đơn giá', 'Thành tiền', 'Tỷ lệ CK (%)', 'Tiền chiết khấu', 'TK chiết khấu', 'Giá tính thuế XK', '% thuế XK', 'Tiền thuế XK', 'TK thuế XK', '% thuế GTGT', 'Tiền thuế GTGT', 'TK thuế GTGT', 'HH không TH trên tờ khai thuế GTGT', 'Kho', 'TK giá vốn', 'TK Kho', 'Đơn giá vốn', 'Tiền vốn', 'Hàng hóa giữ hộ/bán hộ'];
 
-            const formatDateShortFromStr = (dateStr) => {
-                if (!dateStr) return '';
-                const dt = new Date(dateStr);
+            const formatDateVN = (input) => {
+                if (!input) return '';
+                const raw = String(input).split(' ')[0];
+                if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) return raw;
+                if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                    const [y, m, d] = raw.split('-');
+                    return `${d}/${m}/${y}`;
+                }
+                const dt = new Date(input);
                 if (isNaN(dt.getTime())) return '';
                 const d = String(dt.getDate()).padStart(2, '0');
                 const m = String(dt.getMonth() + 1).padStart(2, '0');
-                const y = String(dt.getFullYear()).slice(-2);
-                return `${d}${m}${y}`;
+                const y = dt.getFullYear();
+                return `${d}/${m}/${y}`;
+            };
+
+            const formatCertDate = (input) => {
+                const vn = formatDateVN(input);
+                if (!vn) return '';
+                const [d, m, y] = vn.split('/');
+                return `${d}${m}${String(y).slice(-2)}`;
             };
 
             const getMisaValue = (item, colName) => {
-                const ngayStr = (item.ngay_nhan || '').split(' ')[0];
-                const ngayVN = toYMD(item.ngay_nhan) ? item.ngay_nhan.split(' ')[0].includes('/') ? item.ngay_nhan.split(' ')[0] : `${String(new Date(ngayStr).getDate()).padStart(2,'0')}/${String(new Date(ngayStr).getMonth()+1).padStart(2,'0')}/${new Date(ngayStr).getFullYear()}` : '';
-                const san = (item.ma_gian || '').trim();
-                const kh = (item.sku || '').toString().trim();
+                const ngayVN = formatDateVN(item.ngay_nhan);
+                const certDate = formatCertDate(item.ngay_nhan);
 
+                if (colName === 'Hiển thị trên sổ') return '0';
+                if (colName === 'Hình thức bán hàng') return '0';
+                if (colName === 'Phương thức thanh toán') return '0';
+                if (colName === 'Kiêm phiếu xuất kho') return '1';
+                if (colName === 'Lập kèm hóa đơn') return '0';
+                if (colName === 'Đã lập hóa đơn') return '0';
                 if (colName === 'Ngày hạch toán (*)' || colName === 'Ngày chứng từ (*)') return ngayVN;
-                if (colName === 'Số chứng từ (*)' || colName === 'Số phiếu xuất') return item.mvd ? `HH-${item.mvd}-${formatDateShortFromStr(ngayStr)}` : '';
+                if (colName === 'Số chứng từ (*)' || colName === 'Số phiếu xuất') return item.mvd ? `HH-${item.mvd}-${certDate}` : '';
+                if (colName === 'Lý do xuất') return 'Hàng hoàn';
                 if (colName === 'Mã đơn hàng') return item.id_dh || '';
                 if (colName === 'Mã thống kê') return item.ma_gian || '';
                 if (colName === 'Mã khách hàng') return item.ma_gian || '';
                 if (colName === 'Tên khách hàng') return item.ma_gian || '';
-                if (colName === 'Diễn giải') return `${item.kho || ''} HÀNG HOÀN NGÀY ${ngayVN || ''}`.trim();
+                if (colName === 'Diễn giải') return `${item.kho || ''} HÀNG HOÀN NGÀY ${ngayVN}`.trim();
+                if (colName === 'Nộp vào TK') return '';
+                if (colName === 'NV bán hàng') return '';
                 if (colName === 'Mã hàng (*)') return item.sku_ct || item.sku || '';
                 if (colName === 'Tên hàng') return item.ten_sp || '';
+                if (colName === 'Hàng khuyến mại') return '';
                 if (colName === 'TK Tiền/Chi phí/Nợ (*)') return '131';
                 if (colName === 'TK Doanh thu/Có (*)') return '5111';
                 if (colName === 'ĐVT') return 'Cái';
                 if (colName === 'Số lượng') return item.slg || '';
+                if (colName === 'Đơn giá sau thuế') return '';
                 if (colName === 'Đơn giá') return '';
                 if (colName === 'Thành tiền') return '';
+                if (colName === 'Tỷ lệ CK (%)') return '';
+                if (colName === 'Tiền chiết khấu') return '';
+                if (colName === 'TK chiết khấu') return '';
+                if (colName === 'Giá tính thuế XK') return '';
+                if (colName === '% thuế XK') return '';
+                if (colName === 'Tiền thuế XK') return '';
+                if (colName === 'TK thuế XK') return '';
+                if (colName === '% thuế GTGT') return '';
+                if (colName === 'Tiền thuế GTGT') return '';
+                if (colName === 'TK thuế GTGT') return '';
+                if (colName === 'HH không TH trên tờ khai thuế GTGT') return '';
                 if (colName === 'Kho') return item.kho || '';
+                if (colName === 'TK giá vốn') return '632';
+                if (colName === 'TK Kho') return '1561';
+                if (colName === 'Đơn giá vốn') return '';
+                if (colName === 'Tiền vốn') return '';
+                if (colName === 'Hàng hóa giữ hộ/bán hộ') return '';
                 return '';
             };
 
@@ -1743,9 +1916,12 @@
             if (currentUser && currentUser.role === 'demo') {
                 return alert('Tài khoản dùng thử chỉ được xem, không được thao tác chỉnh sửa!');
             }
+            currentDrawerMode = 'udct';
             currentEditRowIndex = originalIndex;
+            currentHangHoanEditIndex = -1;
             const item = udctData[originalIndex];
             if (!item) return;
+            suppressUDCTAutoSave = true;
             document.getElementById('drawerRowId').textContent = `Row ID: ${item.rowIndex}`;
             document.getElementById('drawerTenSP').textContent = item.ten_sp || 'N/A';
             document.getElementById('editSoLuong').value = item.so_luong || '';
@@ -1753,16 +1929,16 @@
             document.getElementById('editIdSP').value = item.id_sp || '';
             document.getElementById('editIdSPCT').value = item.id_sp_ct || '';
             document.getElementById('editTinhTrang').value = item.tinh_trang || 'Chờ xác nhận';
-            document.getElementById('editTrangThai').value = item.trang_thai || 'Thành công';
+            document.getElementById('editTrangThai').value = item.trang_thai || '';
+            renderEditTrangThaiButtons(item.trang_thai || '');
             document.getElementById('editGhiChu').value = item.ghi_chu || '';
 
-            // Re-populate CT list based on the loaded ID SP
             handleIdSPChange();
-            // Ensure name is synced correctly with the loaded ID SP CT
             handleIdSPCTChange();
             if (!document.getElementById('editIdSPCT').value) {
                 document.getElementById('drawerTenSP').textContent = item.ten_sp || 'N/A';
             }
+            suppressUDCTAutoSave = false;
 
             document.getElementById('detailDrawerOverlay').classList.remove('hidden');
             document.getElementById('detailDrawer').classList.add('open');
@@ -1772,24 +1948,79 @@
             document.getElementById('detailDrawerOverlay').classList.add('hidden');
             document.getElementById('detailDrawer').classList.remove('open');
             currentEditRowIndex = -1;
+            currentDrawerMode = 'udct';
+            clearTimeout(udctAutoSaveTimer);
         }
 
-        async function saveRowDetail() {
-            if (currentEditRowIndex === -1) return;
-            const item = udctData[currentEditRowIndex];
-            const newData = {
-                so_luong: document.getElementById('editSoLuong').value,
-                don_gia_1: document.getElementById('editDonGia').value,
-                id_sp: document.getElementById('editIdSP').value,
-                id_sp_ct: document.getElementById('editIdSPCT').value,
-                tinh_trang: document.getElementById('editTinhTrang').value,
-                trang_thai: document.getElementById('editTrangThai').value,
-                ghi_chu: document.getElementById('editGhiChu').value
-            };
+        async function saveRowDetail(showLoading = false) {
             const loadingOverlay = document.getElementById('loadingOverlay');
-            loadingOverlay.classList.remove('hidden');
+            if (showLoading) loadingOverlay.classList.remove('hidden');
+
             try {
                 const token = await getAccessToken();
+                if (currentDrawerMode === 'hh') {
+                    if (currentHangHoanEditIndex === -1) return;
+                    const item = hangHoanData[currentHangHoanEditIndex];
+                    if (!item) return;
+
+                    const newData = {
+                        mvd: document.getElementById('editIdSP')?.value || '',
+                        ma_gian: document.getElementById('editIdSPCT')?.value || '',
+                        sku: document.getElementById('editSoLuong')?.value || '',
+                        sku_ct: document.getElementById('editDonGia')?.value || '',
+                        slg: document.getElementById('editTinhTrang')?.value || '',
+                        tinh_trang: document.getElementById('editTrangThai')?.value || '',
+                        kho: document.getElementById('editGhiChu')?.value || ''
+                    };
+
+                    const batchUpdates = [
+                        { range: `${CONFIG.hhbhSheetName}!C${item.rowIndex}`, values: [[newData.mvd]] },
+                        { range: `${CONFIG.hhbhSheetName}!D${item.rowIndex}`, values: [[newData.ma_gian]] },
+                        { range: `${CONFIG.hhbhSheetName}!H${item.rowIndex}`, values: [[newData.sku]] },
+                        { range: `${CONFIG.hhbhSheetName}!I${item.rowIndex}`, values: [[newData.sku_ct]] },
+                        { range: `${CONFIG.hhbhSheetName}!J${item.rowIndex}`, values: [[newData.slg]] },
+                        { range: `${CONFIG.hhbhSheetName}!N${item.rowIndex}`, values: [[newData.tinh_trang]] },
+                        { range: `${CONFIG.hhbhSheetName}!T${item.rowIndex}`, values: [[newData.kho]] }
+                    ];
+
+                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values:batchUpdate`;
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: batchUpdates })
+                    });
+
+                    if (resp.ok) {
+                        Object.assign(item, {
+                            mvd: newData.mvd,
+                            ma_gian: newData.ma_gian,
+                            sku: newData.sku,
+                            sku_ct: newData.sku_ct,
+                            slg: newData.slg,
+                            tinh_trang: newData.tinh_trang,
+                            kho: newData.kho
+                        });
+                        filterHangHoanData();
+                        closeDetailDrawer();
+                        alert('Cập nhật Hàng hoàn thành công!');
+                    } else {
+                        console.error('Save error:', await resp.text());
+                        alert('Lỗi khi lưu dữ liệu Hàng hoàn vào Google Sheet.');
+                    }
+                    return;
+                }
+
+                if (currentEditRowIndex === -1) return;
+                const item = udctData[currentEditRowIndex];
+                const newData = {
+                    so_luong: document.getElementById('editSoLuong').value,
+                    don_gia_1: document.getElementById('editDonGia').value,
+                    id_sp: document.getElementById('editIdSP').value,
+                    id_sp_ct: document.getElementById('editIdSPCT').value,
+                    tinh_trang: document.getElementById('editTinhTrang').value,
+                    trang_thai: document.getElementById('editTrangThai').value,
+                    ghi_chu: document.getElementById('editGhiChu').value
+                };
                 // so_luong=O, id_sp=P, id_sp_ct=Q, tinh_trang=X, trang_thai=Y, ghi_chu=AA, don_gia=AE
                 const batchUpdates = [
                     { range: `${CONFIG.udctSheetName}!O${item.rowIndex}`, values: [[newData.so_luong]] },
@@ -1809,8 +2040,6 @@
                 if (resp.ok) {
                     Object.assign(item, newData);
                     renderUDCTTable(filteredUDCT);
-                    closeDetailDrawer();
-                    alert('Cập nhật thành công!');
                 } else {
                     console.error('Save error:', await resp.text());
                     alert('Lỗi khi lưu dữ liệu vào Google Sheet.');
@@ -1819,7 +2048,7 @@
                 console.error('Save error:', err);
                 alert('Đã xảy ra lỗi khi lưu.');
             } finally {
-                loadingOverlay.classList.add('hidden');
+                if (showLoading) loadingOverlay.classList.add('hidden');
             }
         }
 
@@ -2023,11 +2252,11 @@
         }
 
         async function loadUDCTData() {
-            document.getElementById('donhangTableBody').innerHTML = generateSkeletonRows(16, 5);
+            document.getElementById('donhangTableBody').innerHTML = generateSkeletonRows(19, 5);
             try {
                 const data = await fetchSheetData(CONFIG.udctSheetName);
                 if (data.length <= 1) {
-                    document.getElementById('donhangTableBody').innerHTML = '<tr><td colspan="17" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
+                    document.getElementById('donhangTableBody').innerHTML = '<tr><td colspan="19" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
                     return;
                 }
 
@@ -2084,8 +2313,6 @@
             const khungHs = [...new Set(udctData.map(i => i.khung_h))].filter(Boolean).sort();
             const maGians = [...new Set(udctData.map(i => i.ma_gian))].filter(Boolean).sort();
 
-            const tt = [...new Set(udctData.map(i => i.trang_thai))].filter(Boolean).sort();
-
             const fillSelect = (id, list, placeholder) => {
                 const select = document.getElementById(id);
                 if (!select) return;
@@ -2103,6 +2330,18 @@
                 container.innerHTML = html;
             };
 
+            const renderMultiStatusBtns = (id, options, currentVal) => {
+                const container = document.getElementById(id + 'Buttons');
+                if (!container) return;
+                const selected = new Set((currentVal || '').split('||').map(normalizeTrangThai).filter(Boolean));
+                let html = `<button onclick="setUDCTStatusMultiFilter('')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${selected.size === 0 ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">Tất cả</button>`;
+                options.forEach(opt => {
+                    const active = selected.has(normalizeTrangThai(opt));
+                    html += `<button onclick="setUDCTStatusMultiFilter('${opt}')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${active ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">${opt}</button>`;
+                });
+                container.innerHTML = html;
+            };
+
             const sf = document.getElementById('filterUDCTSan');
             if (sf) renderBtns('filterUDCTSan', sans, sf.value);
 
@@ -2110,7 +2349,7 @@
             if (khf) renderBtns('filterUDCTKhungH', khungHs, khf.value);
 
             const ttf = document.getElementById('filterUDCTTrangThai');
-            if (ttf) renderBtns('filterUDCTTrangThai', tt, ttf.value);
+            if (ttf) renderMultiStatusBtns('filterUDCTTrangThai', udctTrangThaiOptions, ttf.value);
 
             fillSelect('filterUDCTMaGian', maGians, 'Tất cả Mã gian');
 
@@ -2128,10 +2367,65 @@
             filterUDCTTable();
         }
 
+        function setUDCTStatusMultiFilter(val) {
+            const el = document.getElementById('filterUDCTTrangThai');
+            if (!el) return;
+            const selected = new Set((el.value || '').split('||').map(normalizeTrangThai).filter(Boolean));
+            const normalizedVal = normalizeTrangThai(val);
+            if (!val) {
+                selected.clear();
+            } else if (selected.has(normalizedVal)) {
+                selected.delete(normalizedVal);
+            } else {
+                selected.add(normalizedVal);
+            }
+            el.value = Array.from(selected).join('||');
+            populateUDCTFilters();
+            filterUDCTTable();
+        }
+
+        function renderEditTrangThaiButtons(currentVal = '') {
+            const container = document.getElementById('editTrangThaiButtons');
+            if (!container) return;
+            const options = [
+                { value: '', label: 'Để trống' },
+                { value: '1 THAY THẾ', label: '1 THAY THẾ' },
+                { value: '2 HỦY', label: '2 HỦY' },
+                { value: '3 HÊT HÀNG', label: '3 HÊT HÀNG' },
+                { value: '4 MAI GỌI', label: '4 MAI GỌI' }
+            ];
+            container.innerHTML = options.map(opt => {
+                const active = currentVal === opt.value;
+                return `<button type="button" onclick="setEditTrangThai('${opt.value}')" class="px-3 py-1.5 text-xs rounded-lg font-bold border transition-all duration-200 ${active ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">${opt.label}</button>`;
+            }).join('');
+        }
+
+        function setEditTrangThai(value) {
+            const input = document.getElementById('editTrangThai');
+            if (input) input.value = value;
+            renderEditTrangThaiButtons(value);
+            scheduleUDCTAutoSave();
+        }
+
+        function scheduleUDCTAutoSave() {
+            if (suppressUDCTAutoSave) return;
+            if (currentDrawerMode !== 'udct' || currentEditRowIndex === -1) return;
+            clearTimeout(udctAutoSaveTimer);
+            udctAutoSaveTimer = setTimeout(() => {
+                saveRowDetail(false);
+            }, 450);
+        }
+
         let filteredUDCT = [];
         let udctCurrentPage = 1;
         const uitItemsPerPage = 500; // tăng lên 500 dòng 
         let udctQuickStatusTab = 'all'; // 'all' or 'cancelled'
+        const udctSelectedRows = new Set();
+        const udctTrangThaiOptions = ['1 THAY THẾ', '2 HỦY', '3 HÊT HÀNG', '4 MAI GỌI'];
+
+        function normalizeTrangThai(v) {
+            return (v || '').toString().trim().toUpperCase();
+        }
 
         function setUDCTQuickTab(tab) {
             udctQuickStatusTab = tab;
@@ -2192,6 +2486,7 @@
             const kh = document.getElementById('filterUDCTKhungH').value;
             const mg = document.getElementById('filterUDCTMaGian').value;
             const tt = document.getElementById('filterUDCTTrangThai').value;
+            const selectedStatuses = new Set((tt || '').split('||').map(normalizeTrangThai).filter(Boolean));
             const search = document.getElementById('filterUDCTSearch').value.toLowerCase();
 
             filteredUDCT = udctData.filter(item => {
@@ -2206,7 +2501,7 @@
                 if (san && item.san !== san) return false;
                 if (kh && item.khung_h !== kh) return false;
                 if (mg && item.ma_gian !== mg) return false;
-                if (tt && item.trang_thai !== tt) return false;
+                if (selectedStatuses.size > 0 && !selectedStatuses.has(normalizeTrangThai(item.trang_thai))) return false;
 
                 // Quick tab filter
                 if (udctQuickStatusTab === 'cancelled') {
@@ -2276,10 +2571,12 @@
             });
 
             if (filteredUDCT.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="18" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="19" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
                 document.getElementById('udctPageInfo').innerHTML = 'Không có dữ liệu';
                 document.getElementById('udctPrevPage').disabled = true;
                 document.getElementById('udctNextPage').disabled = true;
+                const selectAll = document.getElementById('udctSelectAll');
+                if (selectAll) selectAll.checked = false;
                 return;
             }
 
@@ -2297,6 +2594,9 @@
 
             tbody.innerHTML = pageData.map((item) => `
                 <tr onclick="openDetailDrawer(${udctData.indexOf(item)})" class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer group">
+                    <td class="px-2 py-2 text-center">
+                        <input type="checkbox" ${udctSelectedRows.has(item.rowIndex) ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleUDCTRowSelection(${item.rowIndex}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/30 cursor-pointer">
+                    </td>
                     <td class="px-3 py-2 text-[13px] text-slate-900">${item.ngay || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900">${item.san || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900">${item.khung_h || '-'}</td>
@@ -2313,22 +2613,35 @@
                     <td class="px-3 py-2 text-[13px] text-slate-900">${item.so_luong || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-500">${item.id_sp || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-500">${item.id_sp_ct || '-'}</td>
-                    <td class="px-3 py-2 text-[13px] text-slate-900 max-w-xs truncate">${item.ten_sp || '-'}</td>
+                    <td class="px-3 py-2 text-[13px] text-slate-900 max-w-[6rem] truncate">${item.ten_sp || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900 font-semibold">${item.slg_xuat || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900">${parseFloat(item.don_gia_1 || 0).toLocaleString('vi-VN')}</td>
                     <td class="px-3 py-2 text-[13px]">
                         <button onclick="event.stopPropagation(); updateUDCTPrice(${udctData.indexOf(item)})" class="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-100" title="Up đơn giá">
                             <span class="text-[10px]">Up giá</span>
                         </button>
+                        <button onclick="event.stopPropagation(); quickCancelUDCT(${udctData.indexOf(item)})" class="p-1 px-2 ml-1 text-red-600 hover:bg-red-50 rounded-lg border border-red-100" title="Hủy nhanh">
+                            <span class="text-[10px]">Hủy nhanh</span>
+                        </button>
+                        <button onclick="event.stopPropagation(); quickSetUDCTStatus(${udctData.indexOf(item)}, '3 HÊT HÀNG')" class="p-1 px-2 ml-1 text-amber-600 hover:bg-amber-50 rounded-lg border border-amber-100" title="3 HÊT HÀNG">
+                            <span class="text-[10px]">3 HÊT HÀNG</span>
+                        </button>
+                        <button onclick="event.stopPropagation(); quickSetUDCTStatus(${udctData.indexOf(item)}, '4 MAI GỌI')" class="p-1 px-2 ml-1 text-sky-600 hover:bg-sky-50 rounded-lg border border-sky-100" title="4 MAI GỌI">
+                            <span class="text-[10px]">4 MAI GỌI</span>
+                        </button>
                     </td>
                     <td class="px-3 py-2 text-[13px]">
-                        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium ${item.trang_thai === '0 THAY THẾ' ? 'bg-green-100 text-green-700' : (item.trang_thai === '1 HỦY' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700')}">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium ${item.trang_thai === '1 THAY THẾ' ? 'bg-green-100 text-green-700' : (item.trang_thai === '2 HỦY' ? 'bg-red-100 text-red-700' : (item.trang_thai === '3 HÊT HÀNG' ? 'bg-amber-100 text-amber-700' : (item.trang_thai === '4 MAI GỌI' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700')))}">
                             ${item.trang_thai || '-'}
                         </span>
                     </td>
                     <td class="px-3 py-2 text-[13px] text-slate-500 italic truncate max-w-[150px]">${item.ghi_chu || '-'}</td>
                 </tr>
             `).join('');
+            const selectAll = document.getElementById('udctSelectAll');
+            if (selectAll) {
+                selectAll.checked = pageData.length > 0 && pageData.every(item => udctSelectedRows.has(item.rowIndex));
+            }
         }
 
         function copyUniqueMVD() {
@@ -2370,6 +2683,40 @@
                 alert('Lỗi khi sao chép!');
             }
             document.body.removeChild(textArea);
+        }
+
+        function toggleUDCTRowSelection(rowIndex, checked) {
+            if (checked) udctSelectedRows.add(rowIndex);
+            else udctSelectedRows.delete(rowIndex);
+        }
+
+        function toggleSelectAllUDCT(source) {
+            const startIndex = (udctCurrentPage - 1) * uitItemsPerPage;
+            const endIndex = Math.min(startIndex + uitItemsPerPage, filteredUDCT.length);
+            const pageData = filteredUDCT.slice(startIndex, endIndex);
+            pageData.forEach(item => {
+                if (source.checked) udctSelectedRows.add(item.rowIndex);
+                else udctSelectedRows.delete(item.rowIndex);
+            });
+            renderUDCTTable();
+        }
+
+        async function quickCancelUDCT(originalIndex) {
+            const item = udctData[originalIndex];
+            if (!item) return;
+            const success = await updateSheetValue(CONFIG.udctSheetName, `Y${item.rowIndex}`, '2 HỦY');
+            if (!success) return alert(`Lỗi khi cập nhật trạng thái hủy cho dòng ${item.rowIndex}`);
+            item.trang_thai = '2 HỦY';
+            renderUDCTTable();
+        }
+
+        async function quickSetUDCTStatus(originalIndex, statusValue) {
+            const item = udctData[originalIndex];
+            if (!item) return;
+            const success = await updateSheetValue(CONFIG.udctSheetName, `Y${item.rowIndex}`, statusValue);
+            if (!success) return alert(`Lỗi khi cập nhật trạng thái cho dòng ${item.rowIndex}`);
+            item.trang_thai = statusValue;
+            renderUDCTTable();
         }
 
         async function updateSheetValue(sheetName, range, value) {
@@ -2512,7 +2859,7 @@
                     gia_dong_goi: parseFloat(idxGiaDongGoi !== -1 ? row[idxGiaDongGoi] : row[11]) || 0,
                     ten_sp: idxTen !== -1 ? row[idxTen] : (row[1] || ""),
                     mapping: row
-                }));
+                })).filter(item => item.mapping.some(cell => String(cell || '').trim() !== ''));
 
                 renderSanphamTable(1);
                 populateSPLists();
@@ -2554,13 +2901,13 @@
 
             tbody.innerHTML = paginated.map(item => `
                 <tr class="border-b border-slate-100 hover:bg-slate-50">
-                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[1] || '-'}</td>
-                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[2] || '-'}</td>
-                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[5] || '-'}</td>
-                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[7] || '-'}</td>
-                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[9] || '-'}</td>
-                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[11] || '-'}</td>
-                    <td class="px-3 py-2 text-[13px] text-slate-900 whitespace-nowrap">${item.mapping[31] || '-'}</td>
+                    <td class="px-2 py-1.5 text-xs text-slate-900 max-w-[240px] truncate">${item.mapping[1] || '-'}</td>
+                    <td class="px-2 py-1.5 text-xs text-slate-900 max-w-[200px] truncate">${item.mapping[2] || '-'}</td>
+                    <td class="px-2 py-1.5 text-xs text-slate-900 whitespace-nowrap">${item.mapping[5] || '-'}</td>
+                    <td class="px-2 py-1.5 text-xs text-slate-900 whitespace-nowrap">${item.mapping[7] || '-'}</td>
+                    <td class="px-2 py-1.5 text-xs text-slate-900 whitespace-nowrap">${item.mapping[9] || '-'}</td>
+                    <td class="px-2 py-1.5 text-xs text-slate-900 whitespace-nowrap">${item.mapping[11] || '-'}</td>
+                    <td class="px-2 py-1.5 text-xs text-slate-900 whitespace-nowrap">${item.mapping[31] || '-'}</td>
                 </tr>
             `).join('');
         }
