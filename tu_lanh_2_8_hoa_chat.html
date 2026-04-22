@@ -8,22 +8,92 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
-            .no-print {
-                display: none;
+            @page {
+                size: A4 landscape;
+                margin: 5mm;
             }
 
+            html,
             body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
                 background: transparent;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                overflow: hidden;
+            }
+
+            .no-print {
+                display: none !important;
             }
 
             .page-break {
                 page-break-before: always;
+                break-before: page;
+            }
+
+            #print-container {
+                max-width: none !important;
+                margin: 0 !important;
+                width: 100% !important;
             }
 
             section {
                 box-shadow: none !important;
-                margin: 0 !important;
+                margin: 0 0 4mm 0 !important;
                 padding: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+                transform: none !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .chart-wrap {
+                width: 100% !important;
+                overflow: hidden !important;
+            }
+
+            table {
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+
+            th,
+            td {
+                font-size: 7px;
+                height: 14px;
+                padding: 0;
+                line-height: 1;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            .header-title {
+                font-size: 12px;
+                margin: 2px 0 4px;
+                line-height: 1.15;
+            }
+
+            .grid {
+                gap: 0.15rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .mark {
+                font-size: 11px;
+            }
+
+            .td-name {
+                font-size: 6px;
+                line-height: 1;
+            }
+
+            .chart-svg {
+                width: 100% !important;
+                height: 100% !important;
             }
         }
 
@@ -59,19 +129,56 @@
 
         .mark {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 18px;
+            line-height: 1;
+            display: inline-block;
+            transform: translateY(1px);
+        }
+
+        .dot-cell {
+            position: relative;
+        }
+
+        .dot-cell.has-point::before {
+            content: '.';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: 700;
+            color: #2563eb;
+            line-height: 1;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .chart-svg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+            z-index: 1;
         }
     </style>
 </head>
 
-<body class="bg-gray-100 p-4 font-sans text-xs">
+<body class="bg-gray-100 p-2 font-sans text-xs">
 
     <div class="max-w-5xl mx-auto space-y-12" id="print-container">
         <!-- JS sẽ inject HTML vào đây -->
     </div>
 
     <div class="no-print fixed bottom-4 right-4 flex gap-4">
-        <button onclick="window.print()"
+        <button onclick="printWithAlignedOverlay()"
             class="bg-blue-600 text-white px-6 py-2 rounded-full shadow-lg hover:bg-blue-700 transition font-bold">
             🖨️ In Phiếu
         </button>
@@ -127,8 +234,16 @@
             }
             if (pageIndex > 0 && !hasData) return; // Bỏ qua trang 2 nếu không có dữ liệu
 
+            const orderedKeys = [];
+            for (let d = page.start; d <= page.end; d++) {
+                const morning = dataMap[d] && dataMap[d]['S'] ? parseInt(dataMap[d]['S'].temp) : null;
+                const afternoon = dataMap[d] && dataMap[d]['C'] ? parseInt(dataMap[d]['C'].temp) : null;
+                if (morning !== null && !isNaN(morning)) orderedKeys.push(`d${d}-S`);
+                if (afternoon !== null && !isNaN(afternoon)) orderedKeys.push(`d${d}-C`);
+            }
+
             htmlContent += `
-            <section class="bg-white p-6 shadow-lg rounded-lg border border-gray-200 ${pageIndex > 0 ? 'page-break mt-8' : ''}">
+            <section class="bg-white p-3 shadow-lg rounded-lg border border-gray-200 ${pageIndex > 0 ? 'page-break' : ''}">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="font-bold">Bệnh viện Nhi Đồng 1</h3>
@@ -150,13 +265,15 @@
                     <p><strong>Tháng/Năm:</strong> ${thangNam}</p>
                 </div>
 
-                <table>
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th rowspan="2" class="w-16">Nhiệt độ</th>
-                            <th colspan="${(page.end - page.start + 1) * 2}" class="font-bold">Ngày trong tháng (${page.start} - ${page.end})</th>
-                        </tr>
-                        <tr class="bg-gray-100">`;
+                <div class="chart-wrap" style="width: 100%;">
+                    <svg class="chart-svg" preserveAspectRatio="none"></svg>
+                    <table>
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th rowspan="2" class="w-16">Nhiệt độ</th>
+                                <th colspan="${(page.end - page.start + 1) * 2}" class="font-bold">Ngày trong tháng (${page.start} - ${page.end})</th>
+                            </tr>
+                            <tr class="bg-gray-100">`;
 
             for (let d = page.start; d <= page.end; d++) {
                 htmlContent += `<th colspan="2" class="w-12">${d}</th>`;
@@ -183,10 +300,21 @@
                 htmlContent += `<tr><td class="${tempClass}">${temp}°C</td>`;
 
                 for (let d = page.start; d <= page.end; d++) {
-                    let m_mark = (dataMap[d] && dataMap[d]['S'] && parseInt(dataMap[d]['S'].temp) === temp) ? '<span class="mark text-green-700">v</span>' : '';
-                    let a_mark = (dataMap[d] && dataMap[d]['C'] && parseInt(dataMap[d]['C'].temp) === temp) ? '<span class="mark text-green-700">v</span>' : '';
+                    const morningTemp = dataMap[d] && dataMap[d]['S'] ? parseInt(dataMap[d]['S'].temp) : null;
+                    const afternoonTemp = dataMap[d] && dataMap[d]['C'] ? parseInt(dataMap[d]['C'].temp) : null;
 
-                    htmlContent += `<td>${m_mark}</td><td>${a_mark}</td>`;
+                    const mActive = morningTemp === temp;
+                    const aActive = afternoonTemp === temp;
+
+                    const mClasses = ['dot-cell'];
+                    const aClasses = ['dot-cell'];
+                    if (mActive) mClasses.push('has-point');
+                    if (aActive) aClasses.push('has-point');
+
+                    const mKey = mActive ? `data-key="d${d}-S"` : '';
+                    const aKey = aActive ? `data-key="d${d}-C"` : '';
+
+                    htmlContent += `<td class="${mClasses.join(' ')}" ${mKey}></td><td class="${aClasses.join(' ')}" ${aKey}></td>`;
                 }
                 htmlContent += `</tr>`;
             }
@@ -211,6 +339,117 @@
         });
 
         document.getElementById('print-container').innerHTML = htmlContent;
+
+        function drawOverlayLines() {
+            const sections = document.querySelectorAll('#print-container section');
+
+            sections.forEach((section, sectionIndex) => {
+                const page = pages[sectionIndex];
+                if (!page) return;
+
+                const wrap = section.querySelector('.chart-wrap');
+                const table = section.querySelector('table');
+                const svg = section.querySelector('.chart-svg');
+                if (!wrap || !table || !svg) return;
+
+                const wrapRect = wrap.getBoundingClientRect();
+                const width = wrapRect.width;
+                const height = wrapRect.height;
+
+                svg.style.left = '0px';
+                svg.style.top = '0px';
+                svg.style.width = `${width}px`;
+                svg.style.height = `${height}px`;
+                svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+                svg.setAttribute('preserveAspectRatio', 'none');
+
+                const points = [];
+                for (let d = page.start; d <= page.end; d++) {
+                    const morningCell = section.querySelector(`[data-key="d${d}-S"]`);
+                    const afternoonCell = section.querySelector(`[data-key="d${d}-C"]`);
+
+                    if (morningCell) {
+                        const r = morningCell.getBoundingClientRect();
+                        points.push({ x: (r.left - wrapRect.left) + (r.width / 2), y: (r.top - wrapRect.top) + (r.height / 2) });
+                    }
+                    if (afternoonCell) {
+                        const r = afternoonCell.getBoundingClientRect();
+                        points.push({ x: (r.left - wrapRect.left) + (r.width / 2), y: (r.top - wrapRect.top) + (r.height / 2) });
+                    }
+                }
+
+                svg.innerHTML = '';
+                if (points.length < 2) return;
+
+                const ns = 'http://www.w3.org/2000/svg';
+                const polyline = document.createElementNS(ns, 'polyline');
+                polyline.setAttribute('fill', 'none');
+                polyline.setAttribute('stroke', '#dc2626');
+                polyline.setAttribute('stroke-width', '1.8');
+                polyline.setAttribute('stroke-linecap', 'round');
+                polyline.setAttribute('stroke-linejoin', 'round');
+                polyline.setAttribute('vector-effect', 'non-scaling-stroke');
+                polyline.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
+                svg.appendChild(polyline);
+
+                points.forEach(p => {
+                    const circle = document.createElementNS(ns, 'circle');
+                    circle.setAttribute('cx', p.x);
+                    circle.setAttribute('cy', p.y);
+                    circle.setAttribute('r', '2.2');
+                    circle.setAttribute('fill', '#dc2626');
+                    circle.setAttribute('stroke', '#ffffff');
+                    circle.setAttribute('stroke-width', '1');
+                    circle.setAttribute('vector-effect', 'non-scaling-stroke');
+                    svg.appendChild(circle);
+                });
+            });
+        }
+
+        function tagDataCells() {
+            const sections = document.querySelectorAll('#print-container section');
+            sections.forEach((section, sectionIndex) => {
+                const page = pages[sectionIndex];
+                if (!page) return;
+
+                const rows = section.querySelectorAll('tbody tr');
+                const tempRows = Array.from(rows).slice(0, 7); // 8°C -> 2°C
+
+                tempRows.forEach((tr, idx) => {
+                    const temp = 8 - idx;
+                    const tds = tr.querySelectorAll('td');
+                    for (let d = page.start; d <= page.end; d++) {
+                        const base = 1 + ((d - page.start) * 2);
+                        const mCell = tds[base];
+                        const cCell = tds[base + 1];
+
+                        const mTemp = dataMap[d] && dataMap[d]['S'] ? parseInt(dataMap[d]['S'].temp) : null;
+                        const cTemp = dataMap[d] && dataMap[d]['C'] ? parseInt(dataMap[d]['C'].temp) : null;
+
+                        if (mCell && mTemp === temp) mCell.setAttribute('data-key', `d${d}-S`);
+                        if (cCell && cTemp === temp) cCell.setAttribute('data-key', `d${d}-C`);
+                    }
+                });
+            });
+        }
+
+        function redrawAll() {
+            tagDataCells();
+            drawOverlayLines();
+        }
+
+        function printWithAlignedOverlay() {
+            redrawAll();
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    window.print();
+                });
+            });
+        }
+
+        redrawAll();
+        window.addEventListener('resize', redrawAll);
+        window.addEventListener('beforeprint', redrawAll);
 
     </script>
 </body>
