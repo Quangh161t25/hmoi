@@ -155,18 +155,27 @@ thead th { font-weight: 700; background: #f4f4f4; }
 
 @media print {
     @page { size: A4 landscape; margin: 5mm; }
-    body { background: #fff; }
+    html, body {
+        width: 297mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
     .page {
+        width: 287mm;
+        min-height: 200mm;
         box-shadow: none;
         border-radius: 0;
-        margin: 0;
-        max-width: none;
+        margin: 0 auto;
+        max-width: 287mm;
         padding: 0;
         page-break-after: always;
+        overflow: visible;
     }
     .page:last-child { page-break-after: auto; }
     .print-btn { display: none; }
-    th, td { height: 16px; font-size: 8px; }
+    th, td { height: 24px; font-size: 11px; }
+    .chart-wrap { width: 100%; }
     .top-info, .meta, .title { margin-bottom: 6px; }
     .note { margin-bottom: 24px; }
 }
@@ -373,20 +382,19 @@ function buildTables() {
 }
 
 function getCellCenter(cell, container) {
-    let x = cell.offsetLeft + cell.offsetWidth / 2;
-    let y = cell.offsetTop + cell.offsetHeight / 2;
-    let parent = cell.offsetParent;
-    while (parent && parent !== container) {
-        x += parent.offsetLeft;
-        y += parent.offsetTop;
-        parent = parent.offsetParent;
-    }
+    const cellRect = cell.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const x = (cellRect.left - containerRect.left) + cellRect.width / 2;
+    const y = (cellRect.top - containerRect.top) + cellRect.height / 2;
     return { x, y };
 }
 
 function drawLine(svgId, tableId, startDay, endDay) {
     const wrap = document.getElementById(`chart-wrap-${tableId}`);
     const svg = document.getElementById(svgId);
+    const width = wrap.clientWidth || 0;
+    const height = wrap.clientHeight || 0;
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
     const points = [];
 
     for (let d = startDay; d <= endDay; d++) {
@@ -424,17 +432,33 @@ function redrawAll() {
     drawLine('chart-svg-2', '2', 16, 31);
 }
 
+function redrawAfterLayout(callback) {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            redrawAll();
+            if (typeof callback === 'function') callback();
+        });
+    });
+}
+
 function printPage() {
-    setTimeout(() => {
-        redrawAll();
-        window.print();
-    }, 80);
+    redrawAfterLayout(() => window.print());
 }
 
 buildTables();
-window.addEventListener('load', redrawAll);
-window.addEventListener('resize', () => setTimeout(redrawAll, 50));
-window.addEventListener('beforeprint', () => setTimeout(redrawAll, 100));
+window.addEventListener('load', () => redrawAfterLayout());
+window.addEventListener('resize', () => redrawAfterLayout());
+window.addEventListener('beforeprint', () => redrawAfterLayout());
+
+if (window.matchMedia) {
+    const mediaQueryList = window.matchMedia('print');
+    const onPrintMediaChange = () => redrawAfterLayout();
+    if (mediaQueryList.addEventListener) {
+        mediaQueryList.addEventListener('change', onPrintMediaChange);
+    } else if (mediaQueryList.addListener) {
+        mediaQueryList.addListener(onPrintMediaChange);
+    }
+}
 </script>
 </body>
 </html>
