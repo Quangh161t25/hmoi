@@ -156,17 +156,36 @@
 </head>
 
 <body class="min-h-screen bg-slate-50">
-    <!-- Login Screen Removed -->
-
-
-    <div id="loginLoading" class="hidden flex flex-col items-center py-6">
-        <div class="spinner mb-4"></div>
-        <p class="text-sm text-slate-600 font-medium">Đang xác thực dữ liệu...</p>
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
+        <div class="w-full max-w-md rounded-3xl bg-white/95 shadow-2xl border border-white/20 p-8 login-card">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white font-black text-2xl shadow-lg">U</div>
+                <h1 class="mt-5 text-2xl font-bold text-slate-900">Đăng nhập hệ thống</h1>
+                <p class="mt-2 text-sm text-slate-500">Tài khoản đăng nhập là <b>id</b>, mật khẩu là <b>mat_khau</b> từ sheet DSNV.</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="loginId">Tài khoản</label>
+                    <input id="loginId" type="text" placeholder="Nhập id nhân viên" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="loginPassword">Mật khẩu</label>
+                    <input id="loginPassword" type="password" placeholder="Nhập mật khẩu" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                </div>
+                <button onclick="handleLogin()" class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">Đăng nhập</button>
+                <p id="loginError" class="hidden text-sm text-rose-600 text-center"></p>
+            </div>
+        </div>
     </div>
 
+    <div id="loginLoading" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-white/80">
+        <div class="flex flex-col items-center py-6">
+            <div class="spinner mb-4"></div>
+            <p class="text-sm text-slate-600 font-medium">Đang xác thực dữ liệu...</p>
+        </div>
+    </div>
 
-
-    <div id="mainApp" class="fixed inset-0 bg-white flex">
+    <div id="mainApp" class="fixed inset-0 bg-white flex hidden">
         <div id="sidebar"
             class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 sidebar-transition relative">
             <div class="p-3.5 border-b border-slate-200 flex items-center justify-between">
@@ -1988,14 +2007,12 @@
         }
 
         function openDetailDrawer(originalIndex) {
-            if (currentUser && currentUser.role === 'demo') {
-                return alert('Tài khoản dùng thử chỉ được xem, không được thao tác chỉnh sửa!');
-            }
             currentDrawerMode = 'udct';
             currentEditRowIndex = originalIndex;
             currentHangHoanEditIndex = -1;
             const item = udctData[originalIndex];
             if (!item) return;
+            const isKinhDoanh = currentUser && currentUser.role === 'kinhdoanh';
             suppressUDCTAutoSave = true;
             document.getElementById('drawerRowId').textContent = `Row ID: ${item.rowIndex}`;
             document.getElementById('drawerTenSP').textContent = item.ten_sp || 'N/A';
@@ -2007,6 +2024,15 @@
             document.getElementById('editTrangThai').value = item.trang_thai || '';
             renderEditTrangThaiButtons(item.trang_thai || '');
             document.getElementById('editGhiChu').value = item.ghi_chu || '';
+
+            ['editSoLuong', 'editDonGia', 'editIdSP', 'editIdSPCT', 'editGhiChu'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = isKinhDoanh;
+            });
+            const ttButtons = document.getElementById('editTrangThaiButtons');
+            if (ttButtons) ttButtons.style.pointerEvents = isKinhDoanh ? 'none' : '';
+            const footer = document.querySelector('#detailDrawer .pt-4.border-t.border-slate-200.flex.gap-3');
+            if (footer) footer.style.display = isKinhDoanh ? 'none' : '';
 
             handleIdSPChange();
             handleIdSPCTChange();
@@ -2227,6 +2253,30 @@
                 console.error(`Fetch ${sheetName} error:`, err);
                 return [];
             }
+        }
+
+        async function fetchAuthData() {
+            const data = await fetchSheetData(CONFIG.authSheetName);
+            if (!data || data.length <= 1) return [];
+
+            const headers = data[0].map(h => (h || '').toString().trim().toLowerCase());
+            const getIndex = (name) => headers.indexOf(name.toLowerCase());
+            const idxId = getIndex('id');
+            const idxHoten = getIndex('hoten');
+            const idxQuyen = getIndex('quyen');
+            const idxMatKhau = getIndex('mat_khau');
+            const idxTinhTrang = getIndex('tinhtrang');
+
+            usersData = data.slice(1).map(row => ({
+                id: (idxId !== -1 ? row[idxId] : row[0] || '').toString().trim(),
+                name: (idxHoten !== -1 ? row[idxHoten] : row[1] || '').toString().trim(),
+                role: (idxQuyen !== -1 ? row[idxQuyen] : '').toString().trim().toLowerCase() || 'user',
+                password: (idxMatKhau !== -1 ? row[idxMatKhau] : '').toString(),
+                tinhTrang: (idxTinhTrang !== -1 ? row[idxTinhTrang] : '').toString().trim(),
+                raw: row
+            })).filter(user => user.id && user.password);
+
+            return usersData;
         }
 
         async function clearSheetData(sheetName) {
@@ -2754,6 +2804,7 @@
                     <td class="px-3 py-2 text-[13px] text-slate-900 max-w-[6rem] truncate">${item.ten_sp || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900 font-semibold">${item.slg_xuat || '-'}</td>
                     <td class="px-3 py-2 text-[13px] text-slate-900">${parseFloat(item.don_gia_1 || 0).toLocaleString('vi-VN')}</td>
+                    ${currentUser && currentUser.role === 'kinhdoanh' ? '<td class="px-3 py-2 text-[13px] text-slate-400">-</td>' : `
                     <td class="px-3 py-2 text-[13px]">
                         <button onclick="event.stopPropagation(); updateUDCTPrice(${udctData.indexOf(item)})" class="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-100" title="Up đơn giá">
                             <span class="text-[10px]">Up giá</span>
@@ -2767,7 +2818,7 @@
                         <button onclick="event.stopPropagation(); quickSetUDCTStatus(${udctData.indexOf(item)}, '4 MAI GỌI')" class="p-1 px-2 ml-1 text-sky-600 hover:bg-sky-50 rounded-lg border border-sky-100" title="4 MAI GỌI">
                             <span class="text-[10px]">4 MAI GỌI</span>
                         </button>
-                    </td>
+                    </td>`}
                     <td class="px-3 py-2 text-[13px]">
                         <span class="px-2 py-0.5 rounded-full text-[11px] font-medium ${item.trang_thai === '1 THAY THẾ' ? 'bg-green-100 text-green-700' : (item.trang_thai === '2 HỦY' ? 'bg-red-100 text-red-700' : (item.trang_thai === '3 HÊT HÀNG' ? 'bg-amber-100 text-amber-700' : (item.trang_thai === '4 MAI GỌI' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700')))}">
                             ${item.trang_thai || '-'}
@@ -3662,6 +3713,10 @@
         }
 
         async function handleExcelUploadDonhang(files) {
+            if (currentUser && ['demo', 'kinhdoanh'].includes(currentUser.role)) {
+                alert('Tài khoản này không được phép tải Excel cho Đơn chi tiết.');
+                return;
+            }
             if (!files || files.length === 0) return;
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.remove('hidden');
@@ -3781,6 +3836,10 @@
         }
 
         async function handleExcelUpload(files) {
+            if (currentUser && ['demo', 'kinhdoanh'].includes(currentUser.role)) {
+                alert('Tài khoản này không được phép tải Excel lên.');
+                return;
+            }
             if (!files || files.length === 0) return;
             const file = files[0];
             const loadingOverlay = document.getElementById('loadingOverlay');
@@ -4193,27 +4252,124 @@
 
         function applyRoleUI(role) {
             const isDemo = role === 'demo';
-            const hideIds = ['sidebarUpmisa', 'sidebarBaocao', 'sidebarInventory', 'sidebarDHCT', 'sidebarHangHoan', 'dropZoneDonhang', 'dropZone'];
+            const isKinhDoanh = role === 'kinhdoanh';
+            const isRestricted = isDemo || isKinhDoanh;
+            const hideIds = ['sidebarUpmisa', 'sidebarBaocao', 'sidebarInventory', 'sidebarDHCT'];
             hideIds.forEach(hid => {
                 const el = document.getElementById(hid);
-                if (el) el.style.display = isDemo ? 'none' : '';
+                if (el) el.style.display = isRestricted ? 'none' : '';
             });
+
+            const hangHoanModule = document.getElementById('sidebarHangHoan');
+            if (hangHoanModule) hangHoanModule.style.display = isDemo ? 'none' : '';
+
             ['excelUploadDonhang', 'excelUpload'].forEach(upId => {
                 const excelUp = document.getElementById(upId);
                 if (excelUp && excelUp.parentElement) {
-                    excelUp.parentElement.style.display = isDemo ? 'none' : '';
+                    excelUp.parentElement.style.display = isRestricted ? 'none' : '';
                 }
             });
+
             document.querySelectorAll("button[onclick='updateAllPricesBatch()']").forEach(b => {
-                b.style.display = isDemo ? 'none' : '';
+                b.style.display = isRestricted ? 'none' : '';
             });
+
+            document.querySelectorAll("button[onclick='exportHangHoanSummaryToExcel()'], button[onclick='exportHangHoanToExcel()'], button[onclick='exportHangHoanToMisa()'], button[onclick='exportReportToExcel()'], button[onclick='exportIdSPExcel()'], button[onclick='exportUpmisaToExcel()']").forEach(b => {
+                b.style.display = isKinhDoanh ? 'none' : '';
+            });
+
+            const actionHeader = Array.from(document.querySelectorAll('th')).find(th => th.textContent.trim() === 'Action');
+            if (actionHeader) actionHeader.style.display = isKinhDoanh ? 'none' : '';
+
+            document.querySelectorAll('#donhangTableBody td:nth-child(16), #donhangTableBody th:nth-child(16)').forEach(el => {
+                el.style.display = isKinhDoanh ? 'none' : '';
+            });
+
+            const donhangExcelBtn = document.querySelector("label[for='excelUploadDonhang']");
+            if (donhangExcelBtn) donhangExcelBtn.style.display = isRestricted ? 'none' : '';
+
+            const donhangRefreshBtn = document.querySelector("button[onclick='loadUDCTData()']");
+            if (donhangRefreshBtn) donhangRefreshBtn.style.display = isRestricted ? 'none' : '';
         }
 
-        // handleLogin removed as login is disabled
+        async function handleLogin() {
+            const id = document.getElementById('loginId')?.value.trim();
+            const password = document.getElementById('loginPassword')?.value;
+            const errorEl = document.getElementById('loginError');
+            if (errorEl) {
+                errorEl.classList.add('hidden');
+                errorEl.textContent = '';
+            }
 
+            if (!id || !password) {
+                if (errorEl) {
+                    errorEl.textContent = 'Vui lòng nhập đầy đủ tài khoản và mật khẩu.';
+                    errorEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            document.getElementById('loginLoading').classList.remove('hidden');
+            try {
+                await fetchAuthData();
+                const user = usersData.find(u => u.id === id && u.password === password);
+                if (!user) {
+                    if (errorEl) {
+                        errorEl.textContent = 'Sai tài khoản hoặc mật khẩu.';
+                        errorEl.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                if (user.tinhTrang && /nghỉ|khóa|block|inactive/i.test(user.tinhTrang)) {
+                    if (errorEl) {
+                        errorEl.textContent = 'Tài khoản đang bị khóa hoặc ngưng hoạt động.';
+                        errorEl.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                isLoggedIn = true;
+                currentUser = {
+                    id: user.id,
+                    name: user.name || user.id,
+                    role: (user.role || 'user').toString().trim().toLowerCase()
+                };
+                localStorage.setItem('erp_last_user_id', user.id);
+                updateUserProfileUI();
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.getElementById('welcomeUserName').textContent = currentUser.name;
+                applyRoleUI(currentUser.role);
+
+                await loadUDCTData();
+                await loadSanphamData();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const link = urlParams.get('link');
+                const moduleMapping = {
+                    'don_chi_tiet': 'donhang',
+                    'san_pham': 'sanpham',
+                    'bao_cao': 'baocao',
+                    'upmisa': 'upmisa',
+                    'ton_kho': 'inventory',
+                    'dh_ct': 'dh_ct',
+                    'hang_hoan': 'hang_hoan'
+                };
+                if (link && moduleMapping[link]) switchModule(moduleMapping[link]);
+            } catch (err) {
+                console.error('Login error:', err);
+                if (errorEl) {
+                    errorEl.textContent = 'Không thể xác thực tài khoản. Vui lòng thử lại.';
+                    errorEl.classList.remove('hidden');
+                }
+            } finally {
+                document.getElementById('loginLoading').classList.add('hidden');
+            }
+        }
 
         function handleLogout() {
-            if (confirm("Bạn có muốn tải lại trang không?")) {
+            if (confirm("Bạn có muốn đăng xuất không?")) {
                 window.location.reload();
             }
         }
@@ -4222,46 +4378,19 @@
             if (!currentUser) return;
             const sidebarUserName = document.getElementById('sidebarUserName');
             const userInitial = document.getElementById('userInitial');
+            const roleLabel = document.querySelector('.sidebar-text .text-xs.text-slate-500');
             if (sidebarUserName) sidebarUserName.textContent = currentUser.name;
             if (userInitial && currentUser.name) userInitial.textContent = currentUser.name.charAt(0).toUpperCase();
+            if (roleLabel) roleLabel.textContent = currentUser.role === 'kinhdoanh' ? 'Kinh doanh' : (currentUser.role || 'Nhân viên');
         }
 
         window.onload = async () => {
-            // Bypass login - System Always On
-            isLoggedIn = true;
-            currentUser = { id: 'admin', name: 'Administrator', role: 'admin' };
-            updateUserProfileUI();
-
-            // UI elements check
             const loginScreen = document.getElementById('loginScreen');
-            if (loginScreen) loginScreen.style.display = 'none';
-
-            document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('welcomeUserName').textContent = currentUser.name;
-
-            applyRoleUI('admin');
-
-            await loadUDCTData();
-            await loadSanphamData();
-
-            // loadFiltersFromCache(); // Reset lọc khi load lại trang hẳng
-
-            // Handle deep linking via URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const link = urlParams.get('link');
-            const moduleMapping = {
-                'don_chi_tiet': 'donhang',
-                'san_pham': 'sanpham',
-                'bao_cao': 'baocao',
-                'upmisa': 'upmisa',
-                'ton_kho': 'inventory',
-                'dh_ct': 'dh_ct',
-                'hang_hoan': 'hang_hoan'
-            };
-
-            if (link && moduleMapping[link]) {
-                switchModule(moduleMapping[link]);
-            }
+            const mainApp = document.getElementById('mainApp');
+            if (loginScreen) loginScreen.classList.remove('hidden');
+            if (mainApp) mainApp.classList.add('hidden');
+            const lastId = localStorage.getItem('erp_last_user_id');
+            if (lastId && document.getElementById('loginId')) document.getElementById('loginId').value = lastId;
         };
     </script>
 </body>
