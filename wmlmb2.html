@@ -525,6 +525,10 @@
                             <button onclick="setUDCTQuickTab('cancelled')" id="udctTabCancelled"
                                 class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Đơn
                                 hủy</button>
+                            <button onclick="setUDCTQuickTab('duplicate')" id="udctTabDuplicate"
+                                class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Check
+                                trùng</button>
+                            <div class="ml-2 self-end pb-2 text-[10px] text-slate-400" id="udctDuplicateFooter">Đơn trùng: 0</div>
                             <div id="udctStatusCards" class="flex flex-wrap gap-2 ml-auto"></div>
                         </div>
                         <div class="flex-1 overflow-auto table-container mt-1">
@@ -1711,6 +1715,7 @@
             const actualIndex = hangHoanData.indexOf(item);
             if (!item || actualIndex < 0) return;
             currentHangHoanEditIndex = actualIndex;
+            const isKinhDoanh = currentUser && currentUser.role === 'kinhdoanh';
             document.getElementById('hhDrawerRowId').textContent = `Row ID: ${item.id || item.ngay_nhan || '-'}`;
             document.getElementById('hhEditMVD').value = item.mvd || '';
             document.getElementById('hhEditMaGian').value = item.ma_gian || '';
@@ -1719,6 +1724,12 @@
             document.getElementById('hhEditSLG').value = item.slg || '';
             document.getElementById('hhEditTinhTrang').value = item.tinh_trang || '';
             document.getElementById('hhEditKho').value = item.kho || '';
+            ['hhEditMVD', 'hhEditMaGian', 'hhEditSKU', 'hhEditSKUCT', 'hhEditSLG', 'hhEditTinhTrang', 'hhEditKho'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = isKinhDoanh;
+            });
+            const footer = document.querySelector('#hhDrawer .pt-4.border-t.border-slate-200.flex.gap-3');
+            if (footer) footer.style.display = isKinhDoanh ? 'none' : '';
             document.getElementById('hhDrawerOverlay').classList.remove('hidden');
             document.getElementById('hhDrawer').classList.add('open');
         }
@@ -1730,6 +1741,10 @@
         }
 
         async function saveHhDetail() {
+            if (currentUser && currentUser.role === 'kinhdoanh') {
+                alert('Tài khoản KINHDOANH không được sửa Dữ liệu Hàng hoàn.');
+                return;
+            }
             if (currentHangHoanEditIndex === -1) return;
             const item = hangHoanData[currentHangHoanEditIndex];
             if (!item) return;
@@ -2544,7 +2559,7 @@
         let filteredUDCT = [];
         let udctCurrentPage = 1;
         const uitItemsPerPage = 500; // tăng lên 500 dòng 
-        let udctQuickStatusTab = 'all'; // 'all' or 'cancelled'
+        let udctQuickStatusTab = 'all'; // 'all' or 'cancelled' or 'duplicate'
         const udctSelectedRows = new Set();
         const udctTrangThaiOptions = ['1 THAY THẾ', '2 HỦY', '3 HÊT HÀNG', '4 MAI GỌI'];
 
@@ -2572,13 +2587,11 @@
                 if (san && item.san !== san) return false;
                 if (kh && item.khung_h !== kh) return false;
                 if (mg && item.ma_gian !== mg) return false;
-
                 if (udctQuickStatusTab === 'cancelled') {
                     if (!(item.trang_thai || '').toLowerCase().includes('hủy') && !(item.tinh_trang || '').toLowerCase().includes('hủy')) {
                         return false;
                     }
                 }
-
                 if (search) {
                     const rowText = `${item.mvd} ${item.mdh} ${item.ten_sp} ${item.id_sp_ct}`.toLowerCase();
                     if (!rowText.includes(search)) return false;
@@ -2591,13 +2604,20 @@
             udctQuickStatusTab = tab;
             const tabAll = document.getElementById('udctTabAll');
             const tabCancelled = document.getElementById('udctTabCancelled');
+            const tabDuplicate = document.getElementById('udctTabDuplicate');
 
             if (tab === 'all') {
                 tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
                 tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
-            } else {
+                tabDuplicate.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+            } else if (tab === 'cancelled') {
                 tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
                 tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+                tabDuplicate.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+            } else {
+                tabDuplicate.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
+                tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+                tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
             }
             filterUDCTTable();
         }
@@ -2639,6 +2659,12 @@
             filterUDCTTable();
         }
 
+        function isUDCTTrung(item, mvdMap = {}, mdhMap = {}) {
+            const mvdDup = item.mvd && mvdMap[item.mvd]?.size > 1;
+            const mdhDup = item.mdh && mdhMap[item.mdh]?.size > 1;
+            return Boolean(mvdDup || mdhDup);
+        }
+
         function filterUDCTTable() {
             const from = document.getElementById('filterUDCTFrom').value;
             const to = document.getElementById('filterUDCTTo').value;
@@ -2649,7 +2675,7 @@
             const selectedStatuses = new Set((tt || '').split('||').map(normalizeTrangThai).filter(Boolean));
             const search = document.getElementById('filterUDCTSearch').value.toLowerCase();
 
-            filteredUDCT = udctData.filter(item => {
+            const base = udctData.filter(item => {
                 const rawDate = item.ngay ? item.ngay.split(' ')[0] : '';
                 let itemDate = rawDate;
                 if (rawDate.includes('/')) {
@@ -2662,20 +2688,16 @@
                 if (kh && item.khung_h !== kh) return false;
                 if (mg && item.ma_gian !== mg) return false;
                 if (selectedStatuses.size > 0 && !selectedStatuses.has(normalizeTrangThai(item.trang_thai))) return false;
-
-                // Quick tab filter
-                if (udctQuickStatusTab === 'cancelled') {
-                    if (!(item.trang_thai || '').toLowerCase().includes('hủy') && !(item.tinh_trang || '').toLowerCase().includes('hủy')) {
-                        return false;
-                    }
-                }
-
                 if (search) {
                     const rowText = `${item.mvd} ${item.mdh} ${item.ten_sp} ${item.id_sp_ct}`.toLowerCase();
                     if (!rowText.includes(search)) return false;
                 }
                 return true;
             });
+
+            filteredUDCT = udctQuickStatusTab === 'cancelled'
+                ? base.filter(item => (item.trang_thai || '').toLowerCase().includes('hủy') || (item.tinh_trang || '').toLowerCase().includes('hủy'))
+                : base;
 
             saveFiltersToCache();
             udctCurrentPage = 1;
@@ -2740,15 +2762,14 @@
                 return acc;
             }, {});
             renderUDCTStatusCards(statusCounts, baseFilteredForCounts.length);
+            const duplicateFooter = document.getElementById('udctDuplicateFooter');
+            if (duplicateFooter) duplicateFooter.textContent = `Đơn trùng: ${(window.__udctDuplicateCount || 0).toLocaleString('vi-VN')}`;
 
-            // Tính toán trùng lặp: Chỉ trùng nếu khác Ngày hoặc khác Khung H
-            const mvdMap = {}; // Lưu Set các "Ngày|KhungH" cho mỗi MVD
-            const mdhMap = {}; // Lưu Set các "Ngày|KhungH" cho mỗi MDH
-
+            const mvdMap = {};
+            const mdhMap = {};
             udctData.forEach(d => {
                 const datePart = (d.ngay || '').split(' ')[0];
                 const timeKey = `${datePart}|${d.khung_h}`;
-
                 if (d.mvd && d.mvd !== '-' && d.mvd !== '') {
                     if (!mvdMap[d.mvd]) mvdMap[d.mvd] = new Set();
                     mvdMap[d.mvd].add(timeKey);
@@ -2758,10 +2779,14 @@
                     mdhMap[d.mdh].add(timeKey);
                 }
             });
-
+            const duplicateList = baseFilteredForCounts.filter(item => isUDCTTrung(item, mvdMap, mdhMap));
+            window.__udctDuplicateCount = duplicateList.length;
+            if (udctQuickStatusTab === 'duplicate') {
+                filteredUDCT = duplicateList;
+            }
             if (filteredUDCT.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="18" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
-                if (udctPageInfo) udctPageInfo.textContent = statusCountText;
+                document.getElementById('udctPageInfo').innerHTML = `Đang hiển thị <span class="font-medium text-slate-900">0-0</span> trong số <span class="font-medium text-slate-900">0</span> đơn hàng`;
                 document.getElementById('udctPrevPage').disabled = true;
                 document.getElementById('udctNextPage').disabled = true;
                 const selectAll = document.getElementById('udctSelectAll');
@@ -2782,7 +2807,7 @@
             document.getElementById('udctNextPage').disabled = udctCurrentPage === totalPages;
 
             tbody.innerHTML = pageData.map((item) => `
-                <tr onclick="openDetailDrawer(${udctData.indexOf(item)})" class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer group">
+                <tr ondblclick="openDetailDrawer(${udctData.indexOf(item)})" class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer group">
                     <td class="px-2 py-2 text-center">
                         <input type="checkbox" ${udctSelectedRows.has(item.rowIndex) ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleUDCTRowSelection(${item.rowIndex}, this.checked)" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/30 cursor-pointer">
                     </td>
@@ -4263,6 +4288,15 @@
             const hangHoanModule = document.getElementById('sidebarHangHoan');
             if (hangHoanModule) hangHoanModule.style.display = isDemo ? 'none' : '';
 
+            if (isKinhDoanh) {
+                const hhActions = [
+                    "button[onclick='exportHangHoanSummaryToExcel()']",
+                    "button[onclick='exportHangHoanToExcel()']",
+                    "button[onclick='exportHangHoanToMisa()']"
+                ];
+                document.querySelectorAll(hhActions.join(', ')).forEach(b => b.style.display = 'none');
+            }
+
             ['excelUploadDonhang', 'excelUpload'].forEach(upId => {
                 const excelUp = document.getElementById(upId);
                 if (excelUp && excelUp.parentElement) {
@@ -4333,9 +4367,11 @@
                 currentUser = {
                     id: user.id,
                     name: user.name || user.id,
-                    role: (user.role || 'user').toString().trim().toLowerCase()
+                    role: (user.role || 'user').toString().trim().toLowerCase(),
+                    password: user.password
                 };
                 localStorage.setItem('erp_last_user_id', user.id);
+                localStorage.setItem('erp_current_user', JSON.stringify(currentUser));
                 updateUserProfileUI();
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
@@ -4370,6 +4406,9 @@
 
         function handleLogout() {
             if (confirm("Bạn có muốn đăng xuất không?")) {
+                localStorage.removeItem('erp_current_user');
+                isLoggedIn = false;
+                currentUser = null;
                 window.location.reload();
             }
         }
@@ -4391,6 +4430,35 @@
             if (mainApp) mainApp.classList.add('hidden');
             const lastId = localStorage.getItem('erp_last_user_id');
             if (lastId && document.getElementById('loginId')) document.getElementById('loginId').value = lastId;
+
+            try {
+                const savedUser = localStorage.getItem('erp_current_user');
+                if (savedUser) {
+                    const parsedUser = JSON.parse(savedUser);
+                    if (parsedUser && parsedUser.id) {
+                        await fetchAuthData();
+                        const user = usersData.find(u => u.id === parsedUser.id && u.password === parsedUser.password);
+                        if (user && !(user.tinhTrang && /nghỉ|khóa|block|inactive/i.test(user.tinhTrang))) {
+                            isLoggedIn = true;
+                            currentUser = {
+                                id: user.id,
+                                name: user.name || user.id,
+                                role: (user.role || 'user').toString().trim().toLowerCase(),
+                                password: user.password
+                            };
+                            document.getElementById('loginScreen').classList.add('hidden');
+                            document.getElementById('mainApp').classList.remove('hidden');
+                            document.getElementById('welcomeUserName').textContent = currentUser.name;
+                            updateUserProfileUI();
+                            applyRoleUI(currentUser.role);
+                            await loadUDCTData();
+                            await loadSanphamData();
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Auto login failed:', e);
+            }
         };
     </script>
 </body>
