@@ -278,12 +278,29 @@ thead th { font-weight: 700; background: #f4f4f4; }
 const temps = [8,7,6,5,4,3,2];
 
 function parseDataParam() {
-    const params = new URLSearchParams(window.location.search);
-    const raw = params.get('data') || '';
-    const month = params.get('thang') || '';
-    const map = {};
+    const search = window.location.search || '';
+    const normalizedSearch = search.startsWith('?') ? search.slice(1) : search;
 
-    raw.split('|').forEach(item => {
+    let params = new URLSearchParams(normalizedSearch);
+    let month = params.get('thang') || '';
+    let raw = params.get('data') || '';
+
+    if (!raw || !month) {
+        const decoded = decodeURIComponent(normalizedSearch);
+        const decodedParams = new URLSearchParams(decoded);
+        month = month || decodedParams.get('thang') || '';
+        raw = raw || decodedParams.get('data') || '';
+
+        if ((!raw || !month) && decoded.includes('thang=') && decoded.includes('data=')) {
+            const monthMatch = decoded.match(/(?:^|&)thang=([^&]+)/i);
+            const dataMatch = decoded.match(/(?:^|&)data=([^&]+)/i);
+            if (monthMatch) month = month || monthMatch[1];
+            if (dataMatch) raw = raw || dataMatch[1];
+        }
+    }
+
+    const map = {};
+    (raw || '').split('|').forEach(item => {
         const m = item.match(/^(\d{1,2})([SC])(\d)_ADMIN$/i);
         if (!m) return;
         const day = Number(m[1]);
