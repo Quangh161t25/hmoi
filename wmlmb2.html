@@ -234,23 +234,31 @@
 </head>
 
 <body class="min-h-screen bg-slate-50">
-    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
+    <div id="loginScreen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
         <div class="w-full max-w-md rounded-3xl bg-white/95 shadow-2xl border border-white/20 p-8 login-card">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white font-black text-2xl shadow-lg">U</div>
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white font-black text-2xl shadow-lg">
+                    U</div>
                 <h1 class="mt-5 text-2xl font-bold text-slate-900">Đăng nhập hệ thống</h1>
-                <p class="mt-2 text-sm text-slate-500">Tài khoản đăng nhập là <b>id</b>, mật khẩu là <b>mat_khau</b> từ sheet DSNV.</p>
+                <p class="mt-2 text-sm text-slate-500">Tài khoản đăng nhập là <b>id</b>, mật khẩu là <b>mat_khau</b> từ
+                    sheet DSNV.</p>
             </div>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="loginId">Tài khoản</label>
-                    <input id="loginId" type="text" placeholder="Nhập id nhân viên" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input id="loginId" type="text" placeholder="Nhập id nhân viên"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="loginPassword">Mật khẩu</label>
-                    <input id="loginPassword" type="password" placeholder="Nhập mật khẩu" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    <input id="loginPassword" type="password" placeholder="Nhập mật khẩu"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
                 </div>
-                <button onclick="handleLogin()" class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">Đăng nhập</button>
+                <button onclick="handleLogin()"
+                    class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">Đăng
+                    nhập</button>
                 <p id="loginError" class="hidden text-sm text-rose-600 text-center"></p>
             </div>
         </div>
@@ -392,7 +400,8 @@
                     class="mobile-only mr-2 p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
                     aria-label="Mở menu">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
                 <h1 class="text-lg font-bold text-slate-900" id="pageTitle">Trang chủ</h1>
@@ -622,10 +631,12 @@
                                 hủy</button>
                             <button onclick="setUDCTQuickTab('duplicate')" id="udctTabDuplicate"
                                 class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Check
-                                trùng <span id="udctDuplicateCountBadge" class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
+                                trùng <span id="udctDuplicateCountBadge"
+                                    class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
                             <button onclick="setUDCTQuickTab('notes')" id="udctTabNotes"
                                 class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Ghi
-                                chú <span id="udctNotesCountBadge" class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
+                                chú <span id="udctNotesCountBadge"
+                                    class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
                             <div id="udctStatusCards" class="flex flex-wrap gap-2 ml-auto"></div>
                         </div>
                         <div class="flex-1 overflow-auto table-container mt-1">
@@ -633,8 +644,8 @@
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
                                         <th class="px-2 py-2 text-center text-xs font-semibold text-slate-600 w-10">
-                                            <input type="checkbox" id="udctSelectAll" onchange="toggleSelectAllUDCT(this)"
-                                                onclick="event.stopPropagation()"
+                                            <input type="checkbox" id="udctSelectAll"
+                                                onchange="toggleSelectAllUDCT(this)" onclick="event.stopPropagation()"
                                                 class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/30 cursor-pointer">
                                         </th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600">Ngày</th>
@@ -974,49 +985,76 @@
                                     <table class="w-full min-w-[1000px]">
                                         <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                             <tr>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('ngay')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>Ngày</span><span id="detailSortNgay" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('ngay')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Ngày</span><span id="detailSortNgay"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('san')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>Sàn</span><span id="detailSortSan" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('san')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Sàn</span><span id="detailSortSan"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('mvd')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>MVD</span><span id="detailSortMvd" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('mvd')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>MVD</span><span id="detailSortMvd"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('mdh')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>MDH</span><span id="detailSortMdh" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('mdh')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>MDH</span><span id="detailSortMdh"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('ten_sp')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>Tên SP</span><span id="detailSortTenSp" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('ten_sp')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Tên SP</span><span id="detailSortTenSp"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('id_sp')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>ID SP</span><span id="detailSortIdSp" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('id_sp')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>ID SP</span><span id="detailSortIdSp"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('slg_xuat')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>SLG xuất</span><span id="detailSortSlgXuat" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('slg_xuat')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>SLG xuất</span><span id="detailSortSlgXuat"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('don_gia')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>Đơn giá</span><span id="detailSortDonGia" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('don_gia')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Đơn giá</span><span id="detailSortDonGia"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
-                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    <button onclick="sortDetailTable('thanh_tien')" class="inline-flex items-center gap-1 hover:text-slate-900">
-                                                        <span>Thành tiền</span><span id="detailSortThanhTien" class="text-[9px] text-slate-400">↕</span>
+                                                <th
+                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('thanh_tien')"
+                                                        class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Thành tiền</span><span id="detailSortThanhTien"
+                                                            class="text-[9px] text-slate-400">↕</span>
                                                     </button>
                                                 </th>
                                             </tr>
@@ -1396,9 +1434,11 @@
                                 <p class="hidden text-[11px] text-slate-500 mt-0.5">Nguồn dữ liệu từ sheet HH_BH</p>
                                 <div id="hangHoanStats" class="text-[11px] text-slate-500 mt-1">Số đơn: 0</div>
                             </div>
-                            <div class="w-full grid grid-cols-1 lg:flex lg:flex-wrap gap-2 items-stretch lg:items-center">
+                            <div
+                                class="w-full grid grid-cols-1 lg:flex lg:flex-wrap gap-2 items-stretch lg:items-center">
                                 <button onclick="setHangHoanToday()"
-                                    class="w-full lg:w-auto px-3 py-2 border border-slate-200 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100">Hôm nay</button>
+                                    class="w-full lg:w-auto px-3 py-2 border border-slate-200 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100">Hôm
+                                    nay</button>
                                 <div class="grid grid-cols-[auto,auto,1fr,auto] items-center gap-2">
                                     <span class="text-xs font-semibold text-slate-600">TỪ</span>
                                     <button onclick="changeHangHoanDate('from', -1)"
@@ -1419,7 +1459,8 @@
                                 </div>
                                 <input type="hidden" id="filterHHKho" value="">
                                 <div id="filterHHKhoButtons"
-                                    class="w-full lg:w-auto flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg"></div>
+                                    class="w-full lg:w-auto flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg">
+                                </div>
                                 <select id="filterHHMaGian" onchange="filterHangHoanData()"
                                     class="w-full lg:w-auto px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                                     <option value="">Tất cả gian hàng</option>
@@ -1457,23 +1498,36 @@
                             <table class="w-full min-w-[980px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày nhận</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD 2</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã gian</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU CT</th>
-                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">SLG</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên SP</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tình trạng</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kho</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU tổng</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ảnh</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày
+                                            nhận</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD 2
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã gian
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU CT
+                                        </th>
+                                        <th class="px-3 py-2 text-right text-[11px] font-semibold text-slate-600">SLG
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tên SP
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Tình
+                                            trạng</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Kho
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU
+                                            tổng</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ảnh
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody id="hangHoanTableBody">
                                     <tr>
-                                        <td colspan="11" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td>
+                                        <td colspan="11" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1483,77 +1537,106 @@
 
                 <!-- Module HH SHOP ĐIỀN -->
                 <div id="moduleHHShopDien" class="h-full flex flex-col p-1" style="display: none;">
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
-                        <div class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-2">
+                    <div
+                        class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                        <div
+                            class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-2">
                             <div>
                                 <div id="hhShopStats" class="text-[11px] text-slate-500 mt-1">Số dòng: 0</div>
                             </div>
-                            <div class="w-full flex flex-col gap-3 relative z-30 isolate lg:flex-row lg:items-start lg:justify-between lg:gap-4">
-                                <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 shadow-sm overflow-x-auto w-full lg:flex-[1_1_0%] lg:min-w-0">
+                            <div
+                                class="w-full flex flex-col gap-3 relative z-30 isolate lg:flex-row lg:items-start lg:justify-between lg:gap-4">
+                                <div
+                                    class="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 shadow-sm overflow-x-auto w-full lg:flex-[1_1_0%] lg:min-w-0">
                                     <div class="flex flex-nowrap items-end gap-3 w-max min-w-full relative z-30">
                                         <div class="flex flex-col gap-1 shrink-0">
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Từ ngày</label>
+                                            <label
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Từ
+                                                ngày</label>
                                             <div class="flex items-center gap-1">
                                                 <button type="button" onclick="shiftHHShopNgayTra('from', -1)"
                                                     class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">-</button>
-                                                <input type="date" id="hhShopNgayTraFrom" oninput="saveHHShopFilterState(); renderHHShopDienTable()"
+                                                <input type="date" id="hhShopNgayTraFrom"
+                                                    oninput="saveHHShopFilterState(); renderHHShopDienTable()"
                                                     class="relative z-10 pointer-events-auto w-40 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
                                                 <button type="button" onclick="shiftHHShopNgayTra('from', 1)"
                                                     class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">+</button>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-1 shrink-0">
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đến ngày</label>
+                                            <label
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đến
+                                                ngày</label>
                                             <div class="flex items-center gap-1">
                                                 <button type="button" onclick="shiftHHShopNgayTra('to', -1)"
                                                     class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">-</button>
-                                                <input type="date" id="hhShopNgayTraTo" oninput="saveHHShopFilterState(); renderHHShopDienTable()"
+                                                <input type="date" id="hhShopNgayTraTo"
+                                                    oninput="saveHHShopFilterState(); renderHHShopDienTable()"
                                                     class="relative z-10 pointer-events-auto w-40 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
                                                 <button type="button" onclick="shiftHHShopNgayTra('to', 1)"
                                                     class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">+</button>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-1 shrink-0 min-w-[160px]">
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Xác nhận</label>
+                                            <label
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Xác
+                                                nhận</label>
                                             <div id="hhShopXacNhanFilterButtons" class="flex flex-wrap gap-2">
                                                 <button type="button" data-value="" onclick="setHHShopXacNhanFilter('')"
-                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100 text-slate-700 shadow-sm">Tất cả</button>
-                                                <button type="button" data-value="trống" onclick="setHHShopXacNhanFilter('trống')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100 text-slate-700 shadow-sm">Tất
+                                                    cả</button>
+                                                <button type="button" data-value="trống"
+                                                    onclick="setHHShopXacNhanFilter('trống')"
                                                     class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Trống</button>
-                                                <button type="button" data-value="xác nhận" onclick="setHHShopXacNhanFilter('xác nhận')"
-                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Xác nhận</button>
+                                                <button type="button" data-value="xác nhận"
+                                                    onclick="setHHShopXacNhanFilter('xác nhận')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Xác
+                                                    nhận</button>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-1 shrink-0 min-w-[160px]">
-                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đã nhận</label>
+                                            <label
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đã
+                                                nhận</label>
                                             <div id="hhShopDaNhanFilterButtons" class="flex flex-wrap gap-2">
                                                 <button type="button" data-value="" onclick="setHHShopDaNhanFilter('')"
-                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100 text-slate-700 shadow-sm">Tất cả</button>
-                                                <button type="button" data-value="có đơn" onclick="setHHShopDaNhanFilter('có đơn')"
-                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Có đơn</button>
-                                                <button type="button" data-value="trống" onclick="setHHShopDaNhanFilter('trống')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100 text-slate-700 shadow-sm">Tất
+                                                    cả</button>
+                                                <button type="button" data-value="có đơn"
+                                                    onclick="setHHShopDaNhanFilter('có đơn')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Có
+                                                    đơn</button>
+                                                <button type="button" data-value="trống"
+                                                    onclick="setHHShopDaNhanFilter('trống')"
                                                     class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Trống</button>
                                             </div>
                                         </div>
                                         <div class="flex gap-2 items-end shrink-0 ml-auto">
                                             <button onclick="setHHShopNgayTraFilterToday()"
-                                                class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50 shadow-sm">Hôm nay</button>
+                                                class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50 shadow-sm">Hôm
+                                                nay</button>
                                             <button onclick="setHHShopNgayTraFilterThisWeek()"
-                                                class="px-3 py-2.5 rounded-xl border border-primary/20 text-xs font-semibold bg-primary text-white hover:bg-blue-700 shadow-sm">Tuần này</button>
+                                                class="px-3 py-2.5 rounded-xl border border-primary/20 text-xs font-semibold bg-primary text-white hover:bg-blue-700 shadow-sm">Tuần
+                                                này</button>
                                             <button onclick="clearHHShopNgayTraFilter()"
-                                                class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 shadow-sm">Bỏ lọc</button>
+                                                class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 shadow-sm">Bỏ
+                                                lọc</button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex gap-2 w-full lg:w-[420px] shrink-0 self-start lg:self-auto flex-wrap lg:flex-nowrap items-start lg:items-end lg:justify-end">
-                                    <input type="text" id="hhShopSearchMvd" oninput="saveHHShopFilterState(); renderHHShopDienTable()"
+                                <div
+                                    class="flex gap-2 w-full lg:w-[420px] shrink-0 self-start lg:self-auto flex-wrap lg:flex-nowrap items-start lg:items-end lg:justify-end">
+                                    <input type="text" id="hhShopSearchMvd"
+                                        oninput="saveHHShopFilterState(); renderHHShopDienTable()"
                                         placeholder="Tìm kiếm..."
                                         class="flex-1 min-w-[180px] sm:w-72 px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
                                     <div class="flex gap-2 w-full sm:w-auto justify-end">
                                         <button onclick="openHHShopNewDrawer()"
-                                            class="flex-1 sm:flex-none bg-indigo-600 text-white px-4 py-2.5 rounded-xl hover:bg-indigo-700 transition-all text-sm font-medium shadow-sm">➕ Thêm mới</button>
+                                            class="flex-1 sm:flex-none bg-indigo-600 text-white px-4 py-2.5 rounded-xl hover:bg-indigo-700 transition-all text-sm font-medium shadow-sm">➕
+                                            Thêm mới</button>
                                         <button onclick="fetchHHShopDienData()"
-                                            class="flex-1 sm:flex-none bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-all text-sm font-medium shadow-sm">🔄 Làm mới</button>
+                                            class="flex-1 sm:flex-none bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-all text-sm font-medium shadow-sm">🔄
+                                            Làm mới</button>
                                     </div>
                                 </div>
                             </div>
@@ -1562,22 +1645,34 @@
                             <table class="w-full min-w-[980px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MDH</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã gian</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Hoàn/Trả</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày trả</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD trả</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU trả</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ghi chú</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Xác nhận</th>
-                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Đã nhận</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MDH
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Mã gian
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                            Hoàn/Trả</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày
+                                            trả</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">MVD trả
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">SKU trả
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ghi chú
+                                        </th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Xác
+                                            nhận</th>
+                                        <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Đã nhận
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody id="hhShopTableBody">
                                     <tr>
-                                        <td colspan="11" class="text-center py-8 text-slate-500">Đang tải dữ liệu...</td>
+                                        <td colspan="11" class="text-center py-8 text-slate-500">Đang tải dữ liệu...
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1624,13 +1719,15 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ID SP</label>
-                    <input type="text" id="editIdSP" list="idSpList" oninput="handleIdSPChange(); scheduleUDCTAutoSave()"
+                    <input type="text" id="editIdSP" list="idSpList"
+                        oninput="handleIdSPChange(); scheduleUDCTAutoSave()"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
                     <datalist id="idSpList"></datalist>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ID SP CT</label>
-                    <input type="text" id="editIdSPCT" list="idSpCtList" oninput="handleIdSPCTChange(); scheduleUDCTAutoSave()"
+                    <input type="text" id="editIdSPCT" list="idSpCtList"
+                        oninput="handleIdSPCTChange(); scheduleUDCTAutoSave()"
                         class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
                     <datalist id="idSpCtList"></datalist>
                 </div>
@@ -1667,14 +1764,17 @@
     </div>
 
     <!-- Hàng hoàn Drawer -->
-    <div id="hhDrawerOverlay" class="hidden fixed inset-0 bg-black/50 z-40 transition-opacity" onclick="closeHhDetailDrawer()"></div>
-    <div id="hhDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
+    <div id="hhDrawerOverlay" class="hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
+        onclick="closeHhDetailDrawer()"></div>
+    <div id="hhDrawer"
+        class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
         <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
             <div>
                 <h3 id="hhDrawerTitle" class="text-base font-bold text-slate-900">Chi tiết hàng hoàn</h3>
                 <p class="text-[10px] text-slate-500 mt-1 uppercase" id="hhDrawerRowId">Row ID: -</p>
             </div>
-            <button onclick="closeHhDetailDrawer()" class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
+            <button onclick="closeHhDetailDrawer()"
+                class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -1685,46 +1785,80 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD</label>
                     <div class="flex gap-2">
-                        <input id="hhEditMVD" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
-                        <button type="button" onclick="scanQrForHhMvd()" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white hover:bg-slate-50">📷 QR</button>
+                        <input id="hhEditMVD"
+                            class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                        <button type="button" onclick="scanQrForHhMvd()"
+                            class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white hover:bg-slate-50">📷
+                            QR</button>
                     </div>
                 </div>
-                <div class="col-span-2"><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD 2</label><input id="hhEditMVD2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mã gian</label><input id="hhEditMaGian" list="hhMaGianList" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist id="hhMaGianList"></datalist></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU</label><input id="hhEditSKU" list="hhSkuList" oninput="handleHhSkuChange()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist id="hhSkuList"></datalist></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU CT</label><input id="hhEditSKUCT" list="hhSkuCtList" oninput="handleHhSkuCtChange()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist id="hhSkuCtList"></datalist></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SLG</label><input type="number" id="hhEditSLG" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tình trạng</label><input id="hhEditTinhTrang" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div class="col-span-2"><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tên SP</label><input id="hhEditTenSP" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div class="col-span-2"><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD
+                        2</label><input id="hhEditMVD2"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mã gian</label><input
+                        id="hhEditMaGian" list="hhMaGianList"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist
+                        id="hhMaGianList"></datalist></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU</label><input
+                        id="hhEditSKU" list="hhSkuList" oninput="handleHhSkuChange()"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist
+                        id="hhSkuList"></datalist></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU CT</label><input
+                        id="hhEditSKUCT" list="hhSkuCtList" oninput="handleHhSkuCtChange()"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist
+                        id="hhSkuCtList"></datalist></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SLG</label><input
+                        type="number" id="hhEditSLG"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tình trạng</label><input
+                        id="hhEditTinhTrang"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
+                <div class="col-span-2"><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tên
+                        SP</label><input id="hhEditTenSP"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Kho</label>
                     <input type="hidden" id="hhEditKho" value="KHO">
                     <div id="hhEditKhoButtons" class="flex flex-wrap gap-2">
-                        <button type="button" onclick="setHhKho('KHO')" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100">KHO</button>
-                        <button type="button" onclick="setHhKho('BH')" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">BH</button>
+                        <button type="button" onclick="setHhKho('KHO')"
+                            class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100">KHO</button>
+                        <button type="button" onclick="setHhKho('BH')"
+                            class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">BH</button>
                     </div>
                 </div>
             </div>
             <div class="pt-4 border-t border-slate-200 flex gap-3">
-                <button id="hhSaveButton" onclick="saveHhDetail()" class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-all">Lưu thay đổi</button>
-                <button onclick="closeHhDetailDrawer()" class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">Hủy</button>
+                <button id="hhSaveButton" onclick="saveHhDetail()"
+                    class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-all">Lưu
+                    thay đổi</button>
+                <button onclick="closeHhDetailDrawer()"
+                    class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">Hủy</button>
             </div>
         </div>
     </div>
 
     <!-- HH SHOP ĐIỀN Drawer -->
-    <div id="hhShopDrawerOverlay" class="hidden fixed inset-0 bg-black/50 z-40 transition-opacity" onclick="closeHHShopDrawer()"></div>
-    <div id="hhShopDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
+    <div id="hhShopDrawerOverlay" class="hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
+        onclick="closeHHShopDrawer()"></div>
+    <div id="hhShopDrawer"
+        class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
         <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
             <div>
                 <h3 class="text-base font-bold text-slate-900">Thêm HH SHOP ĐIỀN</h3>
                 <p class="text-[10px] text-slate-500 mt-1 uppercase" id="hhShopDrawerRowId">NEW</p>
             </div>
             <div class="flex items-center gap-2">
-                <button id="hhShopDeleteButton" onclick="deleteHHShopDien()" class="hidden px-3 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-sm font-semibold transition-colors">Xóa</button>
-                <button onclick="closeHHShopDrawer()" class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
+                <button id="hhShopDeleteButton" onclick="deleteHHShopDien()"
+                    class="hidden px-3 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-sm font-semibold transition-colors">Xóa</button>
+                <button onclick="closeHHShopDrawer()"
+                    class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -1733,28 +1867,34 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD</label>
-                    <input id="hhShopEditMVD" oninput="handleHHShopMvdChange(); scheduleHHShopAutoSave()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                    <input id="hhShopEditMVD" oninput="handleHHShopMvdChange(); scheduleHHShopAutoSave()"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MDH</label>
-                    <input id="hhShopEditMDH" oninput="scheduleHHShopAutoSave()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
+                    <input id="hhShopEditMDH" oninput="scheduleHHShopAutoSave()"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mã gian</label>
-                    <input id="hhShopEditMaGian" list="hhShopMaGianList" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
+                    <input id="hhShopEditMaGian" list="hhShopMaGianList"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
                     <datalist id="hhShopMaGianList"></datalist>
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU (id_sp)</label>
-                    <input id="hhShopEditSKU" list="hhShopSkuList" oninput="scheduleHHShopAutoSave()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
+                    <input id="hhShopEditSKU" list="hhShopSkuList" oninput="scheduleHHShopAutoSave()"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
                     <datalist id="hhShopSkuList"></datalist>
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Hoàn/Trả</label>
                     <input type="hidden" id="hhShopEditHoanTra" value="hoàn">
                     <div id="hhShopHoanTraButtons" class="flex gap-2">
-                        <button type="button" data-value="hoàn" onclick="setHHShopHoanTra('hoàn')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-slate-100">Hoàn</button>
-                        <button type="button" data-value="trả" onclick="setHHShopHoanTra('trả')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-white">Trả</button>
+                        <button type="button" data-value="hoàn" onclick="setHHShopHoanTra('hoàn')"
+                            class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-slate-100">Hoàn</button>
+                        <button type="button" data-value="trả" onclick="setHHShopHoanTra('trả')"
+                            class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-white">Trả</button>
                     </div>
                 </div>
 
@@ -1762,37 +1902,52 @@
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ngày trả</label>
                     <input type="hidden" id="hhShopEditNgayTraRaw" value="">
                     <div class="grid grid-cols-[auto,1fr,auto,auto] gap-2 items-center">
-                        <button type="button" onclick="changeHHShopNgayTra(-1)" class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">−</button>
-                        <input id="hhShopEditNgayTra" readonly class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm pointer-events-none">
-                        <button type="button" onclick="openHHShopNgayTraPicker()" class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white hover:bg-slate-50" title="Chọn ngày">📅</button>
-                        <button type="button" onclick="changeHHShopNgayTra(1)" class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">+</button>
+                        <button type="button" onclick="changeHHShopNgayTra(-1)"
+                            class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">−</button>
+                        <input id="hhShopEditNgayTra" readonly
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm pointer-events-none">
+                        <button type="button" onclick="openHHShopNgayTraPicker()"
+                            class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white hover:bg-slate-50"
+                            title="Chọn ngày">📅</button>
+                        <button type="button" onclick="changeHHShopNgayTra(1)"
+                            class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">+</button>
                     </div>
-                    <input type="date" id="hhShopNgayTraPicker" class="hidden" onchange="setHHShopNgayTraRaw(this.value)">
+                    <input type="date" id="hhShopNgayTraPicker" class="hidden"
+                        onchange="setHHShopNgayTraRaw(this.value)">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Xác nhận</label>
                     <input type="hidden" id="hhShopEditXacNhan" value="">
                     <div id="hhShopXacNhanButtons" class="flex gap-2">
-                        <button type="button" data-value="" onclick="setHHShopXacNhan('')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-red-50 text-red-700 hover:bg-red-100">Trống</button>
-                        <button type="button" data-value="xác nhận" onclick="setHHShopXacNhan('Xác nhận')" class="px-3 py-2 rounded-lg border border-emerald-200 text-sm font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">Xác nhận</button>
+                        <button type="button" data-value="" onclick="setHHShopXacNhan('')"
+                            class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-red-50 text-red-700 hover:bg-red-100">Trống</button>
+                        <button type="button" data-value="xác nhận" onclick="setHHShopXacNhan('Xác nhận')"
+                            class="px-3 py-2 rounded-lg border border-emerald-200 text-sm font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100">Xác
+                            nhận</button>
                     </div>
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD trả</label>
-                    <input id="hhShopEditMVDTra" oninput="markHHShopMvdTraManual(true); scheduleHHShopAutoSave()" placeholder="Có thể sửa tay" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                    <input id="hhShopEditMVDTra" oninput="markHHShopMvdTraManual(true); scheduleHHShopAutoSave()"
+                        placeholder="Có thể sửa tay"
+                        class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU trả</label>
-                    <input id="hhShopEditSKUTra" readonly class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
+                    <input id="hhShopEditSKUTra" readonly
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ghi chú</label>
-                    <textarea id="hhShopEditGhiChu" oninput="scheduleHHShopAutoSave()" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 resize-none"></textarea>
+                    <textarea id="hhShopEditGhiChu" oninput="scheduleHHShopAutoSave()" rows="2"
+                        class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 resize-none"></textarea>
                 </div>
             </div>
             <div class="pt-4 border-t border-slate-200 flex gap-3">
-                <button onclick="saveHHShopDien()" class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-all">Lưu</button>
-                <button onclick="closeHHShopDrawer()" class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">Hủy</button>
+                <button onclick="saveHHShopDien()"
+                    class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-all">Lưu</button>
+                <button onclick="closeHHShopDrawer()"
+                    class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">Hủy</button>
             </div>
         </div>
     </div>
@@ -1806,7 +1961,8 @@
     <div id="imagePreviewOverlay" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
         onclick="closeImagePreview()">
         <img id="imagePreviewContent" src="" alt="Ảnh hàng hoàn"
-            class="max-w-full max-h-full rounded-lg shadow-2xl border border-white/20" onclick="event.stopPropagation()">
+            class="max-w-full max-h-full rounded-lg shadow-2xl border border-white/20"
+            onclick="event.stopPropagation()">
     </div>
 
     <script>
@@ -3213,39 +3369,39 @@
                     return Number(b.rowIndex || 0) - Number(a.rowIndex || 0);
                 })
                 .filter(item => {
-                if (search) {
-                    const matchSearch = [
-                        item.mvd,
-                        item.mdh,
-                        item.ma_gian,
-                        item.sku,
-                        item.hoan_tra,
-                        item.ngay_tra,
-                        item.mvd_tra,
-                        item.sku_tra,
-                        item.ghi_chu,
-                        item.xac_nhan
-                    ].some(value => (value || '').toString().toLowerCase().includes(search));
-                    if (!matchSearch) return false;
-                }
-                const ngayTraYmd = parseDmyToYmd(item.ngay_tra);
-                if (fromYmd && (!ngayTraYmd || ngayTraYmd < fromYmd)) return false;
-                if (toYmd && (!ngayTraYmd || ngayTraYmd > toYmd)) return false;
-                if (xacNhanFilter) {
-                    const itemXacNhan = (item.xac_nhan || '').toString().toLowerCase().trim();
-                    const normalized = xacNhanFilter === 'trống' ? '' : xacNhanFilter;
-                    if (xacNhanFilter === 'trống') {
-                        if (itemXacNhan) return false;
-                    } else if (itemXacNhan !== normalized) {
-                        return false;
+                    if (search) {
+                        const matchSearch = [
+                            item.mvd,
+                            item.mdh,
+                            item.ma_gian,
+                            item.sku,
+                            item.hoan_tra,
+                            item.ngay_tra,
+                            item.mvd_tra,
+                            item.sku_tra,
+                            item.ghi_chu,
+                            item.xac_nhan
+                        ].some(value => (value || '').toString().toLowerCase().includes(search));
+                        if (!matchSearch) return false;
                     }
-                }
-                if (daNhanFilter) {
-                    const isCoDon = hhBhMvdSet.has((item.mvd || '').toString().trim()) || hhBhMvdSet.has((item.mvd_tra || '').toString().trim());
-                    if (daNhanFilter === 'có đơn' && !isCoDon) return false;
-                    if (daNhanFilter === 'trống' && isCoDon) return false;
-                }
-                return true;
+                    const ngayTraYmd = parseDmyToYmd(item.ngay_tra);
+                    if (fromYmd && (!ngayTraYmd || ngayTraYmd < fromYmd)) return false;
+                    if (toYmd && (!ngayTraYmd || ngayTraYmd > toYmd)) return false;
+                    if (xacNhanFilter) {
+                        const itemXacNhan = (item.xac_nhan || '').toString().toLowerCase().trim();
+                        const normalized = xacNhanFilter === 'trống' ? '' : xacNhanFilter;
+                        if (xacNhanFilter === 'trống') {
+                            if (itemXacNhan) return false;
+                        } else if (itemXacNhan !== normalized) {
+                            return false;
+                        }
+                    }
+                    if (daNhanFilter) {
+                        const isCoDon = hhBhMvdSet.has((item.mvd || '').toString().trim()) || hhBhMvdSet.has((item.mvd_tra || '').toString().trim());
+                        if (daNhanFilter === 'có đơn' && !isCoDon) return false;
+                        if (daNhanFilter === 'trống' && isCoDon) return false;
+                    }
+                    return true;
                 });
             if (stats) stats.textContent = `Số dòng: ${filteredHHShopDienData.length.toLocaleString('vi-VN')}`;
             if (!filteredHHShopDienData.length) {
@@ -3728,24 +3884,82 @@
             }
         }
 
+        function normalizeSanLabel(v) {
+            return (v || '')
+                .toString()
+                .trim()
+                .replace(/\d+$/, '')
+                .trim();
+        }
+
         function populateUDCTFilters() {
-            const sans = [...new Set(udctData.map(i => i.san))].filter(Boolean).sort();
+            // Lấy tất cả các Sàn, Khung H, Mã Gian có trong udctData để không bị mất nút khi lọc
+            const sans = [...new Set(udctData.map(i => normalizeSanLabel(i.san)))].filter(Boolean).sort();
             const khungHs = [...new Set(udctData.map(i => i.khung_h))].filter(Boolean).sort();
             const maGians = [...new Set(udctData.map(i => i.ma_gian))].filter(Boolean).sort();
+
+            const from = document.getElementById('filterUDCTFrom')?.value || '';
+            const to = document.getElementById('filterUDCTTo')?.value || '';
+            const khSelection = document.getElementById('filterUDCTKhungH')?.value || '';
+            const mgSelection = document.getElementById('filterUDCTMaGian')?.value || '';
+            const sanSelection = document.getElementById('filterUDCTSan')?.value || '';
+            const ttSelection = document.getElementById('filterUDCTTrangThai')?.value || '';
+            const search = (document.getElementById('filterUDCTSearch')?.value || '').toLowerCase();
+            const selectedStatuses = new Set((ttSelection || '').split('||').map(normalizeTrangThai).filter(Boolean));
+
+            function isMatchBase(item) {
+                const rawDate = item.ngay ? item.ngay.split(' ')[0] : '';
+                let itemDate = rawDate;
+                if (rawDate.includes('/')) {
+                    const [d, m, y] = rawDate.split('/');
+                    itemDate = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                }
+                if (from && itemDate < from) return false;
+                if (to && itemDate > to) return false;
+                if (selectedStatuses.size > 0 && !selectedStatuses.has(normalizeTrangThai(item.trang_thai))) return false;
+                if (search) {
+                    const rowText = `${item.mvd} ${item.mdh} ${item.ten_sp} ${item.id_sp_ct}`.toLowerCase();
+                    if (!rowText.includes(search)) return false;
+                }
+                return true;
+            }
+
+            const commonFiltered = udctData.filter(isMatchBase);
 
             const fillSelect = (id, list, placeholder) => {
                 const select = document.getElementById(id);
                 if (!select) return;
+                const currentVal = select.value;
                 select.innerHTML = `<option value="">${placeholder}</option>` +
                     list.map(v => `<option value="${v}">${v}</option>`).join('');
+                select.value = currentVal;
             };
 
-            const renderBtns = (id, options, currentVal) => {
+            const renderBtns = (id, options, currentVal, countField) => {
                 const container = document.getElementById(id + 'Buttons');
                 if (!container) return;
+                // Tính counts dựa trên tập dữ liệu đã lọc các field khác
+                const counts = options.reduce((acc, opt) => {
+                    acc[opt] = commonFiltered.filter(item => {
+                        if (countField === 'san') {
+                            if (normalizeSanLabel(item.san) !== opt) return false;
+                            if (khSelection && item.khung_h !== khSelection) return false;
+                            if (mgSelection && item.ma_gian !== mgSelection) return false;
+                        } else if (countField === 'khung_h') {
+                            if (item.khung_h !== opt) return false;
+                            if (sanSelection && normalizeSanLabel(item.san) !== sanSelection) return false;
+                            if (mgSelection && item.ma_gian !== mgSelection) return false;
+                        }
+                        return true;
+                    }).length;
+                    return acc;
+                }, {});
+
                 let html = `<button onclick="setUDCTBtnFilter('${id}', '')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${currentVal === '' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">Tất cả</button>`;
                 options.forEach(opt => {
-                    html += `<button onclick="setUDCTBtnFilter('${id}', '${opt}')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${currentVal === opt ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">${opt}</button>`;
+                    // Nếu muốn không hiện số nếu badge = 0, có thể dùng condition, nhưng code cũ hiện 0.
+                    const badgeHtml = `<span class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">${counts[opt] || 0}</span>`;
+                    html += `<button onclick="setUDCTBtnFilter('${id}', '${opt}')" data-opt="${opt}" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 flex items-center ${currentVal === opt ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">${opt} ${badgeHtml}</button>`;
                 });
                 container.innerHTML = html;
             };
@@ -3763,10 +3977,10 @@
             };
 
             const sf = document.getElementById('filterUDCTSan');
-            if (sf) renderBtns('filterUDCTSan', sans, sf.value);
+            if (sf) renderBtns('filterUDCTSan', sans, sf.value, 'san');
 
             const khf = document.getElementById('filterUDCTKhungH');
-            if (khf) renderBtns('filterUDCTKhungH', khungHs, khf.value);
+            if (khf) renderBtns('filterUDCTKhungH', khungHs, khf.value, 'khung_h');
 
             const ttf = document.getElementById('filterUDCTTrangThai');
             if (ttf) renderMultiStatusBtns('filterUDCTTrangThai', udctTrangThaiOptions, ttf.value);
@@ -3783,7 +3997,7 @@
         function setUDCTBtnFilter(id, val) {
             const el = document.getElementById(id);
             if (el) el.value = val;
-            populateUDCTFilters();
+            // Gọi filterUDCTTable sẽ tự động gọi luôn populateUDCTFilters
             filterUDCTTable();
         }
 
@@ -3800,7 +4014,7 @@
                 selected.add(normalizedVal);
             }
             el.value = Array.from(selected).join('||');
-            populateUDCTFilters();
+            // Gọi filterUDCTTable sẽ tự động gọi luôn populateUDCTFilters
             filterUDCTTable();
         }
 
@@ -3995,6 +4209,10 @@
 
             saveFiltersToCache();
             udctCurrentPage = 1;
+
+            // Cập nhật lại logic đếm số trên các thẻ button (Sàn, Khung H, ...)
+            populateUDCTFilters();
+
             renderUDCTTable();
         }
 
