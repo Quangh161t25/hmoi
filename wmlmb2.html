@@ -532,6 +532,13 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="flex items-center px-2 border-l border-slate-200">
+                                            <span class="sr-only">MÃ GIAN</span>
+                                            <select id="filterUDCTMaGian" onchange="filterUDCTTable()"
+                                                class="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 shadow-sm outline-none cursor-pointer">
+                                                <option value="">Tất cả gian hàng</option>
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="flex items-center gap-2 flex-1 max-w-md">
@@ -574,15 +581,6 @@
                                                 class="flex p-1 bg-slate-100 rounded-xl gap-1"></div>
                                         </div>
 
-                                        <!-- Group: Mã Gian -->
-                                        <div class="flex items-center gap-3">
-                                            <span class="sr-only">MÃ GIAN</span>
-                                            <select id="filterUDCTMaGian" onchange="filterUDCTTable()"
-                                                class="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 shadow-sm outline-none cursor-pointer">
-                                                <option value="">Tất cả gian hàng</option>
-                                            </select>
-                                        </div>
-
                                         <div class="flex items-center gap-3">
                                             <span class="sr-only">TRẠNG THÁI</span>
                                             <input type="hidden" id="filterUDCTTrangThai" value="">
@@ -590,54 +588,51 @@
                                                 class="flex p-1 bg-slate-100 rounded-xl gap-1"></div>
                                         </div>
                                     </div>
-
-                                    <div class="flex items-center gap-3 ml-auto">
-                                        <button onclick="updateAllPricesBatch()"
-                                            class="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl hover:bg-amber-100 transition-all font-bold text-xs ring-offset-2 focus:ring-2 focus:ring-amber-200">
-                                            <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path
-                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <span>Up đơn giá full ngày</span>
-                                        </button>
-
-                                        <label class="cursor-pointer group">
-                                            <div
-                                                class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all font-bold text-xs shadow-md shadow-blue-100">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path
-                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                                        stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round" />
-                                                </svg>
-                                                <span>Tải Excel</span>
-                                            </div>
-                                            <input type="file" id="excelUploadDonhang" accept=".xlsx, .xls"
-                                                class="hidden" onchange="handleExcelUploadDonhang(this.files)" multiple>
-                                        </label>
-                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="mx-2 mt-1.5 flex flex-wrap gap-2 items-stretch">
-                            <button onclick="setUDCTQuickTab('all')" id="udctTabAll"
-                                class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors">Tất
-                                cả các đơn</button>
-                            <button onclick="setUDCTQuickTab('cancelled')" id="udctTabCancelled"
-                                class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Đơn
-                                hủy</button>
-                            <button onclick="setUDCTQuickTab('duplicate')" id="udctTabDuplicate"
-                                class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Check
-                                trùng <span id="udctDuplicateCountBadge"
-                                    class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
-                            <button onclick="setUDCTQuickTab('notes')" id="udctTabNotes"
-                                class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Ghi
-                                chú <span id="udctNotesCountBadge"
-                                    class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
-                            <div id="udctStatusCards" class="flex flex-wrap gap-2 ml-auto"></div>
+                        <div class="mx-2 mt-1.5 flex flex-wrap gap-2 items-center justify-between">
+                            <div class="flex flex-wrap gap-2 items-stretch">
+                                <button onclick="setUDCTQuickTab('all')" id="udctTabAll"
+                                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors">Tất
+                                    cả các đơn</button>
+                                <button onclick="setUDCTQuickTab('cancelled')" id="udctTabCancelled"
+                                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Đơn
+                                    hủy</button>
+                                <button onclick="setUDCTQuickTab('duplicate')" id="udctTabDuplicate"
+                                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Check
+                                    trùng <span id="udctDuplicateCountBadge"
+                                        class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] font-bold leading-none text-red-600 bg-white border border-red-200 shadow-sm rounded-md">0</span></button>
+                                <button onclick="setUDCTQuickTab('notes')" id="udctTabNotes"
+                                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Ghi
+                                    chú <span id="udctNotesCountBadge"
+                                        class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] font-bold leading-none text-red-600 bg-white border border-red-200 shadow-sm rounded-md">0</span></button>
+                            </div>
+
+                            <div class="flex items-center gap-3 ml-auto pb-1">
+                                <button onclick="updateAllPricesBatch()"
+                                    class="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl hover:bg-amber-100 transition-all font-bold text-xs ring-offset-2 focus:ring-2 focus:ring-amber-200">
+                                    <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <span>Up đơn giá full ngày</span>
+                                </button>
+                                <label class="cursor-pointer group mb-0">
+                                    <div
+                                        class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all font-bold text-xs shadow-md shadow-blue-100">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <span>Tải Excel</span>
+                                    </div>
+                                    <input type="file" id="excelUploadDonhang" accept=".xlsx, .xls" class="hidden"
+                                        onchange="handleExcelUploadDonhang(this.files)" multiple>
+                                </label>
+                            </div>
                         </div>
                         <div class="flex-1 overflow-auto table-container mt-1">
                             <table class="w-full min-w-[1200px]">
@@ -3895,7 +3890,11 @@
         function populateUDCTFilters() {
             // Lấy tất cả các Sàn, Khung H, Mã Gian có trong udctData để không bị mất nút khi lọc
             const sans = [...new Set(udctData.map(i => normalizeSanLabel(i.san)))].filter(Boolean).sort();
-            const khungHs = [...new Set(udctData.map(i => i.khung_h))].filter(Boolean).sort();
+            const khungHs = [...new Set(udctData.map(i => i.khung_h))].filter(Boolean).sort((a, b) => {
+                const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                return numA - numB;
+            });
             const maGians = [...new Set(udctData.map(i => i.ma_gian))].filter(Boolean).sort();
 
             const from = document.getElementById('filterUDCTFrom')?.value || '';
@@ -3916,7 +3915,6 @@
                 }
                 if (from && itemDate < from) return false;
                 if (to && itemDate > to) return false;
-                if (selectedStatuses.size > 0 && !selectedStatuses.has(normalizeTrangThai(item.trang_thai))) return false;
                 if (search) {
                     const rowText = `${item.mvd} ${item.mdh} ${item.ten_sp} ${item.id_sp_ct}`.toLowerCase();
                     if (!rowText.includes(search)) return false;
@@ -3945,10 +3943,12 @@
                             if (normalizeSanLabel(item.san) !== opt) return false;
                             if (khSelection && item.khung_h !== khSelection) return false;
                             if (mgSelection && item.ma_gian !== mgSelection) return false;
+                            if (selectedStatuses.size > 0 && !selectedStatuses.has(normalizeTrangThai(item.trang_thai))) return false;
                         } else if (countField === 'khung_h') {
                             if (item.khung_h !== opt) return false;
                             if (sanSelection && normalizeSanLabel(item.san) !== sanSelection) return false;
                             if (mgSelection && item.ma_gian !== mgSelection) return false;
+                            if (selectedStatuses.size > 0 && !selectedStatuses.has(normalizeTrangThai(item.trang_thai))) return false;
                         }
                         return true;
                     }).length;
@@ -3958,7 +3958,7 @@
                 let html = `<button onclick="setUDCTBtnFilter('${id}', '')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${currentVal === '' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">Tất cả</button>`;
                 options.forEach(opt => {
                     // Nếu muốn không hiện số nếu badge = 0, có thể dùng condition, nhưng code cũ hiện 0.
-                    const badgeHtml = `<span class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">${counts[opt] || 0}</span>`;
+                    const badgeHtml = `<span class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] font-bold leading-none text-red-600 bg-white border border-red-200 shadow-sm rounded-md">${counts[opt] || 0}</span>`;
                     html += `<button onclick="setUDCTBtnFilter('${id}', '${opt}')" data-opt="${opt}" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 flex items-center ${currentVal === opt ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">${opt} ${badgeHtml}</button>`;
                 });
                 container.innerHTML = html;
@@ -3967,11 +3967,25 @@
             const renderMultiStatusBtns = (id, options, currentVal) => {
                 const container = document.getElementById(id + 'Buttons');
                 if (!container) return;
+
+                const counts = options.reduce((acc, opt) => {
+                    acc[opt] = commonFiltered.filter(item => {
+                        if (normalizeTrangThai(item.trang_thai) !== normalizeTrangThai(opt)) return false;
+                        if (sanSelection && normalizeSanLabel(item.san) !== sanSelection) return false;
+                        if (khSelection && item.khung_h !== khSelection) return false;
+                        if (mgSelection && item.ma_gian !== mgSelection) return false;
+                        return true;
+                    }).length;
+                    return acc;
+                }, {});
+
                 const selected = new Set((currentVal || '').split('||').map(normalizeTrangThai).filter(Boolean));
                 let html = `<button onclick="setUDCTStatusMultiFilter('')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${selected.size === 0 ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">Tất cả</button>`;
                 options.forEach(opt => {
+                    const c = counts[opt] || 0;
                     const active = selected.has(normalizeTrangThai(opt));
-                    html += `<button onclick="setUDCTStatusMultiFilter('${opt}')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 ${active ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">${opt}</button>`;
+                    const badgeHtml = `<span class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] font-bold leading-none text-red-600 bg-white border border-red-200 shadow-sm rounded-md">${c}</span>`;
+                    html += `<button onclick="setUDCTStatusMultiFilter('${opt}')" class="px-3 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 flex items-center ${active ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-600'}">${opt} ${badgeHtml}</button>`;
                 });
                 container.innerHTML = html;
             };
@@ -4242,43 +4256,11 @@
             renderUDCTTable();
         }
 
-        function renderUDCTStatusCards(statusCounts, totalCount) {
-            const container = document.getElementById('udctStatusCards');
-            if (!container) return;
-            const cards = [
-                { key: '1 THAY THẾ', label: '1 THAY THẾ', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-                { key: '2 HỦY', label: '2 HỦY', cls: 'bg-rose-50 text-rose-700 border-rose-200' },
-                { key: '3 HÊT HÀNG', label: '3 HÊT HÀNG', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-                { key: '4 MAI GỌI', label: '4 MAI GỌI', cls: 'bg-sky-50 text-sky-700 border-sky-200' }
-            ];
-            container.innerHTML = cards.map(card => `
-                <div class="min-w-[120px] rounded-xl border ${card.cls} px-3 py-2 shadow-sm">
-                    <div class="text-[10px] font-bold uppercase tracking-wider opacity-80">${card.label}</div>
-                    <div class="text-xl font-black leading-tight">${(statusCounts[card.key] || 0).toLocaleString('vi-VN')}</div>
-                </div>
-            `).join('') + `
-                <div class="min-w-[120px] rounded-xl border bg-slate-50 text-slate-700 border-slate-200 px-3 py-2 shadow-sm">
-                    <div class="text-[10px] font-bold uppercase tracking-wider opacity-80">Tổng lọc</div>
-                    <div class="text-xl font-black leading-tight">${totalCount.toLocaleString('vi-VN')}</div>
-                </div>`;
-        }
-
         function renderUDCTTable() {
             const tbody = document.getElementById('donhangTableBody');
             if (!tbody) return;
 
             const baseFilteredForCounts = getUDCTBaseFilteredForStatusCounts();
-            const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.querySelector('td[colspan]'));
-            const visibleData = visibleRows.length ? visibleRows.map(tr => {
-                const rowIndex = tr.getAttribute('ondblclick')?.match(/\((\d+)\)/)?.[1];
-                return udctData[Number(rowIndex)] || null;
-            }).filter(Boolean) : baseFilteredForCounts;
-            const statusCounts = visibleData.reduce((acc, item) => {
-                const key = normalizeTrangThai(item.trang_thai) || 'TRỐNG';
-                acc[key] = (acc[key] || 0) + 1;
-                return acc;
-            }, {});
-            renderUDCTStatusCards(statusCounts, visibleData.length);
 
             const mvdMap = {};
             const mdhMap = {};
