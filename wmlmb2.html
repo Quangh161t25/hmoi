@@ -214,12 +214,12 @@
                 </div>
                 <div onclick="switchModule('donhang')" id="sidebarDonhang"
                     class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
-                    title="Đơn chi tiết">
+                    title="UP Đơn chi tiết">
                     <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <span class="font-medium sidebar-text">Đơn chi tiết</span>
+                    <span class="font-medium sidebar-text">UP Đơn chi tiết</span>
                 </div>
                 <div onclick="switchModule('sanpham')" id="sidebarSanpham"
                     class="sidebar-item px-3 py-1.5 mx-2 rounded-lg cursor-pointer flex items-center gap-2.5 text-slate-600 hover:bg-slate-50"
@@ -322,7 +322,7 @@
                                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
                                 </div>
-                                <h3 class="text-lg font-bold text-slate-900 mb-2">Đơn chi tiết</h3>
+                                <h3 class="text-lg font-bold text-slate-900 mb-2">UP Đơn chi tiết</h3>
                                 <p class="text-sm text-slate-500">Quản lý thông tin đơn hàng chi tiết</p>
                                 <div class="mt-4 flex items-center text-primary text-sm font-medium">
                                     <span>Truy cập ngay</span>
@@ -527,8 +527,10 @@
                                 hủy</button>
                             <button onclick="setUDCTQuickTab('duplicate')" id="udctTabDuplicate"
                                 class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Check
-                                trùng</button>
-                            <div class="ml-2 self-end pb-2 text-[10px] text-slate-400" id="udctDuplicateFooter">Đơn trùng: 0</div>
+                                trùng <span id="udctDuplicateCountBadge" class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
+                            <button onclick="setUDCTQuickTab('notes')" id="udctTabNotes"
+                                class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors">Ghi
+                                chú <span id="udctNotesCountBadge" class="ml-1 inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 text-[10px] leading-none text-white bg-red-500 rounded-md">0</span></button>
                             <div id="udctStatusCards" class="flex flex-wrap gap-2 ml-auto"></div>
                         </div>
                         <div class="flex-1 overflow-auto table-container mt-1">
@@ -886,41 +888,56 @@
                                     <table class="w-full min-w-[1000px]">
                                         <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                             <tr>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    Ngày</th>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    Sàn
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('ngay')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Ngày</span><span id="detailSortNgay" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
                                                 </th>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    MVD
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('san')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Sàn</span><span id="detailSortSan" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
                                                 </th>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    MDH
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('mvd')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>MVD</span><span id="detailSortMvd" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
                                                 </th>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    Tên
-                                                    SP</th>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    SLG
-                                                    xuất</th>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    Đơn
-                                                    giá</th>
-                                                <th
-                                                    class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
-                                                    Thành tiền</th>
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('mdh')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>MDH</span><span id="detailSortMdh" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
+                                                </th>
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('ten_sp')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Tên SP</span><span id="detailSortTenSp" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
+                                                </th>
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('id_sp')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>ID SP</span><span id="detailSortIdSp" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
+                                                </th>
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('slg_xuat')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>SLG xuất</span><span id="detailSortSlgXuat" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
+                                                </th>
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('don_gia')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Đơn giá</span><span id="detailSortDonGia" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
+                                                </th>
+                                                <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">
+                                                    <button onclick="sortDetailTable('thanh_tien')" class="inline-flex items-center gap-1 hover:text-slate-900">
+                                                        <span>Thành tiền</span><span id="detailSortThanhTien" class="text-[9px] text-slate-400">↕</span>
+                                                    </button>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody id="detailTableBody">
                                             <tr>
-                                                <td colspan="8" class="text-center py-8 text-slate-500">Chọn ngày để xem
+                                                <td colspan="9" class="text-center py-8 text-slate-500">Chọn ngày để xem
                                                     chi tiết</td>
                                             </tr>
                                         </tbody>
@@ -2137,11 +2154,13 @@
                     trang_thai: document.getElementById('editTrangThai').value,
                     ghi_chu: document.getElementById('editGhiChu').value
                 };
-                // so_luong=O, id_sp=P, id_sp_ct=Q, tinh_trang=X, trang_thai=Y, ghi_chu=AA, don_gia=AE
+                const nextSlgXuat = (newData.trang_thai || '').toLowerCase().includes('hủy') ? 0 : (newData.so_luong || 0);
+                // so_luong=O, id_sp=P, id_sp_ct=Q, tinh_trang=X, trang_thai=Y, slg_xuat=S, ghi_chu=AA, don_gia=AE
                 const batchUpdates = [
                     { range: `${CONFIG.udctSheetName}!O${item.rowIndex}`, values: [[newData.so_luong]] },
                     { range: `${CONFIG.udctSheetName}!P${item.rowIndex}`, values: [[newData.id_sp]] },
                     { range: `${CONFIG.udctSheetName}!Q${item.rowIndex}`, values: [[newData.id_sp_ct]] },
+                    { range: `${CONFIG.udctSheetName}!S${item.rowIndex}`, values: [[nextSlgXuat]] },
                     { range: `${CONFIG.udctSheetName}!X${item.rowIndex}`, values: [[newData.tinh_trang]] },
                     { range: `${CONFIG.udctSheetName}!Y${item.rowIndex}`, values: [[newData.trang_thai]] },
                     { range: `${CONFIG.udctSheetName}!AA${item.rowIndex}`, values: [[newData.ghi_chu]] },
@@ -2155,7 +2174,8 @@
                 });
                 if (resp.ok) {
                     Object.assign(item, newData);
-                    renderUDCTTable(filteredUDCT);
+                    item.slg_xuat = nextSlgXuat;
+                    renderUDCTTable();
                 } else {
                     console.error('Save error:', await resp.text());
                     alert('Lỗi khi lưu dữ liệu vào Google Sheet.');
@@ -2559,7 +2579,7 @@
         let filteredUDCT = [];
         let udctCurrentPage = 1;
         const uitItemsPerPage = 500; // tăng lên 500 dòng 
-        let udctQuickStatusTab = 'all'; // 'all' or 'cancelled' or 'duplicate'
+        let udctQuickStatusTab = 'all'; // 'all' or 'cancelled' or 'duplicate' or 'notes'
         const udctSelectedRows = new Set();
         const udctTrangThaiOptions = ['1 THAY THẾ', '2 HỦY', '3 HÊT HÀNG', '4 MAI GỌI'];
 
@@ -2592,6 +2612,9 @@
                         return false;
                     }
                 }
+                if (udctQuickStatusTab === 'notes') {
+                    if (!(item.ghi_chu || '').toString().trim()) return false;
+                }
                 if (search) {
                     const rowText = `${item.mvd} ${item.mdh} ${item.ten_sp} ${item.id_sp_ct}`.toLowerCase();
                     if (!rowText.includes(search)) return false;
@@ -2605,19 +2628,28 @@
             const tabAll = document.getElementById('udctTabAll');
             const tabCancelled = document.getElementById('udctTabCancelled');
             const tabDuplicate = document.getElementById('udctTabDuplicate');
+            const tabNotes = document.getElementById('udctTabNotes');
 
             if (tab === 'all') {
                 tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
                 tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
                 tabDuplicate.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+                tabNotes.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
             } else if (tab === 'cancelled') {
                 tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
                 tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+                tabDuplicate.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+                tabNotes.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+            } else if (tab === 'notes') {
+                tabNotes.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
+                tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+                tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
                 tabDuplicate.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
             } else {
                 tabDuplicate.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-primary text-primary transition-colors";
                 tabAll.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
                 tabCancelled.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
+                tabNotes.className = "px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition-colors";
             }
             filterUDCTTable();
         }
@@ -2697,7 +2729,9 @@
 
             filteredUDCT = udctQuickStatusTab === 'cancelled'
                 ? base.filter(item => (item.trang_thai || '').toLowerCase().includes('hủy') || (item.tinh_trang || '').toLowerCase().includes('hủy'))
-                : base;
+                : udctQuickStatusTab === 'notes'
+                    ? base.filter(item => (item.ghi_chu || '').toString().trim())
+                    : base;
 
             saveFiltersToCache();
             udctCurrentPage = 1;
@@ -2762,8 +2796,6 @@
                 return acc;
             }, {});
             renderUDCTStatusCards(statusCounts, baseFilteredForCounts.length);
-            const duplicateFooter = document.getElementById('udctDuplicateFooter');
-            if (duplicateFooter) duplicateFooter.textContent = `Đơn trùng: ${(window.__udctDuplicateCount || 0).toLocaleString('vi-VN')}`;
 
             const mvdMap = {};
             const mdhMap = {};
@@ -2784,6 +2816,12 @@
             if (udctQuickStatusTab === 'duplicate') {
                 filteredUDCT = duplicateList;
             }
+            const duplicateBadge = document.getElementById('udctDuplicateCountBadge');
+            if (duplicateBadge) duplicateBadge.textContent = duplicateList.length.toLocaleString('vi-VN');
+            const notesCount = baseFilteredForCounts.filter(item => (item.ghi_chu || '').toString().trim()).length;
+            const notesBadge = document.getElementById('udctNotesCountBadge');
+            if (notesBadge) notesBadge.textContent = notesCount.toLocaleString('vi-VN');
+
             if (filteredUDCT.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="18" class="text-center py-8 text-slate-500">Không tìm thấy dữ liệu phù hợp</td></tr>';
                 document.getElementById('udctPageInfo').innerHTML = `Đang hiển thị <span class="font-medium text-slate-900">0-0</span> trong số <span class="font-medium text-slate-900">0</span> đơn hàng`;
@@ -2921,6 +2959,8 @@
             const success = await updateSheetValue(CONFIG.udctSheetName, `Y${item.rowIndex}`, '2 HỦY');
             if (!success) return alert(`Lỗi khi cập nhật trạng thái hủy cho dòng ${item.rowIndex}`);
             item.trang_thai = '2 HỦY';
+            item.slg_xuat = 0;
+            await updateSheetValue(CONFIG.udctSheetName, `S${item.rowIndex}`, 0);
             renderUDCTTable();
         }
 
@@ -2930,6 +2970,13 @@
             const success = await updateSheetValue(CONFIG.udctSheetName, `Y${item.rowIndex}`, statusValue);
             if (!success) return alert(`Lỗi khi cập nhật trạng thái cho dòng ${item.rowIndex}`);
             item.trang_thai = statusValue;
+            if ((statusValue || '').toString().toLowerCase().includes('hủy')) {
+                item.slg_xuat = 0;
+                await updateSheetValue(CONFIG.udctSheetName, `S${item.rowIndex}`, 0);
+            } else {
+                item.slg_xuat = item.so_luong;
+                await updateSheetValue(CONFIG.udctSheetName, `S${item.rowIndex}`, item.slg_xuat);
+            }
             renderUDCTTable();
         }
 
@@ -2954,9 +3001,13 @@
             if (!item) return;
 
             const searchId = (item.id_sp_ct || item.id_sp || "").toString().trim().toLowerCase();
-            const sp = sanphamData.find(s =>
-                (s.sku_con || "").toString().trim().toLowerCase() === searchId
-            );
+            const searchSku3 = (item.id_sp || "").toString().trim().toLowerCase();
+            const searchFallback = (item.id_sp_ct || "").toString().trim().toLowerCase();
+            const sp = sanphamData.find(s => {
+                const sku3 = (s.sku_3 || "").toString().trim().toLowerCase();
+                const skuCon = (s.sku_con || "").toString().trim().toLowerCase();
+                return sku3 === searchId || skuCon === searchId || sku3 === searchSku3 || sku3 === searchFallback || skuCon === searchSku3 || skuCon === searchFallback;
+            });
 
             if (!sp) {
                 const sku = item.id_sp_ct || item.id_sp || "N/A";
@@ -2968,12 +3019,21 @@
             const newPrice = sp.gia_ban - sp.gia_dong_goi;
             item.don_gia_1 = newPrice;
 
+            if (!(item.trang_thai || '').toLowerCase().includes('hủy')) {
+                item.slg_xuat = item.so_luong;
+                await updateSheetValue(CONFIG.udctSheetName, `S${item.rowIndex}`, item.slg_xuat);
+            }
+
             // Sheet index is rowIndex, column AE is index 31 (1-based for range)
             const success = await updateSheetValue(CONFIG.udctSheetName, `AE${item.rowIndex}`, newPrice);
 
             if (success) {
                 if (!silent) {
-                    renderUDCTTable(filteredUDCT);
+                    const row = udctData.find(d => d.rowIndex === item.rowIndex);
+                    if (row && !(row.trang_thai || '').toLowerCase().includes('hủy')) {
+                        row.slg_xuat = row.so_luong;
+                    }
+                    renderUDCTTable();
                     console.log(`Updated row ${item.rowIndex} price to ${newPrice}`);
                 }
             } else {
@@ -2995,7 +3055,13 @@
 
                 for (const item of filteredUDCT) {
                     const searchId = (item.id_sp_ct || item.id_sp || "").toString().trim().toLowerCase();
-                    const sp = sanphamData.find(s => (s.sku_con || "").toString().trim().toLowerCase() === searchId);
+                    const searchSku3 = (item.id_sp || "").toString().trim().toLowerCase();
+                    const searchFallback = (item.id_sp_ct || "").toString().trim().toLowerCase();
+                    const sp = sanphamData.find(s => {
+                        const sku3 = (s.sku_3 || "").toString().trim().toLowerCase();
+                        const skuCon = (s.sku_con || "").toString().trim().toLowerCase();
+                        return sku3 === searchId || skuCon === searchId || sku3 === searchSku3 || sku3 === searchFallback || skuCon === searchSku3 || skuCon === searchFallback;
+                    });
 
                     if (sp) {
                         const newPrice = sp.gia_ban - sp.gia_dong_goi;
@@ -3004,6 +3070,14 @@
                             range: `${CONFIG.udctSheetName}!AE${item.rowIndex}`,
                             values: [[newPrice]]
                         });
+
+                        if (!(item.trang_thai || '').toLowerCase().includes('hủy')) {
+                            item.slg_xuat = item.so_luong;
+                            updates.push({
+                                range: `${CONFIG.udctSheetName}!S${item.rowIndex}`,
+                                values: [[item.slg_xuat]]
+                            });
+                        }
                     }
                 }
 
@@ -3033,7 +3107,7 @@
                 }
 
                 alert(`Đã cập nhật thành công đơn giá cho ${successCount}/${filteredUDCT.length} dòng.`);
-                renderUDCTTable(filteredUDCT);
+                renderUDCTTable();
             } catch (err) {
                 console.error("Batch update error:", err);
                 alert("Có lỗi xảy ra khi cập nhật hàng loạt!");
@@ -3431,6 +3505,7 @@
                     ngayDon: toIsoDate(item.ngay),
                     san: item.san || 'Khác',
                     ma_gian: item.ma_gian || 'N/A',
+                    id_sp: item.id_sp || '',
                     id_sp_ct: item.id_sp_ct || item.id_sp || '',
                     mvd: item.mvd || '',
                     mdh: item.mdh || '',
@@ -3507,23 +3582,8 @@
 
                 renderCharts(dailyStats);
 
-                const detailBody = document.getElementById('detailTableBody');
-                if (filtered.length === 0) {
-                    detailBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
-                } else {
-                    detailBody.innerHTML = filtered.map(item => `
-                        <tr class="border-b border-slate-100 hover:bg-slate-50">
-                            <td class="px-4 py-3 text-sm text-slate-900">${item.ngay || '-'}</td>
-                            <td class="px-4 py-3 text-sm text-slate-900">${item.san || '-'}</td>
-                            <td class="px-4 py-3 text-sm text-slate-900">${item.mvd || '-'}</td>
-                            <td class="px-4 py-3 text-sm text-slate-900">${item.mdh || '-'}</td>
-                            <td class="px-4 py-3 text-sm text-slate-900">${item.ten_sp || '-'}</td>
-                            <td class="px-4 py-3 text-sm text-slate-900">${item.slg_xuat}</td>
-                            <td class="px-4 py-3 text-sm text-slate-900">${item.don_gia.toLocaleString('vi-VN')}</td>
-                            <td class="px-4 py-3 text-sm text-slate-900 font-medium">${(item.don_gia * item.slg_xuat).toLocaleString('vi-VN')}</td>
-                        </tr>
-                    `).join('');
-                }
+                window.__detailRows = filtered;
+                renderDetailTable();
 
             } catch (error) {
                 console.error('Filter error:', error);
@@ -3531,6 +3591,79 @@
             } finally {
                 loadingOverlay.classList.add('hidden');
             }
+        }
+
+        const detailSortState = {
+            key: 'ngay',
+            dir: 'desc'
+        };
+
+        function normalizeDetailValue(item, key) {
+            if (key === 'ngay') return item.ngay || '';
+            if (key === 'san') return item.san || '';
+            if (key === 'mvd') return item.mvd || '';
+            if (key === 'mdh') return item.mdh || '';
+            if (key === 'ten_sp') return item.ten_sp || '';
+            if (key === 'id_sp') return item.id_sp || '';
+            if (key === 'slg_xuat') return parseFloat(item.slg_xuat) || 0;
+            if (key === 'don_gia') return parseFloat(item.don_gia) || 0;
+            if (key === 'thanh_tien') return (parseFloat(item.don_gia) || 0) * (parseFloat(item.slg_xuat) || 0);
+            return '';
+        }
+
+        function updateDetailSortIndicators() {
+            const keys = ['Ngay', 'San', 'Mvd', 'Mdh', 'TenSp', 'IdSp', 'SlgXuat', 'DonGia', 'ThanhTien'];
+            keys.forEach(k => {
+                const el = document.getElementById(`detailSort${k}`);
+                if (el) el.textContent = '↕';
+            });
+            const activeKeyMap = {
+                ngay: 'Ngay', san: 'San', mvd: 'Mvd', mdh: 'Mdh', ten_sp: 'TenSp', id_sp: 'IdSp', slg_xuat: 'SlgXuat', don_gia: 'DonGia', thanh_tien: 'ThanhTien'
+            };
+            const activeEl = document.getElementById(`detailSort${activeKeyMap[detailSortState.key]}`);
+            if (activeEl) activeEl.textContent = detailSortState.dir === 'asc' ? '↑' : '↓';
+        }
+
+        function sortDetailTable(key) {
+            if (detailSortState.key === key) {
+                detailSortState.dir = detailSortState.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                detailSortState.key = key;
+                detailSortState.dir = key === 'ngay' ? 'desc' : 'asc';
+            }
+            renderDetailTable();
+        }
+
+        function renderDetailTable() {
+            const detailBody = document.getElementById('detailTableBody');
+            if (!detailBody) return;
+            const rows = (window.__detailRows || []).slice();
+            rows.sort((a, b) => {
+                const av = normalizeDetailValue(a, detailSortState.key);
+                const bv = normalizeDetailValue(b, detailSortState.key);
+                let cmp = 0;
+                if (typeof av === 'number' && typeof bv === 'number') cmp = av - bv;
+                else cmp = String(av).localeCompare(String(bv), 'vi', { numeric: true, sensitivity: 'base' });
+                return detailSortState.dir === 'asc' ? cmp : -cmp;
+            });
+            if (rows.length === 0) {
+                detailBody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-500">Không có dữ liệu</td></tr>';
+            } else {
+                detailBody.innerHTML = rows.map(item => `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="px-4 py-3 text-sm text-slate-900">${item.ngay || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900">${item.san || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900">${item.mvd || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900">${item.mdh || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900">${item.ten_sp || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900">${item.id_sp || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900">${item.slg_xuat}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900">${parseFloat(item.don_gia || 0).toLocaleString('vi-VN')}</td>
+                        <td class="px-4 py-3 text-sm text-slate-900 font-medium">${((parseFloat(item.don_gia) || 0) * (parseFloat(item.slg_xuat) || 0)).toLocaleString('vi-VN')}</td>
+                    </tr>
+                `).join('');
+            }
+            updateDetailSortIndicators();
         }
 
         function renderCharts(dailyStats) {
@@ -4023,7 +4156,7 @@
                 sidebarHome.classList.remove('text-slate-600');
             } else if (module === 'donhang') {
                 donhangModule.style.display = 'flex';
-                pageTitle.textContent = 'Đơn chi tiết';
+                pageTitle.textContent = 'UP Đơn chi tiết';
                 resetSidebar();
                 sidebarDonhang.classList.add('active', 'bg-blue-50', 'text-primary', 'border-r-2', 'border-primary');
                 sidebarDonhang.classList.remove('text-slate-600');
