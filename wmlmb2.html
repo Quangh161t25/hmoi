@@ -1353,6 +1353,14 @@
                                     class="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors text-sm font-medium flex items-center gap-2">
                                     📥 Tải MISA
                                 </button>
+                                <button onclick="openNewHangHoanDrawer()"
+                                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    ➕ Thêm mới
+                                </button>
+                                <button onclick="startContinuousMvdScan()"
+                                    class="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    📷 Quét liên tục MVD
+                                </button>
                                 <button onclick="fetchHangHoanData()"
                                     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     🔄 Làm mới
@@ -1472,7 +1480,7 @@
     <div id="hhDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 overflow-hidden flex flex-col sidebar-transition">
         <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
             <div>
-                <h3 class="text-base font-bold text-slate-900">Chi tiết hàng hoàn</h3>
+                <h3 id="hhDrawerTitle" class="text-base font-bold text-slate-900">Chi tiết hàng hoàn</h3>
                 <p class="text-[10px] text-slate-500 mt-1 uppercase" id="hhDrawerRowId">Row ID: -</p>
             </div>
             <button onclick="closeHhDetailDrawer()" class="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
@@ -1483,16 +1491,30 @@
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-4">
             <div class="grid grid-cols-2 gap-4">
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD</label><input id="hhEditMVD" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mã gian</label><input id="hhEditMaGian" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU</label><input id="hhEditSKU" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU CT</label><input id="hhEditSKUCT" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD</label>
+                    <div class="flex gap-2">
+                        <input id="hhEditMVD" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                        <button type="button" onclick="scanQrForHhMvd()" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white hover:bg-slate-50">📷 QR</button>
+                    </div>
+                </div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mã gian</label><input id="hhEditMaGian" list="hhMaGianList" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist id="hhMaGianList"></datalist></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU</label><input id="hhEditSKU" list="hhSkuList" oninput="handleHhSkuChange()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist id="hhSkuList"></datalist></div>
+                <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU CT</label><input id="hhEditSKUCT" list="hhSkuCtList" oninput="handleHhSkuCtChange()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"><datalist id="hhSkuCtList"></datalist></div>
                 <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SLG</label><input type="number" id="hhEditSLG" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
                 <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tình trạng</label><input id="hhEditTinhTrang" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
-                <div class="col-span-2"><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Kho</label><input id="hhEditKho" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div class="col-span-2"><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tên SP</label><input id="hhEditTenSP" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20"></div>
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Kho</label>
+                    <input type="hidden" id="hhEditKho" value="KHO">
+                    <div id="hhEditKhoButtons" class="flex flex-wrap gap-2">
+                        <button type="button" onclick="setHhKho('KHO')" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100">KHO</button>
+                        <button type="button" onclick="setHhKho('BH')" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">BH</button>
+                    </div>
+                </div>
             </div>
             <div class="pt-4 border-t border-slate-200 flex gap-3">
-                <button onclick="saveHhDetail()" class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-all">Lưu thay đổi</button>
+                <button id="hhSaveButton" onclick="saveHhDetail()" class="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-all">Lưu thay đổi</button>
                 <button onclick="closeHhDetailDrawer()" class="px-6 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">Hủy</button>
             </div>
         </div>
@@ -1516,6 +1538,7 @@
             authSheetName: "DSNV",
             udctSheetName: "UD_CT",
             sanphamSheetName: "DS_SP_PM",
+            dsSpCtSheetName: "DS_SP_CT",
             inventorySheetName: "TON_KHO",
             dhctSheetName: "DH_CT",
             hhbhSheetName: "HH_BH",
@@ -1532,6 +1555,7 @@
         let tokenExpiry = 0;
         let udctData = [];
         let sanphamData = [];
+        let dsSpCtData = [];
         let reportData = [];
         let mergedChart = null;
         let upmisaData = [];
@@ -1541,6 +1565,11 @@
         let filteredHangHoanData = [];
         let currentEditRowIndex = -1;
         let currentHangHoanEditIndex = -1;
+        let hhDrawerMode = 'edit';
+        let continuousScanRunning = false;
+        let continuousScanStream = null;
+        let continuousScanLastValue = '';
+        let continuousScanLastAt = 0;
         let currentDrawerMode = 'udct';
         let udctAutoSaveTimer = null;
         let suppressUDCTAutoSave = false;
@@ -1643,6 +1672,248 @@
             image.src = '';
         }
 
+        async function loadDsSpCtData() {
+            try {
+                const data = await fetchSheetData(CONFIG.dsSpCtSheetName);
+                if (!data || data.length <= 1) {
+                    dsSpCtData = [];
+                    return;
+                }
+                const headers = data[0].map(h => (h || '').toString().toLowerCase().trim());
+                const findIdx = (names) => {
+                    for (const name of names) {
+                        const idx = headers.indexOf(name.toLowerCase());
+                        if (idx !== -1) return idx;
+                    }
+                    return -1;
+                };
+                const idxIdSp = findIdx(['id_sp', 'sku', 'id sp']);
+                const idxIdSpCt = findIdx(['id_sp_ct', 'sku_ct', 'id sp ct']);
+                const idxTen = findIdx(['ten', 'tên', 'ten_sp', 'tên sản phẩm']);
+                dsSpCtData = data.slice(1).map(row => ({
+                    id_sp: (idxIdSp !== -1 ? row[idxIdSp] : row[3] || '').toString().trim(),
+                    id_sp_ct: (idxIdSpCt !== -1 ? row[idxIdSpCt] : row[2] || '').toString().trim(),
+                    ten: (idxTen !== -1 ? row[idxTen] : row[4] || '').toString().trim()
+                })).filter(item => item.id_sp || item.id_sp_ct || item.ten);
+                populateHhFormOptions();
+            } catch (error) {
+                console.error('Load DS_SP_CT error:', error);
+                dsSpCtData = [];
+            }
+        }
+
+        function renderHhKhoButtons(value) {
+            const current = (value || '').toString().trim().toUpperCase() || 'KHO';
+            const buttons = document.querySelectorAll('#hhEditKhoButtons button');
+            buttons.forEach(btn => {
+                const active = btn.textContent.trim().toUpperCase() === current;
+                btn.classList.toggle('bg-slate-100', active);
+                btn.classList.toggle('bg-white', !active);
+            });
+        }
+
+        function setHhKho(value) {
+            const normalized = (value || 'KHO').toString().trim().toUpperCase();
+            document.getElementById('hhEditKho').value = normalized;
+            renderHhKhoButtons(normalized);
+        }
+
+        function populateHhFormOptions() {
+            const maGianList = document.getElementById('hhMaGianList');
+            const skuList = document.getElementById('hhSkuList');
+            if (maGianList) {
+                const uniqueMaGian = [...new Set(hangHoanData.map(i => (i.ma_gian || '').toString().trim()).filter(Boolean))].sort();
+                maGianList.innerHTML = uniqueMaGian.map(v => `<option value="${escapeHtml(v)}">`).join('');
+            }
+            if (skuList) {
+                const uniqueSku = [...new Set(dsSpCtData.map(i => (i.id_sp || '').toString().trim()).filter(Boolean))].sort();
+                skuList.innerHTML = uniqueSku.map(v => `<option value="${escapeHtml(v)}">`).join('');
+            }
+            handleHhSkuChange();
+        }
+
+        function handleHhSkuChange() {
+            const sku = (document.getElementById('hhEditSKU')?.value || '').toString().trim();
+            const skuCtList = document.getElementById('hhSkuCtList');
+            if (skuCtList) {
+                const options = [...new Set(dsSpCtData
+                    .filter(item => ((item.id_sp_ct || '').substring(0, 4) === sku))
+                    .map(item => item.id_sp_ct)
+                    .filter(Boolean))];
+                skuCtList.innerHTML = options.map(v => `<option value="${escapeHtml(v)}">`).join('');
+            }
+            const currentSkuCt = (document.getElementById('hhEditSKUCT')?.value || '').toString().trim();
+            if (currentSkuCt && currentSkuCt.substring(0, 4) !== sku) {
+                document.getElementById('hhEditSKUCT').value = '';
+            }
+        }
+
+        function handleHhSkuCtChange() {
+            const skuCt = (document.getElementById('hhEditSKUCT')?.value || '').toString().trim();
+            if (!skuCt) return;
+            const match = dsSpCtData.find(item => (item.id_sp_ct || '').toString() === skuCt);
+            if (!match) return;
+            if (!document.getElementById('hhEditSKU').value) {
+                document.getElementById('hhEditSKU').value = match.id_sp || skuCt.substring(0, 4);
+            }
+            document.getElementById('hhEditTenSP').value = match.ten || document.getElementById('hhEditTenSP').value;
+            handleHhSkuChange();
+        }
+
+        async function scanQrForHhMvd() {
+            const mvdInput = document.getElementById('hhEditMVD');
+            if (!mvdInput) return;
+            if (!('BarcodeDetector' in window) || !navigator.mediaDevices?.getUserMedia) {
+                const manual = prompt('Thiết bị không hỗ trợ quét QR tự động. Dán mã MVD tại đây:');
+                if (manual) mvdInput.value = manual.trim();
+                return;
+            }
+            let stream;
+            const video = document.createElement('video');
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;';
+            video.style.cssText = 'max-width:92vw;max-height:78vh;border-radius:8px;border:2px solid #fff;';
+            overlay.appendChild(video);
+            document.body.appendChild(overlay);
+            try {
+                const detector = new BarcodeDetector({ formats: ['qr_code'] });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+                video.setAttribute('playsinline', 'true');
+                await video.play();
+                const started = Date.now();
+                while (Date.now() - started < 30000) {
+                    const barcodes = await detector.detect(video);
+                    if (barcodes.length) {
+                        mvdInput.value = (barcodes[0].rawValue || '').trim();
+                        break;
+                    }
+                    await new Promise(r => setTimeout(r, 180));
+                }
+            } catch (err) {
+                console.error('QR scan error:', err);
+                const manual = prompt('Không quét được QR. Dán mã MVD tại đây:');
+                if (manual) mvdInput.value = manual.trim();
+            } finally {
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                overlay.remove();
+            }
+        }
+
+        async function appendHangHoanQuickByMvd(mvdRaw) {
+            const mvd = (mvdRaw || '').toString().trim();
+            if (!mvd) return false;
+            const token = await getAccessToken();
+            if (!token) return false;
+            const today = new Date().toISOString().split('T')[0];
+            const appendValues = [[
+                `${Date.now()}`,
+                today,
+                mvd,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '1',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                'KHO',
+                '',
+                '',
+                '',
+                '',
+                ''
+            ]];
+            const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.hhbhSheetName}!A:Z:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+            const appendResp = await fetch(appendUrl, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ values: appendValues })
+            });
+            return appendResp.ok;
+        }
+
+        function stopContinuousMvdScan() {
+            continuousScanRunning = false;
+            if (continuousScanStream) {
+                continuousScanStream.getTracks().forEach(t => t.stop());
+                continuousScanStream = null;
+            }
+            const root = document.getElementById('continuousScanOverlay');
+            if (root) root.remove();
+        }
+
+        async function startContinuousMvdScan() {
+            if (continuousScanRunning) return;
+            if (!('BarcodeDetector' in window) || !navigator.mediaDevices?.getUserMedia) {
+                alert('Thiết bị chưa hỗ trợ quét QR liên tục tự động.');
+                return;
+            }
+            const overlay = document.createElement('div');
+            overlay.id = 'continuousScanOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;';
+            overlay.innerHTML = `
+                <div style="color:#fff;font-weight:700;font-size:18px;">Quét liên tục MVD</div>
+                <div id="continuousScanStatus" style="color:#cbd5e1;font-size:13px;">Đang khởi động camera...</div>
+                <video id="continuousScanVideo" style="max-width:94vw;max-height:72vh;border-radius:10px;border:2px solid rgba(255,255,255,.55);"></video>
+                <div style="display:flex;gap:8px;">
+                    <button id="continuousStopBtn" style="padding:8px 14px;border-radius:8px;border:none;background:#ef4444;color:#fff;font-weight:700;cursor:pointer;">Dừng quét</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            const statusEl = document.getElementById('continuousScanStatus');
+            const video = document.getElementById('continuousScanVideo');
+            document.getElementById('continuousStopBtn')?.addEventListener('click', stopContinuousMvdScan);
+            continuousScanRunning = true;
+            continuousScanLastValue = '';
+            continuousScanLastAt = 0;
+            try {
+                const detector = new BarcodeDetector({ formats: ['qr_code'] });
+                continuousScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = continuousScanStream;
+                video.setAttribute('playsinline', 'true');
+                await video.play();
+                let okCount = 0;
+                while (continuousScanRunning) {
+                    const codes = await detector.detect(video);
+                    if (codes.length) {
+                        const rawValue = (codes[0].rawValue || '').trim();
+                        const now = Date.now();
+                        // Chống lưu trùng liên tiếp do camera giữ khung hình.
+                        if (rawValue && (rawValue !== continuousScanLastValue || (now - continuousScanLastAt) > 2000)) {
+                            continuousScanLastValue = rawValue;
+                            continuousScanLastAt = now;
+                            statusEl.textContent = `Đang lưu MVD: ${rawValue} ...`;
+                            const ok = await appendHangHoanQuickByMvd(rawValue);
+                            if (ok) {
+                                okCount += 1;
+                                statusEl.textContent = `Đã lưu ${okCount} mã. MVD mới nhất: ${rawValue}`;
+                            } else {
+                                statusEl.textContent = `Lưu lỗi với mã: ${rawValue}. Tiếp tục quét...`;
+                            }
+                        }
+                    }
+                    await new Promise(r => setTimeout(r, 160));
+                }
+            } catch (error) {
+                console.error('Continuous scan error:', error);
+                alert('Không thể khởi tạo quét liên tục MVD.');
+            } finally {
+                stopContinuousMvdScan();
+                // Làm mới bảng để nhìn thấy dữ liệu vừa quét.
+                await fetchHangHoanData();
+            }
+        }
+
         async function fetchHangHoanData() {
             const loadingOverlay = document.getElementById('loadingOverlay');
             const tbody = document.getElementById('hangHoanTableBody');
@@ -1691,6 +1962,7 @@
                     });
                     setHangHoanToday();
                     fillHangHoanFilterOptions();
+                    populateHhFormOptions();
                     filterHangHoanData();
                 } else {
                     hangHoanData = [];
@@ -1731,8 +2003,11 @@
             const item = filteredHangHoanData[index];
             const actualIndex = hangHoanData.indexOf(item);
             if (!item || actualIndex < 0) return;
+            hhDrawerMode = 'edit';
             currentHangHoanEditIndex = actualIndex;
             const isKinhDoanh = currentUser && currentUser.role === 'kinhdoanh';
+            document.getElementById('hhDrawerTitle').textContent = 'Chi tiết hàng hoàn';
+            document.getElementById('hhSaveButton').textContent = 'Lưu thay đổi';
             document.getElementById('hhDrawerRowId').textContent = `Row ID: ${item.id || item.ngay_nhan || '-'}`;
             document.getElementById('hhEditMVD').value = item.mvd || '';
             document.getElementById('hhEditMaGian').value = item.ma_gian || '';
@@ -1740,13 +2015,48 @@
             document.getElementById('hhEditSKUCT').value = item.sku_ct || '';
             document.getElementById('hhEditSLG').value = item.slg || '';
             document.getElementById('hhEditTinhTrang').value = item.tinh_trang || '';
+            document.getElementById('hhEditTenSP').value = item.ten_sp || '';
             document.getElementById('hhEditKho').value = item.kho || '';
-            ['hhEditMVD', 'hhEditMaGian', 'hhEditSKU', 'hhEditSKUCT', 'hhEditSLG', 'hhEditTinhTrang', 'hhEditKho'].forEach(id => {
+            populateHhFormOptions();
+            renderHhKhoButtons(item.kho || 'KHO');
+            ['hhEditMVD', 'hhEditMaGian', 'hhEditSKU', 'hhEditSKUCT', 'hhEditSLG', 'hhEditTinhTrang', 'hhEditTenSP', 'hhEditKho'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.disabled = isKinhDoanh;
             });
+            document.querySelectorAll('#hhEditKhoButtons button').forEach(btn => btn.disabled = isKinhDoanh);
             const footer = document.querySelector('#hhDrawer .pt-4.border-t.border-slate-200.flex.gap-3');
             if (footer) footer.style.display = isKinhDoanh ? 'none' : '';
+            document.getElementById('hhDrawerOverlay').classList.remove('hidden');
+            document.getElementById('hhDrawer').classList.add('open');
+        }
+
+        function openNewHangHoanDrawer() {
+            if (currentUser && currentUser.role === 'kinhdoanh') {
+                alert('Tài khoản KINHDOANH không được thêm mới Dữ liệu Hàng hoàn.');
+                return;
+            }
+            hhDrawerMode = 'create';
+            currentHangHoanEditIndex = -1;
+            document.getElementById('hhDrawerTitle').textContent = 'Thêm sản phẩm hàng hoàn';
+            document.getElementById('hhSaveButton').textContent = 'Thêm mới';
+            document.getElementById('hhDrawerRowId').textContent = `Row ID: NEW-${Date.now()}`;
+            document.getElementById('hhEditMVD').value = '';
+            document.getElementById('hhEditMaGian').value = '';
+            document.getElementById('hhEditSKU').value = '';
+            document.getElementById('hhEditSKUCT').value = '';
+            document.getElementById('hhEditSLG').value = '1';
+            document.getElementById('hhEditTinhTrang').value = '';
+            document.getElementById('hhEditTenSP').value = '';
+            document.getElementById('hhEditKho').value = 'KHO';
+            populateHhFormOptions();
+            renderHhKhoButtons('KHO');
+            ['hhEditMVD', 'hhEditMaGian', 'hhEditSKU', 'hhEditSKUCT', 'hhEditSLG', 'hhEditTinhTrang', 'hhEditTenSP', 'hhEditKho'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = false;
+            });
+            document.querySelectorAll('#hhEditKhoButtons button').forEach(btn => btn.disabled = false);
+            const footer = document.querySelector('#hhDrawer .pt-4.border-t.border-slate-200.flex.gap-3');
+            if (footer) footer.style.display = '';
             document.getElementById('hhDrawerOverlay').classList.remove('hidden');
             document.getElementById('hhDrawer').classList.add('open');
         }
@@ -1755,6 +2065,7 @@
             document.getElementById('hhDrawerOverlay').classList.add('hidden');
             document.getElementById('hhDrawer').classList.remove('open');
             currentHangHoanEditIndex = -1;
+            hhDrawerMode = 'edit';
         }
 
         async function saveHhDetail() {
@@ -1762,9 +2073,10 @@
                 alert('Tài khoản KINHDOANH không được sửa Dữ liệu Hàng hoàn.');
                 return;
             }
-            if (currentHangHoanEditIndex === -1) return;
-            const item = hangHoanData[currentHangHoanEditIndex];
-            if (!item) return;
+            const isCreateMode = hhDrawerMode === 'create';
+            if (!isCreateMode && currentHangHoanEditIndex === -1) return;
+            const item = !isCreateMode ? hangHoanData[currentHangHoanEditIndex] : null;
+            if (!isCreateMode && !item) return;
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.remove('hidden');
             try {
@@ -1776,15 +2088,78 @@
                     sku_ct: document.getElementById('hhEditSKUCT').value,
                     slg: document.getElementById('hhEditSLG').value,
                     tinh_trang: document.getElementById('hhEditTinhTrang').value,
+                    ten_sp: document.getElementById('hhEditTenSP').value,
                     kho: document.getElementById('hhEditKho').value
                 };
+                if (newData.sku_ct && !newData.ten_sp) {
+                    const matchedSp = dsSpCtData.find(i => (i.id_sp_ct || '') === newData.sku_ct);
+                    if (matchedSp?.ten) newData.ten_sp = matchedSp.ten;
+                }
+                const skuCatalog = new Set(dsSpCtData.map(i => (i.id_sp || '').trim()).filter(Boolean));
+                if (newData.sku && skuCatalog.size && !skuCatalog.has(newData.sku.trim())) {
+                    alert('SKU không tồn tại trong DS_SP_CT (cột id_sp).');
+                    return;
+                }
+                if (!newData.sku && !newData.sku_ct && !newData.ten_sp) {
+                    alert('Vui lòng nhập ít nhất SKU, SKU CT hoặc Tên SP.');
+                    return;
+                }
+                if (isCreateMode) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const mvd = (newData.mvd || '').trim();
+                    const maGian = (newData.ma_gian || '').trim();
+                    const appendValues = [[
+                        `${Date.now()}`,
+                        today,
+                        mvd,
+                        maGian,
+                        '',
+                        '',
+                        '',
+                        '',
+                        newData.sku || '',
+                        newData.sku_ct || '',
+                        newData.slg || '1',
+                        newData.ten_sp || '',
+                        '',
+                        newData.tinh_trang || '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        mvd && maGian ? `${mvd}-${maGian}` : '',
+                        newData.kho || '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        ''
+                    ]];
+                    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.hhbhSheetName}!A:Z:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+                    const appendResp = await fetch(appendUrl, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ values: appendValues })
+                    });
+                    if (!appendResp.ok) {
+                        const errText = await appendResp.text();
+                        console.error('Create HH error:', errText);
+                        alert('Lỗi khi thêm mới dữ liệu Hàng hoàn.');
+                        return;
+                    }
+                    await fetchHangHoanData();
+                    closeHhDetailDrawer();
+                    alert('Thêm mới Hàng hoàn thành công!');
+                    return;
+                }
                 const rowIndex = item.rowIndex || (hangHoanData.indexOf(item) + 2);
                 const batchUpdates = [
                     { range: `${CONFIG.hhbhSheetName}!C${rowIndex}`, values: [[newData.mvd]] },
                     { range: `${CONFIG.hhbhSheetName}!D${rowIndex}`, values: [[newData.ma_gian]] },
-                    { range: `${CONFIG.hhbhSheetName}!H${rowIndex}`, values: [[newData.sku]] },
-                    { range: `${CONFIG.hhbhSheetName}!I${rowIndex}`, values: [[newData.sku_ct]] },
-                    { range: `${CONFIG.hhbhSheetName}!J${rowIndex}`, values: [[newData.slg]] },
+                    { range: `${CONFIG.hhbhSheetName}!I${rowIndex}`, values: [[newData.sku]] },
+                    { range: `${CONFIG.hhbhSheetName}!J${rowIndex}`, values: [[newData.sku_ct]] },
+                    { range: `${CONFIG.hhbhSheetName}!K${rowIndex}`, values: [[newData.slg]] },
+                    { range: `${CONFIG.hhbhSheetName}!L${rowIndex}`, values: [[newData.ten_sp]] },
                     { range: `${CONFIG.hhbhSheetName}!N${rowIndex}`, values: [[newData.tinh_trang]] },
                     { range: `${CONFIG.hhbhSheetName}!T${rowIndex}`, values: [[newData.kho]] }
                 ];
@@ -4513,6 +4888,7 @@
 
                 await loadUDCTData();
                 await loadSanphamData();
+                await loadDsSpCtData();
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const link = urlParams.get('link');
@@ -4586,6 +4962,7 @@
                             applyRoleUI(currentUser.role);
                             await loadUDCTData();
                             await loadSanphamData();
+                            await loadDsSpCtData();
                         }
                     }
                 }
