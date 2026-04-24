@@ -152,6 +152,75 @@
         .table-container::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            #mainApp {
+                position: fixed;
+                inset: 0;
+            }
+
+            #sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 60;
+                width: min(86vw, 320px) !important;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+            }
+
+            #sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .mobile-only {
+                display: inline-flex;
+            }
+
+            #mobileSidebarBackdrop {
+                position: fixed;
+                inset: 0;
+                z-index: 50;
+                background: rgba(15, 23, 42, 0.45);
+            }
+
+            #mobileSidebarBackdrop.hidden {
+                display: none;
+            }
+
+            header {
+                height: 48px !important;
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+
+            #pageTitle {
+                font-size: 15px !important;
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            main {
+                padding-bottom: env(safe-area-inset-bottom, 8px);
+            }
+
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .module-card:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
     </style>
 </head>
 
@@ -296,10 +365,18 @@
                 </div>
             </div>
         </div><!-- /sidebar -->
+        <div id="mobileSidebarBackdrop" class="hidden" onclick="closeMobileSidebar()"></div>
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
             <header class="h-12 border-b border-slate-200 flex items-center px-4 bg-white shrink-0">
+                <button onclick="toggleMobileSidebar()"
+                    class="mobile-only mr-2 p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    aria-label="Mở menu">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
                 <h1 class="text-lg font-bold text-slate-900" id="pageTitle">Trang chủ</h1>
             </header>
 
@@ -616,7 +693,7 @@
                     <div
                         class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                         <div
-                            class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-3">
+                            class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-start sm:items-center gap-3">
                             <div>
                                 <h2 class="text-base font-bold text-slate-900">Danh sách sản phẩm phần mềm</h2>
                                 <p class="text-[11px] text-slate-500 mt-0.5">Quản lý thông tin sản phẩm từ sheet
@@ -1310,65 +1387,65 @@
                                 <p class="hidden text-[11px] text-slate-500 mt-0.5">Nguồn dữ liệu từ sheet HH_BH</p>
                                 <div id="hangHoanStats" class="text-[11px] text-slate-500 mt-1">Số đơn: 0</div>
                             </div>
-                            <div class="flex flex-wrap gap-2 items-center">
+                            <div class="w-full grid grid-cols-1 lg:flex lg:flex-wrap gap-2 items-stretch lg:items-center">
                                 <button onclick="setHangHoanToday()"
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100">Hôm nay</button>
-                                <div class="flex items-center gap-2">
+                                    class="w-full lg:w-auto px-3 py-2 border border-slate-200 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100">Hôm nay</button>
+                                <div class="grid grid-cols-[auto,auto,1fr,auto] items-center gap-2">
                                     <span class="text-xs font-semibold text-slate-600">TỪ</span>
                                     <button onclick="changeHangHoanDate('from', -1)"
                                         class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">−</button>
                                     <input type="date" id="filterHHFrom" onchange="filterHangHoanData()"
-                                        class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                        class="w-full min-w-0 px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                                     <button onclick="changeHangHoanDate('from', 1)"
                                         class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">+</button>
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="grid grid-cols-[auto,auto,1fr,auto] items-center gap-2">
                                     <span class="text-xs font-semibold text-slate-600">ĐẾN</span>
                                     <button onclick="changeHangHoanDate('to', -1)"
                                         class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">−</button>
                                     <input type="date" id="filterHHTo" onchange="filterHangHoanData()"
-                                        class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                        class="w-full min-w-0 px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                                     <button onclick="changeHangHoanDate('to', 1)"
                                         class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm font-bold bg-white hover:bg-slate-50">+</button>
                                 </div>
                                 <input type="hidden" id="filterHHKho" value="">
                                 <div id="filterHHKhoButtons"
-                                    class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg"></div>
+                                    class="w-full lg:w-auto flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-lg"></div>
                                 <select id="filterHHMaGian" onchange="filterHangHoanData()"
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                    class="w-full lg:w-auto px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                                     <option value="">Tất cả gian hàng</option>
                                 </select>
                                 <input type="text" id="filterHHSearch" oninput="filterHangHoanData()"
                                     placeholder="Tìm: MVD, Mã gian, SKU, SKU CT, Tên SP, Tình trạng..."
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-80 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                    class="w-full lg:w-80 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                                 <button onclick="exportHangHoanSummaryToExcel()"
-                                    class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    class="hidden lg:flex w-full lg:w-auto justify-center bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium items-center gap-2">
                                     📥 Excel MVD + SKU tổng
                                 </button>
                                 <button onclick="exportHangHoanToExcel()"
-                                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    class="hidden lg:flex w-full lg:w-auto justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium items-center gap-2">
                                     📥 Tải Excel
                                 </button>
                                 <button onclick="exportHangHoanToMisa()"
-                                    class="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors text-sm font-medium flex items-center gap-2">
+                                    class="hidden lg:flex w-full lg:w-auto justify-center bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors text-sm font-medium items-center gap-2">
                                     📥 Tải MISA
                                 </button>
                                 <button onclick="openNewHangHoanDrawer()"
-                                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    class="w-full lg:w-auto justify-center bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     ➕ Thêm mới
                                 </button>
                                 <button onclick="startContinuousMvdScan()"
-                                    class="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    class="w-full lg:w-auto justify-center bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     📷 Quét liên tục MVD
                                 </button>
                                 <button onclick="fetchHangHoanData()"
-                                    class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
+                                    class="w-full lg:w-auto justify-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
                                     🔄 Làm mới
                                 </button>
                             </div>
                         </div>
                         <div class="flex-1 overflow-auto table-container">
-                            <table class="w-full">
+                            <table class="w-full min-w-[980px]">
                                 <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
                                     <tr>
                                         <th class="px-3 py-2 text-left text-[11px] font-semibold text-slate-600">Ngày nhận</th>
@@ -2399,6 +2476,10 @@
         }
 
         function toggleSidebar() {
+            if (window.innerWidth <= 1024) {
+                toggleMobileSidebar();
+                return;
+            }
             const sidebar = document.getElementById('sidebar');
             const icon = document.getElementById('sidebarToggleIcon');
             const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
@@ -2411,6 +2492,31 @@
                 sidebar.classList.remove('w-64');
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
             }
+        }
+
+        function openMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (!sidebar || !backdrop) return;
+            sidebar.classList.add('mobile-open');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (!sidebar || !backdrop) return;
+            sidebar.classList.remove('mobile-open');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
+            if (sidebar.classList.contains('mobile-open')) closeMobileSidebar();
+            else openMobileSidebar();
         }
 
         function openDetailDrawer(originalIndex) {
@@ -4593,6 +4699,7 @@
                 }
                 fetchHangHoanData();
             }
+            if (window.innerWidth <= 1024) closeMobileSidebar();
         }
 
         // Logic module DH_CT
@@ -4937,6 +5044,7 @@
             const mainApp = document.getElementById('mainApp');
             if (loginScreen) loginScreen.classList.remove('hidden');
             if (mainApp) mainApp.classList.add('hidden');
+            if (window.innerWidth > 1024) closeMobileSidebar();
             const lastId = localStorage.getItem('erp_last_user_id');
             if (lastId && document.getElementById('loginId')) document.getElementById('loginId').value = lastId;
 
@@ -4970,6 +5078,10 @@
                 console.warn('Auto login failed:', e);
             }
         };
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024) closeMobileSidebar();
+        });
     </script>
 </body>
 
