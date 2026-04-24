@@ -718,18 +718,9 @@
                                     DS_SP_PM (32 cột)</p>
                             </div>
                             <div class="flex flex-wrap gap-2 items-center">
-                                <input type="text" id="spFilterMa" oninput="renderSanphamTable(1)"
-                                    placeholder="Lọc theo Mã..."
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-36 focus:outline-none focus:ring-2 focus:ring-primary/20">
                                 <input type="text" id="spFilterSearch" oninput="renderSanphamTable(1)"
                                     placeholder="Tìm kiếm..."
-                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-44 focus:outline-none focus:ring-2 focus:ring-primary/20">
-                                <label
-                                    class="cursor-pointer bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                                    📤 Tải Excel lên
-                                    <input type="file" id="excelUpload" accept=".xlsx, .xls" class="hidden"
-                                        onchange="handleExcelUpload(this.files)">
-                                </label>
+                                    class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/20">
                             </div>
                         </div>
                         <!-- Dropzone compact -->
@@ -1495,40 +1486,74 @@
                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
                         <div class="p-2.5 border-b border-slate-200 bg-white flex flex-wrap justify-between items-center gap-2">
                             <div>
-                                <h2 class="text-base font-bold text-slate-900">HH SHOP ĐIỀN</h2>
                                 <div id="hhShopStats" class="text-[11px] text-slate-500 mt-1">Số dòng: 0</div>
                             </div>
-                            <div class="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                <input type="text" id="hhShopSearchMvd" oninput="renderHHShopDienTable()"
-                                    placeholder="Lọc MVD..."
-                                    class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                                <input type="text" id="hhShopSearchMaGian" oninput="renderHHShopDienTable()"
-                                    placeholder="Lọc Mã gian..."
-                                    class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                                <input type="text" id="hhShopSearchSku" oninput="renderHHShopDienTable()"
-                                    placeholder="Lọc SKU..."
-                                    class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                                <div class="flex flex-wrap gap-2 items-center lg:col-span-3">
-                                    <input type="hidden" id="hhShopSearchHoanTra" value="">
-                                    <div id="hhShopSearchHoanTraButtons" class="flex gap-2 flex-wrap">
-                                        <button type="button" onclick="setHHShopSearchHoanTra('')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-slate-100">Tất cả Hoàn/Trả</button>
-                                        <button type="button" onclick="setHHShopSearchHoanTra('hoàn')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-white">Hoàn</button>
-                                        <button type="button" onclick="setHHShopSearchHoanTra('trả')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-white">Trả</button>
+                            <div class="w-full flex flex-col gap-3 relative z-30 isolate lg:flex-row lg:items-start lg:justify-between lg:gap-4">
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 shadow-sm overflow-x-auto w-full lg:flex-[1_1_0%] lg:min-w-0">
+                                    <div class="flex flex-nowrap items-end gap-3 w-max min-w-full relative z-30">
+                                        <div class="flex flex-col gap-1 shrink-0">
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Từ ngày</label>
+                                            <div class="flex items-center gap-1">
+                                                <button type="button" onclick="shiftHHShopNgayTra('from', -1)"
+                                                    class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">-</button>
+                                                <input type="date" id="hhShopNgayTraFrom" oninput="saveHHShopFilterState(); renderHHShopDienTable()"
+                                                    class="relative z-10 pointer-events-auto w-40 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                                <button type="button" onclick="shiftHHShopNgayTra('from', 1)"
+                                                    class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 shrink-0">
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đến ngày</label>
+                                            <div class="flex items-center gap-1">
+                                                <button type="button" onclick="shiftHHShopNgayTra('to', -1)"
+                                                    class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">-</button>
+                                                <input type="date" id="hhShopNgayTraTo" oninput="saveHHShopFilterState(); renderHHShopDienTable()"
+                                                    class="relative z-10 pointer-events-auto w-40 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                                <button type="button" onclick="shiftHHShopNgayTra('to', 1)"
+                                                    class="relative z-20 pointer-events-auto shrink-0 w-7 h-9 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 shrink-0 min-w-[160px]">
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Xác nhận</label>
+                                            <div id="hhShopXacNhanFilterButtons" class="flex flex-wrap gap-2">
+                                                <button type="button" data-value="" onclick="setHHShopXacNhanFilter('')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100 text-slate-700 shadow-sm">Tất cả</button>
+                                                <button type="button" data-value="trống" onclick="setHHShopXacNhanFilter('trống')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Trống</button>
+                                                <button type="button" data-value="xác nhận" onclick="setHHShopXacNhanFilter('xác nhận')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Xác nhận</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 shrink-0 min-w-[160px]">
+                                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đã nhận</label>
+                                            <div id="hhShopDaNhanFilterButtons" class="flex flex-wrap gap-2">
+                                                <button type="button" data-value="" onclick="setHHShopDaNhanFilter('')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-slate-100 text-slate-700 shadow-sm">Tất cả</button>
+                                                <button type="button" data-value="có đơn" onclick="setHHShopDaNhanFilter('có đơn')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Có đơn</button>
+                                                <button type="button" data-value="trống" onclick="setHHShopDaNhanFilter('trống')"
+                                                    class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50">Trống</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2 items-end shrink-0 ml-auto">
+                                            <button onclick="setHHShopNgayTraFilterToday()"
+                                                class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50 shadow-sm">Hôm nay</button>
+                                            <button onclick="setHHShopNgayTraFilterThisWeek()"
+                                                class="px-3 py-2.5 rounded-xl border border-primary/20 text-xs font-semibold bg-primary text-white hover:bg-blue-700 shadow-sm">Tuần này</button>
+                                            <button onclick="clearHHShopNgayTraFilter()"
+                                                class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 shadow-sm">Bỏ lọc</button>
+                                        </div>
                                     </div>
-                                    <input type="date" id="hhShopSearchNgayTra" oninput="renderHHShopDienTable()"
-                                        class="w-full sm:w-auto px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                                    <input type="hidden" id="hhShopSearchXacNhan" value="">
-                                    <div id="hhShopSearchXacNhanButtons" class="flex gap-2 flex-wrap">
-                                        <button type="button" onclick="setHHShopSearchXacNhan('')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-slate-100">Tất cả Xác nhận</button>
-                                        <button type="button" onclick="setHHShopSearchXacNhan('xác nhận')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-white">Xác nhận</button>
-                                        <button type="button" onclick="setHHShopSearchXacNhan('đã nhận')" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold bg-white">Đã nhận</button>
-                                    </div>
-
-                                    <div class="flex gap-2 w-full lg:w-auto lg:ml-auto">
+                                </div>
+                                <div class="flex gap-2 w-full lg:w-[420px] shrink-0 self-start lg:self-auto flex-wrap lg:flex-nowrap items-start lg:items-end lg:justify-end">
+                                    <input type="text" id="hhShopSearchMvd" oninput="saveHHShopFilterState(); renderHHShopDienTable()"
+                                        placeholder="Tìm kiếm..."
+                                        class="flex-1 min-w-[180px] sm:w-72 px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                    <div class="flex gap-2 w-full sm:w-auto justify-end">
                                         <button onclick="openHHShopNewDrawer()"
-                                            class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">➕ Thêm mới</button>
+                                            class="flex-1 sm:flex-none bg-indigo-600 text-white px-4 py-2.5 rounded-xl hover:bg-indigo-700 transition-all text-sm font-medium shadow-sm">➕ Thêm mới</button>
                                         <button onclick="fetchHHShopDienData()"
-                                            class="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">🔄 Làm mới</button>
+                                            class="flex-1 sm:flex-none bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-all text-sm font-medium shadow-sm">🔄 Làm mới</button>
                                     </div>
                                 </div>
                             </div>
@@ -1708,11 +1733,11 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD</label>
-                    <input id="hhShopEditMVD" oninput="handleHHShopMvdChange()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                    <input id="hhShopEditMVD" oninput="handleHHShopMvdChange(); scheduleHHShopAutoSave()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MDH</label>
-                    <input id="hhShopEditMDH" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
+                    <input id="hhShopEditMDH" oninput="scheduleHHShopAutoSave()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Mã gian</label>
@@ -1721,7 +1746,7 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU (id_sp)</label>
-                    <input id="hhShopEditSKU" list="hhShopSkuList" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
+                    <input id="hhShopEditSKU" list="hhShopSkuList" oninput="scheduleHHShopAutoSave()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white">
                     <datalist id="hhShopSkuList"></datalist>
                 </div>
                 <div class="col-span-2">
@@ -1737,10 +1762,10 @@
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ngày trả</label>
                     <input type="hidden" id="hhShopEditNgayTraRaw" value="">
                     <div class="grid grid-cols-[auto,1fr,auto,auto] gap-2 items-center">
-                        <button type="button" onclick="changeHHShopNgayTra(-1)" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">−</button>
-                        <input id="hhShopEditNgayTra" readonly class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
-                        <button type="button" onclick="openHHShopNgayTraPicker()" class="px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white hover:bg-slate-50" title="Chọn ngày">📅</button>
-                        <button type="button" onclick="changeHHShopNgayTra(1)" class="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">+</button>
+                        <button type="button" onclick="changeHHShopNgayTra(-1)" class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">−</button>
+                        <input id="hhShopEditNgayTra" readonly class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm pointer-events-none">
+                        <button type="button" onclick="openHHShopNgayTraPicker()" class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white hover:bg-slate-50" title="Chọn ngày">📅</button>
+                        <button type="button" onclick="changeHHShopNgayTra(1)" class="relative z-10 px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold bg-white hover:bg-slate-50">+</button>
                     </div>
                     <input type="date" id="hhShopNgayTraPicker" class="hidden" onchange="setHHShopNgayTraRaw(this.value)">
                 </div>
@@ -1754,7 +1779,7 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">MVD trả</label>
-                    <input id="hhShopEditMVDTra" readonly class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
+                    <input id="hhShopEditMVDTra" oninput="markHHShopMvdTraManual(true); scheduleHHShopAutoSave()" placeholder="Có thể sửa tay" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">SKU trả</label>
@@ -1762,7 +1787,7 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ghi chú</label>
-                    <textarea id="hhShopEditGhiChu" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 resize-none"></textarea>
+                    <textarea id="hhShopEditGhiChu" oninput="scheduleHHShopAutoSave()" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20 resize-none"></textarea>
                 </div>
             </div>
             <div class="pt-4 border-t border-slate-200 flex gap-3">
@@ -2705,6 +2730,18 @@
             return '';
         }
 
+        function getCurrentWeekRangeYmd() {
+            const now = new Date();
+            const day = now.getDay() || 7; // Monday = 1, Sunday = 7
+            const start = new Date(now);
+            start.setHours(0, 0, 0, 0);
+            start.setDate(now.getDate() - day + 1);
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            const toYmd = (date) => date.toISOString().split('T')[0];
+            return { from: toYmd(start), to: toYmd(end) };
+        }
+
         function getUdctSummaryByMvd(mvd) {
             const key = (mvd || '').toString().trim();
             if (!key) return { mdh: '', ma_gian: '', sku: '' };
@@ -2727,18 +2764,113 @@
                 if (!currentMdh) document.getElementById('hhShopEditMDH').value = (mvdInfo.mdh || '').trim();
                 if (!currentMaGian) document.getElementById('hhShopEditMaGian').value = (mvdInfo.ma_gian || '').trim();
                 if (!currentSku) document.getElementById('hhShopEditSKU').value = (mvdInfo.sku || '').trim();
-                document.getElementById('hhShopEditMVDTra').value = mvd;
-                document.getElementById('hhShopEditSKUTra').value = (document.getElementById('hhShopEditSKU').value || '').toString().trim();
                 document.getElementById('hhShopDrawerRowId').textContent = `✅ ${mvd}`;
             } else {
-                document.getElementById('hhShopEditMVDTra').value = mvd;
-                document.getElementById('hhShopEditSKUTra').value = (document.getElementById('hhShopEditSKU')?.value || '').toString().trim();
                 document.getElementById('hhShopDrawerRowId').textContent = mvd ? `⚠️ ${mvd}` : 'NEW';
             }
+            const mvdTraEl = document.getElementById('hhShopEditMVDTra');
+            if (mvdTraEl && !mvdTraEl.dataset.manual) {
+                mvdTraEl.value = hoanTra === 'hoàn' ? mvd : '';
+            }
+            document.getElementById('hhShopEditSKUTra').value = (document.getElementById('hhShopEditSKU')?.value || '').toString().trim();
             const rawDate = document.getElementById('hhShopEditNgayTraRaw').value || getTodayYmd();
             document.getElementById('hhShopEditNgayTraRaw').value = rawDate;
             document.getElementById('hhShopEditNgayTra').value = formatYmdToDmy(rawDate);
             setHHShopButtonGroup('hhShopHoanTraButtons', hoanTra || 'hoàn');
+        }
+
+        function saveHHShopFilterState() {
+            const from = document.getElementById('hhShopNgayTraFrom')?.value || '';
+            const to = document.getElementById('hhShopNgayTraTo')?.value || '';
+            const search = document.getElementById('hhShopSearchMvd')?.value || '';
+            const xacNhan = document.getElementById('hhShopXacNhanFilter')?.value || '';
+            const daNhan = document.getElementById('hhShopDaNhanFilterButtons')?.dataset.value || '';
+            localStorage.setItem('hhShopDienFilterState', JSON.stringify({ from, to, search, xacNhan, daNhan }));
+        }
+
+        function loadHHShopFilterState() {
+            try {
+                return JSON.parse(localStorage.getItem('hhShopDienFilterState') || '{}') || {};
+            } catch {
+                return {};
+            }
+        }
+
+        function applyHHShopFilterState() {
+            const state = loadHHShopFilterState();
+            const fromEl = document.getElementById('hhShopNgayTraFrom');
+            const toEl = document.getElementById('hhShopNgayTraTo');
+            const searchEl = document.getElementById('hhShopSearchMvd');
+            const xacNhanButtons = document.getElementById('hhShopXacNhanFilterButtons');
+            const daNhanButtons = document.getElementById('hhShopDaNhanFilterButtons');
+            if (fromEl && state.from !== undefined) fromEl.value = state.from || '';
+            if (toEl && state.to !== undefined) toEl.value = state.to || '';
+            if (searchEl && state.search !== undefined) searchEl.value = state.search || '';
+            if (xacNhanButtons && state.xacNhan !== undefined) xacNhanButtons.dataset.value = state.xacNhan || '';
+            if (daNhanButtons && state.daNhan !== undefined) daNhanButtons.dataset.value = state.daNhan || '';
+        }
+
+        function setHHShopNgayTraFilterToday() {
+            const today = getTodayYmd();
+            const fromEl = document.getElementById('hhShopNgayTraFrom');
+            const toEl = document.getElementById('hhShopNgayTraTo');
+            if (fromEl) fromEl.value = today;
+            if (toEl) toEl.value = today;
+            saveHHShopFilterState();
+            renderHHShopDienTable();
+        }
+
+        function setHHShopNgayTraFilterThisWeek() {
+            const { from, to } = getCurrentWeekRangeYmd();
+            const fromEl = document.getElementById('hhShopNgayTraFrom');
+            const toEl = document.getElementById('hhShopNgayTraTo');
+            if (fromEl) fromEl.value = from;
+            if (toEl) toEl.value = to;
+            saveHHShopFilterState();
+            renderHHShopDienTable();
+        }
+
+        function clearHHShopNgayTraFilter() {
+            const fromEl = document.getElementById('hhShopNgayTraFrom');
+            const toEl = document.getElementById('hhShopNgayTraTo');
+            if (fromEl) fromEl.value = '';
+            if (toEl) toEl.value = '';
+            saveHHShopFilterState();
+            renderHHShopDienTable();
+        }
+
+        function setHHShopButtonFilter(containerId, value) {
+            const root = document.getElementById(containerId);
+            if (!root) return;
+            root.dataset.value = value || '';
+            root.querySelectorAll('button').forEach(btn => {
+                const active = (btn.dataset.value || '') === (value || '');
+                btn.classList.toggle('bg-slate-100', active);
+                btn.classList.toggle('bg-white', !active);
+                btn.classList.toggle('text-primary', active && (value || '') === '');
+            });
+            saveHHShopFilterState();
+            renderHHShopDienTable();
+        }
+
+        function setHHShopXacNhanFilter(value) {
+            setHHShopButtonFilter('hhShopXacNhanFilterButtons', value);
+        }
+
+        function setHHShopDaNhanFilter(value) {
+            setHHShopButtonFilter('hhShopDaNhanFilterButtons', value);
+        }
+
+        function markHHShopMvdTraManual(isManual) {
+            const el = document.getElementById('hhShopEditMVDTra');
+            if (el) el.dataset.manual = isManual ? '1' : '';
+        }
+
+        function scheduleHHShopAutoSave() {
+            clearTimeout(window.hhShopAutoSaveTimer);
+            window.hhShopAutoSaveTimer = setTimeout(() => {
+                saveHHShopDien();
+            }, 300);
         }
 
         function setHHShopButtonGroup(containerId, activeValue) {
@@ -2848,6 +2980,8 @@
 
         function setHHShopHoanTra(value) {
             document.getElementById('hhShopEditHoanTra').value = value;
+            const mvdTraEl = document.getElementById('hhShopEditMVDTra');
+            if (mvdTraEl) mvdTraEl.dataset.manual = '';
             setHHShopButtonGroup('hhShopHoanTraButtons', value);
             refreshHHShopAutoFields();
         }
@@ -2870,17 +3004,37 @@
             const picker = document.getElementById('hhShopNgayTraPicker');
             if (!picker) return;
             picker.value = document.getElementById('hhShopEditNgayTraRaw').value || getTodayYmd();
+            picker.style.position = 'fixed';
+            picker.style.left = '0';
+            picker.style.top = '0';
+            picker.style.zIndex = '99999';
             picker.showPicker?.();
             if (!picker.showPicker) picker.click();
         }
 
+        function shiftDateValueByDays(currentValue, deltaDays) {
+            const current = currentValue || getTodayYmd();
+            const dt = new Date(`${current}T00:00:00`);
+            dt.setDate(dt.getDate() + deltaDays);
+            const yyyy = dt.getFullYear();
+            const mm = String(dt.getMonth() + 1).padStart(2, '0');
+            const dd = String(dt.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
         function changeHHShopNgayTra(step) {
             const currentRaw = document.getElementById('hhShopEditNgayTraRaw').value || getTodayYmd();
-            const [y, m, d] = currentRaw.split('-').map(Number);
-            const dt = new Date(y, m - 1, d);
-            dt.setDate(dt.getDate() + step);
-            const next = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
-            setHHShopNgayTraRaw(next);
+            setHHShopNgayTraRaw(shiftDateValueByDays(currentRaw, step));
+            return false;
+        }
+
+        function shiftHHShopNgayTra(which, step) {
+            const inputId = which === 'from' ? 'hhShopNgayTraFrom' : 'hhShopNgayTraTo';
+            const input = document.getElementById(inputId);
+            if (!input) return false;
+            input.value = shiftDateValueByDays(input.value || getTodayYmd(), step);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            return false;
         }
 
         function openHHShopNewDrawer() {
@@ -2890,7 +3044,11 @@
             document.getElementById('hhShopEditSKU').value = '';
             document.getElementById('hhShopEditHoanTra').value = 'hoàn';
             setHHShopNgayTraRaw(getTodayYmd());
-            document.getElementById('hhShopEditMVDTra').value = '';
+            const mvdTraEl = document.getElementById('hhShopEditMVDTra');
+            if (mvdTraEl) {
+                mvdTraEl.value = '';
+                mvdTraEl.dataset.manual = '';
+            }
             document.getElementById('hhShopEditSKUTra').value = '';
             document.getElementById('hhShopEditGhiChu').value = '';
             document.getElementById('hhShopEditXacNhan').value = '';
@@ -2917,7 +3075,9 @@
             const hoanTra = document.getElementById('hhShopEditHoanTra').value || 'hoàn';
             const ngayTraRaw = document.getElementById('hhShopEditNgayTraRaw').value || parseDmyToYmd(document.getElementById('hhShopEditNgayTra').value) || getTodayYmd();
             const ngayTra = formatYmdToDmy(ngayTraRaw);
-            const mvdTra = document.getElementById('hhShopEditMVDTra').value || mvd;
+            const mvdTraEl = document.getElementById('hhShopEditMVDTra');
+            const mvdTraManual = (mvdTraEl?.dataset.manual || '') === '1';
+            const mvdTra = mvdTraManual ? (mvdTraEl?.value || '').trim() : (hoanTra === 'hoàn' ? mvd : '');
             const skuTra = document.getElementById('hhShopEditSKUTra').value || sku;
             const rawGhiChu = (document.getElementById('hhShopEditGhiChu').value || '').trim();
             const ghiChu = rawGhiChu || `[${hoanTra.toUpperCase()}] MVD ${mvd}${mdh ? ` | MDH: ${mdh}` : ''}`;
@@ -2930,15 +3090,20 @@
                 const token = await getAccessToken();
                 if (!token) return;
                 const maGian = (() => {
-                const linked = udctData.find(item => (item.mvd || '').toString().trim() === mvd);
-                return (linked?.ma_gian || '').toString().trim();
-            })();
-            const values = [[`${Date.now()}`, mvd, mdh, maGian, sku, hoanTra, ngayTra, mvdTra, skuTra, ghiChu, xacNhan, udt]];
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.hhNvDienSheetName}!A:L:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+                    const linked = udctData.find(item => (item.mvd || '').toString().trim() === mvd);
+                    return (linked?.ma_gian || '').toString().trim();
+                })();
+                const values = [[`${Date.now()}`, mvd, mdh, maGian, sku, hoanTra, ngayTra, mvdTra, skuTra, ghiChu, xacNhan, udt]];
+                const isUpdate = currentHHShopRowIndex >= 0 && hhShopDienData[currentHHShopRowIndex];
+                const url = isUpdate
+                    ? `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.hhNvDienSheetName}!A${hhShopDienData[currentHHShopRowIndex].rowIndex}:L${hhShopDienData[currentHHShopRowIndex].rowIndex}?valueInputOption=USER_ENTERED`
+                    : `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.hhNvDienSheetName}!A:L:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+                const method = isUpdate ? 'PUT' : 'POST';
+                const body = isUpdate ? { values } : { values };
                 const resp = await fetch(url, {
-                    method: 'POST',
+                    method,
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ values })
+                    body: JSON.stringify(body)
                 });
                 if (!resp.ok) {
                     const errText = await resp.text();
@@ -2946,7 +3111,6 @@
                     alert('Lỗi khi lưu HH SHOP ĐIỀN.');
                     return;
                 }
-                closeHHShopDrawer();
                 await fetchHHShopDienData();
             } catch (error) {
                 console.error(error);
@@ -2968,7 +3132,11 @@
             document.getElementById('hhShopEditHoanTra').value = item.hoan_tra || 'hoàn';
             document.getElementById('hhShopEditNgayTraRaw').value = parseDmyToYmd(item.ngay_tra) || getTodayYmd();
             document.getElementById('hhShopEditNgayTra').value = item.ngay_tra || formatYmdToDmy(getTodayYmd());
-            document.getElementById('hhShopEditMVDTra').value = item.mvd_tra || '';
+            const mvdTraEl = document.getElementById('hhShopEditMVDTra');
+            if (mvdTraEl) {
+                mvdTraEl.value = item.mvd_tra || '';
+                mvdTraEl.dataset.manual = item.mvd_tra ? '1' : '';
+            }
             document.getElementById('hhShopEditSKUTra').value = item.sku_tra || '';
             document.getElementById('hhShopEditGhiChu').value = item.ghi_chu || '';
             document.getElementById('hhShopDrawerRowId').textContent = `Row ID: ${item.rowIndex}`;
@@ -3018,6 +3186,7 @@
                 } else {
                     hhShopDienData = [];
                 }
+                applyHHShopFilterState();
                 renderHHShopDienTable();
             } catch (error) {
                 console.error('Load HH SHOP ĐIỀN error:', error);
@@ -3029,23 +3198,55 @@
             const tbody = document.getElementById('hhShopTableBody');
             const stats = document.getElementById('hhShopStats');
             if (!tbody) return;
-            const searchMvd = (document.getElementById('hhShopSearchMvd')?.value || '').toLowerCase().trim();
-            const searchMaGian = (document.getElementById('hhShopSearchMaGian')?.value || '').toLowerCase().trim();
-            const searchSku = (document.getElementById('hhShopSearchSku')?.value || '').toLowerCase().trim();
-            const searchHoanTra = (document.getElementById('hhShopSearchHoanTra')?.value || '').toLowerCase().trim();
-            const searchNgayTra = document.getElementById('hhShopSearchNgayTra')?.value || '';
-            const searchXacNhan = (document.getElementById('hhShopSearchXacNhan')?.value || '').toLowerCase().trim();
-            const searchDaNhan = (document.getElementById('hhShopSearchDaNhan')?.value || '').toLowerCase().trim();
-            filteredHHShopDienData = hhShopDienData.filter(item => {
-                const itemNgayTra = (item.ngay_tra || '').toString().trim();
-                if (searchMvd && !(item.mvd || '').toLowerCase().includes(searchMvd)) return false;
-                if (searchMaGian && !(item.ma_gian || '').toLowerCase().includes(searchMaGian)) return false;
-                if (searchSku && !(item.sku || '').toLowerCase().includes(searchSku)) return false;
-                if (searchHoanTra && !(item.hoan_tra || '').toLowerCase().includes(searchHoanTra)) return false;
-                if (searchNgayTra && itemNgayTra !== searchNgayTra) return false;
-                if (searchXacNhan && !(item.xac_nhan || '').toLowerCase().includes(searchXacNhan)) return false;
+            const search = (document.getElementById('hhShopSearchMvd')?.value || '').toLowerCase().trim();
+            const fromYmd = document.getElementById('hhShopNgayTraFrom')?.value || '';
+            const toYmd = document.getElementById('hhShopNgayTraTo')?.value || '';
+            const xacNhanFilter = (document.getElementById('hhShopXacNhanFilterButtons')?.dataset.value || '').toLowerCase().trim();
+            const daNhanFilter = (document.getElementById('hhShopDaNhanFilterButtons')?.dataset.value || '').toLowerCase().trim();
+            saveHHShopFilterState();
+            filteredHHShopDienData = hhShopDienData
+                .slice()
+                .sort((a, b) => {
+                    const ay = parseDmyToYmd(a.ngay_tra) || '';
+                    const by = parseDmyToYmd(b.ngay_tra) || '';
+                    if (ay !== by) return by.localeCompare(ay);
+                    return Number(b.rowIndex || 0) - Number(a.rowIndex || 0);
+                })
+                .filter(item => {
+                if (search) {
+                    const matchSearch = [
+                        item.mvd,
+                        item.mdh,
+                        item.ma_gian,
+                        item.sku,
+                        item.hoan_tra,
+                        item.ngay_tra,
+                        item.mvd_tra,
+                        item.sku_tra,
+                        item.ghi_chu,
+                        item.xac_nhan
+                    ].some(value => (value || '').toString().toLowerCase().includes(search));
+                    if (!matchSearch) return false;
+                }
+                const ngayTraYmd = parseDmyToYmd(item.ngay_tra);
+                if (fromYmd && (!ngayTraYmd || ngayTraYmd < fromYmd)) return false;
+                if (toYmd && (!ngayTraYmd || ngayTraYmd > toYmd)) return false;
+                if (xacNhanFilter) {
+                    const itemXacNhan = (item.xac_nhan || '').toString().toLowerCase().trim();
+                    const normalized = xacNhanFilter === 'trống' ? '' : xacNhanFilter;
+                    if (xacNhanFilter === 'trống') {
+                        if (itemXacNhan) return false;
+                    } else if (itemXacNhan !== normalized) {
+                        return false;
+                    }
+                }
+                if (daNhanFilter) {
+                    const isCoDon = hhBhMvdSet.has((item.mvd || '').toString().trim()) || hhBhMvdSet.has((item.mvd_tra || '').toString().trim());
+                    if (daNhanFilter === 'có đơn' && !isCoDon) return false;
+                    if (daNhanFilter === 'trống' && isCoDon) return false;
+                }
                 return true;
-            });
+                });
             if (stats) stats.textContent = `Số dòng: ${filteredHHShopDienData.length.toLocaleString('vi-VN')}`;
             if (!filteredHHShopDienData.length) {
                 tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-slate-500">Không có dữ liệu.</td></tr>';
@@ -3849,12 +4050,17 @@
             if (!tbody) return;
 
             const baseFilteredForCounts = getUDCTBaseFilteredForStatusCounts();
-            const statusCounts = baseFilteredForCounts.reduce((acc, item) => {
+            const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.querySelector('td[colspan]'));
+            const visibleData = visibleRows.length ? visibleRows.map(tr => {
+                const rowIndex = tr.getAttribute('ondblclick')?.match(/\((\d+)\)/)?.[1];
+                return udctData[Number(rowIndex)] || null;
+            }).filter(Boolean) : baseFilteredForCounts;
+            const statusCounts = visibleData.reduce((acc, item) => {
                 const key = normalizeTrangThai(item.trang_thai) || 'TRỐNG';
                 acc[key] = (acc[key] || 0) + 1;
                 return acc;
             }, {});
-            renderUDCTStatusCards(statusCounts, baseFilteredForCounts.length);
+            renderUDCTStatusCards(statusCounts, visibleData.length);
 
             const mvdMap = {};
             const mdhMap = {};
@@ -4220,11 +4426,9 @@
             const tbody = document.getElementById('sanphamTableBody');
             if (!tbody) return;
 
-            const maFilter = (document.getElementById('spFilterMa')?.value || '').toLowerCase().trim();
             const search = (document.getElementById('spFilterSearch')?.value || '').toLowerCase().trim();
 
             let filtered = sanphamData;
-            if (maFilter) filtered = filtered.filter(item => (item.sku_con || '').toLowerCase().includes(maFilter));
             if (search) filtered = filtered.filter(item =>
                 item.mapping.some(c => (c || '').toString().toLowerCase().includes(search))
             );
