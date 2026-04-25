@@ -306,6 +306,25 @@
             background: #1d4ed8;
             color: white;
         }
+
+        .btn-delete {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #b91c1c;
+            color: #fff;
+            border-color: #b91c1c;
+        }
     </style>
 </head>
 
@@ -418,6 +437,7 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                     range: 'DH_SHOPE!A2:Q',
                     clearRange: 'DH_SHOPE!A2:Q100000',
                     headers: ['id', 'ngay', 'mvd', 'mdh', 'sku', 'sku_ct', 'ten_sp', 'slg', 'don_gia', 'thanh_tien', 'id_khach', 'sdt', 'ten_khach', 'dia_chỉ', 'mail', 'phi_khac', 'loi_nhuan'],
+                    hiddenCols: [10, 11, 12, 13, 14],
                     priceCols: [8, 9, 15, 16],
                     imgCol: -1
                 }
@@ -427,8 +447,13 @@ sR2Sh8e3h3Knd6j1tceRIFU=
         // Đọc tham số ?up= từ URL của trang này (ví dụ: sp_pm_joy.html?up=txx1)
         const UP_PARAM = new URLSearchParams(window.location.search).get('up') || '';
 
+        const JOY_TAB_STORAGE_KEY = 'joyActiveTab';
+        const JOY_VALID_TABS = ['SP_PM', 'SP_SHOPEE', 'DH_SHOPE', 'ANH'];
+
         let currentTab = 'SP_PM', allData = [], accessToken = null, tokenExpiry = 0;
         let currentPage = 1, rowsPerPage = 100, filteredData = [];
+        /** Map tên tab (tên sheet) → sheetId Google, cache nhẹ cho batchUpdate */
+        let sheetTitleToIdCache = null;
 
         async function getAccessToken() {
             if (accessToken && Date.now() < tokenExpiry - 300000) return accessToken;
@@ -443,6 +468,9 @@ sR2Sh8e3h3Knd6j1tceRIFU=
 
         async function switchTab(tabName) {
             currentTab = tabName;
+            if (JOY_VALID_TABS.includes(tabName)) {
+                try { sessionStorage.setItem(JOY_TAB_STORAGE_KEY, tabName); } catch (_) { /* ignore */ }
+            }
             const uploadBtn = document.getElementById('uploadBtn');
             const tabLabels = {
                 'SP_PM': 'SP_PM',
@@ -495,7 +523,13 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                 const tabConfig = CONFIG.tabs[currentTab];
                 const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${tabConfig.range}`, { headers: { Authorization: `Bearer ${token}` } });
                 const data = await res.json();
-                allData = data.values || [];
+                const rawRows = data.values || [];
+                allData = rawRows.map((row, i) => {
+                    const arr = Array.isArray(row) ? row.slice() : [];
+                    arr._sheetRow = i + 2;
+                    return arr;
+                });
+                if (currentTab === 'DH_SHOPE') allData = sortDhShopeRowsByNgayDesc(allData);
                 filteredData = [...allData];
                 renderHeaders();
                 renderTable();
@@ -509,18 +543,100 @@ sR2Sh8e3h3Knd6j1tceRIFU=
 
         function renderHeaders() {
             const head = document.getElementById('tableHead');
-            const headers = [...CONFIG.tabs[currentTab].headers];
-            if (currentTab === 'SP_PM') headers.push('');
+            const tabConfig = CONFIG.tabs[currentTab];
+            const hiddenCols = tabConfig.hiddenCols || [];
+            const headers = tabConfig.headers.filter((_, idx) => !hiddenCols.includes(idx));
+            if (currentTab === 'SP_PM') {
+                headers.push('', 'Xóa');
+            } else if (currentTab === 'SP_SHOPEE' || currentTab === 'DH_SHOPE') {
+                headers.push('Xóa');
+            }
             head.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+        }
+
+        function getDataSheetRow(row) {
+            if (row && typeof row._sheetRow === 'number' && row._sheetRow >= 2) return row._sheetRow;
+            const idx = allData.indexOf(row);
+            return idx >= 0 ? idx + 2 : 0;
+        }
+
+        async function getSheetTitleToIdMap(token) {
+            if (sheetTitleToIdCache) return sheetTitleToIdCache;
+            const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}?fields=sheets(properties(sheetId,title))`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Không đọc được metadata spreadsheet');
+            const data = await res.json();
+            const map = {};
+            for (const s of data.sheets || []) {
+                map[s.properties.title] = s.properties.sheetId;
+            }
+            sheetTitleToIdCache = map;
+            return map;
+        }
+
+        async function deleteDataSheetRow(sheetRow1Based) {
+            const rowNum = Number(sheetRow1Based);
+            if (!rowNum || rowNum < 2) {
+                alert('Không xác định được dòng cần xóa.');
+                return;
+            }
+            if (!confirm('Xóa dòng này trên Google Sheet? Thao tác không hoàn tác.')) return;
+
+            document.getElementById('loading').style.display = 'flex';
+            document.querySelector('#loading p').innerText = 'Đang xóa dòng...';
+            try {
+                const token = await getAccessToken();
+                const map = await getSheetTitleToIdMap(token);
+                const sheetId = map[currentTab];
+                if (sheetId === undefined) throw new Error('Không tìm thấy sheet: ' + currentTab);
+
+                const startIndex = rowNum - 1;
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}:batchUpdate`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        requests: [{
+                            deleteDimension: {
+                                range: {
+                                    sheetId,
+                                    dimension: 'ROWS',
+                                    startIndex,
+                                    endIndex: startIndex + 1
+                                }
+                            }
+                        }]
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error?.message || 'batchUpdate thất bại');
+                }
+                sheetTitleToIdCache = null;
+                await fetchData();
+                filterTable();
+            } catch (e) {
+                console.error(e);
+                alert('Không xóa được: ' + e.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
         }
 
         async function init() {
             lucide.createIcons();
             initDragAndDrop();
-            await fetchData();
-            // Nếu URL có ?up=MaSP → tự động mở tab Quản Lý Ảnh với mã đó
             if (UP_PARAM) {
+                await fetchData();
                 openImageManager(UP_PARAM);
+            } else {
+                let saved = '';
+                try { saved = sessionStorage.getItem(JOY_TAB_STORAGE_KEY) || ''; } catch (_) { }
+                if (saved && JOY_VALID_TABS.includes(saved)) {
+                    await switchTab(saved);
+                } else {
+                    await fetchData();
+                }
             }
         }
 
@@ -554,6 +670,51 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
         }
 
+        /** Cột ngay trong tab DH_SHOPE (sau id). */
+        const DH_SHOPE_NGAY_COL = 1;
+
+        /** Chuẩn hóa ngày để so sánh: DD/MM/YYYY, ISO, hoặc số serial Excel. Không parse được → xếp cuối. */
+        function parseNgayForSort(raw) {
+            if (raw === undefined || raw === null) return Number.NEGATIVE_INFINITY;
+            const s0 = String(raw).trim();
+            if (!s0) return Number.NEGATIVE_INFINITY;
+
+            if (typeof raw === 'number' && Number.isFinite(raw) && raw > 25000 && raw < 120000) {
+                return (raw - 25569) * 86400000;
+            }
+
+            const s = s0.replace(',', '.');
+            const asNum = Number(s);
+            if (Number.isFinite(asNum) && asNum > 25000 && asNum < 120000 && !/[\/\-]/.test(s0)) {
+                return (asNum - 25569) * 86400000;
+            }
+
+            if (/^\d{4}-\d{2}-\d{2}/.test(s0)) {
+                const t = Date.parse(s0);
+                if (!isNaN(t)) return t;
+            }
+
+            const m = s0.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+            if (m) {
+                const day = parseInt(m[1], 10), month = parseInt(m[2], 10) - 1, year = parseInt(m[3], 10);
+                const hh = m[4] != null ? parseInt(m[4], 10) : 0, mi = m[5] != null ? parseInt(m[5], 10) : 0, ss = m[6] != null ? parseInt(m[6], 10) : 0;
+                const d = new Date(year, month, day, hh, mi, ss);
+                if (!isNaN(d.getTime())) return d.getTime();
+            }
+
+            const fallback = Date.parse(s0);
+            if (!isNaN(fallback)) return fallback;
+            return Number.NEGATIVE_INFINITY;
+        }
+
+        function sortDhShopeRowsByNgayDesc(rows) {
+            return [...rows].sort((a, b) => {
+                const tb = parseNgayForSort(b[DH_SHOPE_NGAY_COL]);
+                const ta = parseNgayForSort(a[DH_SHOPE_NGAY_COL]);
+                return tb - ta;
+            });
+        }
+
         function excelColToIndex(col) {
             const name = String(col || '').toUpperCase().trim();
             let idx = 0;
@@ -570,6 +731,15 @@ sR2Sh8e3h3Knd6j1tceRIFU=
 
         function leftText(val, len) {
             return String(val || '').slice(0, len);
+        }
+
+        /** Chỉ ô Excel thật sự là kiểu số (typeof number) → lấy phần nguyên. Không đụng chuỗi (SĐT, mã đơn dạng text). */
+        function truncateExcelNumericCellsInRow(row) {
+            if (!Array.isArray(row)) return row;
+            return row.map(cell => {
+                if (typeof cell === 'number' && Number.isFinite(cell)) return Math.trunc(cell);
+                return cell;
+            });
         }
 
         async function getNextDhShopeeId(token) {
@@ -687,7 +857,9 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             const pageData = filteredData.slice(start, end);
 
             tbody.innerHTML = pageData.map(row => {
+                const hiddenCols = tabConfig.hiddenCols || [];
                 const cells = row.map((cell, idx) => {
+                    if (hiddenCols.includes(idx)) return '';
                     if (idx === tabConfig.imgCol && cell) {
                         const firstImg = cell.split(',')[0].trim();
                         return `<td>
@@ -709,12 +881,16 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                     return `<td>${cell || ''}</td>`;
                 }).join('');
 
-                // Thêm nút ảnh cho SP_PM (dùng cột Mã = index 5)
-                const extraCol = currentTab === 'SP_PM'
-                    ? `<td><button class="btn-camera" onclick="openImageManager('${(row[5] || '').replace(/'/g, "\\'")}')">📷 Ảnh</button></td>`
-                    : '';
+                const sr = getDataSheetRow(row);
+                let extraCols = '';
+                if (currentTab === 'SP_PM') {
+                    extraCols = `<td><button class="btn-camera" onclick="openImageManager('${(row[5] || '').replace(/'/g, "\\'")}')">📷 Ảnh</button></td>`;
+                    extraCols += `<td><button type="button" class="btn-delete" onclick="deleteDataSheetRow(${sr})">Xóa</button></td>`;
+                } else if (currentTab === 'SP_SHOPEE' || currentTab === 'DH_SHOPE') {
+                    extraCols = `<td><button type="button" class="btn-delete" onclick="deleteDataSheetRow(${sr})">Xóa</button></td>`;
+                }
 
-                return `<tr>${cells}${extraCol}</tr>`;
+                return `<tr>${cells}${extraCols}</tr>`;
             }).join('');
 
             renderPagination();
@@ -751,6 +927,7 @@ sR2Sh8e3h3Knd6j1tceRIFU=
         function filterTable() {
             const term = document.getElementById('searchInput').value.toLowerCase();
             filteredData = allData.filter(row => row.some(cell => String(cell).toLowerCase().includes(term)));
+            if (currentTab === 'DH_SHOPE') filteredData = sortDhShopeRowsByNgayDesc(filteredData);
             currentPage = 1;
             renderTable();
         }
@@ -809,7 +986,8 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                 const rowsFromFiles = await Promise.all(excelFiles.map(readExcelRows));
                 const allRowsToUpload = rowsFromFiles
                     .flat()
-                    .filter(r => Array.isArray(r) && r.some(c => String(c || '').trim() !== ''));
+                    .filter(r => Array.isArray(r) && r.some(c => String(c || '').trim() !== ''))
+                    .map(truncateExcelNumericCellsInRow);
 
                 if (!allRowsToUpload.length) {
                     throw new Error("Không có dòng dữ liệu hợp lệ để tải lên.");
@@ -848,6 +1026,7 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                 alert(currentTab === 'DH_SHOPE'
                     ? `Đã thêm dữ liệu từ ${excelFiles.length} file vào cuối sheet '${currentTab}' thành công!`
                     : `Đã tải dữ liệu từ ${excelFiles.length} file lên sheet '${currentTab}' thành công!`);
+                try { sessionStorage.setItem(JOY_TAB_STORAGE_KEY, currentTab); } catch (_) { }
                 location.reload();
             } catch (err) {
                 console.error(err);
