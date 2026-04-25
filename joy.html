@@ -272,8 +272,7 @@
             color: #64748b;
         }
 
-        #imageManager,
-        #hrManager {
+        #imageManager {
             background: #fff;
             border-radius: 12px;
             border: 1px solid var(--border);
@@ -284,8 +283,7 @@
             display: none;
         }
 
-        #imageManager iframe,
-        #hrManager iframe {
+        #imageManager iframe {
             width: 100%;
             height: 100%;
             border: none;
@@ -334,11 +332,11 @@
                     oninput="filterTable()">
             </div>
 
-            <button onclick="document.getElementById('fileInput').click()"
+            <button id="uploadBtn" onclick="document.getElementById('fileInput').click()"
                 style="background: var(--primary); color: #fff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap;">
-                <i data-lucide="upload" style="width:18px;"></i> Tải Sản Phẩm Lên
+                <i data-lucide="upload" style="width:18px;"></i> Tải Dữ Liệu Lên
             </button>
-            <input type="file" id="fileInput" hidden accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event)">
+            <input type="file" id="fileInput" hidden multiple accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event)">
         </div>
     </div>
 
@@ -346,7 +344,7 @@
         <div class="tab active" onclick="switchTab('SP_PM')">SP_PM</div>
         <div class="tab" onclick="switchTab('SP_SHOPEE')">SP_SHOPEE</div>
         <div class="tab" onclick="switchTab('ANH')">QUẢN LÝ ẢNH</div>
-        <div class="tab" onclick="switchTab('HR')">CHẤM CÔNG</div>
+        <div class="tab" onclick="switchTab('DH_SHOPE')">ĐƠN HÀNG SHOPEE</div>
     </div>
 
     <div class="table-wrapper" id="tableWrapper">
@@ -364,13 +362,6 @@
         <iframe
             src="https://script.google.com/macros/s/AKfycbzi-W9OOmO_NzaBhSFKyQfWvIEJwWkD2hI-v2CmQHilH7uq3WuX10ZTTbQvuT7pmFR7/exec"
             allow="geolocation; camera; microphone; clipboard-read; clipboard-write" title="Quản Lý Ảnh"></iframe>
-    </div>
-
-    <div id="hrManager">
-        <iframe
-            src="https://script.google.com/macros/s/AKfycbyy1yXIMf9aS6EXUPvNRobmJL6uHOzMi90KuxKXHtjuWzXqe3jBkFmHdepbGOkBi40itQ/exec"
-            allow="geolocation; camera; microphone; clipboard-read; clipboard-write; accelerometer; gyroscope"
-            title="Chấm Công HR"></iframe>
     </div>
 
     <div id="pagination" class="pagination"></div>
@@ -422,6 +413,13 @@ sR2Sh8e3h3Knd6j1tceRIFU=
                     headers: ['Mã Sản phẩm', 'Tên Sản phẩm', 'Mã Phân loại', 'Tên phân loại', 'SKU Sản phẩm', 'SKU', 'Giá', 'Giá niêm yết trực tiếp:MY', 'Giá niêm yết trực tiếp:PH', 'GTIN', 'Số lượng:KHO F', 'Số lượng:Kho HCM', 'Số lượng:Kho Hà Nội'],
                     priceCols: [6, 7, 8],
                     imgCol: -1
+                },
+                'DH_SHOPE': {
+                    range: 'DH_SHOPE!A2:Q',
+                    clearRange: 'DH_SHOPE!A2:Q100000',
+                    headers: ['id', 'ngay', 'mvd', 'mdh', 'sku', 'sku_ct', 'ten_sp', 'slg', 'don_gia', 'thanh_tien', 'id_khach', 'sdt', 'ten_khach', 'dia_chỉ', 'mail', 'phi_khac', 'loi_nhuan'],
+                    priceCols: [8, 9, 15, 16],
+                    imgCol: -1
                 }
             }
         };
@@ -445,11 +443,12 @@ sR2Sh8e3h3Knd6j1tceRIFU=
 
         async function switchTab(tabName) {
             currentTab = tabName;
+            const uploadBtn = document.getElementById('uploadBtn');
             const tabLabels = {
                 'SP_PM': 'SP_PM',
                 'SP_SHOPEE': 'SP_SHOPEE',
                 'ANH': 'QUẢN LÝ ẢNH',
-                'HR': 'CHẤM CÔNG'
+                'DH_SHOPE': 'ĐƠN HÀNG SHOPEE'
             };
 
             document.querySelectorAll('.tab').forEach(t => {
@@ -460,7 +459,6 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             const tableWrapper = document.getElementById('tableWrapper');
             const pagination = document.getElementById('pagination');
             const imageManager = document.getElementById('imageManager');
-            const hrManager = document.getElementById('hrManager');
             const headerActions = document.getElementById('headerActions');
             const pageTitle = document.getElementById('pageTitle');
 
@@ -469,19 +467,19 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             pagination.style.display = 'none';
             headerActions.style.display = 'none';
             imageManager.style.display = 'none';
-            hrManager.style.display = 'none';
 
             if (tabName === 'ANH') {
                 imageManager.style.display = 'block';
                 pageTitle.innerText = 'HỆ THỐNG QUẢN LÝ ẢNH';
-            } else if (tabName === 'HR') {
-                hrManager.style.display = 'block';
-                pageTitle.innerText = 'HỆ THỐNG CHẤM CÔNG (HR)';
             } else {
                 tableWrapper.style.display = 'block';
                 pagination.style.display = 'flex';
                 headerActions.style.display = 'flex';
-                pageTitle.innerText = 'QUẢN LÝ SẢN PHẨM';
+                pageTitle.innerText = tabName === 'DH_SHOPE' ? 'QUẢN LÝ ĐƠN HÀNG SHOPEE' : 'QUẢN LÝ SẢN PHẨM';
+                if (uploadBtn) {
+                    uploadBtn.innerHTML = `<i data-lucide="upload" style="width:18px;"></i> ${tabName === 'DH_SHOPE' ? 'Tải Đơn Hàng Lên' : 'Tải Sản Phẩm Lên'}`;
+                    lucide.createIcons();
+                }
 
                 document.getElementById('searchInput').value = '';
                 currentPage = 1;
@@ -531,22 +529,22 @@ sR2Sh8e3h3Knd6j1tceRIFU=
             const overlay = document.getElementById('dropOverlay');
 
             window.addEventListener('dragover', (e) => {
-                if (currentTab === 'ANH' || currentTab === 'HR') return;
+                if (currentTab === 'ANH') return;
                 e.preventDefault();
                 overlay.classList.add('active');
             });
 
             window.addEventListener('dragleave', (e) => {
-                if (currentTab === 'ANH' || currentTab === 'HR') return;
+                if (currentTab === 'ANH') return;
                 if (e.relatedTarget === null) overlay.classList.remove('active');
             });
 
             window.addEventListener('drop', (e) => {
-                if (currentTab === 'ANH' || currentTab === 'HR') return;
+                if (currentTab === 'ANH') return;
                 e.preventDefault();
                 overlay.classList.remove('active');
                 if (e.dataTransfer.files.length > 0) {
-                    processFile(e.dataTransfer.files[0]);
+                    processFiles(Array.from(e.dataTransfer.files));
                 }
             });
         }
@@ -554,6 +552,130 @@ sR2Sh8e3h3Knd6j1tceRIFU=
         function formatCurrency(val) {
             if (!val || isNaN(val)) return val;
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+        }
+
+        function excelColToIndex(col) {
+            const name = String(col || '').toUpperCase().trim();
+            let idx = 0;
+            for (let i = 0; i < name.length; i++) {
+                idx = idx * 26 + (name.charCodeAt(i) - 64);
+            }
+            return idx - 1;
+        }
+
+        function safeCell(row, col) {
+            const idx = excelColToIndex(col);
+            return String((row && row[idx]) ?? '').trim();
+        }
+
+        function leftText(val, len) {
+            return String(val || '').slice(0, len);
+        }
+
+        async function getNextDhShopeeId(token) {
+            const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/DH_SHOPE!A2:A`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const ids = (data.values || []).map(r => Number(r[0])).filter(n => Number.isFinite(n));
+            const maxId = ids.length ? Math.max(...ids) : 0;
+            return maxId + 1;
+        }
+
+        function mapShopeeOrderRow(sourceRow, nextId) {
+            const maDonHang = safeCell(sourceRow, 'A');
+            const maKienHang = safeCell(sourceRow, 'B');
+            const ngayDatHang = safeCell(sourceRow, 'C');
+            const maVanDon = safeCell(sourceRow, 'F');
+            const skuPhanLoai = safeCell(sourceRow, 'S');
+            const tenSanPham = safeCell(sourceRow, 'O');
+            const soLuong = safeCell(sourceRow, 'Z');
+            const tenNguoiNhan = safeCell(sourceRow, 'BB');
+            const soDienThoai = safeCell(sourceRow, 'BC');
+            const diaChiNhanHang = safeCell(sourceRow, 'BG');
+
+            return [
+                String(nextId),                 // id (tự sinh)
+                ngayDatHang,                    // ngay (cột C)
+                maVanDon,                       // mvd (cột F)
+                maDonHang,                      // mdh (cột A)
+                leftText(skuPhanLoai, 4),       // sku
+                leftText(skuPhanLoai, 10),      // sku_ct
+                tenSanPham,                     // ten_sp
+                soLuong,                        // slg
+                '',                             // don_gia
+                '',                             // thanh_tien
+                `${tenNguoiNhan} ${soDienThoai}`.trim(), // id_khach (BB & BC)
+                soDienThoai,                    // sdt
+                tenNguoiNhan,                   // ten_khach
+                diaChiNhanHang,                 // dia_chỉ
+                '',                             // mail
+                '',                             // phi_khac
+                '',                             // loi_nhuan
+
+                // Cột Shopee gốc
+                maDonHang,                      // Mã đơn hàng (A)
+                maKienHang,                     // Mã Kiện Hàng (B)
+                ngayDatHang,                    // Ngày đặt hàng (C)
+                safeCell(sourceRow, 'D'),       // Trạng Thái Đơn Hàng
+                safeCell(sourceRow, 'E'),       // Nhận xét từ Người mua
+                maVanDon,                       // Mã vận đơn (F)
+                safeCell(sourceRow, 'G'),       // Đơn Vị Vận Chuyển
+                safeCell(sourceRow, 'H'),       // Phương thức giao hàng
+                safeCell(sourceRow, 'I'),       // Loại đơn hàng
+                safeCell(sourceRow, 'J'),       // Ngày giao hàng dự kiến
+                safeCell(sourceRow, 'K'),       // Ngày gửi hàng
+                safeCell(sourceRow, 'L'),       // Thời gian giao hàng
+                safeCell(sourceRow, 'M'),       // Trạng thái Trả hàng/Hoàn tiền
+                safeCell(sourceRow, 'N'),       // SKU sản phẩm
+                tenSanPham,                     // Tên sản phẩm (O)
+                safeCell(sourceRow, 'P'),       // Cân nặng sản phẩm
+                safeCell(sourceRow, 'Q'),       // Tổng cân nặng
+                safeCell(sourceRow, 'R'),       // Tên kho hàng
+                skuPhanLoai,                    // SKU phân loại hàng (S)
+                safeCell(sourceRow, 'T'),       // Tên phân loại hàng
+                safeCell(sourceRow, 'U'),       // Giá gốc
+                safeCell(sourceRow, 'V'),       // Người bán trợ giá
+                safeCell(sourceRow, 'W'),       // Được Shopee trợ giá
+                safeCell(sourceRow, 'X'),       // Tổng số tiền được người bán trợ giá
+                safeCell(sourceRow, 'Y'),       // Giá ưu đãi
+                soLuong,                        // Số lượng (Z)
+                safeCell(sourceRow, 'AA'),      // Số lượng sản phẩm được hoàn trả
+                safeCell(sourceRow, 'AB'),      // Tổng số tiền Người mua thanh toán
+                safeCell(sourceRow, 'AC'),      // Tổng giá trị đơn hàng (VND)
+                safeCell(sourceRow, 'AD'),      // Mã giảm giá của Shop
+                safeCell(sourceRow, 'AE'),      // Hoàn Xu
+                safeCell(sourceRow, 'AF'),      // Mã giảm giá của Shopee
+                safeCell(sourceRow, 'AG'),      // Chỉ tiêu Combo Khuyến Mãi
+                safeCell(sourceRow, 'AH'),      // Giảm giá từ combo Shopee
+                safeCell(sourceRow, 'AI'),      // Giảm giá từ Combo của Shop
+                safeCell(sourceRow, 'AJ'),      // Shopee Xu được hoàn
+                safeCell(sourceRow, 'AK'),      // Số tiền được giảm khi thanh toán bằng thẻ Ghi nợ
+                safeCell(sourceRow, 'AL'),      // Trade-in Discount
+                safeCell(sourceRow, 'AM'),      // Trade-in Bonus
+                safeCell(sourceRow, 'AN'),      // Phí vận chuyển (dự kiến)
+                safeCell(sourceRow, 'AO'),      // Trade-in Bonus by Seller
+                safeCell(sourceRow, 'AP'),      // Phí vận chuyển mà người mua trả
+                safeCell(sourceRow, 'AQ'),      // Phí vận chuyển tài trợ bởi Shopee (dự kiến)
+                safeCell(sourceRow, 'AR'),      // Phí vận chuyển trả hàng (đơn Trả hàng/hoàn tiền)
+                safeCell(sourceRow, 'AS'),      // Tổng số tiền người mua thanh toán
+                safeCell(sourceRow, 'AT'),      // Thời gian hoàn thành đơn hàng
+                safeCell(sourceRow, 'AU'),      // Thời gian đơn hàng được thanh toán
+                safeCell(sourceRow, 'AV'),      // Phương thức thanh toán
+                safeCell(sourceRow, 'AW'),      // Phí cố định
+                safeCell(sourceRow, 'AX'),      // Phí Dịch Vụ
+                safeCell(sourceRow, 'AY'),      // Phí thanh toán
+                safeCell(sourceRow, 'AZ'),      // Tiền ký quỹ
+                safeCell(sourceRow, 'BA'),      // Người Mua
+                tenNguoiNhan,                   // Tên Người nhận (BB)
+                soDienThoai,                    // Số điện thoại (BC)
+                safeCell(sourceRow, 'BD'),      // Tỉnh/Thành phố
+                safeCell(sourceRow, 'BE'),      // TP / Quận / Huyện
+                safeCell(sourceRow, 'BF'),      // Quận
+                diaChiNhanHang,                 // Địa chỉ nhận hàng (BG)
+                safeCell(sourceRow, 'BH'),      // Quốc gia
+                safeCell(sourceRow, 'BI')       // Ghi chú
+            ];
         }
 
         function renderTable() {
@@ -634,69 +756,105 @@ sR2Sh8e3h3Knd6j1tceRIFU=
         }
 
         async function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            await processFile(file);
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            await processFiles(files);
             event.target.value = '';
         }
 
-        async function processFile(file) {
-            const fileName = file.name;
-            const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv');
-            if (!isExcel) {
+        function readExcelRows(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        let rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                        if (rows[0] && rows[0][0] && String(rows[0][0]).toUpperCase().includes("ID")) {
+                            rows = rows.slice(1);
+                        }
+                        if (currentTab === 'DH_SHOPE' && rows[0] && String(rows[0][0]).toLowerCase().includes('mã đơn hàng')) {
+                            rows = rows.slice(1);
+                        }
+                        resolve(rows);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = () => reject(new Error(`Không thể đọc file ${file.name}`));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function processFiles(files) {
+            const excelFiles = files.filter(f => /\.(xlsx|xls|csv)$/i.test(f.name));
+            if (!excelFiles.length) {
                 alert("Vui lòng tải lên file Excel hoặc CSV.");
                 return;
             }
 
-            if (!confirm(`Hành động này sẽ XÓA TOÀN BỘ dữ liệu cũ của sheet '${currentTab}' và thay thế bằng dữ liệu từ file '${fileName}'. Bạn có chắc chắn?`)) {
-                return;
-            }
+            const fileNames = excelFiles.map(f => f.name).join(", ");
+            const confirmMessage = currentTab === 'DH_SHOPE'
+                ? `Dữ liệu từ ${excelFiles.length} file (${fileNames}) sẽ được THÊM MỚI xuống dưới sheet '${currentTab}' (không xóa dữ liệu cũ). Tiếp tục?`
+                : `Dữ liệu từ ${excelFiles.length} file (${fileNames}) sẽ ghi đè sheet '${currentTab}' (xóa dữ liệu cũ). Tiếp tục?`;
+            if (!confirm(confirmMessage)) return;
 
             document.getElementById('loading').style.display = 'flex';
-            document.querySelector('#loading p').innerText = "Đang xử lý file và cập nhật Google Sheets...";
+            document.querySelector('#loading p').innerText = `Đang xử lý ${excelFiles.length} file và cập nhật Google Sheets...`;
 
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    let rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            try {
+                const rowsFromFiles = await Promise.all(excelFiles.map(readExcelRows));
+                const allRowsToUpload = rowsFromFiles
+                    .flat()
+                    .filter(r => Array.isArray(r) && r.some(c => String(c || '').trim() !== ''));
 
-                    if (rows[0] && rows[0][0] && String(rows[0][0]).toUpperCase().includes("ID")) {
-                        rows = rows.slice(1);
-                    }
+                if (!allRowsToUpload.length) {
+                    throw new Error("Không có dòng dữ liệu hợp lệ để tải lên.");
+                }
 
-                    const token = await getAccessToken();
+                const token = await getAccessToken();
+                let updateRes;
+
+                if (currentTab === 'DH_SHOPE') {
+                    let nextId = await getNextDhShopeeId(token);
+                    const mappedRows = allRowsToUpload.map(r => mapShopeeOrderRow(r, nextId++));
+                    updateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/DH_SHOPE!A2:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ values: mappedRows })
+                    });
+                } else {
                     const tabConfig = CONFIG.tabs[currentTab];
-
                     await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${tabConfig.clearRange}:clear`, {
                         method: 'POST',
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
-                    const updateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${currentTab}!A2?valueInputOption=RAW`, {
+                    updateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${currentTab}!A2?valueInputOption=RAW`, {
                         method: 'PUT',
                         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ values: rows })
+                        body: JSON.stringify({ values: allRowsToUpload })
                     });
-
-                    if (updateRes.ok) {
-                        alert("Tải sản phẩm lên thành công!");
-                        location.reload();
-                    } else {
-                        const err = await updateRes.json();
-                        throw new Error(err.error.message || "Lỗi cập nhật API");
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert("Lỗi khi tải sản phẩm: " + err.message);
-                } finally {
-                    document.getElementById('loading').style.display = 'none';
                 }
-            };
-            reader.readAsArrayBuffer(file);
+
+                if (!updateRes.ok) {
+                    const err = await updateRes.json();
+                    throw new Error(err.error.message || "Lỗi cập nhật API");
+                }
+
+                alert(currentTab === 'DH_SHOPE'
+                    ? `Đã thêm dữ liệu từ ${excelFiles.length} file vào cuối sheet '${currentTab}' thành công!`
+                    : `Đã tải dữ liệu từ ${excelFiles.length} file lên sheet '${currentTab}' thành công!`);
+                location.reload();
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi khi tải dữ liệu: " + err.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
         }
 
         function openImageManager(ma) {
