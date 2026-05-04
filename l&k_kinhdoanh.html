@@ -2261,6 +2261,7 @@
                 <span id="prodNccClear" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:16px; cursor:pointer; color:#999; display:none; z-index:2;">&times;</span>
                 <div class="dropdown-menu" id="prodNccMenu" style="max-height:220px;"></div>
               </div>
+              <button class="btn btn-primary" type="button" id="addProdBtn" style="padding: 0 12px; font-size: 20px; border-radius: 8px; height: 32px; display: flex; align-items: center; justify-content: center;" title="Thêm tay sản phẩm" onclick="openProductFormDrawer('')">+</button>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
               <span id="prodCount" style="font-size:13px; font-weight:600; color:var(--brand)"></span>
@@ -2278,11 +2279,25 @@
              .dropdown-item:hover { background:var(--brand-soft); }
              mark { background: #fef08a; color: #854d0e; padding: 0 2px; border-radius: 2px; }
           </style>
-          <table><thead><tr><th>ID</th><th>Tên SP</th><th>Model</th><th>NCC</th><th>Giá bán</th></tr></thead>
+          <table><thead><tr>
+             <th style="cursor:pointer; user-select:none;" onclick="sortProducts('id')">ID <span id="sort-sp-id"></span></th>
+             <th style="cursor:pointer; user-select:none;" onclick="sortProducts('ten_sp')">Tên SP <span id="sort-sp-ten_sp"></span></th>
+             <th style="cursor:pointer; user-select:none;" onclick="sortProducts('model')">Model <span id="sort-sp-model"></span></th>
+             <th style="cursor:pointer; user-select:none;" onclick="sortProducts('ncc')">NCC <span id="sort-sp-ncc"></span></th>
+             <th style="cursor:pointer; user-select:none; text-align:right" onclick="sortProducts('gia_ban')">Giá bán <span id="sort-sp-gia_ban"></span></th>
+          </tr></thead>
           <tbody id="prodTableBody"></tbody></table></div></div>`;
 
       const tbody = document.getElementById("prodTableBody");
       const countLabel = document.getElementById("prodCount");
+
+      window.prodSortCol = window.prodSortCol || "";
+      window.prodSortAsc = window.prodSortAsc !== undefined ? window.prodSortAsc : true;
+      window.sortProducts = (col) => {
+        if (window.prodSortCol === col) window.prodSortAsc = !window.prodSortAsc;
+        else { window.prodSortCol = col; window.prodSortAsc = true; }
+        renderFiltered();
+      };
       const highlight = (text, q) => {
         const str = String(text || "");
         if (!q || !str) return safeText(str);
@@ -2299,6 +2314,21 @@
           if (ncc && !(item.ncc || "").toLowerCase().includes(ncc)) return false;
           if (q && ![item.ten_sp, item.model, item.id, item.ncc, item.thong_so].join(" ").toLowerCase().includes(q)) return false;
           return true;
+        });
+
+        if (window.prodSortCol) {
+          rows.sort((a, b) => {
+            let start = a[window.prodSortCol]; let end = b[window.prodSortCol];
+            if (window.prodSortCol === 'gia_ban') { start = Number(start || 0); end = Number(end || 0); }
+            else { start = String(start || "").toLowerCase(); end = String(end || "").toLowerCase(); }
+            if (start < end) return window.prodSortAsc ? -1 : 1;
+            if (start > end) return window.prodSortAsc ? 1 : -1;
+            return 0;
+          });
+        }
+        ['id', 'ten_sp', 'model', 'ncc', 'gia_ban'].forEach(col => {
+          const el = document.getElementById('sort-sp-' + col);
+          if (el) el.innerHTML = window.prodSortCol === col ? (window.prodSortAsc ? '▲' : '▼') : '';
         });
 
         countLabel.textContent = `Hiển thị: ${rows.length} sản phẩm`;
@@ -2375,7 +2405,55 @@
           <div class="field"><label>Model</label><input value="${safeText(item.model || "")}" readonly style="background:var(--soft)"/></div>
           <div class="field"><label>NCC (Nhà cung cấp)</label><input value="${safeText(item.ncc || "")}" readonly style="background:var(--soft)"/></div>
           <div class="field full"><label>Giá bán</label><input value="${money(item.gia_ban || 0)}" readonly style="background:var(--brand-soft); font-weight:800; color:var(--brand); font-size:16px"/></div>
+          ${canManageData() ? `<div class="button-row full" style="margin-top:12px"><button class="btn btn-secondary" onclick="openProductFormDrawer('${safeText(item.id)}')">Sửa sản phẩm</button></div>` : ""}
         </div>`);
+    }
+
+    function openProductFormDrawer(productId = "") {
+      if (!requireAdminAccess("Chỉ admin mới được thêm hoặc sửa sản phẩm.")) return;
+      const item = appState.DS_SP.find((row) => row.id === productId) || {};
+
+      openDrawer(productId ? "Sửa Sản phẩm" : "Thêm Sản phẩm", "Cập nhật dữ liệu vào Sheet DS_SP.", `
+        <form id="productForm" style="display:flex; flex-direction:column; gap:8px;">
+          <div class="field"><label>ID</label><input name="id" value="${safeText(item.id || randomId("SP"))}" ${productId ? "readonly" : ""} required /></div>
+          <div class="field full"><label>Tên sản phẩm</label><input name="ten_sp" value="${safeText(item.ten_sp || "")}" required /></div>
+          <div class="field"><label>Model</label><input name="model" value="${safeText(item.model || "")}" /></div>
+          <div class="field"><label>NCC</label><input name="ncc" value="${safeText(item.ncc || "")}" /></div>
+          <div class="field"><label>Giá bán</label><input type="number" name="gia_ban" value="${item.gia_ban || ''}" min="0" required style="font-size: 15px; font-weight: 600; color: var(--brand);" /></div>
+          <div class="button-row full" style="margin-top:12px"><button class="btn btn-primary" type="submit" style="width:100%">Lưu Sản phẩm</button></div>
+        </form>`);
+
+      document.getElementById("productForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.target).entries());
+        const record = { id: String(data.id).trim(), ten_sp: String(data.ten_sp).trim(), model: String(data.model || "").trim(), ncc: String(data.ncc || "").trim(), gia_ban: Number(data.gia_ban || 0) };
+        const index = appState.DS_SP.findIndex((row) => row.id === record.id);
+        const isNew = index < 0;
+
+        if (isNew) appState.DS_SP.push(record);
+        else appState.DS_SP[index] = Object.assign({}, appState.DS_SP[index], record);
+
+        try {
+          if (isNew) {
+            const finalRecord = appState.DS_SP[appState.DS_SP.length - 1];
+            const rowValues = objectsToRows([finalRecord], CONFIG.sheets.DS_SP)[1];
+            await appendSheetRow("DS_SP", [rowValues]);
+            syncMeta.lastLoadedAt = new Date().toLocaleString("vi-VN");
+            renderAll();
+            showToast("Đã thêm sản phẩm mới.");
+          } else {
+            await clearSheet("DS_SP");
+            await updateSheet("DS_SP", objectsToRows(appState.DS_SP, CONFIG.sheets.DS_SP));
+            syncMeta.lastLoadedAt = new Date().toLocaleString("vi-VN");
+            renderAll();
+            showToast("Đã cập nhật sản phẩm.");
+          }
+        } catch (error) {
+          console.error(error);
+          await persistAllSheets("Đã lưu dữ liệu.");
+        }
+        closeDrawer();
+      });
     }
 
     function buildOrderLine(detail = {}) {
