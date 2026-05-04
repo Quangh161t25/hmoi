@@ -962,6 +962,14 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
+                            <button id="btn-add-row"
+                                class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:opacity-90 transition"
+                                onclick="addRow()">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg> Thêm Dòng
+                            </button>
                             <button
                                 class="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary/20 transition"
                                 onclick="fetchData()">
@@ -985,14 +993,6 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg> Nhập Excel
-                            </button>
-                            <button id="btn-add-row"
-                                class="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:opacity-90 transition"
-                                onclick="addRow()">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4v16m8-8H4" />
-                                </svg> Thêm Dòng
                             </button>
                             <input type="file" id="excelInput" accept=".xlsx, .xls" style="display: none;"
                                 onchange="handleExcelUpload(this)">
@@ -1645,7 +1645,7 @@
 
         // Phân trang & Sắp xếp
         let currentPage = 1;
-        const rowsPerPage = 30;
+        let rowsPerPage = 30; // Will be set to 100 for DS_SP
         let sortConfig = { col: null, dir: 'asc' };
 
         // --- AUTHENTICATION ---
@@ -2102,7 +2102,19 @@
             visibleIndices.forEach(idx => {
                 const h = rawHeaders[idx];
                 const th = document.createElement('th');
-                th.innerHTML = `${getDisplayHeader(h)} <span class="sort-icon"></span>`;
+
+                let sortSvg = `<svg class="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Sắp xếp A-Z"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>`;
+                if (sortConfig.col === idx) {
+                    if (sortConfig.dir === 'asc') sortSvg = `<svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Sắp xếp tăng dần A-Z"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>`;
+                    else sortSvg = `<svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Sắp xếp giảm dần Z-A"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" /></svg>`;
+                }
+
+                th.innerHTML = `<div class="flex items-center justify-between gap-1 group cursor-pointer hover:bg-muted-foreground/5 p-1 rounded">
+                    <span>${getDisplayHeader(h)}</span>
+                    <button class="flex items-center justify-center p-1 rounded-md hover:bg-muted-foreground/10 transition">
+                        ${sortSvg}
+                    </button>
+                </div>`;
                 th.onclick = () => handleSort(idx);
                 if (sortConfig.col === idx) {
                     th.className = sortConfig.dir === 'asc' ? 'sorted-asc' : 'sorted-desc';
@@ -3168,8 +3180,17 @@
                 }
 
                 if (btnAddRow) {
-                    if (tabId === 'DS_SP') btnAddRow.classList.add('hidden');
-                    else btnAddRow.classList.remove('hidden');
+                    btnAddRow.classList.remove('hidden');
+                    if (tabId === 'DS_SP') {
+                        btnAddRow.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg> Thêm Sản Phẩm';
+                        rowsPerPage = 100;
+                    } else if (tabId === 'DS_CHI_TIET_SP') {
+                        btnAddRow.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg> Thêm Linh Kiện';
+                        rowsPerPage = 30;
+                    } else {
+                        btnAddRow.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg> Thêm Phiếu BH';
+                        rowsPerPage = 30;
+                    }
                 }
 
                 CONFIG.sheetName = TAB_CONFIGS[tabId].sheetName;
