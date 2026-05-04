@@ -953,6 +953,15 @@
 
 
         <div class="controls">
+            <button class="btn-primary" id="btnAddRow" onclick="addRow()"
+                style="background: var(--primary); display: flex; align-items: center; justify-content: center; padding: 0.8rem 1.2rem; gap: 6px;"
+                title="Thêm sản phẩm mới">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
             <div class="search-box" style="flex: 2; min-width: 200px;">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm nhanh..." oninput="handleSearchInput()"
                     autocomplete="off">
