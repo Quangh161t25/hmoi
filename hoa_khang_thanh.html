@@ -617,13 +617,14 @@
             document.body.innerHTML = "<div style='display:flex; align-items:center; justify-content:center; height:100vh; font-weight:bold;'>Dữ liệu hóa đơn trống</div>";
         } else {
             const segments = decodedQuery.split(/[|?]/);
-            let ngay = "", khachHang = "", cuocXe = 0, congNo = 0, productsRaw = "";
+            let ngay = "", khachHang = "", cuocXe = 0, truHang = 0, congNo = 0, productsRaw = "";
 
             segments.forEach(seg => {
                 const s = seg.trim();
                 if (s.startsWith("ngay=")) ngay = s.replace("ngay=", "");
                 else if (s.startsWith("khach_hang=")) khachHang = s.replace("khach_hang=", "");
                 else if (s.startsWith("cuoc=")) cuocXe = parseInt(s.replace("cuoc=", "").replace(/\./g, '')) || 0;
+                else if (s.startsWith("tru_hang=")) truHang = parseInt(s.replace("tru_hang=", "").replace(/\./g, '')) || 0;
                 else if (s.startsWith("cong_no=")) congNo = parseInt(s.replace("cong_no=", "").replace(/\./g, '')) || 0;
                 else if (s.includes("_a_")) productsRaw = s;
             });
@@ -651,7 +652,7 @@
             }
 
             let tongSanPham = products.reduce((sum, p) => sum + p.thanhTien, 0);
-            let tongTien = tongSanPham + cuocXe;
+            let tongTien = tongSanPham + cuocXe - truHang;
             let tongThanhToan = tongTien + congNo;
 
             const tableBody = document.getElementById('product-table-body');
@@ -676,6 +677,10 @@
                 <div class="summary-row">
                     <span class="text-gray-600">Phí vận chuyển:</span>
                     <span class="font-medium">${formatVND(cuocXe)}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="text-gray-600">Tiền trừ hàng:</span>
+                    <span class="font-medium">-${formatNumber(truHang)} đ</span>
                 </div>
                 <div class="summary-total">
                     <span>TỔNG CỘNG:</span>
