@@ -201,8 +201,16 @@
                 const itemsRaw = parts[1].trim();
                 const items = itemsRaw.split(',').map(item => {
                     const [name, qty] = item.split('|');
-                    return { name: (name || '').trim(), qty: (qty || '0').trim() };
+                    const cleanQty = (qty || '0').trim();
+                    return {
+                        name: (name || '').trim(),
+                        qty: cleanQty,
+                        qtyNumber: parseFloat(cleanQty.replace(/\./g, '').replace(/,/g, '.')) || 0
+                    };
                 }).filter(item => item.name.length > 0);
+
+                // Sắp xếp theo số lượng từ lớn đến bé
+                items.sort((a, b) => b.qtyNumber - a.qtyNumber);
 
                 const ROWS_PER_PAGE = 25;
                 const ITEMS_PER_PAGE = ROWS_PER_PAGE * 2; // 50 items per page
@@ -231,19 +239,16 @@
                             ? `<td class="col-stt">${i + ROWS_PER_PAGE + r + 1}</td><td class="col-ten">${right.name}</td><td class="col-sl">${right.qty}</td>`
                             : `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
 
-                        tableRowsHtml += `<tr>${leftHtml}<td style="border:none; width:20px;"></td>${rightHtml}</tr>`;
+                        tableRowsHtml += `<tr>${leftHtml}<td style="border:none; width:60px;"></td>${rightHtml}</tr>`;
                     }
 
                     pageDiv.innerHTML = `
-                        <div class="date-container">
-                            <div class="date-label">${dateStr}</div>
-                        </div>
                         <div class="dual-table-container">
                             <table>
                                 <thead>
                                     <tr>
                                         <th class="col-stt">STT</th><th class="col-ten">Tên Hoa</th><th class="col-sl">SL</th>
-                                        <th style="border:none; background:white; width:20px;"></th>
+                                        <th style="border:none; background:white; width:60px;"></th>
                                         <th class="col-stt">STT</th><th class="col-ten">Tên Hoa</th><th class="col-sl">SL</th>
                                     </tr>
                                 </thead>
