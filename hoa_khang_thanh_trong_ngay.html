@@ -14,7 +14,7 @@
             --text-main: #1a1a1a;
             --text-muted: #666666;
             --accent-color: #000000;
-            --border-color: #eeeeee;
+            --border-color: #dddddd;
         }
 
         * {
@@ -24,16 +24,13 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--primary-bg);
+            background-color: #f4f4f4;
             color: var(--text-main);
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        /* Print Button - Minimal Glassmorphism */
+        /* Print Button */
         .no-print-zone {
             position: fixed;
             top: 20px;
@@ -42,10 +39,9 @@
         }
 
         #print-btn {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            border: 1px solid #ddd;
-            color: #333;
+            background: #000;
+            color: #fff;
+            border: none;
             padding: 12px 24px;
             border-radius: 50px;
             font-weight: 600;
@@ -53,127 +49,115 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        #print-btn:hover {
-            background: #000;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        /* Page styling */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            page-break-after: always;
         }
 
         @media print {
-            .no-print-zone {
-                display: none !important;
-            }
-
             body {
                 background: white;
             }
 
-            .container {
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
+            .no-print-zone {
+                display: none !important;
+            }
+
+            .page {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                min-height: initial;
             }
         }
 
-        /* Container */
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 40px;
-        }
-
-        /* Date Header */
+        /* Header Date */
         .date-container {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         .date-label {
             font-family: 'Playfair Display', serif;
-            font-size: 32px;
+            font-size: 28px;
             color: var(--text-main);
-            position: relative;
+            border-bottom: 2px solid var(--accent-color);
             display: inline-block;
-            padding-bottom: 10px;
+            padding-bottom: 5px;
         }
 
-        .date-label::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 25%;
-            width: 50%;
-            height: 2px;
-            background: var(--accent-color);
+        /* Two Column Layout */
+        .dual-table-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
         }
 
-        /* Table Styles */
-        .table-wrapper {
-            width: 100%;
+        .table-half {
+            width: calc(50% - 10px);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         th {
+            background-color: #f9f9f9;
             text-align: left;
-            padding: 15px 10px;
-            border-bottom: 2px solid var(--accent-color);
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 11px;
             text-transform: uppercase;
-            font-size: 13px;
-            letter-spacing: 1px;
-            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 18px 10px;
-            border-bottom: 1px solid var(--border-color);
-            transition: background 0.2s;
-        }
-
-        tr:hover td {
-            background-color: #fafafa;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
         }
 
         .col-stt {
-            width: 60px;
+            width: 35px;
             text-align: center;
             color: var(--text-muted);
-            font-weight: 500;
+            font-size: 12px;
         }
 
         .col-ten {
-            font-weight: 600;
-            font-size: 17px;
+            font-weight: 500;
         }
 
         .col-sl {
-            width: 100px;
+            width: 50px;
             text-align: center;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 15px;
         }
 
-        /* Empty State */
+        .empty-row {
+            height: 38px;
+        }
+
         .empty-state {
             text-align: center;
-            margin-top: 100px;
-            color: var(--text-muted);
+            padding-top: 100px;
             font-style: italic;
+            color: gray;
         }
     </style>
 </head>
@@ -190,93 +174,94 @@
         </button>
     </div>
 
-    <div class="container">
-        <div class="date-container">
-            <div class="date-label" id="display-date">Đang tải...</div>
-        </div>
-
-        <div class="table-wrapper">
-            <table id="flower-table">
-                <thead>
-                    <tr>
-                        <th class="col-stt">STT</th>
-                        <th class="col-ten">Tên Hoa</th>
-                        <th class="col-sl">Số Lượng</th>
-                    </tr>
-                </thead>
-                <tbody id="flower-body">
-                    <!-- Data will be injected here -->
-                </tbody>
-            </table>
-            <div id="no-data" class="empty-state" style="display: none;">
-                Không tìm thấy dữ liệu hoa.
-            </div>
-        </div>
+    <div id="main-content">
+        <!-- Pages will be injected here -->
     </div>
 
     <script>
         function parseAndRender() {
-            // Lấy dữ liệu từ URL ?data=...
             const urlParams = new URLSearchParams(window.location.search);
             let rawData = urlParams.get('data');
 
-            // Fallback nếu không có data parameter, thử lấy toàn bộ query
             if (!rawData && window.location.search) {
                 rawData = decodeURIComponent(window.location.search.substring(1));
             }
 
             if (!rawData) {
-                document.getElementById('display-date').innerText = "Thiếu dữ liệu";
-                document.getElementById('no-data').style.display = "block";
-                document.getElementById('flower-table').style.display = "none";
+                document.getElementById('main-content').innerHTML = '<div class="page"><div class="empty-state">Dữ liệu trống</div></div>';
                 return;
             }
 
             try {
-                // Xử lý chuỗi: 05/07/2026&CÚC MẪU ĐƠN TRẮNG|16 , CÚC MẪU ĐƠN HỒNG|2.
-                // Bỏ dấu chấm ở cuối nếu có
                 const cleanedData = rawData.trim().replace(/\.$/, '');
-
                 const parts = cleanedData.split('&');
                 if (parts.length < 2) throw new Error("Sai định dạng");
 
                 const dateStr = parts[0].trim();
                 const itemsRaw = parts[1].trim();
-
-                // Hiển thị ngày
-                document.getElementById('display-date').innerText = dateStr;
-
-                // Xử lý danh sách hoa
-                const items = itemsRaw.split(',').map(item => item.trim()).filter(item => item.length > 0);
-                const tbody = document.getElementById('flower-body');
-                tbody.innerHTML = '';
-
-                items.forEach((item, index) => {
+                const items = itemsRaw.split(',').map(item => {
                     const [name, qty] = item.split('|');
-                    if (name) {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td class="col-stt">${index + 1}</td>
-                            <td class="col-ten">${name.trim()}</td>
-                            <td class="col-sl">${qty ? qty.trim() : '0'}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    }
-                });
+                    return { name: (name || '').trim(), qty: (qty || '0').trim() };
+                }).filter(item => item.name.length > 0);
 
-                if (items.length === 0) {
-                    throw new Error("Không có hàng");
+                const ROWS_PER_PAGE = 25;
+                const ITEMS_PER_PAGE = ROWS_PER_PAGE * 2; // 50 items per page
+
+                const mainContent = document.getElementById('main-content');
+                mainContent.innerHTML = '';
+
+                for (let i = 0; i < items.length; i += ITEMS_PER_PAGE) {
+                    const pageItems = items.slice(i, i + ITEMS_PER_PAGE);
+                    const leftColItems = pageItems.slice(0, ROWS_PER_PAGE);
+                    const rightColItems = pageItems.slice(ROWS_PER_PAGE, ITEMS_PER_PAGE);
+
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'page';
+
+                    let tableRowsHtml = '';
+                    for (let r = 0; r < ROWS_PER_PAGE; r++) {
+                        const left = leftColItems[r];
+                        const right = rightColItems[r];
+
+                        const leftHtml = left
+                            ? `<td class="col-stt">${i + r + 1}</td><td class="col-ten">${left.name}</td><td class="col-sl">${left.qty}</td>`
+                            : `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
+
+                        const rightHtml = right
+                            ? `<td class="col-stt">${i + ROWS_PER_PAGE + r + 1}</td><td class="col-ten">${right.name}</td><td class="col-sl">${right.qty}</td>`
+                            : `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
+
+                        tableRowsHtml += `<tr>${leftHtml}<td style="border:none; width:20px;"></td>${rightHtml}</tr>`;
+                    }
+
+                    pageDiv.innerHTML = `
+                        <div class="date-container">
+                            <div class="date-label">${dateStr}</div>
+                        </div>
+                        <div class="dual-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="col-stt">STT</th><th class="col-ten">Tên Hoa</th><th class="col-sl">SL</th>
+                                        <th style="border:none; background:white; width:20px;"></th>
+                                        <th class="col-stt">STT</th><th class="col-ten">Tên Hoa</th><th class="col-sl">SL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    mainContent.appendChild(pageDiv);
                 }
 
             } catch (e) {
-                console.error("Lỗi parse dữ liệu:", e);
-                document.getElementById('display-date').innerText = "Lỗi dữ liệu";
-                document.getElementById('no-data').style.display = "block";
-                document.getElementById('flower-table').style.display = "none";
+                console.error(e);
+                document.getElementById('main-content').innerHTML = '<div class="page"><div class="empty-state">Lỗi dữ liệu</div></div>';
             }
         }
 
-        // Chạy khi trang tải xong
         window.addEventListener('DOMContentLoaded', parseAndRender);
     </script>
 </body>
