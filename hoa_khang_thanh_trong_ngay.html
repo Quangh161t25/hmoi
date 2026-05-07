@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Hoa Trong Ngày - Khang Thành Flower</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #666666;
+            --accent-color: #000000;
+            --border-color: #eeeeee;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Print Button - Minimal Glassmorphism */
+        .no-print-zone {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #print-btn {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #ddd;
+            color: #333;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #print-btn:hover {
+            background: #000;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        @media print {
+            .no-print-zone {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+        }
+
+        /* Date Header */
+        .date-container {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .date-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: var(--text-main);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .date-label::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 2px;
+            background: var(--accent-color);
+        }
+
+        /* Table Styles */
+        .table-wrapper {
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 10px;
+            border-bottom: 2px solid var(--accent-color);
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 18px 10px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        tr:hover td {
+            background-color: #fafafa;
+        }
+
+        .col-stt {
+            width: 60px;
+            text-align: center;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .col-ten {
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+        .col-sl {
+            width: 100px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            margin-top: 100px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print-zone">
+        <button id="print-btn" onclick="window.print()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            In PDF
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="date-container">
+            <div class="date-label" id="display-date">Đang tải...</div>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="flower-table">
+                <thead>
+                    <tr>
+                        <th class="col-stt">STT</th>
+                        <th class="col-ten">Tên Hoa</th>
+                        <th class="col-sl">Số Lượng</th>
+                    </tr>
+                </thead>
+                <tbody id="flower-body">
+                    <!-- Data will be injected here -->
+                </tbody>
+            </table>
+            <div id="no-data" class="empty-state" style="display: none;">
+                Không tìm thấy dữ liệu hoa.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseAndRender() {
+            // Lấy dữ liệu từ URL ?data=...
+            const urlParams = new URLSearchParams(window.location.search);
+            let rawData = urlParams.get('data');
+
+            // Fallback nếu không có data parameter, thử lấy toàn bộ query
+            if (!rawData && window.location.search) {
+                rawData = decodeURIComponent(window.location.search.substring(1));
+            }
+
+            if (!rawData) {
+                document.getElementById('display-date').innerText = "Thiếu dữ liệu";
+                document.getElementById('no-data').style.display = "block";
+                document.getElementById('flower-table').style.display = "none";
+                return;
+            }
+
+            try {
+                // Xử lý chuỗi: 05/07/2026&CÚC MẪU ĐƠN TRẮNG|16 , CÚC MẪU ĐƠN HỒNG|2.
+                // Bỏ dấu chấm ở cuối nếu có
+                const cleanedData = rawData.trim().replace(/\.$/, '');
+
+                const parts = cleanedData.split('&');
+                if (parts.length < 2) throw new Error("Sai định dạng");
+
+                const dateStr = parts[0].trim();
+                const itemsRaw = parts[1].trim();
+
+                // Hiển thị ngày
+                document.getElementById('display-date').innerText = dateStr;
+
+                // Xử lý danh sách hoa
+                const items = itemsRaw.split(',').map(item => item.trim()).filter(item => item.length > 0);
+                const tbody = document.getElementById('flower-body');
+                tbody.innerHTML = '';
+
+                items.forEach((item, index) => {
+                    const [name, qty] = item.split('|');
+                    if (name) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="col-stt">${index + 1}</td>
+                            <td class="col-ten">${name.trim()}</td>
+                            <td class="col-sl">${qty ? qty.trim() : '0'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                });
+
+                if (items.length === 0) {
+                    throw new Error("Không có hàng");
+                }
+
+            } catch (e) {
+                console.error("Lỗi parse dữ liệu:", e);
+                document.getElementById('display-date').innerText = "Lỗi dữ liệu";
+                document.getElementById('no-data').style.display = "block";
+                document.getElementById('flower-table').style.display = "none";
+            }
+        }
+
+        // Chạy khi trang tải xong
+        window.addEventListener('DOMContentLoaded', parseAndRender);
+    </script>
+</body>
+
+</html>
