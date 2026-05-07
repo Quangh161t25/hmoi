@@ -14,7 +14,8 @@
             --text-main: #1a1a1a;
             --text-muted: #666666;
             --accent-color: #000000;
-            --border-color: #dddddd;
+            --border-color: #000000;
+            /* Đổi sang màu đen rõ hơn để dễ nhìn khi in */
         }
 
         * {
@@ -24,13 +25,12 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f0f0f0;
             color: var(--text-main);
             margin: 0;
             padding: 0;
         }
 
-        /* Print Button */
         .no-print-zone {
             position: fixed;
             top: 20px;
@@ -46,23 +46,19 @@
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-            text-transform: uppercase;
         }
 
-        /* Page styling */
+        /* Định dạng khổ giấy A4 */
         .page {
             width: 210mm;
-            min-height: 297mm;
+            height: 297mm;
+            /* Cố định chiều cao trang để không bị tràn */
             padding: 15mm;
-            margin: 20px auto;
+            margin: 10px auto;
             background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative;
+            overflow: hidden;
             page-break-after: always;
         }
 
@@ -78,111 +74,85 @@
             .page {
                 margin: 0;
                 box-shadow: none;
-                width: 100%;
-                min-height: initial;
+                width: 210mm;
+                height: 297mm;
             }
         }
 
-        /* Header Date */
-        .date-container {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .date-label {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            color: var(--text-main);
-            border-bottom: 2px solid var(--accent-color);
-            display: inline-block;
-            padding-bottom: 5px;
-        }
-
-        /* Two Column Layout */
         .dual-table-container {
             display: flex;
             justify-content: space-between;
-            gap: 20px;
-        }
-
-        .table-half {
-            width: calc(50% - 10px);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            table-layout: fixed;
+            /* Cố định chiều rộng cột */
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border-color);
+            padding: 5px;
+            vertical-align: middle;
+            height: 48px;
+            /* Cố định chiều cao hàng để chống lệch dòng */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         th {
-            background-color: #f9f9f9;
-            text-align: left;
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            vertical-align: middle;
+            background-color: #f2f2f2;
+            font-size: 13px;
+            height: 40px;
         }
 
         .col-stt {
-            width: 35px;
+            width: 45px;
             text-align: center;
-            color: var(--text-muted);
-            font-size: 12px;
         }
 
         .col-ten {
+            text-align: left;
             font-weight: 500;
+            font-size: 14px;
+            padding-left: 10px;
         }
 
         .col-sl {
-            width: 50px;
+            width: 60px;
             text-align: center;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 18px;
         }
 
-        .empty-row {
-            height: 38px;
+        .spacer {
+            border: none !important;
+            width: 60px;
         }
 
         .empty-state {
             text-align: center;
-            padding-top: 100px;
-            font-style: italic;
-            color: gray;
+            margin-top: 100px;
+            color: #999;
         }
     </style>
 </head>
 
 <body>
     <div class="no-print-zone">
-        <button id="print-btn" onclick="window.print()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            In PDF
-        </button>
+        <button id="print-btn" onclick="window.print()">In PDF</button>
     </div>
 
     <div id="main-content">
-        <!-- Pages will be injected here -->
+        <!-- JS sẽ chèn các trang vào đây -->
     </div>
 
     <script>
         function parseAndRender() {
             const urlParams = new URLSearchParams(window.location.search);
             let rawData = urlParams.get('data');
-
             if (!rawData && window.location.search) {
                 rawData = decodeURIComponent(window.location.search.substring(1));
             }
@@ -195,10 +165,8 @@
             try {
                 const cleanedData = rawData.trim().replace(/\.$/, '');
                 const parts = cleanedData.split('&');
-                if (parts.length < 2) throw new Error("Sai định dạng");
+                const itemsRaw = parts.length > 1 ? parts[1].trim() : parts[0].trim();
 
-                const dateStr = parts[0].trim();
-                const itemsRaw = parts[1].trim();
                 const items = itemsRaw.split(',').map(item => {
                     const [name, qty] = item.split('|');
                     const cleanQty = (qty || '0').trim();
@@ -209,11 +177,11 @@
                     };
                 }).filter(item => item.name.length > 0);
 
-                // Sắp xếp theo số lượng từ lớn đến bé
+                // Sắp xếp giảm dần theo số lượng
                 items.sort((a, b) => b.qtyNumber - a.qtyNumber);
 
-                const ROWS_PER_PAGE = 25;
-                const ITEMS_PER_PAGE = ROWS_PER_PAGE * 2; // 50 items per page
+                const ROWS_PER_PAGE = 20; // Đổi thành 20 dòng
+                const ITEMS_PER_PAGE = ROWS_PER_PAGE * 2;
 
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = '';
@@ -226,20 +194,20 @@
                     const pageDiv = document.createElement('div');
                     pageDiv.className = 'page';
 
-                    let tableRowsHtml = '';
+                    let rowsHtml = '';
                     for (let r = 0; r < ROWS_PER_PAGE; r++) {
                         const left = leftColItems[r];
                         const right = rightColItems[r];
 
-                        const leftHtml = left
+                        const leftCell = left
                             ? `<td class="col-stt">${i + r + 1}</td><td class="col-ten">${left.name}</td><td class="col-sl">${left.qty}</td>`
                             : `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
 
-                        const rightHtml = right
+                        const rightCell = right
                             ? `<td class="col-stt">${i + ROWS_PER_PAGE + r + 1}</td><td class="col-ten">${right.name}</td><td class="col-sl">${right.qty}</td>`
                             : `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
 
-                        tableRowsHtml += `<tr>${leftHtml}<td style="border:none; width:60px;"></td>${rightHtml}</tr>`;
+                        rowsHtml += `<tr>${leftCell}<td class="spacer"></td>${rightCell}</tr>`;
                     }
 
                     pageDiv.innerHTML = `
@@ -247,13 +215,13 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th class="col-stt">STT</th><th class="col-ten">Tên Hoa</th><th class="col-sl">SL</th>
-                                        <th style="border:none; background:white; width:60px;"></th>
-                                        <th class="col-stt">STT</th><th class="col-ten">Tên Hoa</th><th class="col-sl">SL</th>
+                                        <th class="col-stt">STT</th><th class="col-ten">TÊN HOA</th><th class="col-sl">SL</th>
+                                        <th class="spacer"></th>
+                                        <th class="col-stt">STT</th><th class="col-ten">TÊN HOA</th><th class="col-sl">SL</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${tableRowsHtml}
+                                    ${rowsHtml}
                                 </tbody>
                             </table>
                         </div>
@@ -262,8 +230,7 @@
                 }
 
             } catch (e) {
-                console.error(e);
-                document.getElementById('main-content').innerHTML = '<div class="page"><div class="empty-state">Lỗi dữ liệu</div></div>';
+                document.getElementById('main-content').innerHTML = '<div class="page"><div class="empty-state">Lỗi xử lý dữ liệu</div></div>';
             }
         }
 
