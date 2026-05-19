@@ -35,7 +35,7 @@
         .page {
             width: var(--page-width);
             min-height: var(--page-height);
-            padding: 15mm 20mm;
+            padding: 10mm 20mm 15mm 20mm;
             margin: 10mm auto;
             background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -84,32 +84,13 @@
         .logo-container {
             display: flex;
             flex-direction: column;
+            margin-top: -10px;
         }
 
-        .logo {
-            font-weight: 800;
-            font-size: 28px;
-            letter-spacing: -1px;
-            color: #000;
-            position: relative;
-            line-height: 1;
-        }
-
-        .logo .studio {
-            font-size: 8px;
-            font-weight: 600;
-            position: absolute;
-            top: -6px;
-            right: 0;
-            letter-spacing: 1px;
-        }
-
-        .logo .present {
-            font-size: 6px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            font-weight: 400;
-            margin-top: 2px;
+        .logo-container img {
+            height: 120px;
+            width: auto;
+            display: block;
         }
 
         .contract-title {
@@ -135,7 +116,7 @@
             font-size: 9px;
             text-transform: uppercase;
             line-height: 1.2;
-            max-width: 200px;
+            max-width: 300px;
         }
 
         .business-info b {
@@ -329,11 +310,7 @@
     <div class="page" id="page-1">
         <header>
             <div class="logo-container">
-                <div class="logo">
-                    MATMOTMI
-                    <span class="studio">studio</span>
-                    <div class="present">present</div>
-                </div>
+                <img src="image.png" alt="MATMOTMI Logo">
             </div>
             <div class="contract-title">
                 <h1>HỢP ĐỒNG DỊCH VỤ</h1>
@@ -425,11 +402,7 @@
     <div class="page" id="page-2">
         <header>
             <div class="logo-container">
-                <div class="logo">
-                    MATMOTMI
-                    <span class="studio">studio</span>
-                    <div class="present">present</div>
-                </div>
+                <img src="image.png" alt="MATMOTMI Logo">
             </div>
             <div class="business-info">
                 MẮT MỘT MÍ<br>
