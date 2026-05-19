@@ -19,6 +19,7 @@
         * {
             box-sizing: border-box;
             -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
         body {
@@ -374,7 +375,8 @@
 
         <section>
             <h2>II. THÔNG TIN GÓI DỊCH VỤ</h2>
-            <div class="content-box" data-field="thong_tin_dich_vu" contenteditable="true">10/10/26 Lễ + tiệc tối tại Bà Rịa
+            <div class="content-box" data-field="thong_tin_dich_vu" contenteditable="true">10/10/26 Lễ + tiệc tối tại Bà
+                Rịa
                 11/10/26 Rước dâu buổi sáng di chuyển Phan Rí Tiệc tối tại Phan Rí
                 Photo Booth
                 Booth tiệc gái: full tiệc</div>
@@ -407,7 +409,8 @@
                             Bao gồm
                             1 film cưới 10–12 phút
                             200–230 hình chỉnh sửa / máy / ngày
-                            <span class="service-total">Tổng cộng: <span data-field="tong_cong" contenteditable="true">36.000.000</span> VNĐ</span>
+                            <span class="service-total">Tổng cộng: <span data-field="tong_cong"
+                                    contenteditable="true">36.000.000</span> VNĐ</span>
                         </td>
                         <td class="long-text" data-field="ghi_chu" contenteditable="true">
                             - Hỗ trợ 2 đèn quay phim
@@ -457,22 +460,14 @@
                     <tr>
                         <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 2</td>
                         <td class="data-cell" data-field="thanh_toan_lan_2" contenteditable="true">20.000.000</td>
-                        <td class="data-cell" data-field="ghi_chu_thanh_toan_2" contenteditable="true">Sau tiệc 11/10/2026</td>
+                        <td class="data-cell" data-field="ghi_chu_thanh_toan_2" contenteditable="true">Sau tiệc
+                            11/10/2026</td>
                     </tr>
                     <tr>
                         <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 3</td>
                         <td class="data-cell" data-field="thanh_toan_lan_3" contenteditable="true">6.000.000</td>
-                        <td class="data-cell" data-field="ghi_chu_thanh_toan_3" contenteditable="true">Sau khi giao sản phẩm</td>
-                    </tr>
-                    <tr>
-                        <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 4</td>
-                        <td class="data-cell" data-field="thanh_toan_lan_4" contenteditable="true"></td>
-                        <td class="data-cell" data-field="ghi_chu_thanh_toan_4" contenteditable="true"></td>
-                    </tr>
-                    <tr>
-                        <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 5</td>
-                        <td class="data-cell" data-field="thanh_toan_lan_5" contenteditable="true"></td>
-                        <td class="data-cell" data-field="ghi_chu_thanh_toan_5" contenteditable="true"></td>
+                        <td class="data-cell" data-field="ghi_chu_thanh_toan_3" contenteditable="true">Sau khi giao sản
+                            phẩm</td>
                     </tr>
                 </tbody>
             </table>
@@ -529,14 +524,10 @@
         }
 
         const urlDataPrefixes = [
-            'ghi_chu_thanh_toan_5',
-            'ghi_chu_thanh_toan_4',
             'ghi_chu_thanh_toan_3',
             'ghi_chu_thanh_toan_2',
             'ghi_chu_thanh_toan_1',
             'thong_tin_dich_vu',
-            'thanh_toan_lan_5',
-            'thanh_toan_lan_4',
             'thanh_toan_lan_3',
             'thanh_toan_lan_2',
             'thanh_toan_lan_1',
@@ -623,14 +614,12 @@
                 'ghi_chu',
                 'ghi_chu_thanh_toan_1',
                 'ghi_chu_thanh_toan_2',
-                'ghi_chu_thanh_toan_3',
-                'ghi_chu_thanh_toan_4',
-                'ghi_chu_thanh_toan_5'
+                'ghi_chu_thanh_toan_3'
             ].forEach((field) => {
                 if (field in data) setTextField(field, data[field]);
             });
 
-            for (let index = 1; index <= 5; index += 1) {
+            for (let index = 1; index <= 3; index += 1) {
                 const field = `thanh_toan_lan_${index}`;
                 if (field in data) setTextField(field, formatMoney(data[field]));
             }
