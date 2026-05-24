@@ -101,18 +101,20 @@
         header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
+            /* Đổi về center để cân bằng với chữ HỢP ĐỒNG DV */
             margin-bottom: 20px;
         }
 
         .logo-container {
             display: flex;
             flex-direction: column;
-            margin-top: -10px;
+            /* margin-top loại bỏ để căn giữa */
         }
 
         .logo-container img {
-            height: 120px;
+            height: 80px;
+            /* Thu nhỏ 50% và không cao hơn chữ Hợp Đồng DV (~20px-25px) */
             width: auto;
             display: block;
         }
@@ -120,7 +122,6 @@
         .contract-title {
             text-align: center;
             flex-grow: 1;
-            margin-top: 20px;
         }
 
         .contract-title h1 {
@@ -128,6 +129,7 @@
             font-weight: 700;
             margin: 0;
             text-transform: uppercase;
+            line-height: 1;
         }
 
         .contract-title p {
@@ -141,6 +143,9 @@
             text-transform: uppercase;
             line-height: 1.2;
             max-width: 300px;
+            transform: scale(0.6);
+            /* Thu nhỏ khối chữ bên phải */
+            transform-origin: right center;
         }
 
         .business-info b {
