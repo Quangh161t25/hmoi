@@ -49,6 +49,11 @@
             body {
                 background: none;
                 padding: 0;
+                display: block !important;
+            }
+
+            .pages-container {
+                display: block !important;
             }
 
             .page {
@@ -60,6 +65,25 @@
             .no-print {
                 display: none !important;
             }
+        }
+
+        /* Side-by-side view */
+        .pages-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body.side-by-side .pages-container {
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        body.side-by-side .page {
+            margin: 0;
         }
 
         /* Editable Hint */
@@ -300,172 +324,197 @@
         <button class="btn btn-secondary" onclick="saveDraft()">
             💾 LƯU BẢN NHÁP
         </button>
+        <button class="btn btn-secondary" onclick="toggleSideBySide()" id="toggleViewBtn">
+            📖 XEM SONG SONG
+        </button>
     </div>
 
     <div class="hint no-print">
         💡 Bạn có thể nhấn trực tiếp vào bất kỳ văn bản nào để chỉnh sửa nội dung.
     </div>
 
-    <!-- PAGE 1 -->
-    <div class="page" id="page-1">
-        <header>
-            <div class="logo-container">
-                <img src="https://i.ibb.co/b59ymkSn/z7842066828350-e1cc4348d2edce737e75825d74039fe0.jpg"
-                    alt="MATMOTMI Logo">
-            </div>
-            <div class="contract-title">
-                <h1>HỢP ĐỒNG DỊCH VỤ</h1>
-                <p>Số: <span contenteditable="true">_____/2026/HĐDV</span></p>
-            </div>
-            <div class="business-info">
-                MẮT MỘT MÍ<br>
-                <b>PHOTOSHORT & FILMING</b><br><br>
-                2645c/329 NGUYỄN VĂN LINH, BÀ RỊA, VIỆT NAM<br>
-                + 84 909 079 833<br>
-                DNRYHUNG@GMAIL.COM
-            </div>
-        </header>
+    <div class="pages-container">
+        <!-- PAGE 1 -->
+        <div class="page" id="page-1">
+            <header>
+                <div class="logo-container">
+                    <img src="https://i.ibb.co/b59ymkSn/z7842066828350-e1cc4348d2edce737e75825d74039fe0.jpg"
+                        alt="MATMOTMI Logo">
+                </div>
+                <div class="contract-title">
+                    <h1>HỢP ĐỒNG DỊCH VỤ</h1>
+                    <p>Số: <span contenteditable="true">_____/2026/HĐDV</span></p>
+                </div>
+                <div class="business-info">
+                    MẮT MỘT MÍ<br>
+                    <b>PHOTOSHORT & FILMING</b><br><br>
+                    2645c/329 NGUYỄN VĂN LINH, BÀ RỊA, VIỆT NAM<br>
+                    + 84 909 079 833<br>
+                    DNRYHUNG@GMAIL.COM
+                </div>
+            </header>
 
-        <section>
-            <h2>I. THÔNG TIN KHÁCH HÀNG</h2>
-            <table>
-                <tr>
-                    <td class="label-cell">Họ và Tên</td>
-                    <th>CHÚ RỂ</th>
-                    <th>CÔ DÂU</th>
-                </tr>
-                <tr>
-                    <td class="label-cell">Họ và Tên</td>
-                    <td class="data-cell" data-field="chu_re" contenteditable="true"></td>
-                    <td class="data-cell" data-field="co_dau" contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td class="label-cell">Địa chỉ</td>
-                    <td class="data-cell" data-field="dia_chi_cr" contenteditable="true"></td>
-                    <td class="data-cell" data-field="dia_chi_cd" contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td class="label-cell">Số ĐT</td>
-                    <td class="data-cell" data-field="sdt_chu_re" contenteditable="true"></td>
-                    <td class="data-cell" data-field="sdt_co_dau" contenteditable="true"></td>
-                </tr>
-            </table>
-        </section>
-
-        <section>
-            <h2>II. THÔNG TIN GÓI DỊCH VỤ</h2>
-            <div class="content-box" data-field="thong_tin_dich_vu" contenteditable="true"></div>
-        </section>
-
-        <section>
-            <h2>III. NỘI DUNG DỊCH VỤ</h2>
-            <table>
-                <thead>
+            <section>
+                <h2>I. THÔNG TIN KHÁCH HÀNG</h2>
+                <table>
                     <tr>
-                        <th style="width: 65%;">DỊCH VỤ</th>
-                        <th>GHI CHÚ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="long-text" data-field="dich_vu" contenteditable="true"></td>
-                        <td class="long-text" data-field="ghi_chu" contenteditable="true"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-    </div>
-
-    <!-- PAGE 2 -->
-    <div class="page" id="page-2">
-        <header>
-            <div class="logo-container">
-                <img src="https://i.ibb.co/b59ymkSn/z7842066828350-e1cc4348d2edce737e75825d74039fe0.jpg"
-                    alt="MATMOTMI Logo">
-            </div>
-            <div class="business-info">
-                MẮT MỘT MÍ<br>
-                <b>PHOTOSHORT & FILMING</b><br><br>
-                2645c/329 NGUYỄN VĂN LINH, BÀ RỊA, VIỆT NAM<br>
-                + 84 909 079 833<br>
-                DNRYHUNG@GMAIL.COM
-            </div>
-        </header>
-
-        <section>
-            <h2>III. PHƯƠNG THỨC THANH TOÁN</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>NGÀY</th>
-                        <th>THANH TOÁN</th>
-                        <th>Ghi chú</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 1</td>
-                        <td class="data-cell" data-field="thanh_toan_lan_1" contenteditable="true"></td>
-                        <td class="data-cell" data-field="ghi_chu_thanh_toan_1" contenteditable="true"></td>
+                        <td class="label-cell">Họ và Tên</td>
+                        <th>CHÚ RỂ</th>
+                        <th>CÔ DÂU</th>
                     </tr>
                     <tr>
-                        <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 2</td>
-                        <td class="data-cell" data-field="thanh_toan_lan_2" contenteditable="true"></td>
-                        <td class="data-cell" data-field="ghi_chu_thanh_toan_2" contenteditable="true"></td>
+                        <td class="label-cell">Họ và Tên</td>
+                        <td class="data-cell" data-field="chu_re" contenteditable="true"></td>
+                        <td class="data-cell" data-field="co_dau" contenteditable="true"></td>
                     </tr>
                     <tr>
-                        <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 3</td>
-                        <td class="data-cell" data-field="thanh_toan_lan_3" contenteditable="true"></td>
-                        <td class="data-cell" data-field="ghi_chu_thanh_toan_3" contenteditable="true"></td>
+                        <td class="label-cell">Địa chỉ</td>
+                        <td class="data-cell" data-field="dia_chi_cr" contenteditable="true"></td>
+                        <td class="data-cell" data-field="dia_chi_cd" contenteditable="true"></td>
                     </tr>
-                </tbody>
-            </table>
-        </section>
+                    <tr>
+                        <td class="label-cell">Số ĐT</td>
+                        <td class="data-cell" data-field="sdt_chu_re" contenteditable="true"></td>
+                        <td class="data-cell" data-field="sdt_co_dau" contenteditable="true"></td>
+                    </tr>
+                </table>
+            </section>
 
-        <section>
-            <h2>IV. ĐIỀU KHOẢN RÀNG BUỘC</h2>
-            <div class="terms" contenteditable="true">
-                <p><b>1. Trách nhiệm của Bên A (Khách hàng)</b></p>
-                <p>Cung cấp đầy đủ thông tin về thời gian, địa điểm và các yêu cầu đặc biệt trước ít nhất 07 ngày làm
-                    việc. Thanh toán đúng tiến độ như thỏa thuận trong hợp đồng. Không thay đổi lịch trình vào phút
-                    chót. Nếu có thay đổi, phải thông báo cho bên B ít nhất 72 giờ trước thời điểm diễn ra sự kiện. Nếu
-                    trễ hơn, bên B có quyền thu phụ phí hoặc từ chối thực hiện. Trường hợp hủy hợp đồng sau khi đã đặt
-                    cọc: Bên A mất toàn bộ tiền cọc.</p>
+            <section>
+                <h2>II. THÔNG TIN GÓI DỊCH VỤ</h2>
+                <div class="content-box" data-field="thong_tin_dich_vu" contenteditable="true"></div>
+            </section>
 
-                <p><b>2. Trách nhiệm của Bên B (MATMOTMI Photography)</b></p>
-                <p>Cung cấp đầy đủ nhân sự và thiết bị theo đúng nội dung hợp đồng đã ký. Bảo đảm chất lượng hình ảnh và
-                    video theo đúng cam kết: số lượng ảnh, độ sắc nét, nội dung quay/chụp. Giao toàn bộ sản phẩm đúng
-                    thời hạn: Ảnh preview: trong vòng 5 ngày làm việc. Full ảnh chỉnh sửa + video: trong vòng 20 ngày
-                    làm việc sau ngày cưới cuối cùng. Trường hợp bên B không thực hiện đúng cam kết hoặc giao trễ hơn 10
-                    ngày so với cam kết: phải giảm 5% tổng giá trị hợp đồng.</p>
+            <section>
+                <h2>III. NỘI DUNG DỊCH VỤ</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 65%;">DỊCH VỤ</th>
+                            <th>GHI CHÚ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="long-text" data-field="dich_vu" contenteditable="true"></td>
+                            <td class="long-text" data-field="ghi_chu" contenteditable="true"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
 
-                <p><b>3. Trường hợp bất khả kháng</b></p>
-                <p>Hai bên không chịu trách nhiệm khi việc thực hiện hợp đồng bị ảnh hưởng bởi các sự kiện bất khả kháng
-                    như: thiên tai, dịch bệnh, chiến tranh, cấm vận... Trong trường hợp này, hai bên sẽ cùng thương
-                    lượng để dời lịch hoặc điều chỉnh hợp đồng.</p>
+        <!-- PAGE 2 -->
+        <div class="page" id="page-2">
+            <header>
+                <div class="logo-container">
+                    <img src="https://i.ibb.co/b59ymkSn/z7842066828350-e1cc4348d2edce737e75825d74039fe0.jpg"
+                        alt="MATMOTMI Logo">
+                </div>
+                <div class="business-info">
+                    MẮT MỘT MÍ<br>
+                    <b>PHOTOSHORT & FILMING</b><br><br>
+                    2645c/329 NGUYỄN VĂN LINH, BÀ RỊA, VIỆT NAM<br>
+                    + 84 909 079 833<br>
+                    DNRYHUNG@GMAIL.COM
+                </div>
+            </header>
 
-                <p><b>4. Giải quyết tranh chấp</b></p>
-                <p>Mọi tranh chấp phát sinh trong quá trình thực hiện hợp đồng sẽ được ưu tiên giải quyết bằng thương
-                    lượng. Nếu không đạt được thỏa thuận, vụ việc sẽ được đưa ra Tòa án nhân dân có thẩm quyền tại nơi
-                    Bên B đăng ký kinh doanh để giải quyết theo pháp luật.</p>
-            </div>
-        </section>
+            <section>
+                <h2>III. PHƯƠNG THỨC THANH TOÁN</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NGÀY</th>
+                            <th>THANH TOÁN</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 1</td>
+                            <td class="data-cell" data-field="thanh_toan_lan_1" contenteditable="true"></td>
+                            <td class="data-cell" data-field="ghi_chu_thanh_toan_1" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 2</td>
+                            <td class="data-cell" data-field="thanh_toan_lan_2" contenteditable="true"></td>
+                            <td class="data-cell" data-field="ghi_chu_thanh_toan_2" contenteditable="true"></td>
+                        </tr>
+                        <tr>
+                            <td class="data-cell" contenteditable="true">THANH TOÁN LẦN 3</td>
+                            <td class="data-cell" data-field="thanh_toan_lan_3" contenteditable="true"></td>
+                            <td class="data-cell" data-field="ghi_chu_thanh_toan_3" contenteditable="true"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-        <div class="signature-area">
-            <div class="sig-box">
-                <b>KHÁCH HÀNG</b>
-                <span class="sig-note">(Ký và ghi rõ họ tên)</span>
-                <div class="sig-name" contenteditable="true"></div>
-            </div>
-            <div class="sig-box">
-                <b>NGƯỜI NHẬN</b>
-                <span class="sig-note">(Ký và ghi rõ họ tên)</span>
-                <div class="sig-name" contenteditable="true">TRẦN VŨ THANH HÙNG</div>
+            <section>
+                <h2>IV. ĐIỀU KHOẢN RÀNG BUỘC</h2>
+                <div class="terms" contenteditable="true">
+                    <p><b>1. Trách nhiệm của Bên A (Khách hàng)</b></p>
+                    <p>Cung cấp đầy đủ thông tin về thời gian, địa điểm và các yêu cầu đặc biệt trước ít nhất 07 ngày
+                        làm
+                        việc. Thanh toán đúng tiến độ như thỏa thuận trong hợp đồng. Không thay đổi lịch trình vào phút
+                        chót. Nếu có thay đổi, phải thông báo cho bên B ít nhất 72 giờ trước thời điểm diễn ra sự kiện.
+                        Nếu
+                        trễ hơn, bên B có quyền thu phụ phí hoặc từ chối thực hiện. Trường hợp hủy hợp đồng sau khi đã
+                        đặt
+                        cọc: Bên A mất toàn bộ tiền cọc.</p>
+
+                    <p><b>2. Trách nhiệm của Bên B (MATMOTMI Photography)</b></p>
+                    <p>Cung cấp đầy đủ nhân sự và thiết bị theo đúng nội dung hợp đồng đã ký. Bảo đảm chất lượng hình
+                        ảnh và
+                        video theo đúng cam kết: số lượng ảnh, độ sắc nét, nội dung quay/chụp. Giao toàn bộ sản phẩm
+                        đúng
+                        thời hạn: Ảnh preview: trong vòng 5 ngày làm việc. Full ảnh chỉnh sửa + video: trong vòng 20
+                        ngày
+                        làm việc sau ngày cưới cuối cùng. Trường hợp bên B không thực hiện đúng cam kết hoặc giao trễ
+                        hơn 10
+                        ngày so với cam kết: phải giảm 5% tổng giá trị hợp đồng.</p>
+
+                    <p><b>3. Trường hợp bất khả kháng</b></p>
+                    <p>Hai bên không chịu trách nhiệm khi việc thực hiện hợp đồng bị ảnh hưởng bởi các sự kiện bất khả
+                        kháng
+                        như: thiên tai, dịch bệnh, chiến tranh, cấm vận... Trong trường hợp này, hai bên sẽ cùng thương
+                        lượng để dời lịch hoặc điều chỉnh hợp đồng.</p>
+
+                    <p><b>4. Giải quyết tranh chấp</b></p>
+                    <p>Mọi tranh chấp phát sinh trong quá trình thực hiện hợp đồng sẽ được ưu tiên giải quyết bằng
+                        thương
+                        lượng. Nếu không đạt được thỏa thuận, vụ việc sẽ được đưa ra Tòa án nhân dân có thẩm quyền tại
+                        nơi
+                        Bên B đăng ký kinh doanh để giải quyết theo pháp luật.</p>
+                </div>
+            </section>
+
+            <div class="signature-area">
+                <div class="sig-box">
+                    <b>KHÁCH HÀNG</b>
+                    <span class="sig-note">(Ký và ghi rõ họ tên)</span>
+                    <div class="sig-name" contenteditable="true"></div>
+                </div>
+                <div class="sig-box">
+                    <b>NGƯỜI NHẬN</b>
+                    <span class="sig-note">(Ký và ghi rõ họ tên)</span>
+                    <div class="sig-name" contenteditable="true">TRẦN VŨ THANH HÙNG</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        function toggleSideBySide() {
+            document.body.classList.toggle('side-by-side');
+            const btn = document.getElementById('toggleViewBtn');
+            if (document.body.classList.contains('side-by-side')) {
+                btn.innerHTML = '📄 XEM DỌC';
+            } else {
+                btn.innerHTML = '📖 XEM SONG SONG';
+            }
+        }
+
         function saveDraft() {
             const data = document.body.innerHTML;
             localStorage.setItem('matmotmi_draft', data);
