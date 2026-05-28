@@ -551,6 +551,8 @@
             try {
                 // Thay thế dấu + bằng khoảng trắng trước khi decode (chuẩn URL)
                 let decoded = str.replace(/\+/g, ' ');
+                // Sửa lỗi: Thay thế % không hợp lệ (không có 2 ký tự hex theo sau) thành %25 để tránh lỗi URI malformed
+                decoded = decoded.replace(/%(?![0-9a-fA-F]{2})/g, '%25');
                 // Thực hiện decode. Nếu vẫn còn ký tự % và không lỗi, thử decode thêm lần nữa 
                 // (đề phòng trường hợp bị double-encode do các ứng dụng mobile/social)
                 try {
@@ -568,8 +570,19 @@
         }
 
         function getContractDataFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            const queryData = params.get('data') || params.get('d');
+            const search = window.location.search;
+            let queryData = '';
+            
+            // Lấy toàn bộ chuỗi sau ?data= hoặc ?d= để không bị cắt bởi dấu & nếu nó không được encode
+            if (search.startsWith('?data=')) {
+                queryData = search.substring(6);
+            } else if (search.startsWith('?d=')) {
+                queryData = search.substring(3);
+            } else {
+                const params = new URLSearchParams(search);
+                queryData = params.get('data') || params.get('d') || '';
+            }
+            
             const hashData = window.location.hash ? window.location.hash.slice(1) : '';
             return queryData || hashData;
         }
