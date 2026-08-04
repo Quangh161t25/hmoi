@@ -15,7 +15,6 @@
             --text-muted: #666666;
             --accent-color: #000000;
             --border-color: #000000;
-            /* Đổi sang màu đen rõ hơn để dễ nhìn khi in */
         }
 
         * {
@@ -36,9 +35,12 @@
             top: 20px;
             right: 20px;
             z-index: 1000;
+            display: flex;
+            gap: 10px;
         }
 
-        #print-btn {
+        #print-btn,
+        #test-btn {
             background: #000;
             color: #fff;
             border: none;
@@ -47,13 +49,26 @@
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
         }
 
-        /* Định dạng khổ giấy A4 */
+        #print-btn:hover,
+        #test-btn:hover {
+            transform: scale(1.05);
+            background: #333;
+        }
+
+        #test-btn {
+            background: #0066cc;
+        }
+
+        #test-btn:hover {
+            background: #0052a3;
+        }
+
         .page {
             width: 210mm;
             height: 297mm;
-            /* Cố định chiều cao trang để không bị tràn */
             padding: 15mm;
             margin: 10px auto;
             background: white;
@@ -79,6 +94,20 @@
             }
         }
 
+        .header-info {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+        }
+
+        .header-info .date {
+            font-weight: 400;
+            color: #555;
+        }
+
         .dual-table-container {
             display: flex;
             justify-content: space-between;
@@ -88,7 +117,6 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-            /* Cố định chiều rộng cột */
         }
 
         th,
@@ -97,7 +125,6 @@
             padding: 5px;
             vertical-align: middle;
             height: 48px;
-            /* Cố định chiều cao hàng để chống lệch dòng */
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -136,12 +163,54 @@
             text-align: center;
             margin-top: 100px;
             color: #999;
+            font-size: 18px;
+        }
+
+        .error-state {
+            text-align: center;
+            margin-top: 80px;
+            color: #cc0000;
+            font-size: 16px;
+            padding: 20px;
+            background: #fff0f0;
+            border-radius: 8px;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .error-state pre {
+            text-align: left;
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 200px;
+        }
+
+        .total-count {
+            text-align: right;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #ddd;
+        }
+
+        @media print {
+            .total-count {
+                position: absolute;
+                bottom: 15mm;
+                right: 15mm;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="no-print-zone">
+        <button id="test-btn" onclick="loadSampleData()">Dữ liệu mẫu</button>
         <button id="print-btn" onclick="window.print()">In PDF</button>
     </div>
 
@@ -150,90 +219,459 @@
     </div>
 
     <script>
-        function parseAndRender() {
+        // Hàm parse dữ liệu từ URL - CẢI TIẾN
+        function parseDataFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            let rawData = urlParams.get('data');
-            if (!rawData && window.location.search) {
-                rawData = decodeURIComponent(window.location.search.substring(1));
+            let date = '';
+            let items = [];
+
+            // Lấy tất cả các tham số
+            const allParams = {};
+            for (const [key, value] of urlParams.entries()) {
+                allParams[key] = value;
             }
 
-            if (!rawData) {
-                document.getElementById('main-content').innerHTML = '<div class="page"><div class="empty-state">Dữ liệu trống</div></div>';
+            // Tham số 'data' có thể chứa cả date và danh sách hoa
+            if (allParams.data) {
+                const dataValue = allParams.data;
+                // Tách date và danh sách hoa (ngăn cách bởi '&')
+                const parts = dataValue.split('&');
+                if (parts.length >= 2) {
+                    date = parts[0].trim();
+                    // Phần còn lại là danh sách hoa
+                    const flowerPart = parts.slice(1).join('&');
+                    items = parseFlowerList(flowerPart);
+                } else {
+                    // Nếu không có '&', thử parse trực tiếp
+                    const match = dataValue.match(/^([^&]+)&(.+)$/);
+                    if (match) {
+                        date = match[1].trim();
+                        items = parseFlowerList(match[2]);
+                    } else {
+                        // Thử xem có phải toàn bộ là danh sách hoa không
+                        items = parseFlowerList(dataValue);
+                    }
+                }
+            }
+
+            // Nếu không có tham số 'data', thử lấy từ các tham số khác
+            if (items.length === 0) {
+                // Kiểm tra tham số đầu tiên có phải là ngày không
+                const firstKey = Object.keys(allParams)[0];
+                if (firstKey && !firstKey.includes('data')) {
+                    date = firstKey;
+                    const flowerValue = allParams[firstKey];
+                    if (flowerValue) {
+                        items = parseFlowerList(flowerValue);
+                    }
+                }
+            }
+
+            return { date, items };
+        }
+
+        // Hàm parse danh sách hoa - CẢI TIẾN
+        function parseFlowerList(str) {
+            if (!str) return [];
+
+            // Giải mã URL encoding
+            let decoded = str;
+            try {
+                decoded = decodeURIComponent(str);
+            } catch (e) {
+                // Nếu không decode được, giữ nguyên
+            }
+
+            // Loại bỏ khoảng trắng thừa và các ký tự lạ
+            let clean = decoded
+                .replace(/\s*,\s*/g, ',') // Xóa khoảng trắng quanh dấu phẩy
+                .replace(/\s*\|\s*/g, '|') // Xóa khoảng trắng quanh dấu |
+                .replace(/\s+/g, ' ') // Chuẩn hóa khoảng trắng
+                .trim();
+
+            // Nếu chuỗi bắt đầu bằng '?', loại bỏ
+            if (clean.startsWith('?')) {
+                clean = clean.substring(1);
+            }
+
+            // Tách các item
+            const items = [];
+            const parts = clean.split(',');
+
+            for (const part of parts) {
+                if (!part.trim()) continue;
+
+                // Tìm dấu | cuối cùng để tách tên và số lượng
+                const lastPipeIndex = part.lastIndexOf('|');
+                let name = part;
+                let qty = '0';
+
+                if (lastPipeIndex !== -1) {
+                    name = part.substring(0, lastPipeIndex).trim();
+                    qty = part.substring(lastPipeIndex + 1).trim();
+                }
+
+                // Nếu name chứa '|', giữ nguyên (trường hợp có nhiều dấu |)
+                if (name.includes('|')) {
+                    // Lấy phần sau dấu | cuối cùng làm số lượng
+                    const parts2 = name.split('|');
+                    name = parts2.slice(0, -1).join('|').trim();
+                    qty = parts2[parts2.length - 1].trim();
+                }
+
+                // Làm sạch số lượng
+                const cleanQty = qty.replace(/[^0-9.]/g, '');
+                const qtyNumber = parseFloat(cleanQty) || 0;
+
+                if (name && name.length > 0) {
+                    items.push({
+                        name: name,
+                        qty: cleanQty || '0',
+                        qtyNumber: qtyNumber
+                    });
+                }
+            }
+
+            return items;
+        }
+
+        // Hàm render dữ liệu
+        function renderData(date, items) {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = '';
+
+            // Sắp xếp giảm dần theo số lượng
+            items.sort((a, b) => b.qtyNumber - a.qtyNumber);
+
+            // Lọc bỏ item có số lượng = 0 (tùy chọn)
+            const filteredItems = items.filter(item => item.qtyNumber > 0);
+
+            if (filteredItems.length === 0) {
+                mainContent.innerHTML = `
+                    <div class="page">
+                        <div class="empty-state">
+                            <p>📋 Không có dữ liệu hoa</p>
+                            <p style="font-size:14px;color:#aaa;margin-top:10px;">
+                                ${items.length > 0 ? 'Tất cả hoa đều có số lượng = 0' : 'Vui lòng kiểm tra lại URL'}
+                            </p>
+                        </div>
+                    </div>
+                `;
                 return;
             }
 
-            try {
-                const cleanedData = rawData.trim().replace(/\.$/, '');
-                const parts = cleanedData.split('&');
-                const itemsRaw = parts.length > 1 ? parts[1].trim() : parts[0].trim();
+            const ROWS_PER_PAGE = 20;
+            const ITEMS_PER_PAGE = ROWS_PER_PAGE * 2;
+            const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
 
-                const items = itemsRaw.split(',').map(item => {
-                    const [name, qty] = item.split('|');
-                    const cleanQty = (qty || '0').trim();
-                    return {
-                        name: (name || '').trim(),
-                        qty: cleanQty,
-                        qtyNumber: parseFloat(cleanQty.replace(/\./g, '').replace(/,/g, '.')) || 0
-                    };
-                }).filter(item => item.name.length > 0);
+            for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+                const start = pageIndex * ITEMS_PER_PAGE;
+                const pageItems = filteredItems.slice(start, start + ITEMS_PER_PAGE);
+                const leftColItems = pageItems.slice(0, ROWS_PER_PAGE);
+                const rightColItems = pageItems.slice(ROWS_PER_PAGE, ITEMS_PER_PAGE);
 
-                // Sắp xếp giảm dần theo số lượng
-                items.sort((a, b) => b.qtyNumber - a.qtyNumber);
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page';
 
-                const ROWS_PER_PAGE = 20; // Đổi thành 20 dòng
-                const ITEMS_PER_PAGE = ROWS_PER_PAGE * 2;
+                let rowsHtml = '';
+                for (let r = 0; r < ROWS_PER_PAGE; r++) {
+                    const left = leftColItems[r];
+                    const right = rightColItems[r];
 
-                const mainContent = document.getElementById('main-content');
-                mainContent.innerHTML = '';
+                    // STT toàn cục
+                    const leftStt = left ? start + r + 1 : '';
+                    const rightStt = right ? start + ROWS_PER_PAGE + r + 1 : '';
 
-                for (let i = 0; i < items.length; i += ITEMS_PER_PAGE) {
-                    const pageItems = items.slice(i, i + ITEMS_PER_PAGE);
-                    const leftColItems = pageItems.slice(0, ROWS_PER_PAGE);
-                    const rightColItems = pageItems.slice(ROWS_PER_PAGE, ITEMS_PER_PAGE);
+                    const leftCell = left ?
+                        `<td class="col-stt">${leftStt}</td><td class="col-ten">${left.name}</td><td class="col-sl">${left.qty}</td>` :
+                        `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
 
-                    const pageDiv = document.createElement('div');
-                    pageDiv.className = 'page';
+                    const rightCell = right ?
+                        `<td class="col-stt">${rightStt}</td><td class="col-ten">${right.name}</td><td class="col-sl">${right.qty}</td>` :
+                        `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
 
-                    let rowsHtml = '';
-                    for (let r = 0; r < ROWS_PER_PAGE; r++) {
-                        const left = leftColItems[r];
-                        const right = rightColItems[r];
-
-                        const leftCell = left
-                            ? `<td class="col-stt">${i + r + 1}</td><td class="col-ten">${left.name}</td><td class="col-sl">${left.qty}</td>`
-                            : `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
-
-                        const rightCell = right
-                            ? `<td class="col-stt">${i + ROWS_PER_PAGE + r + 1}</td><td class="col-ten">${right.name}</td><td class="col-sl">${right.qty}</td>`
-                            : `<td class="col-stt"></td><td class="col-ten"></td><td class="col-sl"></td>`;
-
-                        rowsHtml += `<tr>${leftCell}<td class="spacer"></td>${rightCell}</tr>`;
-                    }
-
-                    pageDiv.innerHTML = `
-                        <div class="dual-table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th class="col-stt">STT</th><th class="col-ten">TÊN HOA</th><th class="col-sl">SL</th>
-                                        <th class="spacer"></th>
-                                        <th class="col-stt">STT</th><th class="col-ten">TÊN HOA</th><th class="col-sl">SL</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${rowsHtml}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-                    mainContent.appendChild(pageDiv);
+                    rowsHtml += `<tr>${leftCell}<td class="spacer"></td>${rightCell}</tr>`;
                 }
 
-            } catch (e) {
-                document.getElementById('main-content').innerHTML = '<div class="page"><div class="empty-state">Lỗi xử lý dữ liệu</div></div>';
+                // Hiển thị ngày trên mỗi trang
+                const dateDisplay = date ? ` - Ngày: ${date}` : '';
+
+                pageDiv.innerHTML = `
+                    <div class="header-info">
+                        DANH SÁCH HOA TRONG NGÀY${dateDisplay}
+                    </div>
+                    <div class="dual-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-stt">STT</th><th class="col-ten">TÊN HOA</th><th class="col-sl">SL</th>
+                                    <th class="spacer"></th>
+                                    <th class="col-stt">STT</th><th class="col-ten">TÊN HOA</th><th class="col-sl">SL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="total-count">
+                        Tổng: ${filteredItems.length} loại hoa | Trang ${pageIndex + 1}/${totalPages}
+                    </div>
+                `;
+                mainContent.appendChild(pageDiv);
             }
         }
 
+        // Hàm chính - parse và render
+        function parseAndRender() {
+            try {
+                const { date, items } = parseDataFromURL();
+
+                // Nếu không có dữ liệu, thử lấy từ các tham số khác (fallback)
+                if (items.length === 0) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    // Thử lấy tất cả các tham số và ghép lại
+                    let allData = '';
+                    for (const [key, value] of urlParams.entries()) {
+                        if (key === 'data') continue;
+                        allData += key + '=' + value + '&';
+                    }
+                    if (allData) {
+                        allData = allData.slice(0, -1);
+                        const decoded = decodeURIComponent(allData);
+                        const parts = decoded.split('&');
+                        if (parts.length >= 2) {
+                            const flowerPart = parts.slice(1).join('&');
+                            const parsedItems = parseFlowerList(flowerPart);
+                            if (parsedItems.length > 0) {
+                                renderData(parts[0], parsedItems);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                renderData(date, items);
+
+            } catch (e) {
+                console.error('Lỗi:', e);
+                document.getElementById('main-content').innerHTML = `
+                    <div class="page">
+                        <div class="error-state">
+                            <h3>⚠️ Lỗi xử lý dữ liệu</h3>
+                            <p>${e.message}</p>
+                            <pre>${e.stack}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Tải dữ liệu mẫu để test
+        function loadSampleData() {
+            const sampleFlowers = [
+                ['CÚC MẪU ĐƠN TRẮNG', 5],
+                ['CÚC MẪU ĐƠN CAM', 2],
+                ['CÚC MẪU ĐƠN ĐỎ', 2],
+                ['CÚC MẪU ĐƠN HỒNG NHẠT', 5],
+                ['ĐỒNG TIỀN NHÍ HỒNG NHỤY ĐEN', 4],
+                ['ĐỒNG TIỀN NHÍ HỒNG NHẠT', 8],
+                ['ĐỒNG TIỀN NHÍ TRẮNG', 10],
+                ['ĐỒNG TIỀN NHÍ CAM', 2],
+                ['WICKY', 7],
+                ['MÔM SÓI VÀNG', 4],
+                ['MÕM SÓI TRẮNG', 2],
+                ['LY KÉP TRẮNG', 1],
+                ['LY KÉP HỒNG', 0],
+                ['CỎ ĐỒNG TIỀN', 5],
+                ['VŨ NỮ', 5],
+                ['CÁT TƯỜNG XANH', 3],
+                ['CÁT TƯỜNG TRẮNG', 0],
+                ['CÁT TƯỜNG HỒNG', 3],
+                ['PINGPONG TRẮNG', 3],
+                ['THƯỢC DƯỢC ĐỎ', 5],
+                ['DOLA', 5],
+                ['TIỂU DELPHI XANH NHẠT', 10],
+                ['CÚC TANA', 9],
+                ['CÚC XANH', 0],
+                ['CẨM TÚ CẦU HỒNG', 5],
+                ['ĐỒNG TIỀN NHÍ HỒNG', 4],
+                ['LY KÉP AISHA', 0],
+                ['MÔN TRẮNG B', 5],
+                ['CALALILY HỒNG NHẠT', 10],
+                ['CALALILY TRẮNG', 1],
+                ['PHI YẾN TRẮNG', 2],
+                ['OHARA HỒNG', 3],
+                ['LÁ JASSMINE', 2],
+                ['MÔM SÓI HỔ', 1],
+                ['PHĂNG CHÙM BABY', 1],
+                ['THIÊN ĐIỀU', 3],
+                ['VICTORIA VÀNG', 4],
+                ['THƯỢC DƯỢC MIX MÀU', 0],
+                ['SAO XANH', 9],
+                ['PHĂNG TRẮNG', 1],
+                ['DƠN LỬA', 1],
+                ['LÁ TUYẾT MAI', 4],
+                ['LAY ƠN TRẮNG', 0],
+                ['LAY ƠN CAM', 1],
+                ['MAO LƯƠNG TRẮNG', 0],
+                ['CÁT TƯỜNG XOĂN TÍM', 0],
+                ['ALIMIUM TÍM XOĂN', 0],
+                ['CLEMATIS', 1],
+                ['CALALILY HỒNG ĐẬM', 0],
+                ['CALALILY ĐỎ', 12],
+                ['TIỂU DELPHI HỒNG', 0],
+                ['TIỂU DELPHI XANH ĐẬM', 6],
+                ['TIỂU DELPHI TRẮNG', 10],
+                ['ĐỒNG TIỀN XOĂN XANH', 0],
+                ['ĐỒNG TIỀN XOĂN CAM ĐÀO', 0],
+                ['ĐỒNG TIỀN XOĂN HỒNG', 0],
+                ['ROSSI CAM', 7],
+                ['CÚC ROSSI HỒNG', 15],
+                ['POPPY', 0],
+                ['REN CÀ RỐT', 0],
+                ['THUỶ TIÊN VÀNG', 21],
+                ['ĐỒNG TIỀN TUA HỒNG NHẠT', 0],
+                ['ĐỒNG TIỀN TUA TRẮNG', 1],
+                ['ĐỊA LAN XANH', 5],
+                ['MĂNG TÂY', 8],
+                ['PHI YẾN HỒNG', 1],
+                ['PHĂNG CHÙM HỒNG VIỀN TRẮNG', 2],
+                ['PHĂNG CHÙM SAO', 2],
+                ['ĐỒNG TIỀN TUA HỒNG', 4],
+                ['PHĂNG CHÙM HỒNG ĐẬM', 1],
+                ['PHĂNG CHÙM HỒNG', 9],
+                ['THUỶ TIÊN TRẮNG', 2],
+                ['CỎ SUỐI', 1],
+                ['CỎ NẾN', 70],
+                ['TÙNG NHO', 12],
+                ['LAN CHI XANH', 4],
+                ['BÒN BON', 1],
+                ['OHARA ĐỎ', 2],
+                ['ĐỒNG TIỀN TUA ĐỎ', 4],
+                ['LY KÉP ĐỎ', 0],
+                ['SCABIOSA ĐỎ', 2],
+                ['SOPHIA', 1],
+                ['LY ĐỎ GẠO', 1],
+                ['LY TRẮNG VIỀN NÂU', 0],
+                ['THANH LIỆU TRẮNG', 3],
+                ['PHĂNG CHÙM HỒNG BABY', 3],
+                ['MÔN ĐỎ ĐẬM', 1],
+                ['MÔN TRẮNG C', 0],
+                ['PINGPONG CHÙM', 15],
+                ['PHĂNG XANH', 3],
+                ['PHI YẾN TRẮNG NHẬP', 1],
+                ['TÙNG HOÀNG KIM XANH', 0],
+                ['DƯƠNG SỈ D', 2],
+                ['CÁT TƯỜNG XOĂN XANH', 1],
+                ['THIÊN NGA', 2],
+                ['ĐỒNG TIỀN XOẮN VÀNG', 1],
+                ['KIM THỦY TÙNG', 1],
+                ['TRẮNG POW', 1],
+                ['SƠN TÙNG', 2],
+                ['LY KÉP SAMATHA', 2],
+                ['JULIBE', 3],
+                ['KEM DÂU', 6],
+                ['LÁ KIẾM', 3],
+                ['CẨM TÚ CẦU', 0],
+                ['PHĂNG CHÙM TRẮNG', 1],
+                ['PHĂNG HỒNG DÂU', 3],
+                ['PHĂNG HỒNG CAM', 1],
+                ['ĐỒNG TIỀN NHÍ HỒNG NHỤY XANH', 1],
+                ['ĐỎ ECU', 5],
+                ['CALALILY CAM', 4],
+                ['CAPUCHINO', 1],
+                ['HỒNG MANTA', 1],
+                ['LẠC THẦN', 3],
+                ['OHARA VÀNG', 1],
+                ['PINK ROSE', 2],
+                ['TRẮNG CỔ', 2],
+                ['THẠCH THẢO TRẮNG', 6],
+                ['ĐỒNG TIỀN XOĂN CAPU', 3],
+                ['ĐỒNG TIỀN KÉP TRẮNG', 2],
+                ['ĐỒNG TIỀN NHÍ HỒNG ĐẬM', 4],
+                ['ĐỒNG TIỀN NHÍ ĐỎ', 2],
+                ['LY KÉP TRẮNG TÂM VÀNG', 4],
+                ['LY KÉP VÀNG', 1],
+                ['LY KÉP HỒNG NHẠT', 2],
+                ['BIBI', 1],
+                ['LÁ ĐỎ', 1],
+                ['THUỶ CHÂU', 4],
+                ['PHI YẾN', 3],
+                ['LÁ PHÁT TÀI', 5],
+                ['CÁT TƯỜNG XOĂN', 0],
+                ['CÁT TƯỜNG XOĂN TRẮNG', 1],
+                ['CÁT TƯỜNG XOĂN HỒNG PHỚT', 2],
+                ['CÁT TƯỜNG XOĂN HỒNG KEM', 1],
+                ['TÚ CẦU BƠ', 10],
+                ['TÚ CẦU TRẮNG', 10],
+                ['CẨM TÚ CẦU XANH DƯƠNG', 10],
+                ['LY KÉP KADANGO', 7],
+                ['LY KÉP DIANTHA', 8],
+                ['LY ANOSSKA', 10],
+                ['CALALILY', 3],
+                ['THANH LIỆU CAM', 2],
+                ['THANH LIỆU VÀNG', 0],
+                ['THANH LIỆU ĐỎ', 2],
+                ['CÁT TƯỜNG ĐỎ', 1],
+                ['HOÀNG ANH', 2],
+                ['THẠCH THẢO TÍM', 2],
+                ['ĐỒNG TIỀN LỚN ĐỎ', 0],
+                ['ĐỒNG TIỀN LỚN VÀNG', 2],
+                ['ĐỒNG TIỀN LỚN HỒNG', 2],
+                ['ĐỒNG TIỀN LỚN CAM', 2],
+                ['ĐỒNG TIỀN LỚN SONG HỔ', 0],
+                ['CẨM CHÙM XANH', 0],
+                ['CẨM CHÙM HỒNG NHẠT', 2],
+                ['CÁT TƯỜNG TRẮNG THƯỜNG', 0],
+                ['CẨM CHÙM ĐỎ', 2],
+                ['PHĂNG DÂU', 1],
+                ['CẨM CHÙM TÍM', 1],
+                ['TIỂU DELPHI', 0],
+                ['LAM TINH', 1],
+                ['LY KÉP VIOLA', 1],
+                ['CẨM CHÙM HỒNG VIỀN TRẮNG', 1],
+                ['PHĂNG HỒNG ĐẬM', 2],
+                ['PHĂNG HỒNG NHẠT', 2],
+                ['THỦY TIÊN', 5],
+                ['CÚC NHẬT LỚN', 5],
+                ['DƯƠNG SỈ PHÁP', 0],
+                ['HOA HỒNG CAM', 2],
+                ['TÙNG NHO NHỎ', 5],
+                ['LÁ QUẾ', 6],
+                ['LÁ LAN', 2],
+                ['ĐỒNG TIỀN TUA CAM', 2],
+                ['CÚC MẪU ĐƠN CAM', 2],
+                ['MÔM SÓI TRẮNG', 4],
+                ['ĐỒNG TIỀN NHÍ GÀ', 3],
+                ['WICKY', 7],
+                ['LY KÉP TRẮNG AISHA', 2],
+                ['DELPHIN TRẮNG', 1],
+                ['CÚC NHẬT NHÍ', 1],
+                ['HỒ ĐIỆP', 2],
+                ['DOLA NHÍ', 1],
+                ['LÁ TRÀM ĐỎ', 1],
+                ['SEN TRẮNG', 0],
+                ['THUỶ TIÊN CAM', 3],
+                ['VŨ NỮ B', 1],
+                ['CALALILY VÀNG', 2],
+                ['DƯƠNG SỈ', 2],
+                ['LY KÉP RIHANA', 1],
+                ['CÁT TƯỜNG HỒNG PHỚT', 1]
+            ];
+
+            // Tạo URL với dữ liệu mẫu
+            const date = new Date().toLocaleDateString('vi-VN');
+            const flowerStr = sampleFlowers.map(([name, qty]) => `${name}|${qty}`).join(',');
+            const encodedFlowers = encodeURIComponent(flowerStr);
+            const newUrl = window.location.pathname + '?data=' + encodeURIComponent(date) + '&' + encodedFlowers;
+
+            // Cập nhật URL và reload
+            window.history.replaceState(null, '', newUrl);
+            parseAndRender();
+        }
+
+        // Tự động chạy khi load trang
         window.addEventListener('DOMContentLoaded', parseAndRender);
     </script>
 </body>
